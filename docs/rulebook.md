@@ -999,23 +999,6 @@ export const ConfirmDialog = ({ onConfirm }: Props) => (
 
 ---
 
-# ✅ FINAL ENFORCEMENT
-
-| Rule                               | Status    |
-| ---------------------------------- | --------- |
-| No deviation from patterns         | MANDATORY |
-| No shortcuts                       | MANDATORY |
-| No inconsistent naming             | MANDATORY |
-| No business logic in UI            | MANDATORY |
-| No raw DB calls in controllers     | MANDATORY |
-| No direct `useQuery` in components | MANDATORY |
-| No `getRepository()`               | MANDATORY |
-| No `console.log` in production     | MANDATORY |
-| No hardcoded route strings         | MANDATORY |
-| No `useState` per form field       | MANDATORY |
-
----
-
 ## 🚀 Final Note
 
 > Consistency > Creativity in this project.

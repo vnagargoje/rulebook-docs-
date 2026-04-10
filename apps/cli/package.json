@@ -1,0 +1,64 @@
+{
+    "name": "@yugo/cli",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "nest start --watch",
+        "start": "nest start",
+        "build": "nest build",
+        "lint": "eslint \"{src,test}/**/*.ts\"",
+        "clean": "rimraf dist"
+    },
+    "dependencies": {
+        "@countrystatecity/countries": "^1.0.5",
+        "@nestjs/common": "^11.0.1",
+        "@nestjs/config": "^4.0.4",
+        "@nestjs/core": "^11.0.1",
+        "@nestjs/typeorm": "^11.0.1",
+        "@sqltools/formatter": "^1.2.5",
+        "@yugo/nestjs-database": "workspace:*",
+        "@yugo/utils": "workspace:*",
+        "chalk": "^5.6.2",
+        "change-case": "^5.4.4",
+        "change-case-all": "^2.1.0",
+        "inquirer": "^13.4.1",
+        "inquirer-autocomplete-standalone": "^0.8.1",
+        "mysql2": "^3.21.0",
+        "nest-commander": "^3.12.0",
+        "reflect-metadata": "^0.2.2",
+        "rxjs": "^7.8.1",
+        "typeorm": "^0.3.28",
+        "typeorm-extension": "^3.9.0",
+        "ulid": "^3.0.2"
+    },
+    "devDependencies": {
+        "@nestjs/cli": "^11.0.0",
+        "@nestjs/schematics": "^11.0.0",
+        "@nestjs/testing": "^11.0.1",
+        "@types/cli-progress": "^3.11.6",
+        "@types/inquirer": "^9.0.9",
+        "@types/node": "^22.10.7",
+        "@yugo/eslint": "workspace:*",
+        "@yugo/tsconfig": "workspace:*",
+        "rimraf": "^5.0.5",
+        "source-map-support": "^0.5.21",
+        "typescript": "^5.7.3"
+    },
+    "jest": {
+        "moduleFileExtensions": [
+            "js",
+            "json",
+            "ts"
+        ],
+        "rootDir": "src",
+        "testRegex": ".*\\.spec\\.ts$",
+        "transform": {
+            "^.+\\.(t|j)s$": "ts-jest"
+        },
+        "collectCoverageFrom": [
+            "**/*.(t|j)s"
+        ],
+        "coverageDirectory": "../coverage",
+        "testEnvironment": "node"
+    }
+}

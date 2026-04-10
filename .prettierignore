@@ -1,0 +1,11 @@
+.turbo
+node_modules
+dist
+build
+.yarn
+.cache
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+ios
+android

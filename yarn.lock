@@ -8017,6 +8017,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@yugo/nestjs-database@workspace:packages/nestjs/database"
   dependencies:
+    "@yugo/shared": "workspace:*"
     "@yugo/tsconfig": "workspace:*"
     mysql2: "npm:^3.21.0"
     tsup: "npm:^8.0.0"

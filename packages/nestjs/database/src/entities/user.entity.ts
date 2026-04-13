@@ -1,10 +1,15 @@
-import { Column, Entity, Index, JoinTable, ManyToMany } from 'typeorm'
+import { Gender } from '@yugo/shared'
+import { Column, Entity, Index, JoinTable, ManyToMany, OneToMany } from 'typeorm'
+import { AddressEntity } from './address.entity.js'
 import { IdTimestamppedEntity } from './id-timestampped.entity.js'
 import { RoleEntity } from './role.entity.js'
+import { UserKycEntity } from './user-kyc.entity.js'
+import { StationEntity } from './station.entity.js'
 
 @Entity({ name: 'users' })
 @Index(['email', 'mobilenumber'])
 export class UserEntity extends IdTimestamppedEntity {
+    // Properties
     @Column('varchar', { nullable: true, unique: true })
     email: string
 
@@ -23,10 +28,28 @@ export class UserEntity extends IdTimestamppedEntity {
     @Column('varchar', { nullable: true })
     avatar: string
 
+    @Column('date', { nullable: true })
+    dateOfBirth: Date
+
+    @Column('enum', { enum: Gender, nullable: true })
+    gender: Gender
+
+    @Column('json', { nullable: true })
+    properties: any
+
     // Relations
-    @ManyToMany(() => RoleEntity, (role) => role.name, { cascade: true })
+    @ManyToMany(() => RoleEntity, (r) => r.name, { cascade: true })
     @JoinTable()
     roles: RoleEntity[]
+
+    @OneToMany(() => AddressEntity, (a) => a.user, { cascade: true })
+    addresses: AddressEntity[]
+
+    @OneToMany(() => UserKycEntity, (k) => k.user, { cascade: true })
+    kycs: UserKycEntity[]
+
+    @OneToMany(() => StationEntity, (s) => s.manager)
+    stations: StationEntity[]
 
     // CONSTANTS
     static PASSWORD_SALT_ROUNDS: number = 10

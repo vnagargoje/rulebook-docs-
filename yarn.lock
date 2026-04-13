@@ -7768,6 +7768,7 @@ __metadata:
     "@yugo/eslint": "workspace:*"
     "@yugo/nestjs-database": "workspace:*"
     "@yugo/nestjs-framework": "workspace:*"
+    "@yugo/shared": "workspace:*"
     "@yugo/tsconfig": "workspace:*"
     "@yugo/utils": "workspace:*"
     change-case: "npm:^5.4.4"
@@ -7925,6 +7926,7 @@ __metadata:
     "@types/node": "npm:^22.10.7"
     "@yugo/eslint": "workspace:*"
     "@yugo/nestjs-database": "workspace:*"
+    "@yugo/shared": "workspace:*"
     "@yugo/tsconfig": "workspace:*"
     "@yugo/utils": "workspace:*"
     chalk: "npm:^5.6.2"
@@ -7976,6 +7978,7 @@ __metadata:
     "@yugo/eslint": "workspace:*"
     "@yugo/nestjs-database": "workspace:*"
     "@yugo/nestjs-framework": "workspace:*"
+    "@yugo/shared": "workspace:*"
     "@yugo/tsconfig": "workspace:*"
     "@yugo/utils": "workspace:*"
     mysql2: "npm:^3.21.0"
@@ -8011,6 +8014,17 @@ __metadata:
     "@yugo/tsconfig": "workspace:*"
     reflect-metadata: "npm:^0.2.0"
     rxjs: "npm:^7.8.1"
+    tsup: "npm:^8.0.0"
+    typescript: "npm:^5.4.5"
+  languageName: unknown
+  linkType: soft
+
+"@yugo/shared@workspace:*, @yugo/shared@workspace:packages/shared/shared":
+  version: 0.0.0-use.local
+  resolution: "@yugo/shared@workspace:packages/shared/shared"
+  dependencies:
+    "@yugo/eslint": "workspace:*"
+    "@yugo/tsconfig": "workspace:*"
     tsup: "npm:^8.0.0"
     typescript: "npm:^5.4.5"
   languageName: unknown

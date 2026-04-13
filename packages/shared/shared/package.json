@@ -1,0 +1,23 @@
+{
+    "name": "@yugo/shared",
+    "version": "0.1.0",
+    "private": true,
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "default": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "lint": "eslint \"src/**/*.ts\""
+    },
+    "devDependencies": {
+        "@yugo/eslint": "workspace:*",
+        "@yugo/tsconfig": "workspace:*",
+        "tsup": "^8.0.0",
+        "typescript": "^5.4.5"
+    }
+}

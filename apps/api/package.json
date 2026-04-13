@@ -19,6 +19,7 @@
         "@sinclair/typebox": "^0.34.49",
         "@yugo/nestjs-database": "workspace:*",
         "@yugo/nestjs-framework": "workspace:*",
+        "@yugo/shared": "workspace:*",
         "@yugo/utils": "workspace:*",
         "change-case": "^5.4.4",
         "change-case-all": "^2.1.0",

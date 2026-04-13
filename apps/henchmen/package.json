@@ -16,6 +16,7 @@
         "@nestjs/typeorm": "^11.0.1",
         "@yugo/nestjs-database": "workspace:*",
         "@yugo/nestjs-framework": "workspace:*",
+        "@yugo/shared": "workspace:*",
         "@yugo/utils": "workspace:*",
         "mysql2": "^3.21.0",
         "reflect-metadata": "^0.2.2",

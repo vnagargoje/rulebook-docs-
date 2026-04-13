@@ -1,0 +1,20 @@
+{
+    "extends": "@yugo/tsconfig/nestjs.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "incremental": false,
+        "declaration": false,
+        "declarationMap": false,
+        "noEmit": true
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "node_modules",
+        "test",
+        "dist",
+        "**/*spec.ts"
+    ]
+}

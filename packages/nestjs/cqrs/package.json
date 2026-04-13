@@ -1,0 +1,37 @@
+{
+    "name": "@yugo/cqrs",
+    "version": "0.1.0",
+    "private": true,
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "default": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "dev": "yarn build --watch",
+        "build": "tsup",
+        "clean": "del-cli ./dist ./.turbo/"
+    },
+    "devDependencies": {
+        "@yugo/tsconfig": "workspace:*",
+        "del-cli": "^7.0.0",
+        "tsup": "^8.0.0",
+        "typescript": "^5.4.5"
+    },
+    "peerDependencies": {
+        "@nestjs/common": "*",
+        "@nestjs/config": "*",
+        "@nestjs/core": "*",
+        "@nestjs/cqrs": "^11.0.3",
+        "@nestjs/typeorm": "*",
+        "@yugo/nestjs-database": "workspace:*",
+        "@yugo/shared": "workspace:*",
+        "reflect-metadata": "*"
+    },
+    "dependencies": {
+        "@yugo/shared": "workspace:*",
+        "builder-pattern": "^2.2.0"
+    }
+}

@@ -8,7 +8,11 @@ import {
 } from 'nest-commander';
 import { DataSource } from 'typeorm';
 import { SeederConstructor, SeederExecutor } from 'typeorm-extension';
-import { CountryStateCitiesSeeder, RolesSeeder } from './seeders/index.js';
+import {
+    CountryStateCitiesSeeder,
+    DummyDataSeeder,
+    RolesSeeder,
+} from './seeders/index.js';
 
 @SubCommand({ name: 'seed' })
 export class SeedDbCommand extends CommandRunner {
@@ -25,29 +29,58 @@ export class SeedDbCommand extends CommandRunner {
         return Boolean(b);
     }
 
+    @Option({ flags: '--dummy-data [boolean]' })
+    parseDummyData(b: any) {
+        return Boolean(b);
+    }
+
     async run(_passedParams: string[], options?: Record<string, any>) {
-        const { initial = false } = options || {};
+        const { initial = false, dummyData = false } = options || {};
         try {
-            let seeds: SeederConstructor[] = [
+            const initialSeeds: SeederConstructor[] = [
                 RolesSeeder,
                 CountryStateCitiesSeeder,
             ];
+            const dummyDataSeeds: SeederConstructor[] = [
+                RolesSeeder,
+                DummyDataSeeder,
+            ];
+            const allSeeds: SeederConstructor[] = [
+                RolesSeeder,
+                CountryStateCitiesSeeder,
+                DummyDataSeeder,
+            ];
+            let seeds: SeederConstructor[] = allSeeds;
 
             if (!this.datasource.isInitialized) {
                 await this.datasource.initialize();
             }
 
-            if (!initial) {
+            if (initial || dummyData) {
+                seeds = [];
+
+                if (initial) {
+                    seeds.push(...initialSeeds);
+                }
+
+                if (dummyData) {
+                    for (const seed of dummyDataSeeds) {
+                        if (!seeds.includes(seed)) {
+                            seeds.push(seed);
+                        }
+                    }
+                }
+            } else {
                 // @ts-ignore
                 const inquirer = this.inquirer.inquirer as any;
                 const { seeds: seedsAnswer } = await inquirer.prompt({
                     name: 'seeds',
                     type: 'checkbox',
-                    choices: seeds.map((s) => s.name),
-                    default: seeds.map((s) => s.name),
+                    choices: allSeeds.map((s) => s.name),
+                    default: allSeeds.map((s) => s.name),
                 });
                 if (seedsAnswer.length) {
-                    seeds = seeds.filter((s) => seedsAnswer.includes(s.name));
+                    seeds = allSeeds.filter((s) => seedsAnswer.includes(s.name));
                 } else {
                     this.logger.log('No seeders selected. Exiting.');
                     return;

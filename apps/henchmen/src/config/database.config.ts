@@ -8,7 +8,7 @@ export const databaseConfig = registerAs(
         const env = process.env;
         return {
             type: 'mysql',
-            database: env['DATABASE_NAME'] ?? 'komark',
+            database: env['DATABASE_NAME'] ?? 'yugo',
             charset: 'utf8mb4_unicode_ci',
             connectorPackage: 'mysql2',
             entities: Object.values(entities),

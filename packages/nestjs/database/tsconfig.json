@@ -1,5 +1,5 @@
 {
-    "extends": "../../shared/tsconfig/nestjs.json",
+    "extends": "@yugo/tsconfig/nestjs.json",
     "compilerOptions": {
         "outDir": "./dist",
         "rootDir": "./src"

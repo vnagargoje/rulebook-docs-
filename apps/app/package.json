@@ -3,6 +3,9 @@
     "version": "0.1.0",
     "private": true,
     "packageManager": "yarn@4.6.0",
+    "installConfig": {
+        "hoistingLimits": "workspaces"
+    },
     "main": "expo-router/entry",
     "scripts": {
         "start": "expo start",

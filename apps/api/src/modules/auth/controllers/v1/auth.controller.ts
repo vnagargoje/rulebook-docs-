@@ -6,12 +6,14 @@ import {
     Inject,
     NotFoundException,
     Post,
+    UnauthorizedException,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import type { Static } from '@sinclair/typebox';
 import { RoleEntity, UserEntity } from '@yugo/nestjs-database/entities';
 import { Roles } from '@yugo/shared';
+import { compareSync } from 'bcrypt';
 import { DataSource } from 'typeorm';
 import { OTP_SERVICE } from '../../constants.js';
 import {
@@ -49,6 +51,9 @@ export class V1AuthController {
         });
         if (!user) {
             throw new NotFoundException('User not found');
+        }
+        if (!compareSync(body.password, user.password)) {
+            throw new UnauthorizedException('Invalid credentials');
         }
         const tokens = await this.tokenService.generateTokens({
             id: user.id,
@@ -90,7 +95,7 @@ export class V1AuthController {
     }
 
     @ApiBody({ schema: OtpVerifyPayload })
-    @ApiOkResponse({ schema: OtpVerifyResponse })
+    @ApiResource(OtpVerifyResponse)
     @Post('otp/verify')
     async verifyOtp(@Body() body: Static<typeof OtpVerifyPayload>) {
         const result = await this.otpService.verifyOtp({

@@ -9,6 +9,7 @@
         "clean": "rimraf dist"
     },
     "dependencies": {
+        "@liaoliaots/nestjs-redis": "^10.0.0",
         "@nestjs/common": "^11.0.1",
         "@nestjs/config": "^4.0.4",
         "@nestjs/core": "^11.0.1",
@@ -26,6 +27,7 @@
         "change-case": "^5.4.4",
         "change-case-all": "^2.1.0",
         "helmet": "^8.1.0",
+        "ioredis": "^5.10.1",
         "mysql2": "^3.21.0",
         "nestjs-paginate": "^12.10.0",
         "nestjs-pino": "^4.6.1",

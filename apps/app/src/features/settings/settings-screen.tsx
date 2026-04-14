@@ -4,7 +4,6 @@ import { useUniwind } from 'uniwind'
 import { colors, FocusAwareStatusBar, ScrollView, Text, View } from '@/components/ui'
 import { Github, Rate, Share, Support, Website } from '@/components/ui/icons'
 import { useAuthStore as useAuth } from '@/features/auth/use-auth-store'
-import { translate } from '@/lib/i18n'
 import { LanguageItem } from './components/language-item'
 import { SettingsContainer } from './components/settings-container'
 import { SettingsItem } from './components/settings-item'
@@ -20,7 +19,7 @@ export function SettingsScreen() {
 
             <ScrollView>
                 <View className='flex-1 px-4 pt-16'>
-                    <Text className='text-xl font-bold'>{translate('settings.title')}</Text>
+                    <Text className='text-xl font-bold'>Profile & Settings</Text>
                     <SettingsContainer title='settings.generale'>
                         <LanguageItem />
                         <ThemeItem />

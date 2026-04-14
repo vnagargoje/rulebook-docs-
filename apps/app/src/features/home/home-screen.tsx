@@ -15,12 +15,12 @@ export function HomeScreen() {
     const quickActionWidth = width < 360 ? '100%' : '48%'
     const rideStatWidth = width < 428 ? '100%' : '31%'
 
-    const handleSettingsPress = React.useCallback( () => {
-        router.push( '/settings' )
+    const handleBookingPress = React.useCallback( () => {
+        router.push( '/booking' )
     }, [ router ] )
 
-    const handleStylePress = React.useCallback( () => {
-        router.push( '/style' )
+    const handleSupportPress = React.useCallback( () => {
+        router.push( '/support' )
     }, [ router ] )
 
     return (
@@ -38,8 +38,8 @@ export function HomeScreen() {
                         />
 
                         <HeroCard
-                            onPrimaryPress={handleSettingsPress}
-                            onSecondaryPress={handleStylePress}
+                            onPrimaryPress={handleBookingPress}
+                            onSecondaryPress={handleSupportPress}
                         />
 
                         <View className='gap-4'>
@@ -118,8 +118,8 @@ export function HomeScreen() {
                                 This layout is designed to surface the next step quickly, whether the user is choosing a plan or riding toward the nearest swap station.
                             </Text>
                             <Button
-                                label='Review account settings'
-                                onPress={handleSettingsPress}
+                                label='Review profile settings'
+                                onPress={() => router.push( '/settings' )}
                                 className='mt-5 h-12 rounded-xl bg-primary-500'
                                 textClassName='text-base font-semibold text-white'
                             />

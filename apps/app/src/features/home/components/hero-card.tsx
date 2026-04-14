@@ -1,4 +1,6 @@
+import yugoLogo from '../../../../assets/yugo-logo.png'
 import { Button, Text, View } from '@/components/ui'
+import { Image } from '@/components/ui'
 
 type HeroCardProps = {
     onPrimaryPress: () => void
@@ -7,33 +9,35 @@ type HeroCardProps = {
 
 export function HeroCard( { onPrimaryPress, onSecondaryPress }: HeroCardProps ) {
     return (
-        <View className='overflow-hidden rounded-[28px] bg-neutral-950 px-5 pb-5 pt-6 dark:bg-neutral-900'>
+        <View className='overflow-hidden rounded-[28px] bg-primary-600 px-5 pb-5 pt-6'>
             <View className='absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary-500/25' />
-            <View className='absolute right-12 top-16 h-20 w-20 rounded-full bg-[#00ADB1]/20' />
+            <View className='absolute right-12 top-16 h-20 w-20 rounded-full bg-warning-300/25' />
 
             <View className='gap-4'>
-                <View className='self-start rounded-full bg-white/10 px-3 py-1'>
-                    <Text className='text-xs font-semibold uppercase tracking-[1.4px] text-white'>Yugo mobility</Text>
-                </View>
+                <Image
+                    source={yugoLogo}
+                    contentFit='contain'
+                    className='h-24 w-44 self-start'
+                />
 
                 <View className='gap-3'>
-                    <Text className='max-w-[260px] text-[32px] font-bold leading-10 text-white'>
-                        Swap-ready rides built for every city day.
+                    <Text className='max-w-[280px] text-[32px] font-bold leading-10 text-white'>
+                        Swap, save, and stay ride-ready every day.
                     </Text>
                     <Text className='max-w-[300px] text-sm leading-6 text-neutral-200'>
-                        Track your active booking, battery range, and nearest swap station from one responsive home base.
+                        Track your booking, battery health, and support access from one Yugo-branded first screen.
                     </Text>
                 </View>
 
                 <View className='mt-2 gap-3'>
                     <Button
-                        label='Open settings'
+                        label='Open booking'
                         onPress={onPrimaryPress}
-                        className='h-12 rounded-xl bg-primary-500'
+                        className='h-12 rounded-xl bg-warning-500'
                         textClassName='text-base font-semibold text-white'
                     />
                     <Button
-                        label='View style guide'
+                        label='Get support'
                         variant='outline'
                         onPress={onSecondaryPress}
                         className='h-12 rounded-xl border-white/25 bg-white/5'

@@ -13,7 +13,7 @@ export const homeQuickActions: HomeQuickAction[] = [
         title: 'Booking',
         description: 'Review your pickup center, OTP, and payment status in one place.',
         iconLabel: 'BK',
-        accentClassName: 'bg-[#D9F7F7] text-[#007C80]',
+        accentClassName: 'bg-primary-50 text-primary-600',
     },
     {
         id: 'stations',
@@ -27,7 +27,7 @@ export const homeQuickActions: HomeQuickAction[] = [
         title: 'Support',
         description: 'Get help with KYC, payments, or ride issues from one support hub.',
         iconLabel: 'SP',
-        accentClassName: 'bg-success-100 text-success-700',
+        accentClassName: 'bg-warning-100 text-warning-700',
     },
 ]
 

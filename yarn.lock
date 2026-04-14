@@ -6872,6 +6872,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/bcrypt@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@types/bcrypt@npm:6.0.0"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/48b66408838f5eb59791da5a77260cef59a5291ce0945f2caa3b5a6158c44b321b684b4aa7dce771852c63271c766cadd587374273451b300377a17015c1d51d
+  languageName: node
+  linkType: hard
+
 "@types/body-parser@npm:*":
   version: 1.19.6
   resolution: "@types/body-parser@npm:1.19.6"
@@ -7861,6 +7870,7 @@ __metadata:
     "@nestjs/typeorm": "npm:^11.0.1"
     "@scalar/nestjs-api-reference": "npm:^1.1.7"
     "@sinclair/typebox": "npm:^0.34.49"
+    "@types/bcrypt": "npm:^6.0.0"
     "@types/express": "npm:^5.0.0"
     "@types/helmet": "npm:^4.0.0"
     "@types/node": "npm:^22.10.7"
@@ -7873,6 +7883,7 @@ __metadata:
     "@yugo/shared": "workspace:*"
     "@yugo/tsconfig": "workspace:*"
     "@yugo/utils": "workspace:*"
+    bcrypt: "npm:^6.0.0"
     change-case: "npm:^5.4.4"
     change-case-all: "npm:^2.1.0"
     concurrently: "npm:^9.2.1"
@@ -9048,6 +9059,17 @@ __metadata:
   dependencies:
     safe-buffer: "npm:5.1.2"
   checksum: 10c0/05f56db3a0fc31c89c86b605231e32ee143fb6ae38dc60616bc0970ae6a0f034172def99e69d3aed0e2c9e7cac84e2d63bc51a0b5ff6ab5fc8808cc8b29923c1
+  languageName: node
+  linkType: hard
+
+"bcrypt@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "bcrypt@npm:6.0.0"
+  dependencies:
+    node-addon-api: "npm:^8.3.0"
+    node-gyp: "npm:latest"
+    node-gyp-build: "npm:^4.8.4"
+  checksum: 10c0/006e69d4b3f0f021051fa9d998a768721a51dde28e7848e3e775ab608ba3476b25fa9262a7082ececbb0d493b0b6ca83673a6f3810b114fe90ec1bc6ae4b35b2
   languageName: node
   linkType: hard
 
@@ -18813,6 +18835,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-addon-api@npm:^8.3.0":
+  version: 8.7.0
+  resolution: "node-addon-api@npm:8.7.0"
+  dependencies:
+    node-gyp: "npm:latest"
+  checksum: 10c0/31a03b00f6b0753ab08360952fdf80a1abb619dcf8125fa1ab07e3a414da050963440c3a86c77a0334c0be7a71acb5e242dc468b79201ee6151c7b943afe946d
+  languageName: node
+  linkType: hard
+
 "node-emoji@npm:1.11.0":
   version: 1.11.0
   resolution: "node-emoji@npm:1.11.0"
@@ -18861,6 +18892,17 @@ __metadata:
   version: 1.4.0
   resolution: "node-forge@npm:1.4.0"
   checksum: 10c0/67330a5f1f95257a4c8a93b7d555abe87b5f15e350123aa396c97a21a8ca94f9c6549008eb2c73668a91e0d7e3a905785acbd8f8bd0751c29401292011f8f8e1
+  languageName: node
+  linkType: hard
+
+"node-gyp-build@npm:^4.8.4":
+  version: 4.8.4
+  resolution: "node-gyp-build@npm:4.8.4"
+  bin:
+    node-gyp-build: bin.js
+    node-gyp-build-optional: optional.js
+    node-gyp-build-test: build-test.js
+  checksum: 10c0/444e189907ece2081fe60e75368784f7782cfddb554b60123743dfb89509df89f1f29c03bbfa16b3a3e0be3f48799a4783f487da6203245fa5bed239ba7407e1
   languageName: node
   linkType: hard
 

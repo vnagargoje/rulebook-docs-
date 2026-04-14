@@ -7939,8 +7939,10 @@ __metadata:
     "@types/passport-jwt": "npm:^4"
     "@types/qs": "npm:^6.15.0"
     "@yugo/eslint": "workspace:*"
+    "@yugo/nestjs-casl": "workspace:*"
     "@yugo/nestjs-database": "workspace:*"
     "@yugo/nestjs-framework": "workspace:*"
+    "@yugo/permissions": "workspace:*"
     "@yugo/shared": "workspace:*"
     "@yugo/tsconfig": "workspace:*"
     "@yugo/utils": "workspace:*"
@@ -8197,7 +8199,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@yugo/nestjs-casl@workspace:packages/nestjs/casl":
+"@yugo/nestjs-casl@workspace:*, @yugo/nestjs-casl@workspace:packages/nestjs/casl":
   version: 0.0.0-use.local
   resolution: "@yugo/nestjs-casl@workspace:packages/nestjs/casl"
   dependencies:
@@ -8240,6 +8242,18 @@ __metadata:
     "@yugo/tsconfig": "workspace:*"
     reflect-metadata: "npm:^0.2.0"
     rxjs: "npm:^7.8.1"
+    tsup: "npm:^8.0.0"
+    typescript: "npm:^5.4.5"
+  languageName: unknown
+  linkType: soft
+
+"@yugo/permissions@workspace:*, @yugo/permissions@workspace:packages/shared/permissions":
+  version: 0.0.0-use.local
+  resolution: "@yugo/permissions@workspace:packages/shared/permissions"
+  dependencies:
+    "@casl/ability": "npm:^6.7.3"
+    "@yugo/tsconfig": "workspace:*"
+    del-cli: "npm:^7.0.0"
     tsup: "npm:^8.0.0"
     typescript: "npm:^5.4.5"
   languageName: unknown

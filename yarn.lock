@@ -1458,6 +1458,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@casl/ability@npm:^6.7.3":
+  version: 6.8.0
+  resolution: "@casl/ability@npm:6.8.0"
+  dependencies:
+    "@ucast/mongo2js": "npm:^1.3.0"
+  checksum: 10c0/82ad74b64af7b25caffc9bac3dd75d2ac3304ac25a616e09d55b8b750311187a01e291216d9f26fe36f40d190eedcb7d07b69bfd8702bdb78986b7da0c41036e
+  languageName: node
+  linkType: hard
+
 "@clack/core@npm:1.2.0":
   version: 1.2.0
   resolution: "@clack/core@npm:1.2.0"
@@ -4452,6 +4461,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/core@npm:^11.1.11":
+  version: 11.1.19
+  resolution: "@nestjs/core@npm:11.1.19"
+  dependencies:
+    "@nuxt/opencollective": "npm:0.4.1"
+    fast-safe-stringify: "npm:2.1.1"
+    iterare: "npm:1.2.1"
+    path-to-regexp: "npm:8.4.2"
+    tslib: "npm:2.8.1"
+    uid: "npm:2.0.2"
+  peerDependencies:
+    "@nestjs/common": ^11.0.0
+    "@nestjs/microservices": ^11.0.0
+    "@nestjs/platform-express": ^11.0.0
+    "@nestjs/websockets": ^11.0.0
+    reflect-metadata: ^0.1.12 || ^0.2.0
+    rxjs: ^7.1.0
+  peerDependenciesMeta:
+    "@nestjs/microservices":
+      optional: true
+    "@nestjs/platform-express":
+      optional: true
+    "@nestjs/websockets":
+      optional: true
+  checksum: 10c0/5abf4e6f071e11b0af61b7e0253d17eebc626b7fa3265eb9a0a8bbeeaaea2ebe1681c1bc3fc06c6928363402907702f712c066e49789dfd2a234cd6772b02c7b
+  languageName: node
+  linkType: hard
+
 "@nestjs/mapped-types@npm:2.1.0":
   version: 2.1.0
   resolution: "@nestjs/mapped-types@npm:2.1.0"
@@ -6906,7 +6943,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:^5.0.0":
+"@types/express@npm:^5.0.0, @types/express@npm:^5.0.3":
   version: 5.0.6
   resolution: "@types/express@npm:5.0.6"
   dependencies:
@@ -7376,6 +7413,42 @@ __metadata:
     "@typescript-eslint/types": "npm:8.58.1"
     eslint-visitor-keys: "npm:^5.0.0"
   checksum: 10c0/d2709bfb63bd86eb7b28bc86c15d9b29a8cceb5e25843418b039f497a1007fc92fa02eef8a2cbfd9cdec47f490205a00eab7fb204fd14472cf31b8db0e2db963
+  languageName: node
+  linkType: hard
+
+"@ucast/core@npm:1.10.2, @ucast/core@npm:^1.4.1":
+  version: 1.10.2
+  resolution: "@ucast/core@npm:1.10.2"
+  checksum: 10c0/bc24a2b02d796b5c14353aaf1c8faf8103157695522e82e9d6d7813a300e631a406d4809030c582bda99a72232a8eb19f25b4d78857f1c9fab2e8fb2028706e8
+  languageName: node
+  linkType: hard
+
+"@ucast/js@npm:3.1.0":
+  version: 3.1.0
+  resolution: "@ucast/js@npm:3.1.0"
+  dependencies:
+    "@ucast/core": "npm:1.10.2"
+  checksum: 10c0/5ee6c496b8c8b2905a102f7d61e052dadc12b01e48089b0523b897d76a739612c75fc58678a42aa2616298198d2da86460e9903483ddc73da8dc77c2ccdb3eb4
+  languageName: node
+  linkType: hard
+
+"@ucast/mongo2js@npm:^1.3.0":
+  version: 1.4.1
+  resolution: "@ucast/mongo2js@npm:1.4.1"
+  dependencies:
+    "@ucast/core": "npm:1.10.2"
+    "@ucast/js": "npm:3.1.0"
+    "@ucast/mongo": "npm:2.4.3"
+  checksum: 10c0/a00809b58924812c27770ebceea8978a8a6dfad4b861941e5b840284523162d5f08271ca6a22146a6ef17bf08f7f5632e3c954820515034dcf088a3953413b8d
+  languageName: node
+  linkType: hard
+
+"@ucast/mongo@npm:2.4.3":
+  version: 2.4.3
+  resolution: "@ucast/mongo@npm:2.4.3"
+  dependencies:
+    "@ucast/core": "npm:^1.4.1"
+  checksum: 10c0/3b806014f5754594faae5045f778e330c03216904895116ad524bd5e57e24875d7994add478e873628b5b2406d8c4cbce6e3eba5a7c6591924e4226e956d78b6
   languageName: node
   linkType: hard
 
@@ -7991,6 +8064,25 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@yugo/nestjs-casl@workspace:packages/nestjs/casl":
+  version: 0.0.0-use.local
+  resolution: "@yugo/nestjs-casl@workspace:packages/nestjs/casl"
+  dependencies:
+    "@casl/ability": "npm:^6.7.3"
+    "@nestjs/core": "npm:^11.1.11"
+    "@types/express": "npm:^5.0.3"
+    "@yugo/tsconfig": "workspace:^"
+    del-cli: "npm:^7.0.0"
+    express: "npm:^5.1.0"
+    reflect: "npm:^0.1.3"
+    reflect-metadata: "npm:^0.2.2"
+    tsup: "npm:^8.0.0"
+    typescript: "npm:^5.4.5"
+  peerDependencies:
+    "@nestjs/common": "*"
+  languageName: unknown
+  linkType: soft
+
 "@yugo/nestjs-database@workspace:*, @yugo/nestjs-database@workspace:packages/nestjs/database":
   version: 0.0.0-use.local
   resolution: "@yugo/nestjs-database@workspace:packages/nestjs/database"
@@ -8030,7 +8122,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@yugo/tsconfig@workspace:*, @yugo/tsconfig@workspace:packages/shared/tsconfig":
+"@yugo/tsconfig@workspace:*, @yugo/tsconfig@workspace:^, @yugo/tsconfig@workspace:packages/shared/tsconfig":
   version: 0.0.0-use.local
   resolution: "@yugo/tsconfig@workspace:packages/shared/tsconfig"
   languageName: unknown
@@ -10525,7 +10617,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"del@npm:^8.0.0":
+"del-cli@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "del-cli@npm:7.0.0"
+  dependencies:
+    del: "npm:^8.0.1"
+    meow: "npm:^14.0.0"
+    presentable-error: "npm:^0.0.1"
+  bin:
+    del: cli.js
+    del-cli: cli.js
+  checksum: 10c0/5430d233e55bfb52f3e27647e177535d0d2dac0354aeef99ff8769892203d949dc18e0bb945ef2b17d6941a8d27432b87192f50545ef4847f1b430c6b45b9305
+  languageName: node
+  linkType: hard
+
+"del@npm:^8.0.0, del@npm:^8.0.1":
   version: 8.0.1
   resolution: "del@npm:8.0.1"
   dependencies:
@@ -12705,7 +12811,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:5.2.1":
+"express@npm:5.2.1, express@npm:^5.1.0":
   version: 5.2.1
   resolution: "express@npm:5.2.1"
   dependencies:
@@ -17100,6 +17206,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"meow@npm:^14.0.0":
+  version: 14.1.0
+  resolution: "meow@npm:14.1.0"
+  checksum: 10c0/f0ca4bb4fd08e4b9470fcbb7332deb61d72d40d4bda18ffb87c1a98e5014c0b44749ae9f0cab18fa532e26d61cef5d453831f9ae23ac09fa8ea0e0469be73ebc
+  languageName: node
+  linkType: hard
+
 "merge-descriptors@npm:1.0.3":
   version: 1.0.3
   resolution: "merge-descriptors@npm:1.0.3"
@@ -20600,6 +20713,13 @@ __metadata:
     get-proto: "npm:^1.0.1"
     which-builtin-type: "npm:^1.2.1"
   checksum: 10c0/7facec28c8008876f8ab98e80b7b9cb4b1e9224353fd4756dda5f2a4ab0d30fa0a5074777c6df24e1e0af463a2697513b0a11e548d99cf52f21f7bc6ba48d3ac
+  languageName: node
+  linkType: hard
+
+"reflect@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "reflect@npm:0.1.3"
+  checksum: 10c0/c65ac8887399ca470f83263f6855ba607b7ef231c3cfba5782fb749db92238ff9d6a4fe001e764949ca9fa9326a501f8292466dfa20085119850697b9d01d990
   languageName: node
   linkType: hard
 

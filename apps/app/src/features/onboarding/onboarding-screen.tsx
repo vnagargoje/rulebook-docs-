@@ -6,7 +6,7 @@ import { useIsFirstTime } from '@/lib/hooks'
 import { Cover } from './components/cover'
 
 export function OnboardingScreen() {
-    const [_, setIsFirstTime] = useIsFirstTime()
+    const [ , setIsFirstTime ] = useIsFirstTime()
     const router = useRouter()
     return (
         <View className='flex h-full items-center justify-center'>
@@ -27,8 +27,8 @@ export function OnboardingScreen() {
                 <Button
                     label="Let's Get Started "
                     onPress={() => {
-                        setIsFirstTime(false)
-                        router.replace('/login')
+                        setIsFirstTime( false )
+                        router.replace( '/' )
                     }}
                 />
             </SafeAreaView>

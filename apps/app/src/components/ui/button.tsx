@@ -15,19 +15,19 @@ const button = tv({
     variants: {
         variant: {
             default: {
-                container: 'bg-black dark:bg-white',
-                label: 'text-white dark:text-black',
-                indicator: 'text-white dark:text-black',
-            },
-            secondary: {
                 container: 'bg-primary-600',
-                label: 'text-secondary-600',
+                label: 'text-white',
                 indicator: 'text-white',
             },
+            secondary: {
+                container: 'bg-warning-100',
+                label: 'text-warning-700',
+                indicator: 'text-warning-700',
+            },
             outline: {
-                container: 'border border-neutral-400',
-                label: 'text-black dark:text-neutral-100',
-                indicator: 'text-black dark:text-neutral-100',
+                container: 'border border-primary-200 bg-white dark:border-primary-800 dark:bg-neutral-900',
+                label: 'text-primary-700 dark:text-primary-300',
+                indicator: 'text-primary-700 dark:text-primary-300',
             },
             destructive: {
                 container: 'bg-red-600',

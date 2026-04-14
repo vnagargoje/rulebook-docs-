@@ -9,6 +9,7 @@ import {
 import { DataSource } from 'typeorm';
 import { SeederConstructor, SeederExecutor } from 'typeorm-extension';
 import {
+    AdminSeeder,
     CountryStateCitiesSeeder,
     DummyDataSeeder,
     RolesSeeder,
@@ -39,6 +40,7 @@ export class SeedDbCommand extends CommandRunner {
         try {
             const initialSeeds: SeederConstructor[] = [
                 RolesSeeder,
+                AdminSeeder,
                 CountryStateCitiesSeeder,
             ];
             const dummyDataSeeds: SeederConstructor[] = [
@@ -47,6 +49,7 @@ export class SeedDbCommand extends CommandRunner {
             ];
             const allSeeds: SeederConstructor[] = [
                 RolesSeeder,
+                AdminSeeder,
                 CountryStateCitiesSeeder,
                 DummyDataSeeder,
             ];

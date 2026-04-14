@@ -2,10 +2,11 @@ import { VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { apiReference } from '@scalar/nestjs-api-reference';
 import { json, urlencoded } from 'express';
 import helmet from 'helmet';
-import { apiReference } from '@scalar/nestjs-api-reference';
 import { updateGlobalConfig } from 'nestjs-paginate';
+import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module.js';
 import { queryMiddleware } from './utils/query-middleware.js';
 import { setupSwagger } from './utils/setup_swagger.js';
@@ -19,6 +20,8 @@ async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
         bufferLogs: true,
     });
+    const logger = app.get<Logger>(Logger);
+    app.useLogger(logger);
     const configService = app.get<ConfigService>(ConfigService);
 
     app.enableCors();

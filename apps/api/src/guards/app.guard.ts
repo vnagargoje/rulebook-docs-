@@ -1,12 +1,15 @@
-import { ExecutionContext, Injectable, CanActivate } from '@nestjs/common';
+import { IS_PUBLIC_KEY } from '@/decorators/public.decorator';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
+import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
-export class AppAuthGuard implements CanActivate {
-    constructor(private reflector: Reflector) {}
+export class AppAuthGuard extends AuthGuard('jwt') {
+    constructor(private reflector: Reflector) {
+        super();
+    }
 
-    canActivate(context: ExecutionContext): boolean {
+    canActivate(context: ExecutionContext) {
         const isPublic = this.reflector.getAllAndOverride<boolean>(
             IS_PUBLIC_KEY,
             [context.getHandler(), context.getClass()],
@@ -14,6 +17,6 @@ export class AppAuthGuard implements CanActivate {
         if (isPublic) {
             return true;
         }
-        return true;
+        return super.canActivate(context);
     }
 }

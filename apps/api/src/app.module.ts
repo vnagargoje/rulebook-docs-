@@ -3,11 +3,19 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
-import { databaseConfig, jwtConfig, loggerConfig, redisConfig } from './config';
+import { CqrsModule } from '@nestjs/cqrs';
+import {
+    databaseConfig,
+    jwtConfig,
+    loggerConfig,
+    redisConfig,
+    deepvueConfig,
+} from './config';
 import { AppAuthGuard } from './guards/app.guard.js';
 import { TypeboxSerializerInterceptor } from './interceptors/typebox-serializer.interceptor.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CountryStateCitiesModule } from './modules/country-state-cities/country-state-cities.module.js';
+import { KycModule } from './modules/kyc/kyc.module.js';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { JwtModule } from '@nestjs/jwt';
@@ -15,9 +23,16 @@ import { PassportModule } from '@nestjs/passport';
 
 @Module({
     imports: [
+        CqrsModule.forRoot({}),
         ConfigModule.forRoot({
             isGlobal: true,
-            load: [databaseConfig, jwtConfig, loggerConfig, redisConfig],
+            load: [
+                databaseConfig,
+                jwtConfig,
+                loggerConfig,
+                redisConfig,
+                deepvueConfig,
+            ],
         }),
         LoggerModule.forRootAsync({
             imports: [ConfigModule],
@@ -50,6 +65,7 @@ import { PassportModule } from '@nestjs/passport';
             defaultStrategy: 'jwt',
         }),
         AuthModule,
+        KycModule,
         CountryStateCitiesModule,
     ],
     providers: [

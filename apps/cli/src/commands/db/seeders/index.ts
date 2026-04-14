@@ -1,2 +1,3 @@
 export * from './roles.seeder';
 export * from './country-state-cities.seeder';
+export * from './dummy-data.seeder';

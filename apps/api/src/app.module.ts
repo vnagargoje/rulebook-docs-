@@ -1,17 +1,25 @@
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
-import { databaseConfig, jwtConfig, loggerConfig, redisConfig } from './config';
+import {
+    databaseConfig,
+    jwtConfig,
+    loggerConfig,
+    redisConfig,
+} from './config/index.js';
 import { AppAuthGuard } from './guards/app.guard.js';
 import { TypeboxSerializerInterceptor } from './interceptors/typebox-serializer.interceptor.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CountryStateCitiesModule } from './modules/country-state-cities/country-state-cities.module.js';
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
+import { UsersModule } from './modules/users/users.module.js';
+import { JwtStrategy } from './strategies/jwt.strategy.js';
+import { CaslModule } from '@yugo/nestjs-casl';
+import { permissions } from '@yugo/permissions';
 
 @Module({
     imports: [
@@ -49,8 +57,12 @@ import { PassportModule } from '@nestjs/passport';
         PassportModule.register({
             defaultStrategy: 'jwt',
         }),
+        CaslModule.forRoot({
+            permissions,
+        }),
         AuthModule,
         CountryStateCitiesModule,
+        UsersModule,
     ],
     providers: [
         JwtStrategy,

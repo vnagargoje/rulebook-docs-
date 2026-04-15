@@ -1,10 +1,10 @@
 import { useRouter } from 'expo-router'
 import { useCallback } from 'react'
-import { demoAuthToken } from './login.data'
-import { LoginForm } from './login-form'
-import type { LoginFormValues } from './login.types'
+import { demoAuthToken } from '@/auth/login.data'
+import { LoginForm } from '@/auth/login-form'
+import type { LoginFormValues } from '@/auth/login.types'
 import { FocusAwareStatusBar } from '@/components/ui'
-import { useAuthStore } from '@/features/auth/use-auth-store'
+import { useAuthStore } from '@/auth/use-auth-store'
 
 export default function LoginScreen() {
     const router = useRouter()

@@ -1,8 +1,8 @@
 import * as React from 'react'
-import type { LoginFormProps } from '@/app/login.types'
+import type { LoginFormProps } from '@/auth/login.types'
 
 import { cleanup, screen, setup, waitFor } from '@/lib/test-utils'
-import { LoginForm } from '@/app/login-form'
+import { LoginForm } from '@/auth/login-form'
 
 afterEach(cleanup)
 

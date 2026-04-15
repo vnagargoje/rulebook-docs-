@@ -1,0 +1,38 @@
+import { BadRequestException } from '@nestjs/common'
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
+import { InjectEntityManager } from '@nestjs/typeorm'
+import { RoleEntity, UserEntity } from '@yugo/nestjs-database/entities'
+import { EntityManager } from 'typeorm'
+import { CreateUserCommand } from '../../impl/users/create-users.command.js'
+
+@CommandHandler(CreateUserCommand)
+export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
+    constructor(@InjectEntityManager() private readonly manager: EntityManager) {}
+
+    async execute(command: CreateUserCommand) {
+        const body = command.payload
+
+        return this.manager.transaction(async (manager) => {
+            const role = await manager.findOne(RoleEntity, {
+                where: { name: body.role },
+            })
+
+            if (!role) {
+                throw new BadRequestException(`User role ${body.role} does not exist`)
+            }
+
+            const user = manager.create(UserEntity, {
+                email: body.email,
+                mobilenumber: body.mobilenumber,
+                firstName: body.firstName,
+                lastName: body.lastName,
+                gender: body.gender,
+                properties: body.properties,
+                dateOfBirth: body.dateOfBirth,
+                roles: [role],
+            })
+
+            return manager.save(user)
+        })
+    }
+}

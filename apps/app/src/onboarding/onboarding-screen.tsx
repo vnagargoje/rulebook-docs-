@@ -3,7 +3,7 @@ import * as React from 'react'
 
 import { Button, FocusAwareStatusBar, SafeAreaView, Text, View } from '@/components/ui'
 import { useIsFirstTime } from '@/lib/hooks'
-import { Cover } from './components/cover'
+import { Cover } from './cover'
 
 export function OnboardingScreen() {
     const [ , setIsFirstTime ] = useIsFirstTime()

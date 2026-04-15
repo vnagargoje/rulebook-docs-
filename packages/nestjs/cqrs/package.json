@@ -31,8 +31,11 @@
         "reflect-metadata": "*"
     },
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.1030.0",
+        "@types/qrcode": "^1.5.6",
         "@yugo/shared": "workspace:*",
         "builder-pattern": "^2.2.0",
+        "qrcode": "^1.5.4",
         "xior": "^0.8.3"
     }
 }

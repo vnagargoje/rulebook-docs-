@@ -4,7 +4,6 @@ import { ThemeProvider } from '@react-navigation/native'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import * as React from 'react'
-import { StyleSheet } from 'react-native'
 import FlashMessage from 'react-native-flash-message'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
@@ -69,10 +68,7 @@ export default function RootLayout() {
 function Providers({ children }: { children: React.ReactNode }) {
     const theme = useThemeConfig()
     return (
-        <GestureHandlerRootView
-            style={styles.container}
-            // eslint-disable-next-line better-tailwindcss/no-unknown-classes
-            className={theme.dark ? `dark` : undefined}>
+        <GestureHandlerRootView className='flex-1'>
             <KeyboardProvider>
                 <ThemeProvider value={theme}>
                     <APIProvider>
@@ -86,9 +82,3 @@ function Providers({ children }: { children: React.ReactNode }) {
         </GestureHandlerRootView>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-})

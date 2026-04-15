@@ -1,5 +1,5 @@
-import { hubManagerContent, hubManagerMetrics } from './hub-manager.data'
-import { SectionHeading } from '../components/section-heading'
+import { SectionHeading } from '@/components/section-heading'
+import { hubManagerContent, hubManagerMetrics } from '@/data/hub-manager/hub-manager.data'
 import { FocusAwareStatusBar, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 
 export default function HubManagerScreen() {

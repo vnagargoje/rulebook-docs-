@@ -1,4 +1,4 @@
-import type { HubManagerMetric } from './hub-manager.types'
+import type { HubManagerMetric } from '@/types/hub-manager/hub-manager.types'
 
 export const hubManagerContent = {
     heading: {

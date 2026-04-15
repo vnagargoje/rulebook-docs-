@@ -32,6 +32,7 @@
     },
     "dependencies": {
         "@yugo/shared": "workspace:*",
-        "builder-pattern": "^2.2.0"
+        "builder-pattern": "^2.2.0",
+        "xior": "^0.8.3"
     }
 }

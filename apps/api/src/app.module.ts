@@ -6,26 +6,36 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
+import { CqrsModule } from '@nestjs/cqrs';
 import {
     databaseConfig,
     jwtConfig,
     loggerConfig,
     redisConfig,
-} from './config/index.js';
+    deepvueConfig,
+} from './config';
 import { AppAuthGuard } from './guards/app.guard.js';
 import { TypeboxSerializerInterceptor } from './interceptors/typebox-serializer.interceptor.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CountryStateCitiesModule } from './modules/country-state-cities/country-state-cities.module.js';
 import { UsersModule } from './modules/users/users.module.js';
-import { JwtStrategy } from './strategies/jwt.strategy.js';
 import { CaslModule } from '@yugo/nestjs-casl';
 import { permissions } from '@yugo/permissions';
+import { KycModule } from './modules/kyc/kyc.module.js';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
     imports: [
+        CqrsModule.forRoot({}),
         ConfigModule.forRoot({
             isGlobal: true,
-            load: [databaseConfig, jwtConfig, loggerConfig, redisConfig],
+            load: [
+                databaseConfig,
+                jwtConfig,
+                loggerConfig,
+                redisConfig,
+                deepvueConfig,
+            ],
         }),
         LoggerModule.forRootAsync({
             imports: [ConfigModule],
@@ -61,6 +71,7 @@ import { permissions } from '@yugo/permissions';
             permissions,
         }),
         AuthModule,
+        KycModule,
         CountryStateCitiesModule,
         UsersModule,
     ],

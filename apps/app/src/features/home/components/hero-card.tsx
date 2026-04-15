@@ -1,13 +1,9 @@
 import yugoLogo from '../../../../assets/yugo-logo.png'
+import type { HeroCardProps } from './home-component.types'
 import { Button, Text, View } from '@/components/ui'
 import { Image } from '@/components/ui'
 
-type HeroCardProps = {
-    onPrimaryPress: () => void
-    onSecondaryPress: () => void
-}
-
-export function HeroCard( { onPrimaryPress, onSecondaryPress }: HeroCardProps ) {
+export function HeroCard({ onPrimaryPress, onSecondaryPress }: HeroCardProps) {
     return (
         <View className='overflow-hidden rounded-[28px] bg-primary-600 px-5 pb-5 pt-6'>
             <View className='absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary-500/25' />

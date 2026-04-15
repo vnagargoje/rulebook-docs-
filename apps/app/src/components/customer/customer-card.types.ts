@@ -1,5 +1,5 @@
 import type { DimensionValue } from 'react-native'
-import type { CustomerHomeQuickAction, CustomerHomeRideStat, CustomerHomeStation } from '../customer-home.types'
+import type { CustomerHomeQuickAction, CustomerHomeRideStat, CustomerHomeStation } from '@/types/customer/customer-home.types'
 
 export type CustomerHeroCardProps = {
     title: string

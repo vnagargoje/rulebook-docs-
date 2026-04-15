@@ -1,17 +1,12 @@
 import { useRouter } from 'expo-router'
 import { useCallback } from 'react'
 import { useWindowDimensions } from 'react-native'
-import { SectionHeading } from '../components/section-heading'
-import { CustomerHeroCard } from './components/customer-hero-card'
-import { CustomerQuickActionCard } from './components/customer-quick-action-card'
-import { CustomerRideStatCard } from './components/customer-ride-stat-card'
-import { CustomerStationCard } from './components/customer-station-card'
-import {
-    customerHomeContent,
-    customerHomeQuickActions,
-    customerHomeRideStats,
-    customerHomeStations,
-} from './customer-home.data'
+import { SectionHeading } from '@/components/section-heading'
+import { CustomerHeroCard } from '@/components/customer/customer-hero-card'
+import { CustomerQuickActionCard } from '@/components/customer/customer-quick-action-card'
+import { CustomerRideStatCard } from '@/components/customer/customer-ride-stat-card'
+import { CustomerStationCard } from '@/components/customer/customer-station-card'
+import { customerHomeContent, customerHomeQuickActions, customerHomeRideStats, customerHomeStations } from '@/data/customer/customer-home.data'
 import { Button, FocusAwareStatusBar, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 
 export default function CustomerHomeScreen() {

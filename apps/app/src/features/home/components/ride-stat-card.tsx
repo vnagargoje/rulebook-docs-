@@ -1,13 +1,7 @@
-import type { HomeRideStat } from '../home.types'
-import type { DimensionValue } from 'react-native'
+import type { RideStatCardProps } from './home-component.types'
 import { Text, View } from '@/components/ui'
 
-type RideStatCardProps = {
-    stat: HomeRideStat
-    width: DimensionValue
-}
-
-export function RideStatCard( { stat, width }: RideStatCardProps ) {
+export function RideStatCard({ stat, width }: RideStatCardProps) {
     return (
         <View
             style={{ width }}

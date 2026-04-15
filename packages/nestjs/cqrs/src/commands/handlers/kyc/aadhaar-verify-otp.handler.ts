@@ -1,0 +1,121 @@
+import { NotFoundException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
+import { InjectEntityManager } from '@nestjs/typeorm'
+import { AddressEntity, UserEntity, UserKycEntity } from '@yugo/nestjs-database/entities'
+import { Gender, KycDocumentType, KycStatus } from '@yugo/shared'
+import { EntityManager } from 'typeorm'
+import xior from 'xior'
+import { DeepvueConfig } from '../../../types.js'
+import { AadhaarVerifyOtpCommand } from '../../impl/kyc/aadhaar-verify-otp.command.js'
+
+@CommandHandler(AadhaarVerifyOtpCommand)
+export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtpCommand> {
+    constructor(
+        @InjectEntityManager() private readonly manager: EntityManager,
+        private readonly configService: ConfigService,
+    ) {}
+
+    async execute(command: AadhaarVerifyOtpCommand) {
+        const { userId, payload } = command
+        const config = this.configService.getOrThrow<DeepvueConfig>('deepvue.config')
+
+        const user = await this.manager.findOne(UserEntity, { where: { id: userId }, relations: ['addresses'] })
+        if (!user) {
+            throw new NotFoundException('User not found')
+        }
+
+        const response = await xior.post(
+            `${config.baseUrl}/ekyc/aadhaar/verify-otp`,
+            {}, // Empty body
+            {
+                params: {
+                    session_id: payload.sessionId,
+                    otp: payload.otp,
+                    consent: 'Y',
+                    purpose: 'For KYC Purpose',
+                },
+                headers: {
+                    'x-api-key': config.apiKey,
+                    'client-id': config.clientId,
+                    'Content-Type': 'application/json',
+                },
+            },
+        )
+
+        const isSuccess = response.data.code === 200 || response.data.code === 201
+
+        await this.manager.transaction(async (manager) => {
+            let kyc = await manager.findOne(UserKycEntity, {
+                where: { userId, type: KycDocumentType.AADHAR },
+            })
+
+            if (!kyc) {
+                kyc = manager.create(UserKycEntity, {
+                    userId,
+                    type: KycDocumentType.AADHAR,
+                })
+            }
+
+            kyc.status = isSuccess ? KycStatus.APPROVED : KycStatus.REJECTED
+            kyc.verifiedAt = isSuccess ? new Date() : kyc.verifiedAt
+            kyc.notes = JSON.stringify(response.data)
+            kyc.documentId = payload.aadhaarNumber || kyc.documentId || 'AADHAAR'
+
+            await manager.save(kyc)
+
+            if (isSuccess && response.data.data) {
+                const data = response.data.data
+
+                const nameParts = (data.name || '').split(' ')
+                const lastName = nameParts.pop() || ''
+                const firstName = nameParts.join(' ') || lastName
+
+                user.firstName = firstName
+                user.lastName = lastName
+
+                if (data.dateOfBirth) {
+                    const [day, month, year] = data.dateOfBirth.split('-')
+                    user.dateOfBirth = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+                }
+
+                if (data.gender === 'M') {
+                    user.gender = Gender.MALE
+                } else if (data.gender === 'F') {
+                    user.gender = Gender.FEMALE
+                } else {
+                    user.gender = Gender.OTHER
+                }
+
+                await manager.save(user)
+
+                const addrData = data.address || {}
+                let address = user.addresses?.[0]
+                if (!address) {
+                    address = manager.create(AddressEntity, { userId })
+                }
+                address.lineOne =
+                    [addrData.house, addrData.street, addrData.locality].filter(Boolean).join(', ') ||
+                    addrData.vtc ||
+                    'Aadhaar Address'
+                address.lineTwo = [
+                    addrData.landmark,
+                    addrData.postOffice,
+                    addrData.subDistrict,
+                    addrData.district,
+                    addrData.state,
+                ]
+                    .filter(Boolean)
+                    .join(', ')
+                address.pincode = addrData.pin || '000000'
+
+                await manager.save(address)
+            }
+        })
+
+        return {
+            success: isSuccess,
+            message: response.data.message || (isSuccess ? 'Verification successful' : 'Verification failed'),
+        }
+    }
+}

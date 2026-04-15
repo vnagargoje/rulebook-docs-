@@ -1,6 +1,7 @@
 /* eslint-disable better-tailwindcss/no-unknown-classes */
 import type { TextInputProps } from 'react-native'
 import * as React from 'react'
+import { useCallback } from 'react'
 import { I18nManager, TextInput as NTextInput, StyleSheet, View } from 'react-native'
 import { tv } from 'tailwind-variants'
 
@@ -49,7 +50,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
     const { label, error, testID, onBlur: onBlurProp, onFocus: onFocusProp, ...inputProps } = props
     const [isFocussed, setIsFocussed] = React.useState(false)
 
-    const onBlur = React.useCallback(
+    const onBlur = useCallback(
         (e: any) => {
             setIsFocussed(false)
             onBlurProp?.(e)
@@ -57,7 +58,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
         [onBlurProp],
     )
 
-    const onFocus = React.useCallback(
+    const onFocus = useCallback(
         (e: any) => {
             setIsFocussed(true)
             onFocusProp?.(e)

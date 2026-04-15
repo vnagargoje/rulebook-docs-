@@ -19,8 +19,6 @@ export const config = [
         },
         rules: {
             'turbo/no-undeclared-env-vars': 'warn',
-            'space-in-parens': ['error', 'always'],
-            'array-bracket-spacing': ['error', 'always'],
             'object-curly-spacing': ['error', 'always'],
         },
     },

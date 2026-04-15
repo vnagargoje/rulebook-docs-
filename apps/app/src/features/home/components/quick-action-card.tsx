@@ -1,12 +1,7 @@
-import type { HomeQuickAction } from '../home.types'
+import type { QuickActionCardProps } from './home-component.types'
 import { Text, View } from '@/components/ui'
 
-type QuickActionCardProps = {
-    action: HomeQuickAction
-    width: number | `${number}%`
-}
-
-export function QuickActionCard( { action, width }: QuickActionCardProps ) {
+export function QuickActionCard({ action, width }: QuickActionCardProps) {
     return (
         <View
             style={{ width }}

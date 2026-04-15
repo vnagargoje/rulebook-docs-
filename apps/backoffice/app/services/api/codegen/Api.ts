@@ -198,6 +198,100 @@ export class Api<
     /**
      * No description
      *
+     * @tags auth
+     * @name V1AuthSignIn
+     * @request POST:/v1/auth/signin
+     */
+    v1AuthSignIn: (
+      data: {
+        /** @format email */
+        email: string;
+        password: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          accessToken: string;
+          refreshToken: string;
+          user: {
+            id: string;
+            email: string;
+            roles: string[];
+          };
+        },
+        any
+      >({
+        path: `/v1/auth/signin`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
+     * @name V1AuthSendOtp
+     * @request POST:/v1/auth/otp/send
+     */
+    v1AuthSendOtp: (
+      data: {
+        mobilenumber: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          mobilenumber: string;
+          method: "sms";
+          otpSent: boolean;
+        },
+        any
+      >({
+        path: `/v1/auth/otp/send`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
+     * @name V1AuthVerifyOtp
+     * @request POST:/v1/auth/otp/verify
+     */
+    v1AuthVerifyOtp: (
+      data: {
+        mobilenumber: string;
+        otp: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          verified: boolean;
+          accessToken?: string;
+          refreshToken?: string;
+        },
+        any
+      >({
+        path: `/v1/auth/otp/verify`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags geographic data
      * @name V1StatesListManyStates
      * @request GET:/v1/states

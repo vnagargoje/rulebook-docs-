@@ -9,7 +9,7 @@ import { Button } from '~/components/ui/button'
 import { mockApi } from '~/services/mockApi'
 import { type Plan } from '~/types/admin'
 import { toast } from 'sonner'
-import { formatCurrency } from '~/lib/admin'
+import { formatCurrency } from '~/lib/formatter'
 
 export default function PlansListRoute() {
     const navigate = useNavigate()

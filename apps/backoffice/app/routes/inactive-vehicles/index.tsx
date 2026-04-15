@@ -9,7 +9,7 @@ import { Button } from '~/components/ui/button'
 import { mockApi } from '~/services/mockApi'
 import { type InactiveVehicleRecord, type Vehicle } from '~/types/admin'
 import { toast } from 'sonner'
-import { formatDate } from '~/lib/admin'
+import { formatDate } from '~/lib/formatter'
 
 export default function InactiveVehiclesListRoute() {
     const navigate = useNavigate()

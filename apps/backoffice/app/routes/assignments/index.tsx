@@ -17,7 +17,7 @@ import {
     type User
 } from '~/types/admin'
 import { toast } from 'sonner'
-import { formatDate } from '~/lib/admin'
+import { formatDate } from '~/lib/formatter'
 
 export default function AssignmentsListRoute() {
     const navigate = useNavigate()

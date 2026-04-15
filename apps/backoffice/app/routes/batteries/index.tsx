@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { mockApi } from '~/services/mockApi'
 import { type Battery, type BatteryStationAssignment, type Station } from '~/types/admin'
 import { toast } from 'sonner'
-import { formatDate } from '~/lib/admin'
+import { formatDate } from '~/lib/formatter'
 
 export default function BatteriesListRoute() {
     const navigate = useNavigate()

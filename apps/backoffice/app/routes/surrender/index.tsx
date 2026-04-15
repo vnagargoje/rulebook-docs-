@@ -9,7 +9,7 @@ import { Button } from '~/components/ui/button'
 import { mockApi } from '~/services/mockApi'
 import { type User, type Vehicle, type VehicleSurrender } from '~/types/admin'
 import { toast } from 'sonner'
-import { formatCurrency, formatDate } from '~/lib/admin'
+import { formatCurrency, formatDate } from '~/lib/formatter'
 
 export default function SurrendersListRoute() {
     const navigate = useNavigate()

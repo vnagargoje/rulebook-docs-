@@ -1,11 +1,7 @@
-import type { HomeStation } from '../home.types'
+import type { StationCardProps } from './home-component.types'
 import { Text, View } from '@/components/ui'
 
-type StationCardProps = {
-    station: HomeStation
-}
-
-export function StationCard( { station }: StationCardProps ) {
+export function StationCard({ station }: StationCardProps) {
     return (
         <View className='rounded-3xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900'>
             <View className='flex-row items-start justify-between gap-4'>
@@ -19,7 +15,9 @@ export function StationCard( { station }: StationCardProps ) {
             </View>
 
             <View className='mt-4 gap-2 rounded-2xl bg-neutral-100 p-3 dark:bg-neutral-800'>
-                <Text className='text-sm font-medium text-neutral-900 dark:text-neutral-100'>{station.availability}</Text>
+                <Text className='text-sm font-medium text-neutral-900 dark:text-neutral-100'>
+                    {station.availability}
+                </Text>
                 <Text className='text-sm text-neutral-500 dark:text-neutral-400'>{station.eta}</Text>
             </View>
         </View>

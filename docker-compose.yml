@@ -1,0 +1,90 @@
+networks:
+  yugo_net:
+    driver: bridge
+
+volumes:
+  traefik_certs:
+
+services:
+  watchtower:
+    image: containrrr/watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/officebot/.docker/config.json:/config.json
+    environment:
+      WATCHTOWER_MONITOR_ONLY: "true"
+      WATCHTOWER_NOTIFICATIONS: slack
+      WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL: ${SLACK_WEBHOOK_URL}
+      WATCHTOWER_POLL_INTERVAL: 300
+    networks:
+      - yugo_net
+
+  traefik:
+    image: traefik:v3.0
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_certs:/letsencrypt
+    command:
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.le.acme.httpchallenge=true
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.le.acme.email=tech@yugoev.com
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.rule=Host(`traefik.yugoev.com`)
+      - traefik.http.routers.traefik.entrypoints=websecure
+      - traefik.http.routers.traefik.tls.certresolver=le
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.middlewares=traefik-auth
+      - traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_AUTH_USER:-admin}:${TRAEFIK_AUTH_HASH}
+    networks:
+      - yugo_net
+
+  api:
+    image: registry.digitalocean.com/yugo/api:${API_TAG:-latest}
+    restart: always
+    env_file: .env.api
+    networks:
+      - yugo_net
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.rule=Host(`api.yugoev.com`)
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls.certresolver=le
+      - traefik.http.services.api.loadbalancer.server.port=4500
+
+  henchmen:
+    image: registry.digitalocean.com/yugo/henchmen:${HENCHMEN_TAG:-latest}
+    restart: always
+    env_file: .env.henchmen
+    networks:
+      - yugo_net
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.henchmen.rule=Host(`henchmen.yugoev.com`)
+      - traefik.http.routers.henchmen.entrypoints=websecure
+      - traefik.http.routers.henchmen.tls.certresolver=le
+      - traefik.http.services.henchmen.loadbalancer.server.port=4502
+
+  backoffice:
+    image: registry.digitalocean.com/yugo/backoffice:${BACKOFFICE_TAG:-latest}
+    restart: always
+    env_file: .env.backoffice
+    networks:
+      - yugo_net
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backoffice.rule=Host(`admin.yugoev.com`)
+      - traefik.http.routers.backoffice.entrypoints=websecure
+      - traefik.http.routers.backoffice.tls.certresolver=le
+      - traefik.http.services.backoffice.loadbalancer.server.port=3000

@@ -1,0 +1,26 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile.api
+    image: yugo/api:local
+    ports:
+      - "4500:4500"
+    env_file: ../apps/api/.env.example
+
+  henchmen:
+    build:
+      context: ..
+      dockerfile: Dockerfile.henchmen
+    image: yugo/henchmen:local
+    ports:
+      - "4502:4502"
+    env_file: ../apps/henchmen/.env.example
+
+  backoffice:
+    build:
+      context: ..
+      dockerfile: apps/backoffice/Dockerfile
+    image: yugo/backoffice:local
+    ports:
+      - "3000:3000"

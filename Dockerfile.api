@@ -10,14 +10,16 @@ COPY apps ./apps
 RUN yarn install --immutable
 RUN yarn workspace @yugo/shared build
 RUN yarn workspace @yugo/utils build
-RUN yarn workspace @yugo/backoffice build
+RUN yarn workspace @yugo/nestjs-database build
+RUN yarn workspace @yugo/nestjs-framework build
+RUN yarn workspace @yugo/api build
 
 FROM base AS deps
 WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY packages ./packages
 COPY apps ./apps
-RUN yarn workspaces focus @yugo/backoffice --production
+RUN yarn workspaces focus @yugo/api --production
 
 FROM base AS production
 WORKDIR /app
@@ -25,8 +27,9 @@ ENV NODE_ENV=production
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/packages ./packages
-COPY --from=build /app/apps/backoffice/build ./apps/backoffice/build
-COPY --from=build /app/apps/backoffice/package.json ./apps/backoffice/package.json
+COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY --from=build /app/apps/api/package.json ./apps/api/package.json
+COPY migrations ./migrations
 
-EXPOSE 3000
-CMD ["npm", "run", "start", "--workspace", "@yugo/backoffice"]
+EXPOSE 4500
+CMD ["node", "apps/api/dist/main.js"]

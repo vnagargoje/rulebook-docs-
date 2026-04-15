@@ -1,0 +1,77 @@
+kind: pipeline
+type: docker
+name: yugo-deploy
+
+trigger:
+  branch:
+    - dev
+  event:
+    - push
+
+steps:
+  - name: docker-build-api
+    image: plugins/docker
+    settings:
+      registry: registry.digitalocean.com
+      username:
+        from_secret: DOCR_TOKEN
+      password:
+        from_secret: DOCR_TOKEN
+      repo: registry.digitalocean.com/yugo/api
+      dockerfile: Dockerfile.api
+      context: .
+      tags:
+        - latest
+        - ${DRONE_COMMIT_SHA:0:8}
+
+  - name: docker-build-henchmen
+    image: plugins/docker
+    settings:
+      registry: registry.digitalocean.com
+      username:
+        from_secret: DOCR_TOKEN
+      password:
+        from_secret: DOCR_TOKEN
+      repo: registry.digitalocean.com/yugo/henchmen
+      dockerfile: Dockerfile.henchmen
+      context: .
+      tags:
+        - latest
+        - ${DRONE_COMMIT_SHA:0:8}
+
+  - name: docker-build-backoffice
+    image: plugins/docker
+    settings:
+      registry: registry.digitalocean.com
+      username:
+        from_secret: DOCR_TOKEN
+      password:
+        from_secret: DOCR_TOKEN
+      repo: registry.digitalocean.com/yugo/backoffice
+      dockerfile: apps/backoffice/Dockerfile
+      context: .
+      tags:
+        - latest
+        - ${DRONE_COMMIT_SHA:0:8}
+
+  - name: deploy-to-droplet
+    image: appleboy/drone-ssh
+    settings:
+      host:
+        from_secret: DROPLET_HOST
+      username: officebot
+      key:
+        from_secret: SSH_PRIVATE_KEY
+      script:
+        - cd ~/yugo
+        - echo "$DOCR_TOKEN" | docker login registry.digitalocean.com -u $DOCR_TOKEN --password-stdin
+        - docker compose pull
+        - docker compose up -d --remove-orphans
+        - docker image prune -f
+    environment:
+      DOCR_TOKEN:
+        from_secret: DOCR_TOKEN
+    depends_on:
+      - docker-build-api
+      - docker-build-henchmen
+      - docker-build-backoffice

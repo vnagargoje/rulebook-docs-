@@ -1,14 +1,8 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { SplashScreen, Tabs } from 'expo-router'
-import * as React from 'react'
 import { useCallback, useEffect } from 'react'
 
 import { colors } from '@/components/ui'
-import {
-    Booking as BookingIcon,
-    Home as HomeIcon,
-    Profile as ProfileIcon,
-    Support as SupportIcon,
-} from '@/components/ui/icons'
 
 export default function CustomerLayout() {
     const hideSplash = useCallback(async () => {
@@ -45,7 +39,13 @@ export default function CustomerLayout() {
                 name='index'
                 options={{
                     title: 'Home',
-                    tabBarIcon: ({ color }) => <HomeIcon color={color} />,
+                    tabBarIcon: ({ color }) => (
+                        <MaterialCommunityIcons
+                            name='home-outline'
+                            size={22}
+                            color={color}
+                        />
+                    ),
                     tabBarButtonTestID: 'customer-home-tab',
                 }}
             />
@@ -53,7 +53,13 @@ export default function CustomerLayout() {
                 name='booking'
                 options={{
                     title: 'Booking',
-                    tabBarIcon: ({ color }) => <BookingIcon color={color} />,
+                    tabBarIcon: ({ color }) => (
+                        <MaterialCommunityIcons
+                            name='calendar-check-outline'
+                            size={22}
+                            color={color}
+                        />
+                    ),
                     tabBarButtonTestID: 'customer-booking-tab',
                 }}
             />
@@ -61,7 +67,13 @@ export default function CustomerLayout() {
                 name='support'
                 options={{
                     title: 'Support',
-                    tabBarIcon: ({ color }) => <SupportIcon color={color} />,
+                    tabBarIcon: ({ color }) => (
+                        <MaterialCommunityIcons
+                            name='lifebuoy'
+                            size={22}
+                            color={color}
+                        />
+                    ),
                     tabBarButtonTestID: 'customer-support-tab',
                 }}
             />
@@ -69,7 +81,13 @@ export default function CustomerLayout() {
                 name='settings'
                 options={{
                     title: 'Profile',
-                    tabBarIcon: ({ color }) => <ProfileIcon color={color} />,
+                    tabBarIcon: ({ color }) => (
+                        <MaterialCommunityIcons
+                            name='account-outline'
+                            size={22}
+                            color={color}
+                        />
+                    ),
                     tabBarButtonTestID: 'customer-profile-tab',
                 }}
             />

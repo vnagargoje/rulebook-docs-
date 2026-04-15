@@ -1,10 +1,19 @@
-import type { Route } from './+types/home'
-import { Welcome } from '../welcome/welcome'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router'
 
-export function meta({}: Route.MetaArgs) {
-    return [{ title: 'New React Router App' }, { name: 'description', content: 'Welcome to React Router!' }]
-}
+import { useAdminSession } from '~/hooks/use-admin-session'
 
 export default function Home() {
-    return <Welcome />
+    const navigate = useNavigate()
+    const { hydrated, session } = useAdminSession()
+
+    useEffect(() => {
+        if (!hydrated) {
+            return
+        }
+
+        navigate(session ? '/dashboard' : '/login', { replace: true })
+    }, [hydrated, navigate, session])
+
+    return <div className='rounded-3xl border border-border/70 bg-card px-6 py-12 text-center text-muted-foreground'>Loading workspace…</div>
 }

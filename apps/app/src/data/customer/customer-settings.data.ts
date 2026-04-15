@@ -1,4 +1,4 @@
-import type { CustomerSettingsSection } from './customer-settings.types'
+import type { CustomerSettingsSection } from '@/types/customer/customer-settings.types'
 
 export const customerSettingsContent = {
     title: 'Profile & Settings',

@@ -1,8 +1,8 @@
 import Env from 'env'
 import { useCallback } from 'react'
-import { customerSettingsContent, getCustomerSettingsSections } from './customer-settings.data'
+import { customerSettingsContent, getCustomerSettingsSections } from '@/data/customer/customer-settings.data'
 import { Button, FocusAwareStatusBar, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
-import { useAuthStore } from '@/features/auth/use-auth-store'
+import { useAuthStore } from '@/auth/use-auth-store'
 
 export default function CustomerSettingsScreen() {
     const signOut = useAuthStore.use.signOut()

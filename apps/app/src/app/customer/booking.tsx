@@ -1,5 +1,5 @@
-import { customerBookingContent, customerBookingSteps } from './customer-booking.data'
-import { SectionHeading } from '../components/section-heading'
+import { SectionHeading } from '@/components/section-heading'
+import { customerBookingContent, customerBookingSteps } from '@/data/customer/customer-booking.data'
 import { Button, FocusAwareStatusBar, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 
 export default function CustomerBookingScreen() {

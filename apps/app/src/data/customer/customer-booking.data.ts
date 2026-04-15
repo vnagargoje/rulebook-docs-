@@ -1,4 +1,4 @@
-import type { CustomerBookingStep } from './customer-booking.types'
+import type { CustomerBookingStep } from '@/types/customer/customer-booking.types'
 
 export const customerBookingContent = {
     heading: {

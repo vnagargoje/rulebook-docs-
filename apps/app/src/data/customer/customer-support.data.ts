@@ -1,4 +1,4 @@
-import type { CustomerSupportCard } from './customer-support.types'
+import type { CustomerSupportCard } from '@/types/customer/customer-support.types'
 
 export const customerSupportContent = {
     heading: {

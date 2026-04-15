@@ -1,5 +1,5 @@
-import { customerSupportCards, customerSupportContent } from './customer-support.data'
-import { SectionHeading } from '../components/section-heading'
+import { SectionHeading } from '@/components/section-heading'
+import { customerSupportCards, customerSupportContent } from '@/data/customer/customer-support.data'
 import { Button, FocusAwareStatusBar, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 
 export default function CustomerSupportScreen() {

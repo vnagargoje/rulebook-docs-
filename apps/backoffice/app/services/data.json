@@ -1,0 +1,321 @@
+{
+  "admins": [
+    {
+      "id": "admin-1",
+      "name": "Raju Admin",
+      "email": "admin@yugo.com",
+      "password": "admin123",
+      "role": "SYSTEM_ADMIN"
+    }
+  ],
+  "users": [
+    {
+      "id": "user-1",
+      "name": "John Doe",
+      "mobile": "9876543210",
+      "email": "john@yugo.com",
+      "gender": "MALE",
+      "dob": "1992-04-18",
+      "role": "HUB_MANAGER",
+      "stationId": "station-1",
+      "address": {
+        "line1": "44 Market Road",
+        "line2": "HSR Layout",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "postalCode": "560102"
+      },
+      "status": "ACTIVE"
+    },
+    {
+      "id": "user-2",
+      "name": "Priya Singh",
+      "mobile": "9988776655",
+      "email": "priya@yugo.com",
+      "gender": "FEMALE",
+      "dob": "1995-11-02",
+      "role": "SWAP_STATION_MANAGER",
+      "stationId": "station-2",
+      "address": {
+        "line1": "89 Residency Road",
+        "line2": "MG Road",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "postalCode": "560025"
+      },
+      "status": "ACTIVE"
+    },
+    {
+      "id": "user-3",
+      "name": "Arjun Patel",
+      "mobile": "9090909090",
+      "email": "arjun.customer@yugo.com",
+      "gender": "MALE",
+      "dob": "1998-08-25",
+      "role": "CUSTOMER",
+      "stationId": "station-2",
+      "address": {
+        "line1": "17 Green Avenue",
+        "line2": "Indiranagar",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "postalCode": "560038"
+      },
+      "status": "ACTIVE"
+    }
+  ],
+  "stations": [
+    {
+      "id": "station-1",
+      "name": "Central Hub",
+      "code": "HUB-CENTRAL",
+      "type": "HUB",
+      "address": {
+        "line1": "100 Hub Circle",
+        "line2": "Yeshwanthpur",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "postalCode": "560022"
+      },
+      "latitude": "12.9985",
+      "longitude": "77.5740",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "station-2",
+      "name": "Koramangala Swap Station",
+      "code": "SWAP-KOR",
+      "type": "SWAP_STATION",
+      "address": {
+        "line1": "41 5th Block",
+        "line2": "Koramangala",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "postalCode": "560095"
+      },
+      "latitude": "12.9352",
+      "longitude": "77.6245",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "station-3",
+      "name": "Indiranagar Charging Point",
+      "code": "CHG-IND",
+      "type": "CHARGING_STATION",
+      "address": {
+        "line1": "12 Double Road",
+        "line2": "Indiranagar",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "postalCode": "560038"
+      },
+      "latitude": "12.9784",
+      "longitude": "77.6408",
+      "status": "ACTIVE"
+    }
+  ],
+  "plans": [
+    {
+      "id": "plan-1",
+      "name": "Starter Plan",
+      "description": "Entry level monthly plan for city riders.",
+      "validityDays": 30,
+      "kmRange": 500,
+      "price": 999,
+      "deposit": 2000,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "plan-2",
+      "name": "Commuter Plus",
+      "description": "Higher distance allowance for daily work travel.",
+      "validityDays": 45,
+      "kmRange": 900,
+      "price": 1799,
+      "deposit": 2500,
+      "status": "ACTIVE"
+    }
+  ],
+  "topUpPlans": [
+    {
+      "id": "topup-1",
+      "name": "Weekend Booster",
+      "description": "Additional ride pack for heavy weekend usage.",
+      "validityDays": 7,
+      "kmRange": 150,
+      "price": 299,
+      "deposit": 0,
+      "status": "ACTIVE"
+    }
+  ],
+  "vehicles": [
+    {
+      "id": "vehicle-1",
+      "registrationNumber": "KA01XY1234",
+      "rcNumber": "RC-KA01XY1234",
+      "chassisNumber": "CH-00012345",
+      "brand": "YUGO",
+      "model": "Urban X1",
+      "gpsId": "GPS-VEH-001",
+      "insuranceExpiry": "2027-01-31",
+      "status": "ASSIGNED_TO_STATION",
+      "stationId": "station-2"
+    },
+    {
+      "id": "vehicle-2",
+      "registrationNumber": "KA03ZZ2456",
+      "rcNumber": "RC-KA03ZZ2456",
+      "chassisNumber": "CH-00012346",
+      "brand": "YUGO",
+      "model": "Urban X1",
+      "gpsId": "GPS-VEH-002",
+      "insuranceExpiry": "2026-11-30",
+      "status": "ASSIGNED_TO_CUSTOMER",
+      "stationId": "station-2",
+      "customerId": "user-3"
+    },
+    {
+      "id": "vehicle-3",
+      "registrationNumber": "KA05AB8899",
+      "rcNumber": "RC-KA05AB8899",
+      "chassisNumber": "CH-00012347",
+      "brand": "YUGO",
+      "model": "City Runner",
+      "gpsId": "GPS-VEH-003",
+      "insuranceExpiry": "2026-09-15",
+      "status": "IN_MAINTENANCE",
+      "stationId": "station-1"
+    }
+  ],
+  "maintenance": [
+    {
+      "id": "maintenance-1",
+      "reportedDate": "2026-04-04",
+      "vehicleId": "vehicle-3",
+      "issueDescription": "Brake calibration and rear light replacement.",
+      "technicianName": "Suresh Kumar",
+      "expectedFixDate": "2026-04-16",
+      "status": "IN_PROGRESS"
+    }
+  ],
+  "inactiveVehicles": [
+    {
+      "id": "inactive-1",
+      "reportedDate": "2026-04-02",
+      "vehicleId": "vehicle-3",
+      "description": "Temporarily held back after workshop inspection.",
+      "status": "UNDER_REVIEW"
+    }
+  ],
+  "vehicleStationAssignments": [
+    {
+      "id": "vs-1",
+      "vehicleId": "vehicle-1",
+      "stationId": "station-2",
+      "assignedAt": "2026-04-01T10:00:00.000Z",
+      "status": "ASSIGNED"
+    }
+  ],
+  "customerRequests": [
+    {
+      "id": "request-1",
+      "customerId": "user-3",
+      "requestedAt": "2026-04-10T09:30:00.000Z",
+      "preferredStationId": "station-2",
+      "notes": "Customer requested a fresh vehicle after plan renewal.",
+      "status": "PENDING"
+    }
+  ],
+  "customerVehicleAssignments": [
+    {
+      "id": "vc-1",
+      "vehicleId": "vehicle-2",
+      "customerId": "user-3",
+      "assignedAt": "2026-04-03T08:15:00.000Z",
+      "status": "ASSIGNED"
+    }
+  ],
+  "batteries": [
+    {
+      "id": "battery-1",
+      "batteryCode": "BAT-001",
+      "manufacturedAt": "2025-02-15",
+      "gpsId": "GPS-BAT-001",
+      "capacityAh": 30,
+      "rangeKm": 75,
+      "lifecycleCount": 410,
+      "chargingTimeHours": 3.5,
+      "weightKg": 12,
+      "warrantyUntil": "2027-02-14",
+      "removable": true,
+      "status": "AVAILABLE",
+      "stationId": "station-2"
+    },
+    {
+      "id": "battery-2",
+      "batteryCode": "BAT-002",
+      "manufacturedAt": "2025-02-16",
+      "gpsId": "GPS-BAT-002",
+      "capacityAh": 30,
+      "rangeKm": 75,
+      "lifecycleCount": 398,
+      "chargingTimeHours": 3.5,
+      "weightKg": 12,
+      "warrantyUntil": "2027-02-15",
+      "removable": true,
+      "status": "AVAILABLE",
+      "stationId": "station-2"
+    },
+    {
+      "id": "battery-3",
+      "batteryCode": "BAT-003",
+      "manufacturedAt": "2025-03-20",
+      "gpsId": "GPS-BAT-003",
+      "capacityAh": 28,
+      "rangeKm": 70,
+      "lifecycleCount": 220,
+      "chargingTimeHours": 3,
+      "weightKg": 11,
+      "warrantyUntil": "2027-03-19",
+      "removable": true,
+      "status": "NEEDS_CHARGE",
+      "stationId": "station-1"
+    },
+    {
+      "id": "battery-4",
+      "batteryCode": "BAT-004",
+      "manufacturedAt": "2025-04-02",
+      "gpsId": "GPS-BAT-004",
+      "capacityAh": 32,
+      "rangeKm": 82,
+      "lifecycleCount": 154,
+      "chargingTimeHours": 3.2,
+      "weightKg": 12.5,
+      "warrantyUntil": "2027-04-01",
+      "removable": false,
+      "status": "AVAILABLE",
+      "stationId": "station-1"
+    }
+  ],
+  "batteryStationAssignments": [
+    {
+      "id": "battery-assignment-1",
+      "stationId": "station-2",
+      "batteryIds": ["battery-1", "battery-2"],
+      "assignedAt": "2026-04-01T07:30:00.000Z",
+      "status": "ASSIGNED"
+    }
+  ],
+  "surrenders": [
+    {
+      "id": "surrender-1",
+      "vehicleId": "vehicle-2",
+      "customerId": "user-3",
+      "remarks": "Minor scratches noted on right panel.",
+      "penaltyCharges": 350,
+      "depositReturnAmount": 1650,
+      "submittedAt": "2026-04-08T14:00:00.000Z",
+      "status": "APPROVED"
+    }
+  ]
+}

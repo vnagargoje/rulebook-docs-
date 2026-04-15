@@ -1,5 +1,5 @@
-import { swapManagerContent, swapManagerMetrics } from './swap-manager.data'
-import { SectionHeading } from '../components/section-heading'
+import { SectionHeading } from '@/components/section-heading'
+import { swapManagerContent, swapManagerMetrics } from '@/data/swap-manager/swap-manager.data'
 import { FocusAwareStatusBar, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 
 export default function SwapManagerScreen() {

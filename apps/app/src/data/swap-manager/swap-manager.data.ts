@@ -1,4 +1,4 @@
-import type { SwapManagerMetric } from './swap-manager.types'
+import type { SwapManagerMetric } from '@/types/swap-manager/swap-manager.types'
 
 export const swapManagerContent = {
     heading: {

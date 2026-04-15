@@ -4504,6 +4504,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/cqrs@npm:^11.0.3":
+  version: 11.0.3
+  resolution: "@nestjs/cqrs@npm:11.0.3"
+  peerDependencies:
+    "@nestjs/common": ^10.0.0 || ^11.0.0
+    "@nestjs/core": ^10.0.0 || ^11.0.0
+    reflect-metadata: ^0.1.13 || ^0.2.0
+    rxjs: ^7.2.0
+  checksum: 10c0/f6dd3c9a802a0f2ae8399f629d5833ba51cc905891b5852fde4aeb119d29a88be1e9bce2722091314d7e7e84661f0aeb52970cdacc98b6c2e280c90d882daf8e
+  languageName: node
+  linkType: hard
+
 "@nestjs/jwt@npm:^11.0.2":
   version: 11.0.2
   resolution: "@nestjs/jwt@npm:11.0.2"
@@ -7922,6 +7934,7 @@ __metadata:
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/config": "npm:^4.0.4"
     "@nestjs/core": "npm:^11.0.1"
+    "@nestjs/cqrs": "npm:^11.0.3"
     "@nestjs/jwt": "npm:^11.0.2"
     "@nestjs/passport": "npm:^11.0.5"
     "@nestjs/platform-express": "npm:^11.0.1"
@@ -7938,6 +7951,7 @@ __metadata:
     "@types/passport": "npm:^0"
     "@types/passport-jwt": "npm:^4"
     "@types/qs": "npm:^6.15.0"
+    "@yugo/cqrs": "workspace:*"
     "@yugo/eslint": "workspace:*"
     "@yugo/nestjs-database": "workspace:*"
     "@yugo/nestjs-framework": "workspace:*"
@@ -8131,7 +8145,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@yugo/cqrs@workspace:packages/nestjs/cqrs":
+"@yugo/cqrs@workspace:*, @yugo/cqrs@workspace:packages/nestjs/cqrs":
   version: 0.0.0-use.local
   resolution: "@yugo/cqrs@workspace:packages/nestjs/cqrs"
   dependencies:
@@ -8141,6 +8155,7 @@ __metadata:
     del-cli: "npm:^7.0.0"
     tsup: "npm:^8.0.0"
     typescript: "npm:^5.4.5"
+    xior: "npm:^0.8.3"
   peerDependencies:
     "@nestjs/common": "*"
     "@nestjs/config": "*"

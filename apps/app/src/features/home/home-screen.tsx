@@ -15,13 +15,13 @@ export function HomeScreen() {
     const quickActionWidth = width < 360 ? '100%' : '48%'
     const rideStatWidth = width < 428 ? '100%' : '31%'
 
-    const handleBookingPress = React.useCallback( () => {
-        router.push( '/booking' )
-    }, [ router ] )
+    const handleBookingPress = React.useCallback(() => {
+        router.push('/customer/booking')
+    }, [router])
 
-    const handleSupportPress = React.useCallback( () => {
-        router.push( '/support' )
-    }, [ router ] )
+    const handleSupportPress = React.useCallback(() => {
+        router.push('/customer/support')
+    }, [router])
 
     return (
         <>
@@ -48,13 +48,13 @@ export function HomeScreen() {
                                 title='Everything you need before the next ride'
                             />
                             <View className='flex-row flex-wrap justify-between gap-y-4'>
-                                {homeQuickActions.map( ( action ) => (
+                                {homeQuickActions.map((action) => (
                                     <QuickActionCard
                                         key={action.id}
                                         action={action}
                                         width={quickActionWidth}
                                     />
-                                ) )}
+                                ))}
                             </View>
                         </View>
 
@@ -81,13 +81,13 @@ export function HomeScreen() {
                                 </View>
 
                                 <View className='mt-5 flex-row flex-wrap gap-3'>
-                                    {homeRideStats.map( ( stat ) => (
+                                    {homeRideStats.map((stat) => (
                                         <RideStatCard
                                             key={stat.id}
                                             stat={stat}
                                             width={rideStatWidth}
                                         />
-                                    ) )}
+                                    ))}
                                 </View>
                             </View>
                         </View>
@@ -98,12 +98,12 @@ export function HomeScreen() {
                                 title='Swap points close to your route'
                             />
                             <View className='gap-3'>
-                                {homeStations.map( ( station ) => (
+                                {homeStations.map((station) => (
                                     <StationCard
                                         key={station.id}
                                         station={station}
                                     />
-                                ) )}
+                                ))}
                             </View>
                         </View>
 
@@ -115,11 +115,12 @@ export function HomeScreen() {
                                 Keep KYC, payment, and pickup details within easy reach.
                             </Text>
                             <Text className='mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-300'>
-                                This layout is designed to surface the next step quickly, whether the user is choosing a plan or riding toward the nearest swap station.
+                                This layout is designed to surface the next step quickly, whether the user is choosing a
+                                plan or riding toward the nearest swap station.
                             </Text>
                             <Button
                                 label='Review profile settings'
-                                onPress={() => router.push( '/settings' )}
+                                onPress={() => router.push('/customer/settings')}
                                 className='mt-5 h-12 rounded-xl bg-primary-500'
                                 textClassName='text-base font-semibold text-white'
                             />

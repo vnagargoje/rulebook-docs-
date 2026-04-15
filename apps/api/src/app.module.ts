@@ -13,11 +13,17 @@ import {
     loggerConfig,
     redisConfig,
     deepvueConfig,
+    s3ClientConfig,
+    s3BucketConfig,
 } from './config';
 import { AppAuthGuard } from './guards/app.guard.js';
 import { TypeboxSerializerInterceptor } from './interceptors/typebox-serializer.interceptor.js';
 import { AuthModule } from './modules/auth/auth.module.js';
+import { BookingsModule } from './modules/bookings/bookings.module.js';
 import { CountryStateCitiesModule } from './modules/country-state-cities/country-state-cities.module.js';
+import { PlansModule } from './modules/plans/plans.module.js';
+import { TopUpsModule } from './modules/top-ups/top-ups.module.js';
+import { UserPlansModule } from './modules/user-plans/user-plans.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { CaslModule } from '@yugo/nestjs-casl';
 import { permissions } from '@yugo/permissions';
@@ -35,6 +41,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
                 loggerConfig,
                 redisConfig,
                 deepvueConfig,
+                s3ClientConfig,
+                s3BucketConfig,
             ],
         }),
         LoggerModule.forRootAsync({
@@ -74,6 +82,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         KycModule,
         CountryStateCitiesModule,
         UsersModule,
+        PlansModule,
+        TopUpsModule,
+        UserPlansModule,
+        BookingsModule,
     ],
     providers: [
         JwtStrategy,

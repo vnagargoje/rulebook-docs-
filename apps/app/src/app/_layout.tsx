@@ -20,7 +20,7 @@ export { ErrorBoundary } from 'expo-router'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const unstable_settings = {
-    initialRouteName: '(app)',
+    initialRouteName: 'index',
 }
 
 hydrateAuth()
@@ -38,7 +38,19 @@ export default function RootLayout() {
         <Providers>
             <Stack>
                 <Stack.Screen
-                    name='(app)'
+                    name='index'
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name='customer'
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name='swap-manager'
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name='hub-manager'
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen

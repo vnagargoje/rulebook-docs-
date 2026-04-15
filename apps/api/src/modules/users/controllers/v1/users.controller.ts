@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Body,
     Controller,
     ForbiddenException,
@@ -12,11 +11,13 @@ import {
     Req,
     UseGuards,
 } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { type Request } from 'express';
 import { AccessService } from '@yugo/nestjs-casl';
-import { UserEntity, RoleEntity } from '@yugo/nestjs-database/entities';
+import { UserEntity } from '@yugo/nestjs-database/entities';
+import { CreateUserCommand, UpdateUserCommand } from '@yugo/cqrs';
 import {
     FilterOperator,
     Paginate,
@@ -55,6 +56,7 @@ export class V1UsersController {
     constructor(
         @InjectDataSource() private readonly datasource: DataSource,
         @Inject(AccessService) private readonly accessService: AccessService,
+        private readonly commandBus: CommandBus,
     ) {}
 
     @ApiResource(UserResponse, PAGINATE_CONFIG)
@@ -119,53 +121,7 @@ export class V1UsersController {
             throw new ForbiddenException('not allowed');
         }
 
-        return this.datasource.transaction(async (manager) => {
-            const existingUser = await manager.findOne(UserEntity, {
-                where: [
-                    { mobilenumber: body.mobilenumber },
-                    ...(body.email ? [{ email: body.email }] : []),
-                ],
-            });
-
-            if (existingUser) {
-                if (existingUser.mobilenumber === body.mobilenumber) {
-                    throw new BadRequestException(
-                        `User with mobile number ${body.mobilenumber} already exists`,
-                    );
-                }
-
-                if (body.email && existingUser.email === body.email) {
-                    throw new BadRequestException(
-                        `User with email ${body.email} already exists`,
-                    );
-                }
-            }
-
-            const role = await manager.findOne(RoleEntity, {
-                where: { name: body.role },
-            });
-
-            if (!role) {
-                throw new BadRequestException(
-                    `User role ${body.role} does not exist`,
-                );
-            }
-
-            const roles: RoleEntity[] = [role];
-
-            const user = manager.create(UserEntity, {
-                email: body.email,
-                mobilenumber: body.mobilenumber,
-                firstName: body.firstName,
-                lastName: body.lastName,
-                gender: body.gender,
-                properties: body.properties,
-                dateOfBirth: body.dateOfBirth,
-                roles,
-            });
-
-            return manager.save(user);
-        });
+        return this.commandBus.execute(new CreateUserCommand(body));
     }
 
     @ApiBody({ schema: UpdateUserPayload })
@@ -188,56 +144,8 @@ export class V1UsersController {
 
         const userId = id === 'me' ? req.user.id : id;
 
-        return this.datasource.transaction(async (manager) => {
-            const user = await manager.findOne(UserEntity, {
-                where: { id: userId },
-                relations: { roles: true },
-            });
-
-            if (!user) {
-                throw new NotFoundException('User not found');
-            }
-
-            if (body.mobilenumber || body.email) {
-                const conflictUser = await manager.findOne(UserEntity, {
-                    where: [
-                        ...(body.mobilenumber
-                            ? [{ mobilenumber: body.mobilenumber }]
-                            : []),
-                        ...(body.email ? [{ email: body.email }] : []),
-                    ],
-                });
-
-                if (conflictUser && conflictUser.id !== user.id) {
-                    if (
-                        body.mobilenumber &&
-                        conflictUser.mobilenumber === body.mobilenumber
-                    ) {
-                        throw new BadRequestException(
-                            'Mobile number already in use',
-                        );
-                    }
-                    if (body.email && conflictUser.email === body.email) {
-                        throw new BadRequestException('Email already in use');
-                    }
-                }
-            }
-
-            if (canManageUsers && id !== 'me' && body.role) {
-                let role = await manager.findOne(RoleEntity, {
-                    where: { name: body.role },
-                });
-                if (!role) {
-                    role = manager.create(RoleEntity, { name: body.role });
-                    await manager.save(role);
-                }
-                user.roles = [role];
-            }
-
-            const { role, ...updateData } = body;
-            Object.assign(user, updateData);
-
-            return manager.save(user);
-        });
+        return this.commandBus.execute(
+            new UpdateUserCommand(userId, body, canManageUsers && id !== 'me'),
+        );
     }
 }

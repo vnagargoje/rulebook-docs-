@@ -3,16 +3,23 @@ import * as React from 'react'
 import { useCallback, useEffect } from 'react'
 
 import { colors } from '@/components/ui'
-import { Booking as BookingIcon, Home as HomeIcon, Profile as ProfileIcon, Support as SupportIcon } from '@/components/ui/icons'
+import {
+    Booking as BookingIcon,
+    Home as HomeIcon,
+    Profile as ProfileIcon,
+    Support as SupportIcon,
+} from '@/components/ui/icons'
 
-export default function TabLayout() {
+export default function CustomerLayout() {
     const hideSplash = useCallback(async () => {
         await SplashScreen.hideAsync()
     }, [])
+
     useEffect(() => {
         const timer = setTimeout(() => {
             hideSplash()
         }, 1000)
+
         return () => clearTimeout(timer)
     }, [hideSplash])
 
@@ -39,16 +46,15 @@ export default function TabLayout() {
                 options={{
                     title: 'Home',
                     tabBarIcon: ({ color }) => <HomeIcon color={color} />,
-                    tabBarButtonTestID: 'home-tab',
+                    tabBarButtonTestID: 'customer-home-tab',
                 }}
             />
-
             <Tabs.Screen
                 name='booking'
                 options={{
                     title: 'Booking',
                     tabBarIcon: ({ color }) => <BookingIcon color={color} />,
-                    tabBarButtonTestID: 'booking-tab',
+                    tabBarButtonTestID: 'customer-booking-tab',
                 }}
             />
             <Tabs.Screen
@@ -56,7 +62,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Support',
                     tabBarIcon: ({ color }) => <SupportIcon color={color} />,
-                    tabBarButtonTestID: 'support-tab',
+                    tabBarButtonTestID: 'customer-support-tab',
                 }}
             />
             <Tabs.Screen
@@ -64,7 +70,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color }) => <ProfileIcon color={color} />,
-                    tabBarButtonTestID: 'profile-tab',
+                    tabBarButtonTestID: 'customer-profile-tab',
                 }}
             />
         </Tabs>

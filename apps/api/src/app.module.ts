@@ -29,6 +29,7 @@ import { CaslModule } from '@yugo/nestjs-casl';
 import { permissions } from '@yugo/permissions';
 import { KycModule } from './modules/kyc/kyc.module.js';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { StationsModule } from './modules/stations/stations.module';
 
 @Module({
     imports: [
@@ -86,6 +87,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         TopUpsModule,
         UserPlansModule,
         BookingsModule,
+        StationsModule,
     ],
     providers: [
         JwtStrategy,

@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectEntityManager } from '@nestjs/typeorm'
-import { RoleEntity, UserEntity } from '@yugo/nestjs-database/entities'
+import { AddressEntity, RoleEntity, UserEntity } from '@yugo/nestjs-database/entities'
 import { EntityManager } from 'typeorm'
 import { CreateUserCommand } from '../../impl/users/create-users.command.js'
 
@@ -32,7 +32,24 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
                 roles: [role],
             })
 
-            return manager.save(user)
+            await manager.save(user)
+
+            if (body.address) {
+                const address = manager.create(AddressEntity, {
+                    lineOne: body.address.lineOne,
+                    lineTwo: body.address.lineTwo,
+                    pincode: body.address.pincode,
+                    cityId: body.address.cityId,
+                    userId: user.id,
+                })
+                await manager.save(address)
+                user.addresses = [address]
+            }
+
+            return manager.findOne(UserEntity, {
+                where: { id: user.id },
+                relations: { roles: true, addresses: { city: { state: true } } },
+            })
         })
     }
 }

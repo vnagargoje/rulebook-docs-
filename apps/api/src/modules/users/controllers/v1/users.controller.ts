@@ -44,7 +44,7 @@ const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
         mobilenumber: [FilterOperator.EQ, FilterOperator.ILIKE],
         'roles.name': [FilterOperator.EQ, FilterOperator.IN],
     },
-    relations: ['roles'],
+    relations: ['roles', 'addresses', 'addresses.city', 'addresses.city.state'],
     defaultSortBy: [['createdAt', 'DESC']],
 };
 
@@ -94,7 +94,7 @@ export class V1UsersController {
         const userId = id === 'me' ? req.user.id : id;
         const user = await this.datasource.manager.findOne(UserEntity, {
             where: { id: userId },
-            relations: { roles: true },
+            relations: { roles: true, addresses: { city: { state: true } } },
         });
 
         if (!user) {
@@ -142,10 +142,16 @@ export class V1UsersController {
             throw new ForbiddenException('not allowed');
         }
 
+        const isSystemAdmin = this.accessService.hasAbility(
+            req.user,
+            Actions.manage,
+            new UserSubject(),
+        );
+
         const userId = id === 'me' ? req.user.id : id;
 
         return this.commandBus.execute(
-            new UpdateUserCommand(userId, body, canManageUsers && id !== 'me'),
+            new UpdateUserCommand(userId, body, isSystemAdmin),
         );
     }
 }

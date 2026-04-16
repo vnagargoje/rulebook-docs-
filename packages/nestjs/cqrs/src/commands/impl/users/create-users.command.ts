@@ -1,5 +1,12 @@
 import { Gender } from '@yugo/shared'
 
+export interface CreateUserAddressPayload {
+    lineOne: string
+    lineTwo?: string
+    pincode: string
+    cityId?: string
+}
+
 export interface CreateUserPayload {
     email?: string
     mobilenumber: string
@@ -9,6 +16,7 @@ export interface CreateUserPayload {
     role?: string
     properties?: unknown
     dateOfBirth?: string
+    address?: CreateUserAddressPayload
 }
 
 export class CreateUserCommand {

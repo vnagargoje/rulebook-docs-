@@ -1,20 +1,21 @@
 import { Logger, NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { PlanEntity } from '@yugo/nestjs-database/entities'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { UpdatePlanCommand } from '../../impl/plans/update-plan.command.js'
 
 @CommandHandler(UpdatePlanCommand)
 export class UpdatePlanHandler implements ICommandHandler<UpdatePlanCommand> {
     private readonly logger = new Logger(UpdatePlanHandler.name)
 
-    constructor(@InjectEntityManager() private readonly manager: EntityManager) {}
+    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
     async execute(command: UpdatePlanCommand) {
         const { planId, payload } = command
+        const manager = this.datasource.manager
 
-        const plan = await this.manager.findOne(PlanEntity, { where: { id: planId } })
+        const plan = await manager.findOne(PlanEntity, { where: { id: planId } })
         if (!plan) {
             throw new NotFoundException('Plan not found')
         }
@@ -22,6 +23,6 @@ export class UpdatePlanHandler implements ICommandHandler<UpdatePlanCommand> {
         this.logger.log(`Updating plan: ${planId}`)
 
         Object.assign(plan, payload)
-        return this.manager.save(plan)
+        return manager.save(plan)
     }
 }

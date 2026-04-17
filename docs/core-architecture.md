@@ -1,8 +1,7 @@
 # Yugo Core Architecture Documentation
 
 > **Version:** 1.0  
-> **Last Updated:** April 2026  
-> **Audience:** Senior Engineers, Technical Leads, New Team Members
+> **Last Updated:** April 2026
 
 ---
 

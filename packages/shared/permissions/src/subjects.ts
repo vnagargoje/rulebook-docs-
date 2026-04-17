@@ -29,3 +29,9 @@ export class BookingSubject {
         return Subjects.Booking
     }
 }
+
+export class StationSubject {
+    static get modelName() {
+        return Subjects.Station
+    }
+}

@@ -1,3 +1,5 @@
+import { ApiResource } from '@/decorators/api-resource.decorator';
+import { AppAuthGuard } from '@/guards/app.guard';
 import {
     Body,
     Controller,
@@ -14,10 +16,12 @@ import {
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { type Request } from 'express';
+import { type Static } from '@sinclair/typebox';
+import { CreateUserCommand, UpdateUserCommand } from '@yugo/cqrs';
 import { AccessService } from '@yugo/nestjs-casl';
 import { UserEntity } from '@yugo/nestjs-database/entities';
-import { CreateUserCommand, UpdateUserCommand } from '@yugo/cqrs';
+import { Actions, UserSubject } from '@yugo/permissions';
+import { type Request } from 'express';
 import {
     FilterOperator,
     Paginate,
@@ -28,10 +32,6 @@ import {
 import { DataSource } from 'typeorm';
 import { CreateUserPayload, UpdateUserPayload } from '../../dtos/payloads';
 import { UserResponse } from '../../dtos/responses';
-import { type Static } from '@sinclair/typebox';
-import { ApiResource } from '@/decorators/api-resource.decorator';
-import { Actions, UserSubject } from '@yugo/permissions';
-import { AppAuthGuard } from '@/guards/app.guard';
 
 const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
     sortableColumns: ['id', 'firstName', 'lastName', 'createdAt'],
@@ -44,7 +44,7 @@ const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
         mobilenumber: [FilterOperator.EQ, FilterOperator.ILIKE],
         'roles.name': [FilterOperator.EQ, FilterOperator.IN],
     },
-    relations: ['roles'],
+    relations: ['roles', 'addresses', 'addresses.city', 'addresses.city.state'],
     defaultSortBy: [['createdAt', 'DESC']],
 };
 
@@ -94,7 +94,7 @@ export class V1UsersController {
         const userId = id === 'me' ? req.user.id : id;
         const user = await this.datasource.manager.findOne(UserEntity, {
             where: { id: userId },
-            relations: { roles: true },
+            relations: { roles: true, addresses: { city: { state: true } } },
         });
 
         if (!user) {
@@ -142,10 +142,16 @@ export class V1UsersController {
             throw new ForbiddenException('not allowed');
         }
 
+        const isSystemAdmin = this.accessService.hasAbility(
+            req.user,
+            Actions.manage,
+            new UserSubject(),
+        );
+
         const userId = id === 'me' ? req.user.id : id;
 
         return this.commandBus.execute(
-            new UpdateUserCommand(userId, body, canManageUsers && id !== 'me'),
+            new UpdateUserCommand(userId, body, isSystemAdmin),
         );
     }
 }

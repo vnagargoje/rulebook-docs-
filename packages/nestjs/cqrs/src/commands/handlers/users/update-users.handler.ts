@@ -1,18 +1,19 @@
 import { NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { AddressEntity, RoleEntity, UserEntity } from '@yugo/nestjs-database/entities'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { UpdateUserCommand } from '../../impl/users/update-users.command.js'
 
 @CommandHandler(UpdateUserCommand)
 export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
-    constructor(@InjectEntityManager() private readonly manager: EntityManager) {}
+    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
     async execute(command: UpdateUserCommand) {
         const { userId, payload: body, canUpdateRole } = command
+        const manager = this.datasource.manager
 
-        return this.manager.transaction(async (manager) => {
+        return manager.transaction(async (manager) => {
             const user = await manager.findOne(UserEntity, {
                 where: { id: userId },
                 relations: { roles: true, addresses: { city: { state: true } } },

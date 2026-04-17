@@ -184,15 +184,16 @@ export class CreateUserCommand {
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
     constructor(
-        @InjectEntityManager()
-        private readonly manager: EntityManager,
+        @InjectDataSource()
+        private readonly datasource: DataSource,
         private readonly walletService: WalletService,
     ) {}
 
     async execute(command: CreateUserCommand) {
         const { payload } = command
+        const manager = this.datasource.manager
 
-        return this.manager.transaction(async (manager) => {
+        return manager.transaction(async (manager) => {
             const user = manager.create(UserEntity, {
                 firstName: payload.firstName,
                 lastName: payload.lastName,
@@ -224,14 +225,15 @@ export class GetUsersQuery {
 @QueryHandler(GetUsersQuery)
 export class GetUsersHandler implements IQueryHandler<GetUsersQuery> {
     constructor(
-        @InjectEntityManager()
-        private readonly manager: EntityManager,
+        @InjectDataSource()
+        private readonly datasource: DataSource,
     ) {}
 
     async execute(query: GetUsersQuery) {
         const { filters } = query
+        const manager = this.datasource.manager
 
-        return this.manager
+        return manager
             .createQueryBuilder(UserEntity, 'user')
             .where('user.deletedAt IS NULL')
             .andWhere(filters.search ? 'user.firstName ILIKE :search OR user.lastName ILIKE :search' : '1=1', {
@@ -249,31 +251,32 @@ export class GetUsersHandler implements IQueryHandler<GetUsersQuery> {
 
 ## 🗃️ Database Access (STRICT)
 
-Always use the injected `EntityManager`. Never use `getRepository()`.
+Always inject `DataSource` and derive `manager` from `this.datasource.manager`. Never use `getRepository()` or `@InjectEntityManager()`.
 
 ### ✅ Allowed
 
 ```ts
 // Find one
-const user = await this.manager.findOne(UserEntity, {
+const manager = this.datasource.manager
+const user = await manager.findOne(UserEntity, {
     where: { id },
     relations: ['wallet'],
 })
 
 // Find many
-const users = await this.manager.find(UserEntity, {
+const users = await manager.find(UserEntity, {
     where: { isActive: true },
     order: { createdAt: 'DESC' },
 })
 
 // Save
-await this.manager.save(UserEntity, userEntity)
+await manager.save(UserEntity, userEntity)
 
 // Soft delete
-await this.manager.softDelete(UserEntity, id)
+await manager.softDelete(UserEntity, id)
 
 // Query builder
-const users = await this.manager
+const users = await manager
     .createQueryBuilder(UserEntity, 'user')
     .leftJoinAndSelect('user.wallet', 'wallet')
     .where('user.id = :id', { id })
@@ -286,9 +289,12 @@ const users = await this.manager
 // ❌ NEVER use this
 const userRepo = getRepository(UserEntity)
 const userRepo = this.connection.getRepository(UserEntity)
+
+// ❌ NEVER inject EntityManager directly
+@InjectEntityManager() private readonly manager: EntityManager
 ```
 
-> **Why?** Centralizes DB access, avoids inconsistent patterns, gives better control in transactions.
+> **Why?** `DataSource` is the TypeORM-recommended entry point. It gives access to the manager, exposes transaction support, and is consistent with NestJS DI best practices.
 
 ---
 
@@ -298,7 +304,8 @@ Always wrap multiple DB operations in a transaction.
 
 ```ts
 // ✅ Correct
-await this.manager.transaction(async (manager) => {
+const manager = this.datasource.manager
+await manager.transaction(async (manager) => {
     const user = await manager.save(UserEntity, userData)
 
     const wallet = manager.create(UserWalletEntity, {
@@ -319,8 +326,9 @@ await this.manager.transaction(async (manager) => {
 
 ```ts
 // ❌ If wallet save fails, user already exists — data is inconsistent
-await this.manager.save(UserEntity, userData)
-await this.manager.save(UserWalletEntity, walletData) // could fail!
+const manager = this.datasource.manager
+await manager.save(UserEntity, userData)
+await manager.save(UserWalletEntity, walletData) // could fail!
 ```
 
 > **Why?** Prevents partial writes, ensures data consistency.

@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { UserKycEntity, UserEntity } from '@yugo/nestjs-database/entities'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { GetKycStatusQuery } from '../../impl/kyc/get-kyc-status.query.js'
 import { KycDocumentType } from '@yugo/shared'
 import { NotFoundException } from '@nestjs/common'
@@ -9,17 +9,18 @@ import { NotFoundException } from '@nestjs/common'
 @QueryHandler(GetKycStatusQuery)
 export class GetKycStatusHandler implements IQueryHandler<GetKycStatusQuery> {
     constructor(
-        @InjectEntityManager()
-        private readonly manager: EntityManager,
+        @InjectDataSource()
+        private readonly datasource: DataSource,
     ) {}
 
     async execute(query: GetKycStatusQuery) {
         const { userId } = query
-        const user = await this.manager.findOne(UserEntity, { where: { id: userId } })
+        const manager = this.datasource.manager
+        const user = await manager.findOne(UserEntity, { where: { id: userId } })
         if (!user) {
             throw new NotFoundException('User not found')
         }
-        const kycs = await this.manager.find(UserKycEntity, {
+        const kycs = await manager.find(UserKycEntity, {
             where: { userId },
         })
         const mapKyc = (kyc?: UserKycEntity) => {

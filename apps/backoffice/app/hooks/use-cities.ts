@@ -1,10 +1,18 @@
-import { createQuery } from 'react-query-kit'
+import { useQuery } from '@tanstack/react-query'
 import { v1CitiesListManyCities } from '~/services/api/sdk'
 
-export const useCities = createQuery({
-    queryKey: ['cities'],
-    fetcher: async (variables?: Parameters<typeof v1CitiesListManyCities>[0]) => {
-        const { data } = await v1CitiesListManyCities(variables)
-        return data
-    },
-})
+export const useCities = (stateId: string | undefined) => {
+    return useQuery({
+        queryKey: ['cities', stateId],
+        queryFn: async () => {
+            const response = await v1CitiesListManyCities({
+                limit: 100,
+                sortBy: ['name:ASC'],
+                'filter.state.id': [`$eq:${stateId}`],
+            })
+            return response.data.data
+        },
+        enabled: !!stateId,
+        staleTime: Infinity,
+    })
+}

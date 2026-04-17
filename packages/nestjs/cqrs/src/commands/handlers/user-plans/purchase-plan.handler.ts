@@ -2,11 +2,11 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { FileEntity, PlanEntity, UserEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
 import { UserPlanStatus } from '@yugo/shared'
 import { toBuffer } from 'qrcode'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { PurchasePlanCommand } from '../../impl/user-plans/purchase-plan.command.js'
 
 @CommandHandler(PurchasePlanCommand)
@@ -15,7 +15,7 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
     private readonly s3Client: S3Client
 
     constructor(
-        @InjectEntityManager() private readonly manager: EntityManager,
+        @InjectDataSource() private readonly datasource: DataSource,
         private readonly configService: ConfigService,
     ) {
         const s3Config = this.configService.getOrThrow('s3-client.config')
@@ -24,8 +24,9 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
 
     async execute(command: PurchasePlanCommand) {
         const { userId, planId } = command
+        const manager = this.datasource.manager
 
-        return this.manager.transaction(async (manager) => {
+        return manager.transaction(async (manager) => {
             const user = await manager.findOne(UserEntity, { where: { id: userId } })
             if (!user) {
                 throw new NotFoundException('User not found')

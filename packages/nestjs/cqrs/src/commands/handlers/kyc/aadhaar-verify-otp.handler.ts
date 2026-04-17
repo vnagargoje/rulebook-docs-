@@ -1,10 +1,10 @@
 import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { AddressEntity, UserEntity, UserKycEntity } from '@yugo/nestjs-database/entities'
 import { Gender, KycDocumentType, KycStatus } from '@yugo/shared'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import xior from 'xior'
 import { DeepvueConfig } from '../../../types.js'
 import { AadhaarVerifyOtpCommand } from '../../impl/kyc/aadhaar-verify-otp.command.js'
@@ -12,15 +12,16 @@ import { AadhaarVerifyOtpCommand } from '../../impl/kyc/aadhaar-verify-otp.comma
 @CommandHandler(AadhaarVerifyOtpCommand)
 export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtpCommand> {
     constructor(
-        @InjectEntityManager() private readonly manager: EntityManager,
+        @InjectDataSource() private readonly datasource: DataSource,
         private readonly configService: ConfigService,
     ) {}
 
     async execute(command: AadhaarVerifyOtpCommand) {
         const { userId, payload } = command
+        const manager = this.datasource.manager
         const config = this.configService.getOrThrow<DeepvueConfig>('deepvue.config')
 
-        const user = await this.manager.findOne(UserEntity, { where: { id: userId }, relations: ['addresses'] })
+        const user = await manager.findOne(UserEntity, { where: { id: userId }, relations: ['addresses'] })
         if (!user) {
             throw new NotFoundException('User not found')
         }
@@ -45,7 +46,7 @@ export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtp
 
         const isSuccess = response.data.code === 200 || response.data.code === 201
 
-        await this.manager.transaction(async (manager) => {
+        await manager.transaction(async (manager) => {
             let kyc = await manager.findOne(UserKycEntity, {
                 where: { userId, type: KycDocumentType.AADHAR },
             })

@@ -1,10 +1,10 @@
 import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { UserEntity, UserKycEntity } from '@yugo/nestjs-database/entities'
 import { KycDocumentType, KycStatus } from '@yugo/shared'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import xior from 'xior'
 import { DeepvueConfig } from '../../../types.js'
 import { LicenseGetResultCommand } from '../../impl/kyc/license-get-result.command.js'
@@ -12,15 +12,16 @@ import { LicenseGetResultCommand } from '../../impl/kyc/license-get-result.comma
 @CommandHandler(LicenseGetResultCommand)
 export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResultCommand> {
     constructor(
-        @InjectEntityManager() private readonly manager: EntityManager,
+        @InjectDataSource() private readonly datasource: DataSource,
         private readonly configService: ConfigService,
     ) {}
 
     async execute(command: LicenseGetResultCommand) {
         const { userId, requestId } = command
+        const manager = this.datasource.manager
         const config = this.configService.getOrThrow<DeepvueConfig>('deepvue.config')
 
-        const user = await this.manager.findOne(UserEntity, { where: { id: userId } })
+        const user = await manager.findOne(UserEntity, { where: { id: userId } })
         if (!user) {
             throw new NotFoundException('User not found')
         }
@@ -52,7 +53,7 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
         const isSuccess = response.data.code === 200 || response.data.code === 201
 
         if (isSuccess) {
-            await this.manager.transaction(async (manager) => {
+            await manager.transaction(async (manager) => {
                 let kyc = await manager.findOne(UserKycEntity, {
                     where: { userId, type: KycDocumentType.DRIVING_LICENSE },
                 })

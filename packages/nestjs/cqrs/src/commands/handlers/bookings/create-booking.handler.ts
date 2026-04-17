@@ -1,21 +1,22 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { BookingEntity, StationEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
 import { BookingStatus, StationType, UserPlanStatus } from '@yugo/shared'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { CreateBookingCommand } from '../../impl/bookings/create-booking.command.js'
 
 @CommandHandler(CreateBookingCommand)
 export class CreateBookingHandler implements ICommandHandler<CreateBookingCommand> {
     private readonly logger = new Logger(CreateBookingHandler.name)
 
-    constructor(@InjectEntityManager() private readonly manager: EntityManager) {}
+    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
     async execute(command: CreateBookingCommand) {
         const { userId, userPlanId, stationId } = command
+        const manager = this.datasource.manager
 
-        return this.manager.transaction(async (manager) => {
+        return manager.transaction(async (manager) => {
             const userPlan = await manager.findOne(UserPlanEntity, {
                 where: { id: userPlanId, userId },
             })

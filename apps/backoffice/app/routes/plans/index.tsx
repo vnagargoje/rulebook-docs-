@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { IconPlus, IconEdit } from '@tabler/icons-react'
 
@@ -6,27 +6,59 @@ import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
-import { mockApi } from '~/services/mockApi'
-import { type Plan } from '~/types/admin'
-import { toast } from 'sonner'
+import { usePlans } from '~/queries/plans'
 import { formatCurrency } from '~/lib/formatter'
 
 export default function PlansListRoute() {
     const navigate = useNavigate()
-    const [plans, setPlans] = useState<Plan[]>([])
+    const [searchQuery, setSearchQuery] = useState('')
+    const [page, setPage] = useState(1)
+    const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
-    const loadPlans = useCallback(async () => {
-        try {
-            const data = await mockApi.listPlans('plans')
-            setPlans(data)
-        } catch (error) {
-            toast.error('Failed to load plans')
+    const queryParams = useMemo(() => {
+        const params: Parameters<typeof usePlans>[0] = {
+            page,
+            limit: 10,
+            sortBy: ['createdAt:DESC'],
         }
+        if (deferredSearchQuery) {
+            params.search = deferredSearchQuery
+        }
+        return params
+    }, [deferredSearchQuery, page])
+
+    const { data, isLoading } = usePlans(queryParams)
+
+    const plans = data?.data ?? []
+    const paginationMeta = data?.meta
+
+    const handleSearchChange = useCallback((value: string) => {
+        setSearchQuery(value)
+        setPage(1)
     }, [])
 
-    useEffect(() => {
-        void loadPlans()
-    }, [loadPlans])
+    const columns = useMemo(() => [
+        { header: 'Plan Name', accessor: 'name' as const },
+        { header: 'Validity (Days)', accessor: 'validityDays' as const },
+        { header: 'KM Limit', cell: (plan: (typeof plans)[number]) => `${plan.kmLimit} km` },
+        { header: 'Price', cell: (plan: (typeof plans)[number]) => formatCurrency(plan.price) },
+        { header: 'Deposit', cell: (plan: (typeof plans)[number]) => formatCurrency(plan.deposit) },
+        { header: 'GST', cell: (plan: (typeof plans)[number]) => formatCurrency(plan.gst) },
+        { header: 'Total', cell: (plan: (typeof plans)[number]) => formatCurrency(plan.totalAmount) },
+        { header: 'Status', cell: (plan: (typeof plans)[number]) => <StatusBadge status={plan.active ? 'ACTIVE' : 'INACTIVE'} /> },
+        {
+            header: 'Actions',
+            cell: (plan: (typeof plans)[number]) => (
+                <Button variant="ghost" size="icon" onClick={() => navigate(`/plans/edit/${plan.id}`)}>
+                    <IconEdit className="h-4 w-4" />
+                </Button>
+            ),
+        },
+    ], [navigate])
+
+    if (isLoading) {
+        return <div className="p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase">Loading Plans...</div>
+    }
 
     return (
         <div className="space-y-6">
@@ -42,25 +74,16 @@ export default function PlansListRoute() {
             </div>
 
             <ResourceTable
-                title="All Plans"
                 data={plans}
                 emptyMessage="No plans found."
-                columns={[
-                    { header: 'Plan Name', accessor: 'name' },
-                    { header: 'Validity (Days)', accessor: 'validityDays' },
-                    { header: 'KM Range', cell: (plan) => `${plan.kmRange} km` },
-                    { header: 'Price', cell: (plan) => formatCurrency(plan.price) },
-                    { header: 'Deposit', cell: (plan) => formatCurrency(plan.deposit) },
-                    { header: 'Status', cell: (plan) => <StatusBadge status={plan.status} /> },
-                    {
-                        header: 'Actions',
-                        cell: (plan) => (
-                            <Button variant="ghost" size="icon" onClick={() => navigate(`/plans/edit/${plan.id}`)}>
-                                <IconEdit className="h-4 w-4" />
-                            </Button>
-                        ),
-                    },
-                ]}
+                searchPlaceholder="Search plans by name or description..."
+                searchValue={searchQuery}
+                onSearchChange={handleSearchChange}
+                currentPage={paginationMeta?.currentPage ?? page}
+                totalPages={paginationMeta?.totalPages ?? 1}
+                totalItems={paginationMeta?.totalItems ?? plans.length}
+                onPageChange={setPage}
+                columns={columns}
             />
         </div>
     )

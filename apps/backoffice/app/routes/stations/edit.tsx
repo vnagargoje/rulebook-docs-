@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,87 +8,128 @@ import { IconArrowLeft } from '@tabler/icons-react'
 import { SelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
-import { mockApi } from '~/services/mockApi'
-import { stationTypeOptions, type Station } from '~/types/admin'
+import { useGetStationById, useUpdateStation, type UpdateStationPayload } from '~/queries/stations'
+import { useUsers } from '~/queries/users'
+import { useStates, useCities } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 
+const stationTypeOptions = [
+    { label: 'Swap Station', value: 'swap_station' },
+    { label: 'Hub Station', value: 'hub_station' },
+] as const
+
 const updateSchema = z.object({
-    id: z.string(),
     name: z.string().min(1, 'Name is required'),
-    code: z.string().min(1, 'Code is required'),
-    type: z.enum(['HUB', 'SWAP_STATION', 'CHARGING_STATION']),
-    address: z.object({
-        line1: z.string().min(1, 'Address is required'),
-        line2: z.string().optional(),
-        city: z.string().min(1, 'City is required'),
-        state: z.string().min(1, 'State is required'),
-        postalCode: z.string().min(1, 'Postal code is required'),
-    }),
-    latitude: z.string().min(1, 'Latitude is required'),
-    longitude: z.string().min(1, 'Longitude is required'),
-    status: z.enum(['ACTIVE', 'INACTIVE']),
+    type: z.enum(['swap_station', 'hub_station']),
+    active: z.enum(['true', 'false']),
+    latitude: z.string().optional(),
+    longitude: z.string().optional(),
+    managerId: z.string().optional(),
+    stateId: z.string().optional(),
+    cityId: z.string().optional(),
+    lineOne: z.string().optional(),
+    lineTwo: z.string().optional(),
+    pincode: z.string().optional(),
 })
 
-export type UpdateFormValues = z.infer<typeof updateSchema>
+type UpdateFormValues = z.infer<typeof updateSchema>
 
 export default function EditStationRoute() {
     const { id } = useParams()
     const navigate = useNavigate()
-    const [isLoading, setIsLoading] = useState(true)
+    const { data: station, isLoading } = useGetStationById(id)
+    const updateStation = useUpdateStation()
+    const { data: managers } = useUsers({ limit: 100, 'filter.roles.name': ['$in:swap_manager,hub_manager'] })
+    const { data: states } = useStates()
 
-    const form = useForm({
-        resolver: zodResolver(updateSchema) as any,
+    const form = useForm<UpdateFormValues>({
+        resolver: zodResolver(updateSchema),
+        defaultValues: {
+            name: '',
+            type: 'swap_station',
+            active: 'true',
+            latitude: '',
+            longitude: '',
+            managerId: '',
+            stateId: '',
+            cityId: '',
+            lineOne: '',
+            lineTwo: '',
+            pincode: '',
+        },
     })
 
+    const selectedStateId = form.watch('stateId')
+    const { data: cities } = useCities(selectedStateId || undefined)
+
+    const managerOptions = useMemo(() => (managers?.data ?? []).map((u) => ({
+        label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email || u.mobilenumber || u.id,
+        value: u.id,
+    })), [managers?.data])
+    const stateOptions = useMemo(() => (states ?? []).map((s) => ({ label: s.name, value: s.id })), [states])
+    const cityOptions = useMemo(() => (cities ?? []).map((c) => ({ label: c.name, value: c.id })), [cities])
+
     useEffect(() => {
-        const load = async () => {
-            try {
-                const stations = await mockApi.listStations()
-                const found = stations.find(s => s.id === id)
-                if (!found) {
-                    toast.error('Station not found')
-                    navigate('/stations')
-                    return
-                }
-                form.reset({
-                    id: found.id,
-                    name: found.name,
-                    code: found.code,
-                    type: found.type,
-                    status: found.status,
-                    latitude: found.latitude,
-                    longitude: found.longitude,
-                    address: {
-                        line1: found.address.line1,
-                        line2: found.address.line2 || '',
-                        city: found.address.city,
-                        state: found.address.state,
-                        postalCode: found.address.postalCode,
-                    },
-                })
-            } catch (error) {
-                toast.error('Failed to load station')
-            } finally {
-                setIsLoading(false)
+        if (station) {
+            form.reset({
+                name: station.name ?? '',
+                type: station.type ?? 'swap_station',
+                active: station.active ? 'true' : 'false',
+                latitude: station.latitude?.toString() ?? '',
+                longitude: station.longitude?.toString() ?? '',
+                managerId: station.managerId ?? '',
+                stateId: station.address?.city?.state?.id ?? '',
+                cityId: station.address?.city?.id ?? '',
+                lineOne: station.address?.lineOne ?? '',
+                lineTwo: station.address?.lineTwo ?? '',
+                pincode: station.address?.pincode ?? '',
+            })
+        }
+    }, [station, form])
+
+    const onSubmit = useCallback((values: UpdateFormValues) => {
+        if (!id) return
+
+        const payload: UpdateStationPayload = {
+            name: values.name,
+            type: values.type,
+            active: values.active === 'true',
+            latitude: values.latitude ? parseFloat(values.latitude) : undefined,
+            longitude: values.longitude ? parseFloat(values.longitude) : undefined,
+            managerId: values.managerId || undefined,
+        }
+
+        if (values.lineOne) {
+            payload.address = {
+                lineOne: values.lineOne,
+                lineTwo: values.lineTwo || undefined,
+                pincode: values.pincode || '',
+                cityId: values.cityId || undefined,
             }
         }
-        void load()
-    }, [id, navigate, form])
 
-    const onSubmit = async (values: UpdateFormValues) => {
-        try {
-            await mockApi.saveStation(values as Station)
-            toast.success('Station updated successfully')
-            navigate('/stations')
-        } catch (error) {
-            toast.error('Failed to update station')
-        }
-    }
+        updateStation.mutate(
+            { id, data: payload },
+            {
+                onSuccess: () => {
+                    toast.success('Station updated successfully')
+                    navigate('/stations')
+                },
+                onError: (error: any) => {
+                    toast.error(error?.response?.data?.message || 'Failed to update station')
+                },
+            },
+        )
+    }, [id, updateStation, navigate])
 
     if (isLoading) {
         return <div className="p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase">Loading Record...</div>
+    }
+
+    if (!station) {
+        return <div className="p-8 text-center text-muted-foreground font-bold tracking-widest text-sm uppercase">Station not found</div>
     }
 
     return (
@@ -111,20 +152,26 @@ export default function EditStationRoute() {
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Identity & Classification</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <TextInputField control={form.control} name="name" label="Station Name" placeholder="e.g. Bandra West Hub" />
-                                    <TextInputField control={form.control} name="code" label="Internal Station Code" placeholder="STN-XXX" />
-                                </div>
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <SelectField
                                         control={form.control}
                                         name="type"
                                         label="Facility Type"
-                                        options={stationTypeOptions.map(t => ({ label: t.replace(/_/g, ' '), value: t }))}
+                                        options={[...stationTypeOptions]}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <SelectField
+                                        control={form.control}
+                                        name="active"
+                                        label="Operational Status"
+                                        options={[{ label: 'Active', value: 'true' }, { label: 'Inactive', value: 'false' }]}
                                     />
                                     <SelectField
                                         control={form.control}
-                                        name="status"
-                                        label="Operational Status"
-                                        options={[{ label: 'Active', value: 'ACTIVE' }, { label: 'Inactive', value: 'INACTIVE' }]}
+                                        name="managerId"
+                                        label="Station Manager (Optional)"
+                                        options={managerOptions}
+                                        placeholder="Select a manager"
                                     />
                                 </div>
                             </div>
@@ -139,21 +186,34 @@ export default function EditStationRoute() {
 
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Physical Location</h4>
-                                <div className="space-y-6">
-                                    <TextInputField control={form.control} name="address.line1" label="Address Line 1" placeholder="Building, Street, Landmark" />
-                                    <TextInputField control={form.control} name="address.line2" label="Address Line 2 (Optional)" placeholder="Additional details" />
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <TextInputField control={form.control} name="address.city" label="City" />
-                                        <TextInputField control={form.control} name="address.state" label="State" />
-                                        <TextInputField control={form.control} name="address.postalCode" label="PIN Code" />
-                                    </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <TextInputField control={form.control} name="lineOne" label="Address Line 1" placeholder="Building, Street, Landmark" />
+                                    <TextInputField control={form.control} name="lineTwo" label="Address Line 2 (Optional)" placeholder="Additional details" />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                                    <SelectField
+                                        control={form.control}
+                                        name="stateId"
+                                        label="State"
+                                        options={stateOptions}
+                                        placeholder="Select state"
+                                    />
+                                    <SelectField
+                                        control={form.control}
+                                        name="cityId"
+                                        label="City"
+                                        options={cityOptions}
+                                        placeholder={selectedStateId ? 'Select city' : 'Select state first'}
+                                        key={selectedStateId || 'no-state'}
+                                    />
+                                    <TextInputField control={form.control} name="pincode" label="PIN Code" placeholder="400001" />
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/stations')}>Cancel</Button>
-                                <Button type="submit" className="min-w-[140px] uppercase text-xs font-bold tracking-widest">
-                                    Update Station
+                                <Button type="submit" disabled={updateStation.isPending} className="min-w-35 uppercase text-xs font-bold tracking-widest">
+                                    {updateStation.isPending ? 'Updating...' : 'Update Station'}
                                 </Button>
                             </div>
                         </form>

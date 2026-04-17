@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,99 +8,175 @@ import { IconArrowLeft } from '@tabler/icons-react'
 import { SelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
-import { mockApi } from '~/services/mockApi'
-import { userRoleOptions, type User, type Station } from '~/types/admin'
+import { useGetUserById, useUpdateUser, type UpdateUserPayload } from '~/queries/users'
+import { useStates, useCities } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 
+const roleOptions = [
+    { label: 'Customer', value: 'customer' },
+    { label: 'Swap Manager', value: 'swap_manager' },
+    { label: 'Hub Manager', value: 'hub_manager' },
+    { label: 'System Admin', value: 'system_admin' },
+] as const
+
+const genderOptions = [
+    { label: 'Male', value: 'male' },
+    { label: 'Female', value: 'female' },
+    { label: 'Other', value: 'other' },
+] as const
+
+const allowedRoles = ['customer', 'swap_manager', 'hub_manager', 'system_admin', 'system_user'] as const
+const allowedGenders = ['male', 'female', 'other'] as const
+
 const updateSchema = z.object({
-    id: z.string(),
-    name: z.string().min(1, 'Name is required'),
-    mobile: z.string().min(10, 'Mobile is required'),
-    email: z.string().email('Invalid email'),
-    gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
-    dob: z.string().min(1, 'Date of Birth is required'),
-    role: z.enum(['HUB_MANAGER', 'SWAP_STATION_MANAGER', 'CUSTOMER']),
-    stationId: z.string().optional(),
-    address: z.object({
-        line1: z.string().min(1, 'Address is required'),
-        line2: z.string().optional(),
-        city: z.string().min(1, 'City is required'),
-        state: z.string().min(1, 'State is required'),
-        postalCode: z.string().min(1, 'Postal code is required'),
-    }),
-    status: z.enum(['ACTIVE', 'INACTIVE']),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    mobilenumber: z.string().min(10, 'Mobile number is required'),
+    email: z.string().email('Invalid email').optional().or(z.literal('')),
+    gender: z.enum(['male', 'female', 'other']).optional(),
+    dateOfBirth: z.string().optional(),
+    role: z.enum(['customer', 'swap_manager', 'hub_manager', 'system_admin', 'system_user']),
+    stateId: z.string().optional(),
+    cityId: z.string().optional(),
+    lineOne: z.string().optional(),
+    lineTwo: z.string().optional(),
+    pincode: z.string().optional(),
 })
 
-export type UpdateFormValues = z.infer<typeof updateSchema>
+type UpdateFormValues = z.infer<typeof updateSchema>
+
+function getUserProperties(properties: unknown) {
+    if (!properties) return {}
+
+    if (typeof properties === 'string') {
+        try {
+            const parsed = JSON.parse(properties)
+            return parsed && typeof parsed === 'object' ? parsed : {}
+        } catch {
+            return {}
+        }
+    }
+
+    return typeof properties === 'object' ? properties : {}
+}
+
+function getRoleNameFromProperties(properties: unknown): UpdateFormValues['role'] {
+    const normalizedProperties = getUserProperties(properties) as { roleName?: string }
+    const roleName = normalizedProperties.roleName?.trim().toLowerCase()
+
+    return allowedRoles.find((value) => value === roleName) ?? 'customer'
+}
+
+function getGenderValue(gender?: string) {
+    const normalizedGender = gender?.trim().toLowerCase()
+    return normalizedGender ? allowedGenders.find((value) => value === normalizedGender) : undefined
+}
 
 export default function EditUserRoute() {
     const { id } = useParams()
     const navigate = useNavigate()
-    const [stations, setStations] = useState<Station[]>([])
-    const [isLoading, setIsLoading] = useState(true)
+    const { data: user, isLoading } = useGetUserById(id)
+    const updateUser = useUpdateUser()
+    const { data: states } = useStates()
 
-    const form = useForm({
-        resolver: zodResolver(updateSchema) as any,
+    const form = useForm<UpdateFormValues>({
+        resolver: zodResolver(updateSchema),
+        defaultValues: {
+            firstName: '',
+            lastName: '',
+            mobilenumber: '',
+            email: '',
+            gender: undefined,
+            dateOfBirth: '',
+            role: 'customer',
+            stateId: '',
+            cityId: '',
+            lineOne: '',
+            lineTwo: '',
+            pincode: '',
+        },
     })
 
+    const selectedStateId = form.watch('stateId')
+    const { data: cities } = useCities(selectedStateId || undefined)
+
+    const stateOptions = (states ?? []).map((s) => ({ label: s.name, value: s.id }))
+    const cityOptions = (cities ?? []).map((c) => ({ label: c.name, value: c.id }))
+
     useEffect(() => {
-        const load = async () => {
-            try {
-                const [allUsers, fetchedStations] = await Promise.all([
-                    mockApi.listUsers(),
-                    mockApi.listStations()
-                ])
-                setStations(fetchedStations)
-                const found = allUsers.find(u => u.id === id)
-                if (!found) {
-                    toast.error('User not found')
-                    navigate('/users')
-                    return
-                }
-                form.reset({
-                    id: found.id,
-                    name: found.name,
-                    mobile: found.mobile,
-                    email: found.email,
-                    gender: found.gender,
-                    dob: found.dob,
-                    role: found.role,
-                    stationId: found.stationId,
-                    status: found.status,
-                    address: {
-                        line1: found.address.line1,
-                        line2: found.address.line2 || '',
-                        city: found.address.city,
-                        state: found.address.state,
-                        postalCode: found.address.postalCode,
-                    },
-                })
-            } catch (error) {
-                toast.error('Failed to load user data')
-            } finally {
-                setIsLoading(false)
+        if (user) {
+            const normalizedGender = getGenderValue(user.gender ?? undefined)
+            const normalizedRole = getRoleNameFromProperties(user.properties) ?? ((user.roles?.[0]?.name?.trim().toLowerCase() as UpdateFormValues['role']) || 'customer')
+
+            const address = user.addresses?.[0]
+            form.reset({
+                firstName: user.firstName ?? '',
+                lastName: user.lastName ?? '',
+                mobilenumber: user.mobilenumber ?? '',
+                email: user.email ?? '',
+                gender: normalizedGender,
+                dateOfBirth: user.dateOfBirth ?? '',
+                role: normalizedRole,
+                stateId: address?.city?.state?.id ?? '',
+                cityId: address?.city?.id ?? '',
+                lineOne: address?.lineOne ?? '',
+                lineTwo: address?.lineTwo ?? '',
+                pincode: address?.pincode ?? '',
+            })
+        }
+    }, [user, form])
+
+    const onSubmit = (values: UpdateFormValues) => {
+        if (!id || !user) return
+
+        const mobile = values.mobilenumber.startsWith('91') ? values.mobilenumber : `91${values.mobilenumber}`
+        const existingProperties = user.properties && typeof user.properties === 'object' ? user.properties : {}
+        const payload: UpdateUserPayload = {
+            firstName: values.firstName,
+            lastName: values.lastName,
+            mobilenumber: mobile,
+            email: values.email || undefined,
+            gender: values.gender,
+            dateOfBirth: values.dateOfBirth || undefined,
+            role: values.role,
+            properties: {
+                ...existingProperties,
+                roleName: values.role,
+            },
+        }
+
+        if (values.lineOne) {
+            payload.address = {
+                lineOne: values.lineOne,
+                lineTwo: values.lineTwo || undefined,
+                pincode: values.pincode || '',
+                cityId: values.cityId || undefined,
             }
         }
-        void load()
-    }, [id, navigate, form])
 
-    const onSubmit = async (values: UpdateFormValues) => {
-        try {
-            await mockApi.saveUser(values as User)
-            toast.success('User updated successfully')
-            navigate('/users')
-        } catch (error) {
-            toast.error('Failed to update user')
-        }
+        updateUser.mutate(
+            { id, data: payload },
+            {
+                onSuccess: () => {
+                    toast.success('User updated successfully')
+                    navigate('/users')
+                },
+                onError: (error: any) => {
+                    toast.error(error?.response?.data?.message || 'Failed to update user')
+                },
+            },
+        )
     }
 
     if (isLoading) {
         return <div className="p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase">Loading Record...</div>
     }
 
-    const stationOptions = stations.map((s) => ({ label: s.name, value: s.id }))
+    if (!user) {
+        return <div className="p-8 text-center text-muted-foreground font-bold tracking-widest text-sm uppercase">User not found</div>
+    }
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
@@ -121,64 +197,66 @@ export default function EditUserRoute() {
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Personal Information</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="name" label="Full Name" placeholder="John Doe" />
-                                    <TextInputField control={form.control} name="email" label="Email Address" type="email" placeholder="john@example.com" />
+                                    <TextInputField control={form.control} name="firstName" label="First Name" placeholder="John" />
+                                    <TextInputField control={form.control} name="lastName" label="Last Name" placeholder="Doe" />
                                 </div>
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                                    <TextInputField control={form.control} name="mobile" label="Mobile Number" placeholder="1234567890" />
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <TextInputField control={form.control} name="email" label="Email Address" type="email" placeholder="john@example.com" />
+                                    <TextInputField control={form.control} name="mobilenumber" label="Mobile Number" placeholder="9876543210" />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <SelectField
                                         control={form.control}
                                         name="gender"
                                         label="Gender"
-                                        options={[{ label: 'Male', value: 'MALE' }, { label: 'Female', value: 'FEMALE' }, { label: 'Other', value: 'OTHER' }]}
+                                        options={[...genderOptions]}
                                     />
-                                    <TextInputField control={form.control} name="dob" label="Date of Birth" type="date" />
+                                    <TextInputField control={form.control} name="dateOfBirth" label="Date of Birth" type="date" />
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Address</h4>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <TextInputField control={form.control} name="lineOne" label="Address Line 1" placeholder="Building, Street, Landmark" />
+                                    <TextInputField control={form.control} name="lineTwo" label="Address Line 2 (Optional)" placeholder="Additional details" />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                                    <SelectField
+                                        control={form.control}
+                                        name="stateId"
+                                        label="State"
+                                        options={stateOptions}
+                                        placeholder="Select state"
+                                    />
+                                    <SelectField
+                                        control={form.control}
+                                        name="cityId"
+                                        label="City"
+                                        options={cityOptions}
+                                        placeholder={selectedStateId ? 'Select city' : 'Select state first'}
+                                        key={selectedStateId || 'no-state'}
+                                    />
+                                    <TextInputField control={form.control} name="pincode" label="PIN Code" placeholder="400001" />
                                 </div>
                             </div>
 
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">System Access & Role</h4>
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                <div className="max-w-xs">
                                     <SelectField
                                         control={form.control}
                                         name="role"
                                         label="System Role"
-                                        options={userRoleOptions.map(r => ({ label: r.replace(/_/g, ' '), value: r }))}
+                                        options={[...roleOptions]}
                                     />
-                                    {form.watch('role') !== 'CUSTOMER' && (
-                                        <SelectField
-                                            control={form.control}
-                                            name="stationId"
-                                            label="Assigned Station"
-                                            options={stationOptions}
-                                        />
-                                    )}
-                                </div>
-                                <div className="max-w-xs">
-                                    <SelectField
-                                        control={form.control}
-                                        name="status"
-                                        label="Account Status"
-                                        options={[{ label: 'Active', value: 'ACTIVE' }, { label: 'Inactive', value: 'INACTIVE' }]}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-6">
-                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Address Details</h4>
-                                <TextInputField control={form.control} name="address.line1" label="Address Line 1" placeholder="123 Main St" />
-                                <TextInputField control={form.control} name="address.line2" label="Address Line 2 (Optional)" placeholder="Apt 4B" />
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                                    <TextInputField control={form.control} name="address.city" label="City" placeholder="City" />
-                                    <TextInputField control={form.control} name="address.state" label="State" placeholder="State" />
-                                    <TextInputField control={form.control} name="address.postalCode" label="Postal Code" placeholder="ZIP" />
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/users')}>Cancel</Button>
-                                <Button type="submit" className="min-w-[140px] uppercase text-xs font-bold tracking-widest">
-                                    Save Changes
+                                <Button type="submit" disabled={updateUser.isPending} className="min-w-35 uppercase text-xs font-bold tracking-widest">
+                                    {updateUser.isPending ? 'Saving...' : 'Save Changes'}
                                 </Button>
                             </div>
                         </form>

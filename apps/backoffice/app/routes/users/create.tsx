@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,65 +8,110 @@ import { IconArrowLeft } from '@tabler/icons-react'
 import { SelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
-import { mockApi } from '~/services/mockApi'
-import { userRoleOptions, type User, type Station } from '~/types/admin'
+import { useCreateUser, type CreateUserPayload } from '~/queries/users'
+import { useStates, useCities } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 
+const roleOptions = [
+    { label: 'Customer', value: 'customer' },
+    { label: 'Swap Manager', value: 'swap_manager' },
+    { label: 'Hub Manager', value: 'hub_manager' },
+    { label: 'System Admin', value: 'system_admin' },
+] as const
+
+const genderOptions = [
+    { label: 'Male', value: 'male' },
+    { label: 'Female', value: 'female' },
+    { label: 'Other', value: 'other' },
+] as const
+
 const createSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    mobile: z.string().min(10, 'Mobile is required'),
-    email: z.string().email('Invalid email'),
-    gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
-    dob: z.string().min(1, 'Date of Birth is required'),
-    role: z.enum(['HUB_MANAGER', 'SWAP_STATION_MANAGER', 'CUSTOMER']),
-    stationId: z.string().optional(),
-    address: z.object({
-        line1: z.string().min(1, 'Address is required'),
-        line2: z.string().optional(),
-        city: z.string().min(1, 'City is required'),
-        state: z.string().min(1, 'State is required'),
-        postalCode: z.string().min(1, 'Postal code is required'),
-    }),
-    status: z.enum(['ACTIVE', 'INACTIVE']),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    mobilenumber: z.string().min(10, 'Mobile number is required'),
+    email: z.string().email('Invalid email').optional().or(z.literal('')),
+    gender: z.enum(['male', 'female', 'other']).optional(),
+    dateOfBirth: z.string().optional(),
+    role: z.enum(['customer', 'swap_manager', 'hub_manager', 'system_admin', 'system_user']),
+    stateId: z.string().optional(),
+    cityId: z.string().optional(),
+    lineOne: z.string().optional(),
+    lineTwo: z.string().optional(),
+    pincode: z.string().optional(),
 })
 
-export type CreateFormValues = z.infer<typeof createSchema>
+type CreateFormValues = z.infer<typeof createSchema>
 
 export default function CreateUserRoute() {
     const navigate = useNavigate()
-    const [stations, setStations] = useState<Station[]>([])
+    const createUser = useCreateUser()
+    const { data: states } = useStates()
 
-    useEffect(() => {
-        void mockApi.listStations().then(setStations)
-    }, [])
-
-    const form = useForm({
-        resolver: zodResolver(createSchema) as any,
+    const form = useForm<CreateFormValues>({
+        resolver: zodResolver(createSchema),
         defaultValues: {
-            name: '',
-            mobile: '',
+            firstName: '',
+            lastName: '',
+            mobilenumber: '',
             email: '',
-            gender: 'MALE',
-            dob: '',
-            role: 'CUSTOMER',
-            status: 'ACTIVE',
-            address: { line1: '', line2: '', city: '', state: '', postalCode: '' },
+            gender: undefined,
+            dateOfBirth: '',
+            role: 'customer',
+            stateId: '',
+            cityId: '',
+            lineOne: '',
+            lineTwo: '',
+            pincode: '',
         },
     })
 
-    const onSubmit = async (values: CreateFormValues) => {
-        try {
-            await mockApi.saveUser(values as unknown as User)
-            toast.success('User created successfully')
-            navigate('/users')
-        } catch (error) {
-            toast.error('Failed to create user')
-        }
-    }
+    const selectedStateId = form.watch('stateId')
+    const { data: cities } = useCities(selectedStateId || undefined)
 
-    const stationOptions = stations.map((s) => ({ label: s.name, value: s.id }))
+    // Reset city when state changes
+    useEffect(() => {
+        form.setValue('cityId', '')
+    }, [selectedStateId, form])
+
+    const stateOptions = (states ?? []).map((s) => ({ label: s.name, value: s.id }))
+    const cityOptions = (cities ?? []).map((c) => ({ label: c.name, value: c.id }))
+
+    const onSubmit = (values: CreateFormValues) => {
+        const mobile = values.mobilenumber.startsWith('91') ? values.mobilenumber : `91${values.mobilenumber}`
+        const payload: CreateUserPayload = {
+            mobilenumber: mobile,
+            firstName: values.firstName,
+            lastName: values.lastName,
+            email: values.email || undefined,
+            gender: values.gender,
+            dateOfBirth: values.dateOfBirth || undefined,
+            role: values.role,
+            properties: {
+                roleName: values.role,
+            },
+        }
+
+        if (values.lineOne) {
+            payload.address = {
+                lineOne: values.lineOne,
+                lineTwo: values.lineTwo || undefined,
+                pincode: values.pincode || '',
+                cityId: values.cityId || undefined,
+            }
+        }
+
+        createUser.mutate(payload, {
+            onSuccess: () => {
+                toast.success('User created successfully')
+                navigate('/users')
+            },
+            onError: (error: any) => {
+                toast.error(error?.response?.data?.message || 'Failed to create user')
+            },
+        })
+    }
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
@@ -87,64 +132,66 @@ export default function CreateUserRoute() {
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Personal Information</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="name" label="Full Name" placeholder="John Doe" />
-                                    <TextInputField control={form.control} name="email" label="Email Address" type="email" placeholder="john@example.com" />
+                                    <TextInputField control={form.control} name="firstName" label="First Name" placeholder="John" />
+                                    <TextInputField control={form.control} name="lastName" label="Last Name" placeholder="Doe" />
                                 </div>
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                                    <TextInputField control={form.control} name="mobile" label="Mobile Number" placeholder="1234567890" />
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <TextInputField control={form.control} name="email" label="Email Address" type="email" placeholder="john@example.com" />
+                                    <TextInputField control={form.control} name="mobilenumber" label="Mobile Number" placeholder="9876543210" />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <SelectField
                                         control={form.control}
                                         name="gender"
                                         label="Gender"
-                                        options={[{ label: 'Male', value: 'MALE' }, { label: 'Female', value: 'FEMALE' }, { label: 'Other', value: 'OTHER' }]}
+                                        options={[...genderOptions]}
                                     />
-                                    <TextInputField control={form.control} name="dob" label="Date of Birth" type="date" />
+                                    <TextInputField control={form.control} name="dateOfBirth" label="Date of Birth" type="date" />
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Address</h4>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <TextInputField control={form.control} name="lineOne" label="Address Line 1" placeholder="Building, Street, Landmark" />
+                                    <TextInputField control={form.control} name="lineTwo" label="Address Line 2 (Optional)" placeholder="Additional details" />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                                    <SelectField
+                                        control={form.control}
+                                        name="stateId"
+                                        label="State"
+                                        options={stateOptions}
+                                        placeholder="Select state"
+                                    />
+                                    <SelectField
+                                        control={form.control}
+                                        name="cityId"
+                                        label="City"
+                                        options={cityOptions}
+                                        placeholder={selectedStateId ? 'Select city' : 'Select state first'}
+                                        key={selectedStateId || 'no-state'}
+                                    />
+                                    <TextInputField control={form.control} name="pincode" label="PIN Code" placeholder="400001" />
                                 </div>
                             </div>
 
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">System Access & Role</h4>
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                <div className="max-w-xs">
                                     <SelectField
                                         control={form.control}
                                         name="role"
                                         label="System Role"
-                                        options={userRoleOptions.map(r => ({ label: r.replace(/_/g, ' '), value: r }))}
+                                        options={[...roleOptions]}
                                     />
-                                    {form.watch('role') !== 'CUSTOMER' && (
-                                        <SelectField
-                                            control={form.control}
-                                            name="stationId"
-                                            label="Assigned Station"
-                                            options={stationOptions}
-                                        />
-                                    )}
-                                </div>
-                                <div className="max-w-xs">
-                                    <SelectField
-                                        control={form.control}
-                                        name="status"
-                                        label="Account Status"
-                                        options={[{ label: 'Active', value: 'ACTIVE' }, { label: 'Inactive', value: 'INACTIVE' }]}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-6">
-                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Address Details</h4>
-                                <TextInputField control={form.control} name="address.line1" label="Address Line 1" placeholder="123 Main St" />
-                                <TextInputField control={form.control} name="address.line2" label="Address Line 2 (Optional)" placeholder="Apt 4B" />
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                                    <TextInputField control={form.control} name="address.city" label="City" placeholder="City" />
-                                    <TextInputField control={form.control} name="address.state" label="State" placeholder="State" />
-                                    <TextInputField control={form.control} name="address.postalCode" label="Postal Code" placeholder="ZIP" />
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/users')}>Cancel</Button>
-                                <Button type="submit" className="min-w-[140px] uppercase text-xs font-bold tracking-widest">
-                                    Create User
+                                <Button type="submit" disabled={createUser.isPending} className="min-w-35 uppercase text-xs font-bold tracking-widest">
+                                    {createUser.isPending ? 'Creating...' : 'Create User'}
                                 </Button>
                             </div>
                         </form>

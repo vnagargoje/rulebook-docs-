@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,50 +7,60 @@ import { IconArrowLeft } from '@tabler/icons-react'
 import { MultiSelectField, SelectField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
-import { mockApi } from '~/services/mockApi'
-import type { Battery, Station } from '~/types/admin'
+import { useBatteries, useUpdateBattery } from '~/queries/batteries'
+import { useStations } from '~/queries/stations'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
+import { useCallback, useMemo, useState } from 'react'
 
 const batteryAssignmentSchema = z.object({
     stationId: z.string().min(1, 'Station is required'),
     batteryIds: z.array(z.string()).min(1, 'At least one battery is required'),
 })
 
+type BatteryAssignmentValues = z.infer<typeof batteryAssignmentSchema>
+
 export default function AssignBatteriesRoute() {
     const navigate = useNavigate()
-    const [batteries, setBatteries] = useState<Battery[]>([])
-    const [stations, setStations] = useState<Station[]>([])
+    const { data: batteriesData } = useBatteries({ limit: 200 })
+    const { data: stationsData } = useStations({ limit: 100 })
+    const updateBattery = useUpdateBattery()
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-    useEffect(() => {
-        void Promise.all([
-            mockApi.listBatteries(),
-            mockApi.listStations()
-        ]).then(([stock, hubs]) => {
-            setBatteries(stock)
-            setStations(hubs)
-        })
-    }, [])
-
-    const form = useForm({
-        resolver: zodResolver(batteryAssignmentSchema) as any,
-        defaultValues: { stationId: '', batteryIds: [] },
+    const form = useForm<BatteryAssignmentValues>({
+        resolver: zodResolver(batteryAssignmentSchema),
+        defaultValues: { stationId: '', batteryIds: [] as string[] },
     })
 
-    const onSubmit = async (values: z.infer<typeof batteryAssignmentSchema>) => {
+    const onSubmit = useCallback(async (values: BatteryAssignmentValues) => {
+        setIsSubmitting(true)
         try {
-            await mockApi.assignBatteriesToStation(values)
+            const allBatteries = batteriesData?.data ?? []
+            await Promise.all(
+                values.batteryIds.map((id) => {
+                    const bat = allBatteries.find((b) => b.id === id)
+                    return updateBattery.mutateAsync({
+                        id,
+                        data: { batteryId: bat?.batteryId ?? '', stationId: values.stationId },
+                    })
+                }),
+            )
             toast.success('Batteries assigned to station')
             navigate('/batteries')
-        } catch (error) {
-            toast.error('Failed to assign batteries')
+        } catch {
+            toast.error('Failed to assign some batteries')
+        } finally {
+            setIsSubmitting(false)
         }
-    }
+    }, [batteriesData?.data, updateBattery, navigate])
 
-    const stationOptions = stations.map(s => ({ label: s.name, value: s.id }))
-    const unassignedBatteries = batteries.filter(b => b.status === 'AVAILABLE' && !b.stationId)
-    const batteryOptions = unassignedBatteries.map(b => ({ label: `${b.batteryCode} (${b.capacityAh}Ah)`, value: b.id }))
+    const stationOptions = useMemo(() => (stationsData?.data ?? []).map((s) => ({ label: s.name, value: s.id })), [stationsData?.data])
+    const unassignedBatteries = useMemo(() => (batteriesData?.data ?? []).filter((b) => !b.stationId), [batteriesData?.data])
+    const batteryOptions = useMemo(() => unassignedBatteries.map((b) => ({
+        label: `${b.batteryId} (${b.properties?.capacity ?? '?'}Ah)`,
+        value: b.id,
+    })), [unassignedBatteries])
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
@@ -69,7 +78,7 @@ export default function AssignBatteriesRoute() {
                 <CardContent className="p-8">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                            
+
                             <SelectField
                                 control={form.control}
                                 name="stationId"
@@ -88,7 +97,9 @@ export default function AssignBatteriesRoute() {
 
                             <div className="flex justify-end gap-3 pt-6 border-t mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/batteries')}>Cancel</Button>
-                                <Button type="submit" className="min-w-[140px] uppercase text-xs font-bold tracking-widest">Complete Allocation</Button>
+                                <Button type="submit" disabled={isSubmitting} className="min-w-35 uppercase text-xs font-bold tracking-widest">
+                                    {isSubmitting ? 'Assigning...' : 'Complete Allocation'}
+                                </Button>
                             </div>
                         </form>
                     </Form>

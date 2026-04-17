@@ -1,4 +1,4 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts } from 'react-router'
 
 import type { Route } from './+types/root'
 import './app.css'
@@ -12,9 +12,15 @@ export const links: Route.LinksFunction = () => [
     },
     {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
+        href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap',
     },
 ]
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'
+import { AuthProvider } from './lib/auth-context'
+
+const queryClient = new QueryClient()
 
 export function Layout({ children }: { children: React.ReactNode }) {
     return (
@@ -29,8 +35,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Links />
             </head>
             <body>
-                {children}
-                <ScrollRestoration />
+                <QueryClientProvider client={queryClient}>
+                    <AuthProvider>
+                        {children}
+                        <Toaster richColors position="top-right" />
+                    </AuthProvider>
+                </QueryClientProvider>
                 <Scripts />
             </body>
         </html>
@@ -38,7 +48,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-    return <Outlet />
+    return <div id='app' className="h-full"><Outlet /></div>
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
@@ -55,7 +65,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     }
 
     return (
-        <main className='pt-16 p-4 container mx-auto'>
+        <main className='container mx-auto px-4 py-16'>
             <h1>{message}</h1>
             <p>{details}</p>
             {stack && (

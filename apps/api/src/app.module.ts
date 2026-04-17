@@ -1,6 +1,9 @@
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -10,16 +13,23 @@ import {
     loggerConfig,
     redisConfig,
     deepvueConfig,
+    s3ClientConfig,
+    s3BucketConfig,
 } from './config';
 import { AppAuthGuard } from './guards/app.guard.js';
 import { TypeboxSerializerInterceptor } from './interceptors/typebox-serializer.interceptor.js';
 import { AuthModule } from './modules/auth/auth.module.js';
+import { BookingsModule } from './modules/bookings/bookings.module.js';
 import { CountryStateCitiesModule } from './modules/country-state-cities/country-state-cities.module.js';
+import { PlansModule } from './modules/plans/plans.module.js';
+import { TopUpsModule } from './modules/top-ups/top-ups.module.js';
+import { UserPlansModule } from './modules/user-plans/user-plans.module.js';
+import { UsersModule } from './modules/users/users.module.js';
+import { CaslModule } from '@yugo/nestjs-casl';
+import { permissions } from '@yugo/permissions';
 import { KycModule } from './modules/kyc/kyc.module.js';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
+import { StationsModule } from './modules/stations/stations.module';
 
 @Module({
     imports: [
@@ -32,6 +42,8 @@ import { PassportModule } from '@nestjs/passport';
                 loggerConfig,
                 redisConfig,
                 deepvueConfig,
+                s3ClientConfig,
+                s3BucketConfig,
             ],
         }),
         LoggerModule.forRootAsync({
@@ -64,9 +76,18 @@ import { PassportModule } from '@nestjs/passport';
         PassportModule.register({
             defaultStrategy: 'jwt',
         }),
+        CaslModule.forRoot({
+            permissions,
+        }),
         AuthModule,
         KycModule,
         CountryStateCitiesModule,
+        UsersModule,
+        PlansModule,
+        TopUpsModule,
+        UserPlansModule,
+        BookingsModule,
+        StationsModule,
     ],
     providers: [
         JwtStrategy,

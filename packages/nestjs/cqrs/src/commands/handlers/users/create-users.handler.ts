@@ -1,18 +1,19 @@
 import { BadRequestException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { AddressEntity, RoleEntity, UserEntity } from '@yugo/nestjs-database/entities'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { CreateUserCommand } from '../../impl/users/create-users.command.js'
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
-    constructor(@InjectEntityManager() private readonly manager: EntityManager) {}
+    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
     async execute(command: CreateUserCommand) {
         const body = command.payload
+        const manager = this.datasource.manager
 
-        return this.manager.transaction(async (manager) => {
+        return manager.transaction(async (manager) => {
             const role = await manager.findOne(RoleEntity, {
                 where: { name: body.role },
             })

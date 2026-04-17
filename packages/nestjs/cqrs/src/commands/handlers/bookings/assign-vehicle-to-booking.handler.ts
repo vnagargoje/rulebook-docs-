@@ -1,21 +1,22 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { BatteryEntity, BookingEntity, VehicleEntity } from '@yugo/nestjs-database/entities'
 import { BookingStatus } from '@yugo/shared'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { AssignVehicleToBookingCommand } from '../../impl/bookings/assign-vehicle-to-booking.command.js'
 
 @CommandHandler(AssignVehicleToBookingCommand)
 export class AssignVehicleToBookingHandler implements ICommandHandler<AssignVehicleToBookingCommand> {
     private readonly logger = new Logger(AssignVehicleToBookingHandler.name)
 
-    constructor(@InjectEntityManager() private readonly manager: EntityManager) {}
+    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
     async execute(command: AssignVehicleToBookingCommand) {
         const { bookingId, vehicleId, batteryId } = command
+        const manager = this.datasource.manager
 
-        return this.manager.transaction(async (manager) => {
+        return manager.transaction(async (manager) => {
             const booking = await manager.findOne(BookingEntity, {
                 where: { id: bookingId },
             })

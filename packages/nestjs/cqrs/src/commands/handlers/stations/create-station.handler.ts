@@ -1,18 +1,19 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { AddressEntity, StationEntity, HubStationEntity, SwapStationEntity } from '@yugo/nestjs-database/entities'
 import { CreateStationCommand } from 'src/commands/impl/stations/create-station.command.js'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { StationType } from '@yugo/shared'
 
 @CommandHandler(CreateStationCommand)
 export class CreateStationHandler implements ICommandHandler<CreateStationCommand> {
-    constructor(@InjectEntityManager() private readonly manager: EntityManager) {}
+    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
     async execute(command: CreateStationCommand) {
         const { payload } = command
+        const manager = this.datasource.manager
 
-        return this.manager.transaction(async (manager) => {
+        return manager.transaction(async (manager) => {
             const entityClass = payload.type === StationType.HUB_STATION ? HubStationEntity : SwapStationEntity
             const station = manager.create(entityClass, {
                 name: payload.name,

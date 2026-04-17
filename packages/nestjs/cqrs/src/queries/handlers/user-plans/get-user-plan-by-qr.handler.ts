@@ -1,43 +1,44 @@
 import { NotFoundException } from '@nestjs/common'
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
-import { InjectEntityManager } from '@nestjs/typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 import { BookingEntity, FileEntity, PlanEntity, UserEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
-import { EntityManager } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { GetUserPlanByQrQuery } from '../../impl/user-plans/get-user-plan-by-qr.query.js'
 import { ConfigService } from '@nestjs/config'
 
 @QueryHandler(GetUserPlanByQrQuery)
 export class GetUserPlanByQrHandler implements IQueryHandler<GetUserPlanByQrQuery> {
     constructor(
-        @InjectEntityManager() private readonly manager: EntityManager,
+        @InjectDataSource() private readonly datasource: DataSource,
         private readonly configService: ConfigService,
     ) {}
 
     async execute(query: GetUserPlanByQrQuery) {
         const { userPlanId } = query
+        const manager = this.datasource.manager
 
-        const userPlan = await this.manager.findOne(UserPlanEntity, {
+        const userPlan = await manager.findOne(UserPlanEntity, {
             where: { id: userPlanId },
         })
         if (!userPlan) {
             throw new NotFoundException('User plan not found')
         }
 
-        const user = await this.manager.findOne(UserEntity, {
+        const user = await manager.findOne(UserEntity, {
             where: { id: userPlan.userId },
         })
 
-        const plan = await this.manager.findOne(PlanEntity, {
+        const plan = await manager.findOne(PlanEntity, {
             where: { id: userPlan.planId },
         })
 
-        const booking = await this.manager.findOne(BookingEntity, {
+        const booking = await manager.findOne(BookingEntity, {
             where: { userPlanId },
         })
 
         let qrCodeUrl: string | null = null
         if (userPlan.qrCodeId) {
-            const file = await this.manager.findOne(FileEntity, {
+            const file = await manager.findOne(FileEntity, {
                 where: { id: userPlan.qrCodeId },
             })
             if (file) {

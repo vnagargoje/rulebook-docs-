@@ -1,7 +1,8 @@
 export enum BookingStatus {
+    INACTIVE = 'inactive',
+    DRAFT = 'draft',
     CREATED = 'created',
-    VEHICLE_ASSIGNED = 'vehicle_assigned',
-    IN_PROGRESS = 'in_progress',
+    ONGOING = 'ongoing',
     COMPLETED = 'completed',
     CANCELLED = 'cancelled',
 }

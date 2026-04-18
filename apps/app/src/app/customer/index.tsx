@@ -20,11 +20,11 @@ export default function CustomerHomeScreen() {
     }, [router])
 
     const handleSupportPress = useCallback(() => {
-        router.push('/customer/support')
+        router.push('/customer/help')
     }, [router])
 
     const handleSettingsPress = useCallback(() => {
-        router.push('/customer/settings')
+        router.push('/customer/profile')
     }, [router])
 
     return (

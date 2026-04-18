@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,17 +12,7 @@ import { surrenderStatusOptions, type CustomerVehicleAssignment, type User, type
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const createSchema = z.object({
-    vehicleId: z.string().min(1, 'Vehicle is required'),
-    customerId: z.string().min(1, 'Customer is required'),
-    remarks: z.string().min(1, 'Remarks are required'),
-    penaltyCharges: z.coerce.number().min(0, 'Must be >= 0'),
-    depositReturnAmount: z.coerce.number().min(0, 'Must be >= 0'),
-    status: z.enum(['SUBMITTED', 'APPROVED', 'CLOSED']),
-})
-
-export type CreateSurrenderValues = z.infer<typeof createSchema>
+import { createSurrenderSchema, type CreateSurrenderValues } from '~/schemas'
 
 export default function CreateSurrenderRoute() {
     const navigate = useNavigate()
@@ -44,7 +33,7 @@ export default function CreateSurrenderRoute() {
     }, [])
 
     const form = useForm({
-        resolver: zodResolver(createSchema) as any,
+        resolver: zodResolver(createSurrenderSchema) as any,
         defaultValues: {
             vehicleId: '',
             customerId: '',
@@ -97,7 +86,7 @@ export default function CreateSurrenderRoute() {
             <Card className="border-border/40 shadow-sm bg-white overflow-hidden">
                 <CardContent className="p-8">
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
 
                             <SelectField
                                 control={form.control}

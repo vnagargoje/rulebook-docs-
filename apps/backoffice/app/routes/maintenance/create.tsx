@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,17 +12,7 @@ import { maintenanceStatusOptions, type MaintenanceRecord, type Vehicle } from '
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const createSchema = z.object({
-    reportedDate: z.string().min(1, 'Reported date is required'),
-    vehicleId: z.string().min(1, 'Vehicle is required'),
-    issueDescription: z.string().min(1, 'Description is required'),
-    technicianName: z.string().min(1, 'Technician name is required'),
-    expectedFixDate: z.string().min(1, 'Expected fix date is required'),
-    status: z.enum(['REPORTED', 'IN_PROGRESS', 'RESOLVED']),
-})
-
-export type CreateMaintenanceValues = z.infer<typeof createSchema>
+import { createMaintenanceSchema, type CreateMaintenanceValues } from '~/schemas'
 
 export default function CreateMaintenanceRoute() {
     const navigate = useNavigate()
@@ -33,8 +22,8 @@ export default function CreateMaintenanceRoute() {
         void mockApi.listVehicles().then(setVehicles)
     }, [])
 
-    const form = useForm({
-        resolver: zodResolver(createSchema) as any,
+    const form = useForm<CreateMaintenanceValues>({
+        resolver: zodResolver(createMaintenanceSchema) as any,
         defaultValues: {
             reportedDate: new Date().toISOString().slice(0, 10),
             vehicleId: '',

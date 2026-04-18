@@ -30,6 +30,8 @@ import { permissions } from '@yugo/permissions';
 import { KycModule } from './modules/kyc/kyc.module.js';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { StationsModule } from './modules/stations/stations.module';
+import { VehiclesModule } from './modules/vehicles/vehicles.module';
+import { BatteriesModule } from './modules/batteries/batteries.module';
 
 @Module({
     imports: [
@@ -88,6 +90,8 @@ import { StationsModule } from './modules/stations/stations.module';
         UserPlansModule,
         BookingsModule,
         StationsModule,
+        VehiclesModule,
+        BatteriesModule,
     ],
     providers: [
         JwtStrategy,

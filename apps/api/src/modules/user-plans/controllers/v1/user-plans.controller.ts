@@ -78,7 +78,7 @@ export class V1UserPlansController {
 
     @ApiBody({ schema: PurchasePlanPayload })
     @ApiResource(UserPlanResponse)
-    @Post()
+    @Post('purchase')
     async purchasePlan(
         @Body() body: Static<typeof PurchasePlanPayload>,
         @AuthenticatedUser() user: ContextUserType,

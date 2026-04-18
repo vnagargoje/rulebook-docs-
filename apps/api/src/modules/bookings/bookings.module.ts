@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
-import {
-    AssignVehicleToBookingHandler,
-    CreateBookingHandler,
-} from '@yugo/cqrs';
+import { AssignVehicleToBookingHandler } from '@yugo/cqrs';
 import { V1BookingsController } from './controllers/v1/bookings.controller';
 import { V1BookingsAdminController } from './controllers/v1/bookings-admin.controller';
 
-const Handlers = [CreateBookingHandler, AssignVehicleToBookingHandler];
+const Handlers = [AssignVehicleToBookingHandler];
 
 @Module({
     controllers: [V1BookingsController, V1BookingsAdminController],

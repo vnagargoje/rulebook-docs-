@@ -15,28 +15,28 @@ export class BookingEntity extends IdTimestamppedEntity {
     @JoinColumn()
     userPlan: UserPlanEntity
 
-    @Column('varchar')
-    stationId: string
+    @Column('varchar', { nullable: true })
+    stationId: string | null
 
-    @ManyToOne(() => StationEntity, { onDelete: 'CASCADE' })
+    @ManyToOne(() => StationEntity, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn()
     station: StationEntity
 
     @Column('varchar', { nullable: true })
-    vehicleId: string
+    vehicleId: string | null
 
     @ManyToOne(() => VehicleEntity, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn()
     vehicle: VehicleEntity
 
     @Column('varchar', { nullable: true })
-    batteryId: string
+    batteryId: string | null
 
     @ManyToOne(() => BatteryEntity, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn()
     battery: BatteryEntity
 
-    @Column('enum', { enum: BookingStatus, default: BookingStatus.CREATED })
+    @Column('enum', { enum: BookingStatus, default: BookingStatus.INACTIVE })
     status: BookingStatus
 
     @Column('varchar', { length: 4 })

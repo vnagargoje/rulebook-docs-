@@ -1,26 +1,15 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
-import { Logger, NotFoundException } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
-import { FileEntity, PlanEntity, UserEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
-import { UserPlanStatus } from '@yugo/shared'
-import { toBuffer } from 'qrcode'
-import { DataSource } from 'typeorm'
+import { BookingEntity, PlanEntity, UserEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
+import { BookingStatus, UserPlanStatus } from '@yugo/shared'
+import { randomInt } from 'crypto'
+import { DataSource, In } from 'typeorm'
 import { PurchasePlanCommand } from '../../impl/user-plans/purchase-plan.command.js'
 
 @CommandHandler(PurchasePlanCommand)
 export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand> {
-    private readonly logger = new Logger(PurchasePlanHandler.name)
-    private readonly s3Client: S3Client
-
-    constructor(
-        @InjectDataSource() private readonly datasource: DataSource,
-        private readonly configService: ConfigService,
-    ) {
-        const s3Config = this.configService.getOrThrow('s3-client.config')
-        this.s3Client = new S3Client(s3Config)
-    }
+    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
     async execute(command: PurchasePlanCommand) {
         const { userId, planId } = command
@@ -37,6 +26,18 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
             // if (!hasApprovedKyc) {
             //     throw new BadRequestException('KYC verification is required before purchasing a plan')
             // }
+
+            const existingActivePlan = await manager.findOne(UserPlanEntity, {
+                where: {
+                    userId,
+                    status: In([UserPlanStatus.PENDING, UserPlanStatus.ACTIVE]),
+                },
+            })
+            if (existingActivePlan) {
+                throw new BadRequestException(
+                    'You already have an active plan. Complete or cancel it before purchasing a new one',
+                )
+            }
 
             const plan = await manager.findOne(PlanEntity, { where: { id: planId } })
             if (!plan || !plan.active) {
@@ -67,52 +68,22 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
                 userId,
                 planId,
                 planSnapshot,
-                status: UserPlanStatus.ACTIVE,
+                status: UserPlanStatus.PURCHASED,
                 remainingKm: plan.kmLimit,
             })
             await manager.save(userPlan)
 
-            this.logger.log(
-                `[MOCK PAYMENT] User ${userId} payment of ₹${totalAmount} processed for plan "${plan.name}"`,
-            )
-            this.logger.log(`User ${userId} purchased plan ${planId}, userPlan: ${userPlan.id}`)
+            const pickupOtp = String(randomInt(1000, 10000))
 
-            const qrPayload = JSON.stringify({
-                upi: userPlan.id,
-                uid: userId,
-                pn: plan.name,
-                km: plan.kmLimit,
-                amt: totalAmount,
+            const booking = manager.create(BookingEntity, {
+                userPlanId: userPlan.id,
+                stationId: null,
+                vehicleId: null,
+                batteryId: null,
+                status: BookingStatus.CREATED,
+                pickupOtp,
             })
-            const qrBuffer = await toBuffer(qrPayload, { type: 'png', width: 400 })
-
-            const s3ClientConfig = this.configService.getOrThrow<any>('s3-client.config')
-            const endpoint = s3ClientConfig.endpoint as string
-            const bucket = this.configService.getOrThrow<{ bucket: string }>('s3-bucket').bucket
-            const s3Key = `qr-codes/plans/${userPlan.id}.png`
-
-            await this.s3Client.send(
-                new PutObjectCommand({
-                    Bucket: bucket,
-                    Key: s3Key,
-                    Body: qrBuffer,
-                    ContentType: 'image/png',
-                }),
-            )
-
-            const file = manager.create(FileEntity, {
-                filename: `${userPlan.id}.png`,
-                path: `${endpoint.replace(/\/$/, '')}/${bucket}/${s3Key}`,
-                mimeType: 'image/png',
-                size: qrBuffer.length,
-            })
-            await manager.save(file)
-
-            userPlan.qrCodeId = file.id
-            await manager.save(userPlan)
-
-            this.logger.log(`QR code uploaded to S3: ${s3Key}`)
-
+            await manager.save(booking)
             return userPlan
         })
     }

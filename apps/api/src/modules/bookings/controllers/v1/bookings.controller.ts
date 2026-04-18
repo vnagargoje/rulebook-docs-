@@ -3,19 +3,15 @@ import { AuthenticatedUser } from '@/decorators/auth-user.decorator';
 import { AppAuthGuard } from '@/guards/app.guard';
 import { type ContextUserType } from '@/types/context-user';
 import {
-    Body,
     Controller,
     Get,
     NotFoundException,
     Param,
-    Post,
     UseGuards,
 } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { type Static } from '@sinclair/typebox';
-import { CreateBookingCommand } from '@yugo/cqrs';
+import { SystemRoles } from '@yugo/shared';
 import { BookingEntity } from '@yugo/nestjs-database/entities';
 import {
     FilterOperator,
@@ -25,7 +21,6 @@ import {
     type PaginateQuery,
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
-import { CreateBookingPayload } from '../../dtos/payloads';
 import { BookingResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<BookingEntity> = {
@@ -42,22 +37,33 @@ const PAGINATE_CONFIG: PaginateConfig<BookingEntity> = {
 @UseGuards(AppAuthGuard)
 @Controller({ path: 'bookings', version: '1' })
 export class V1BookingsController {
-    constructor(
-        @InjectDataSource() private readonly datasource: DataSource,
-        private readonly commandBus: CommandBus,
-    ) {}
+    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
     @ApiResource(BookingResponse, PAGINATE_CONFIG)
     @Get()
-    async getMyBookings(
+    async getAllBookings(
         @Paginate() query: PaginateQuery,
         @AuthenticatedUser() user: ContextUserType,
     ) {
+        const isAdmin = user.roles.includes(SystemRoles.SYSTEM_ADMIN);
         const qb = this.datasource.manager
             .createQueryBuilder(BookingEntity, 'booking')
-            .innerJoin('booking.userPlan', 'userPlan')
-            .where('userPlan.userId = :userId', { userId: user.id });
-        return paginate(query, qb, PAGINATE_CONFIG);
+            .innerJoinAndSelect('booking.userPlan', 'userPlan')
+            .leftJoinAndSelect('userPlan.plan', 'plan')
+            .leftJoinAndSelect('userPlan.qrCode', 'qrCode')
+            .leftJoinAndSelect('booking.station', 'station')
+            .leftJoinAndSelect('booking.vehicle', 'vehicle')
+            .leftJoinAndSelect('booking.battery', 'battery');
+        if (!isAdmin) {
+            qb.where('userPlan.userId = :userId', { userId: user.id });
+        }
+        const result = await paginate(query, qb, PAGINATE_CONFIG);
+        if (isAdmin) {
+            result.data.forEach((b) => {
+                delete (b as any).pickupOtp;
+            });
+        }
+        return result;
     }
 
     @ApiResource(BookingResponse)
@@ -66,29 +72,34 @@ export class V1BookingsController {
         @Param('id') id: string,
         @AuthenticatedUser() user: ContextUserType,
     ) {
-        const booking = await this.datasource.manager
+        const isAdmin = user.roles.includes(SystemRoles.SYSTEM_ADMIN);
+        const qb = this.datasource.manager
             .createQueryBuilder(BookingEntity, 'booking')
-            .innerJoin('booking.userPlan', 'userPlan')
-            .where('booking.id = :id AND userPlan.userId = :userId', {
+            .innerJoinAndSelect('booking.userPlan', 'userPlan')
+            .leftJoinAndSelect('userPlan.plan', 'plan')
+            .leftJoinAndSelect('userPlan.qrCode', 'qrCode')
+            .leftJoinAndSelect('booking.station', 'station')
+            .leftJoinAndSelect('booking.vehicle', 'vehicle')
+            .leftJoinAndSelect('booking.battery', 'battery');
+
+        if (isAdmin) {
+            qb.where('booking.id = :id', { id });
+        } else {
+            qb.where('booking.id = :id AND userPlan.userId = :userId', {
                 id,
                 userId: user.id,
-            })
-            .getOne();
+            });
+        }
+
+        const booking = await qb.getOne();
         if (!booking) {
             throw new NotFoundException('Booking not found');
         }
-        return booking;
-    }
 
-    @ApiBody({ schema: CreateBookingPayload })
-    @ApiResource(BookingResponse)
-    @Post()
-    async createBooking(
-        @Body() body: Static<typeof CreateBookingPayload>,
-        @AuthenticatedUser() user: ContextUserType,
-    ) {
-        return this.commandBus.execute(
-            new CreateBookingCommand(user.id, body.userPlanId, body.stationId),
-        );
+        if (isAdmin) {
+            delete (booking as any).pickupOtp;
+        }
+
+        return booking;
     }
 }

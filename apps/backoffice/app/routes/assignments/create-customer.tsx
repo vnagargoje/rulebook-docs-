@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,11 +12,7 @@ import type { User, Vehicle } from '~/types/admin'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const customerAssignmentSchema = z.object({
-    vehicleId: z.string().min(1, 'Vehicle is required'),
-    customerId: z.string().min(1, 'Customer is required'),
-})
+import { customerAssignmentSchema, type CustomerAssignmentValues } from '~/schemas'
 
 export default function CreateCustomerAssignmentRoute() {
     const navigate = useNavigate()
@@ -40,7 +35,7 @@ export default function CreateCustomerAssignmentRoute() {
         defaultValues: { vehicleId: '', customerId: customerId || '' },
     })
 
-    const onSubmit = async (values: z.infer<typeof customerAssignmentSchema>) => {
+    const onSubmit = async (values: CustomerAssignmentValues) => {
         try {
             await mockApi.assignVehicleToCustomer(values)
             toast.success('Vehicle assigned to customer')

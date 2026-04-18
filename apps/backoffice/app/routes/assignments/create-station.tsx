@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,14 +12,7 @@ import { useUpdateVehicle, useVehicles } from '~/queries/vehicles'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const stationAssignmentSchema = z.object({
-    vehicleId: z.string().min(1, 'Vehicle is required'),
-    vehicleNumber: z.string().min(1, 'Vehicle number is required'),
-    stationId: z.string().min(1, 'Station is required'),
-})
-
-type StationAssignmentValues = z.infer<typeof stationAssignmentSchema>
+import { stationAssignmentSchema, type StationAssignmentValues } from '~/schemas'
 
 export default function CreateStationAssignmentRoute() {
     const navigate = useNavigate()

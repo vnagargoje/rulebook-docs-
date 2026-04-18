@@ -9,7 +9,7 @@ import { Button } from '~/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { mockApi } from '~/services/mockApi'
 import { useStations } from '~/queries/stations'
-import { useVehicles } from '~/queries/vehicles'
+import { useVehicles, type VehicleItem } from '~/queries/vehicles'
 import { 
     type CustomerVehicleAssignment,
     type CustomerVehicleRequest,
@@ -19,16 +19,6 @@ import {
 } from '~/types/admin'
 import { toast } from 'sonner'
 import { formatDate } from '~/lib/formatter'
-
-type StationAssignmentRow = {
-    id: string
-    vehicleId: string
-    vehicleNumber: string
-    stationId: string
-    stationName: string
-    assignedAt: string
-    status: 'ASSIGNED'
-}
 
 export default function AssignmentsListRoute() {
     const navigate = useNavigate()
@@ -56,7 +46,7 @@ export default function AssignmentsListRoute() {
         return params
     }, [deferredStationAssignmentsSearchQuery, stationAssignmentsPage])
     const { data: vehiclesData, isLoading: isVehiclesLoading } = useVehicles(stationAssignmentsQueryParams)
-    const { data: stationsData, isLoading: isStationsLoading } = useStations({ limit: 200, sortBy: ['createdAt:DESC'] })
+    const { isLoading: isStationsLoading } = useStations({ limit: 200, sortBy: ['createdAt:DESC'] })
 
     const loadData = useCallback(async () => {
         try {
@@ -81,19 +71,7 @@ export default function AssignmentsListRoute() {
         void loadData()
     }, [loadData])
 
-    const stationAssignments = useMemo<StationAssignmentRow[]>(() => {
-        return (vehiclesData?.data ?? [])
-            .map((vehicle) => ({
-                id: vehicle.id,
-                vehicleId: vehicle.id,
-                vehicleNumber: vehicle.vehicleNumber ?? vehicle.id,
-                stationId: vehicle.stationId ?? '',
-                stationName: vehicle.station?.name ?? stationsData?.data?.find((station) => station.id === vehicle.stationId)?.name ?? vehicle.stationId ?? 'Unknown station',
-                assignedAt: vehicle.updatedAt ?? vehicle.createdAt ?? '',
-                status: 'ASSIGNED',
-            }))
-    }, [stationsData?.data, vehiclesData?.data])
-
+    const stationAssignments = vehiclesData?.data ?? []
     const stationAssignmentsPaginationMeta = vehiclesData?.meta
 
     const handleStationAssignmentsSearchChange = useCallback((value: string) => {
@@ -159,10 +137,10 @@ export default function AssignmentsListRoute() {
                         totalItems={stationAssignmentsPaginationMeta?.totalItems ?? stationAssignments.length}
                         onPageChange={setStationAssignmentsPage}
                         columns={[
-                            { header: 'Vehicle Number', cell: (a) => <span className="font-mono font-bold text-slate-700">{a.vehicleNumber}</span> },
-                            { header: 'Operational Hub', cell: (a) => <span className="font-medium">{a.stationName}</span> },
-                            { header: 'Assigned Date', cell: (a) => <span className="text-xs text-muted-foreground">{formatDate(a.assignedAt)}</span> },
-                            { header: 'Status', cell: (a) => <StatusBadge status={a.status} /> },
+                            { header: 'Vehicle Number', cell: (v: VehicleItem) => <span className="font-mono font-bold text-slate-700">{v.vehicleNumber ?? v.id}</span> },
+                            { header: 'Operational Hub', cell: (v: VehicleItem) => <span className="font-medium">{v.station?.name ?? '—'}</span> },
+                            { header: 'Assigned Date', cell: (v: VehicleItem) => <span className="text-xs text-muted-foreground">{formatDate(v.updatedAt ?? v.createdAt ?? '')}</span> },
+                            { header: 'Status', cell: () => <StatusBadge status="ASSIGNED" /> },
                         ]}
                     />
                 </TabsContent>

@@ -37,6 +37,11 @@ export default [
             route('edit/:id', 'routes/vehicles/edit.tsx'),
         ]),
 
+        ...prefix('bookings', [
+            index('routes/bookings/index.tsx'),
+            route(':id', 'routes/bookings/view.tsx'),
+        ]),
+
         ...prefix('maintenance', [
             index('routes/maintenance/index.tsx'),
             route('create', 'routes/maintenance/create.tsx'),

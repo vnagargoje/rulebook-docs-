@@ -8,6 +8,8 @@ import { Input } from '~/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { cn } from '~/lib/utils'
 
+type ResourceTableFilters = Record<string, string>
+
 export interface FilterOption {
     label: string
     value: string
@@ -37,6 +39,14 @@ interface ResourceTableProps<T extends { id: string }> {
     searchPlaceholder?: string
     searchFields?: (keyof T)[]
     filterConfigs?: FilterConfig<T>[]
+    searchValue?: string
+    onSearchChange?: (value: string) => void
+    filterValues?: ResourceTableFilters
+    onFilterChange?: (filters: ResourceTableFilters) => void
+    currentPage?: number
+    totalPages?: number
+    totalItems?: number
+    onPageChange?: (page: number) => void
 }
 
 export function ResourceTable<T extends { id: string }>({
@@ -49,13 +59,39 @@ export function ResourceTable<T extends { id: string }>({
     className,
     searchPlaceholder = "Search records...",
     searchFields,
-    filterConfigs = []
+    filterConfigs = [],
+    searchValue,
+    onSearchChange,
+    filterValues,
+    onFilterChange,
+    currentPage: controlledCurrentPage,
+    totalPages: controlledTotalPages,
+    totalItems: controlledTotalItems,
+    onPageChange,
 }: ResourceTableProps<T>) {
-    const [currentPage, setCurrentPage] = useState(1)
-    const [searchQuery, setSearchQuery] = useState('')
-    const [activeFilters, setActiveFilters] = useState<Record<string, string>>({})
+    const [localCurrentPage, setLocalCurrentPage] = useState(1)
+    const [localSearchQuery, setLocalSearchQuery] = useState('')
+    const [localActiveFilters, setLocalActiveFilters] = useState<ResourceTableFilters>({})
+
+    const isControlledMode =
+        searchValue !== undefined ||
+        onSearchChange !== undefined ||
+        filterValues !== undefined ||
+        onFilterChange !== undefined ||
+        controlledCurrentPage !== undefined ||
+        controlledTotalPages !== undefined ||
+        controlledTotalItems !== undefined ||
+        onPageChange !== undefined
+
+    const currentPage = controlledCurrentPage ?? localCurrentPage
+    const searchQuery = searchValue ?? localSearchQuery
+    const activeFilters = filterValues ?? localActiveFilters
 
     const filteredData = useMemo(() => {
+        if (isControlledMode) {
+            return data
+        }
+
         let result = data
 
         if (searchQuery && searchFields) {
@@ -80,20 +116,40 @@ export function ResourceTable<T extends { id: string }>({
         })
 
         return result
-    }, [data, searchQuery, searchFields, activeFilters])
+    }, [activeFilters, data, isControlledMode, searchFields, searchQuery])
 
-    const totalPages = Math.ceil(filteredData.length / pageSize)
+    const totalPages = controlledTotalPages ?? Math.ceil(filteredData.length / pageSize)
+    const totalItems = controlledTotalItems ?? filteredData.length
     const startIndex = (currentPage - 1) * pageSize
-    const paginatedData = filteredData.slice(startIndex, startIndex + pageSize)
+    const paginatedData = isControlledMode
+        ? filteredData
+        : filteredData.slice(startIndex, startIndex + pageSize)
 
     const goToPage = (page: number) => {
-        setCurrentPage(Math.max(1, Math.min(page, totalPages)))
+        const nextPage = Math.max(1, Math.min(page, Math.max(totalPages, 1)))
+
+        if (onPageChange) {
+            onPageChange(nextPage)
+            return
+        }
+
+        setLocalCurrentPage(nextPage)
     }
 
     const resetFilters = () => {
-        setSearchQuery('')
-        setActiveFilters({})
-        setCurrentPage(1)
+        if (onSearchChange) {
+            onSearchChange('')
+        } else {
+            setLocalSearchQuery('')
+        }
+
+        if (onFilterChange) {
+            onFilterChange({})
+        } else {
+            setLocalActiveFilters({})
+        }
+
+        goToPage(1)
     }
 
     const hasActiveFilters = searchQuery !== '' || Object.values(activeFilters).some(v => v !== 'all')
@@ -108,8 +164,15 @@ export function ResourceTable<T extends { id: string }>({
                             placeholder={searchPlaceholder}
                             value={searchQuery}
                             onChange={(e) => {
-                                setSearchQuery(e.target.value)
-                                setCurrentPage(1)
+                                const nextValue = e.target.value
+
+                                if (onSearchChange) {
+                                    onSearchChange(nextValue)
+                                } else {
+                                    setLocalSearchQuery(nextValue)
+                                }
+
+                                goToPage(1)
                             }}
                             className="pl-10 h-10 border-slate-200 focus:border-primary focus:ring-primary/10 transition-all rounded-xl text-sm"
                         />
@@ -121,8 +184,18 @@ export function ResourceTable<T extends { id: string }>({
                                 key={String(config.field)}
                                 value={activeFilters[String(config.field)] || 'all'}
                                 onValueChange={(val) => {
-                                    setActiveFilters(prev => ({ ...prev, [String(config.field)]: val }))
-                                    setCurrentPage(1)
+                                    const nextFilters = {
+                                        ...activeFilters,
+                                        [String(config.field)]: val,
+                                    }
+
+                                    if (onFilterChange) {
+                                        onFilterChange(nextFilters)
+                                    } else {
+                                        setLocalActiveFilters(nextFilters)
+                                    }
+
+                                    goToPage(1)
                                 }}
                             >
                                 <SelectTrigger className="h-10 w-[140px] rounded-xl border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-600 focus:ring-primary/10">
@@ -219,7 +292,7 @@ export function ResourceTable<T extends { id: string }>({
             {filteredData.length > 0 && (
                 <CardFooter className='flex items-center justify-between border-t py-6 px-8 bg-slate-50/40'>
                     <div className='text-xs font-semibold text-slate-500'>
-                        Showing <span className='text-slate-900 font-bold'>{startIndex + 1}</span> - <span className='text-slate-900 font-bold'>{Math.min(startIndex + pageSize, filteredData.length)}</span> of <span className='text-slate-900 font-bold'>{filteredData.length}</span> entries
+                        Showing <span className='text-slate-900 font-bold'>{totalItems === 0 ? 0 : startIndex + 1}</span> - <span className='text-slate-900 font-bold'>{Math.min(startIndex + paginatedData.length, totalItems)}</span> of <span className='text-slate-900 font-bold'>{totalItems}</span> entries
                     </div>
                     
                     <div className='flex items-center gap-3'>

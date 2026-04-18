@@ -9217,6 +9217,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/pngjs@npm:^6.0.5":
+  version: 6.0.5
+  resolution: "@types/pngjs@npm:6.0.5"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/11979d0690e774046d3a1e8cfc613a6b53a613909d81c93831cf253800e93ba1a2d47950979b523aebd4fc023351b644d7f4aa2dfcc027c70816a2968420e7da
+  languageName: node
+  linkType: hard
+
 "@types/qrcode@npm:^1.5.6":
   version: 1.5.6
   resolution: "@types/qrcode@npm:1.5.6"
@@ -10144,6 +10153,7 @@ __metadata:
     "@types/cli-progress": "npm:^3.11.6"
     "@types/inquirer": "npm:^9.0.9"
     "@types/node": "npm:^22.10.7"
+    "@types/pngjs": "npm:^6.0.5"
     "@yugo/eslint": "workspace:*"
     "@yugo/nestjs-database": "workspace:*"
     "@yugo/shared": "workspace:*"

@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,44 +12,16 @@ import { useStates, useCities } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const roleOptions = [
-    { label: 'Customer', value: 'customer' },
-    { label: 'Swap Manager', value: 'swap_manager' },
-    { label: 'Hub Manager', value: 'hub_manager' },
-    { label: 'System Admin', value: 'system_admin' },
-] as const
-
-const genderOptions = [
-    { label: 'Male', value: 'male' },
-    { label: 'Female', value: 'female' },
-    { label: 'Other', value: 'other' },
-] as const
-
-const createSchema = z.object({
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    mobilenumber: z.string().min(10, 'Mobile number is required'),
-    email: z.string().email('Invalid email').optional().or(z.literal('')),
-    gender: z.enum(['male', 'female', 'other']).optional(),
-    dateOfBirth: z.string().optional(),
-    role: z.enum(['customer', 'swap_manager', 'hub_manager', 'system_admin', 'system_user']),
-    stateId: z.string().optional(),
-    cityId: z.string().optional(),
-    lineOne: z.string().optional(),
-    lineTwo: z.string().optional(),
-    pincode: z.string().optional(),
-})
-
-type CreateFormValues = z.infer<typeof createSchema>
+import { createUserSchema, type CreateUserFormValues } from '~/schemas'
+import { roleOptions, genderOptions } from '~/constants'
 
 export default function CreateUserRoute() {
     const navigate = useNavigate()
     const createUser = useCreateUser()
     const { data: states } = useStates()
 
-    const form = useForm<CreateFormValues>({
-        resolver: zodResolver(createSchema),
+    const form = useForm<CreateUserFormValues>({
+        resolver: zodResolver(createUserSchema),
         defaultValues: {
             firstName: '',
             lastName: '',
@@ -78,7 +49,7 @@ export default function CreateUserRoute() {
     const stateOptions = (states ?? []).map((s) => ({ label: s.name, value: s.id }))
     const cityOptions = (cities ?? []).map((c) => ({ label: c.name, value: c.id }))
 
-    const onSubmit = (values: CreateFormValues) => {
+    const onSubmit = (values: CreateUserFormValues) => {
         const mobile = values.mobilenumber.startsWith('91') ? values.mobilenumber : `91${values.mobilenumber}`
         const payload: CreateUserPayload = {
             mobilenumber: mobile,

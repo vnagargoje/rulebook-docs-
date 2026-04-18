@@ -7,15 +7,6 @@ import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
 import { useUsers, type UserItem } from '~/queries/users'
 
-function getUserRoleName(properties: unknown) {
-    if (!properties || typeof properties !== 'object') return '—'
-
-    const roleName = (properties as { roleName?: string }).roleName
-    return roleName ? roleName.replace(/_/g, ' ') : '—'
-}
-
-type UserRow = UserItem & { displayName: string; roleName: string }
-
 export default function UsersListRoute() {
     const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState('')
@@ -43,13 +34,7 @@ export default function UsersListRoute() {
 
     const { data, isLoading } = useUsers(queryParams)
 
-    const users: UserRow[] = useMemo(() => (data?.data ?? []).map((user: UserItem) => ({
-        ...user,
-        id: user.id,
-        displayName: [user.firstName, user.lastName].filter(Boolean).join(' ') || '—',
-        roleName: getUserRoleName(user.properties),
-    })), [data?.data])
-
+    const users = data?.data ?? []
     const paginationMeta = data?.meta
 
     const handleSearchChange = useCallback((value: string) => {
@@ -58,18 +43,24 @@ export default function UsersListRoute() {
     }, [])
 
     const handleFilterChange = useCallback((filters: Record<string, string>) => {
-        setRoleFilter(filters.roleName || 'all')
+        setRoleFilter(filters.roles || 'all')
         setPage(1)
     }, [])
 
     const columns = useMemo(() => [
-        { header: 'Name', accessor: 'displayName' as const },
+        {
+            header: 'Name',
+            cell: (user: UserItem) => [user.firstName, user.lastName].filter(Boolean).join(' ') || '—',
+        },
         { header: 'Email', accessor: 'email' as const },
         { header: 'Mobile', accessor: 'mobilenumber' as const },
-        { header: 'Role', accessor: 'roleName' as const },
+        {
+            header: 'Role',
+            cell: (user: UserItem) => (user.properties as { roleName?: string })?.roleName ?? '—',
+        },
         {
             header: 'Actions',
-            cell: (user: UserRow) => (
+            cell: (user: UserItem) => (
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" onClick={() => navigate(`/users/edit/${user.id}`)}>
                         <IconEdit className="h-4 w-4" />
@@ -102,7 +93,7 @@ export default function UsersListRoute() {
                 searchPlaceholder="Search users by name, email, or mobile..."
                 searchValue={searchQuery}
                 onSearchChange={handleSearchChange}
-                filterValues={{ roleName: roleFilter }}
+                filterValues={{ roles: roleFilter }}
                 onFilterChange={handleFilterChange}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
@@ -110,7 +101,7 @@ export default function UsersListRoute() {
                 onPageChange={setPage}
                 filterConfigs={[
                     {
-                        field: 'roleName',
+                        field: 'roles',
                         label: 'Role',
                         options: [
                             { label: 'Customer', value: 'customer' },

@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,39 +12,8 @@ import { useStates, useCities } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const roleOptions = [
-    { label: 'Customer', value: 'customer' },
-    { label: 'Swap Manager', value: 'swap_manager' },
-    { label: 'Hub Manager', value: 'hub_manager' },
-    { label: 'System Admin', value: 'system_admin' },
-] as const
-
-const genderOptions = [
-    { label: 'Male', value: 'male' },
-    { label: 'Female', value: 'female' },
-    { label: 'Other', value: 'other' },
-] as const
-
-const allowedRoles = ['customer', 'swap_manager', 'hub_manager', 'system_admin', 'system_user'] as const
-const allowedGenders = ['male', 'female', 'other'] as const
-
-const updateSchema = z.object({
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
-    mobilenumber: z.string().min(10, 'Mobile number is required'),
-    email: z.string().email('Invalid email').optional().or(z.literal('')),
-    gender: z.enum(['male', 'female', 'other']).optional(),
-    dateOfBirth: z.string().optional(),
-    role: z.enum(['customer', 'swap_manager', 'hub_manager', 'system_admin', 'system_user']),
-    stateId: z.string().optional(),
-    cityId: z.string().optional(),
-    lineOne: z.string().optional(),
-    lineTwo: z.string().optional(),
-    pincode: z.string().optional(),
-})
-
-type UpdateFormValues = z.infer<typeof updateSchema>
+import { updateUserSchema, type UpdateUserFormValues } from '~/schemas'
+import { roleOptions, genderOptions, allowedRoles, allowedGenders } from '~/constants'
 
 function getUserProperties(properties: unknown) {
     if (!properties) return {}
@@ -62,7 +30,7 @@ function getUserProperties(properties: unknown) {
     return typeof properties === 'object' ? properties : {}
 }
 
-function getRoleNameFromProperties(properties: unknown): UpdateFormValues['role'] {
+function getRoleNameFromProperties(properties: unknown): UpdateUserFormValues['role'] {
     const normalizedProperties = getUserProperties(properties) as { roleName?: string }
     const roleName = normalizedProperties.roleName?.trim().toLowerCase()
 
@@ -81,8 +49,8 @@ export default function EditUserRoute() {
     const updateUser = useUpdateUser()
     const { data: states } = useStates()
 
-    const form = useForm<UpdateFormValues>({
-        resolver: zodResolver(updateSchema),
+    const form = useForm<UpdateUserFormValues>({
+        resolver: zodResolver(updateUserSchema),
         defaultValues: {
             firstName: '',
             lastName: '',
@@ -108,7 +76,7 @@ export default function EditUserRoute() {
     useEffect(() => {
         if (user) {
             const normalizedGender = getGenderValue(user.gender ?? undefined)
-            const normalizedRole = getRoleNameFromProperties(user.properties) ?? ((user.roles?.[0]?.name?.trim().toLowerCase() as UpdateFormValues['role']) || 'customer')
+            const normalizedRole = getRoleNameFromProperties(user.properties) ?? ((user.roles?.[0]?.name?.trim().toLowerCase() as UpdateUserFormValues['role']) || 'customer')
 
             const address = user.addresses?.[0]
             form.reset({
@@ -128,7 +96,7 @@ export default function EditUserRoute() {
         }
     }, [user, form])
 
-    const onSubmit = (values: UpdateFormValues) => {
+    const onSubmit = (values: UpdateUserFormValues) => {
         if (!id || !user) return
 
         const mobile = values.mobilenumber.startsWith('91') ? values.mobilenumber : `91${values.mobilenumber}`

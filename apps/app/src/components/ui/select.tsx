@@ -49,8 +49,6 @@ const selectTv = tv({
     },
 })
 
-const List = Platform.OS === 'web' ? FlashList : BottomSheetFlatList
-
 export type OptionType = { label: string; value: string | number }
 
 type OptionsProps = {
@@ -97,13 +95,23 @@ export function Options({
             backgroundStyle={{
                 backgroundColor: isDark ? colors.neutral[800] : colors.white,
             }}>
-            <List
-                data={options}
-                keyExtractor={keyExtractor}
-                renderItem={renderSelectItem}
-                testID={testID ? `${testID}-modal` : undefined}
-                estimatedItemSize={52}
-            />
+            {Platform.OS === 'web'
+                ? (
+                        <FlashList
+                            data={options}
+                            keyExtractor={keyExtractor}
+                            renderItem={renderSelectItem}
+                            testID={testID ? `${testID}-modal` : undefined}
+                        />
+                    )
+                : (
+                        <BottomSheetFlatList
+                            data={options}
+                            keyExtractor={keyExtractor}
+                            renderItem={renderSelectItem}
+                            testID={testID ? `${testID}-modal` : undefined}
+                        />
+                    )}
         </Modal>
     )
 }

@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { toast } from 'sonner'
 
 import { TextInputField } from '~/components/forms/controlled-fields'
@@ -14,13 +13,7 @@ import { Card, CardContent } from '~/components/ui/card'
 import { Form } from '~/components/ui/form'
 import { useGetBookingById, useAssignVehicle } from '~/queries/bookings'
 import { formatDate } from '~/lib/formatter'
-
-const assignVehicleSchema = z.object({
-    vehicleId: z.string().min(1, 'Vehicle ID is required'),
-    batteryId: z.string().min(1, 'Battery ID is required'),
-})
-
-type AssignVehicleValues = z.infer<typeof assignVehicleSchema>
+import { assignVehicleSchema, type AssignVehicleValues } from '~/schemas'
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
     return (

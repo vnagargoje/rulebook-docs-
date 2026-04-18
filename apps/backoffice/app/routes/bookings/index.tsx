@@ -9,17 +9,6 @@ import { Button } from '~/components/ui/button'
 import { useBookings, type BookingItem, type BookingsListParams } from '~/queries/bookings'
 import { formatDate } from '~/lib/formatter'
 
-type BookingRow = BookingItem & {
-    shortId: string
-    shortStationId: string
-    shortVehicleId: string
-    formattedCreatedAt: string
-}
-
-function shortenId(value?: string | null) {
-    return value ? `${value.slice(0, 8)}...` : '—'
-}
-
 export default function BookingsListRoute() {
     const navigate = useNavigate()
     const [page, setPage] = useState(1)
@@ -41,14 +30,7 @@ export default function BookingsListRoute() {
 
     const { data, isLoading } = useBookings(queryParams)
 
-    const bookings = useMemo<BookingRow[]>(() => (data?.data ?? []).map((booking) => ({
-        ...booking,
-        shortId: shortenId(booking.id),
-        shortStationId: shortenId(booking.stationId),
-        shortVehicleId: shortenId(booking.vehicleId),
-        formattedCreatedAt: formatDate(booking.createdAt),
-    })), [data?.data])
-
+    const bookings = data?.data ?? []
     const paginationMeta = data?.meta
 
     const handleFilterChange = useCallback((filters: Record<string, string>) => {
@@ -57,18 +39,18 @@ export default function BookingsListRoute() {
     }, [])
 
     const columns = useMemo(() => [
-        { header: 'Booking ID', accessor: 'shortId' as const },
-        { header: 'Station ID', accessor: 'shortStationId' as const },
-        { header: 'Status', cell: (booking: BookingRow) => <StatusBadge status={booking.status.toUpperCase()} /> },
-        { header: 'Vehicle', accessor: 'shortVehicleId' as const },
+        { header: 'Booking ID', accessor: 'id' as const },
+        { header: 'Station ID', accessor: 'stationId' as const },
+        { header: 'Status', cell: (booking: BookingItem) => <StatusBadge status={booking.status.toUpperCase()} /> },
+        { header: 'Vehicle', accessor: 'vehicleId' as const },
         { header: 'Pickup OTP', accessor: 'pickupOtp' as const },
         {
             header: 'Created',
-            cell: (booking: BookingRow) => <span className="text-xs text-muted-foreground">{booking.formattedCreatedAt}</span>,
+            cell: (booking: BookingItem) => <span className="text-xs text-muted-foreground">{formatDate(booking.createdAt)}</span>,
         },
         {
             header: 'Actions',
-            cell: (booking: BookingRow) => (
+            cell: (booking: BookingItem) => (
                 <Button variant="ghost" size="icon" onClick={() => navigate(`/bookings/${booking.id}`)}>
                     <IconEye className="h-4 w-4" />
                 </Button>

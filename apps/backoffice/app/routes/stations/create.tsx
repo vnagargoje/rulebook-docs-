@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -14,27 +13,8 @@ import { useStates, useCities } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const stationTypeOptions = [
-    { label: 'Swap Station', value: 'swap_station' },
-    { label: 'Hub Station', value: 'hub_station' },
-] as const
-
-const createSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    type: z.enum(['swap_station', 'hub_station']),
-    active: z.enum(['true', 'false']),
-    latitude: z.string().optional(),
-    longitude: z.string().optional(),
-    managerId: z.string().optional(),
-    stateId: z.string().optional(),
-    cityId: z.string().optional(),
-    lineOne: z.string().optional(),
-    lineTwo: z.string().optional(),
-    pincode: z.string().optional(),
-})
-
-type CreateFormValues = z.infer<typeof createSchema>
+import { createStationSchema, type CreateStationFormValues } from '~/schemas'
+import { stationTypeOptions } from '~/constants'
 
 export default function CreateStationRoute() {
     const navigate = useNavigate()
@@ -42,8 +22,8 @@ export default function CreateStationRoute() {
     const { data: managers } = useUsers({ limit: 100, 'filter.roles.name': ['$in:swap_manager,hub_manager'] })
     const { data: states } = useStates()
 
-    const form = useForm<CreateFormValues>({
-        resolver: zodResolver(createSchema),
+    const form = useForm<CreateStationFormValues>({
+        resolver: zodResolver(createStationSchema),
         defaultValues: {
             name: '',
             type: 'swap_station',
@@ -73,7 +53,7 @@ export default function CreateStationRoute() {
     const stateOptions = useMemo(() => (states ?? []).map((s) => ({ label: s.name, value: s.id })), [states])
     const cityOptions = useMemo(() => (cities ?? []).map((c) => ({ label: c.name, value: c.id })), [cities])
 
-    const onSubmit = useCallback((values: CreateFormValues) => {
+    const onSubmit = useCallback((values: CreateStationFormValues) => {
         const payload: CreateStationPayload = {
             name: values.name,
             type: values.type,

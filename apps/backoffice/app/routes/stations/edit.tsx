@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -14,27 +13,8 @@ import { useStates, useCities } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const stationTypeOptions = [
-    { label: 'Swap Station', value: 'swap_station' },
-    { label: 'Hub Station', value: 'hub_station' },
-] as const
-
-const updateSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    type: z.enum(['swap_station', 'hub_station']),
-    active: z.enum(['true', 'false']),
-    latitude: z.string().optional(),
-    longitude: z.string().optional(),
-    managerId: z.string().optional(),
-    stateId: z.string().optional(),
-    cityId: z.string().optional(),
-    lineOne: z.string().optional(),
-    lineTwo: z.string().optional(),
-    pincode: z.string().optional(),
-})
-
-type UpdateFormValues = z.infer<typeof updateSchema>
+import { updateStationSchema, type UpdateStationFormValues } from '~/schemas'
+import { stationTypeOptions } from '~/constants'
 
 export default function EditStationRoute() {
     const { id } = useParams()
@@ -44,8 +24,8 @@ export default function EditStationRoute() {
     const { data: managers } = useUsers({ limit: 100, 'filter.roles.name': ['$in:swap_manager,hub_manager'] })
     const { data: states } = useStates()
 
-    const form = useForm<UpdateFormValues>({
-        resolver: zodResolver(updateSchema),
+    const form = useForm<UpdateStationFormValues>({
+        resolver: zodResolver(updateStationSchema),
         defaultValues: {
             name: '',
             type: 'swap_station',
@@ -89,7 +69,7 @@ export default function EditStationRoute() {
         }
     }, [station, form])
 
-    const onSubmit = useCallback((values: UpdateFormValues) => {
+    const onSubmit = useCallback((values: UpdateStationFormValues) => {
         if (!id) return
 
         const payload: UpdateStationPayload = {

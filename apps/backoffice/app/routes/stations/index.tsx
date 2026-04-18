@@ -6,7 +6,7 @@ import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
-import { useStations, type StationsListParams } from '~/queries/stations'
+import { useStations, type StationsListParams, type StationItem } from '~/queries/stations'
 
 export default function StationsListRoute() {
     const navigate = useNavigate()
@@ -35,16 +35,7 @@ export default function StationsListRoute() {
 
     const { data, isLoading } = useStations(queryParams)
 
-    const stations = useMemo(() => (data?.data ?? []).map((station) => ({
-        ...station,
-        id: station.id,
-        displayType: station.type.replace(/_/g, ' '),
-        cityName: station.address?.city?.name ?? '—',
-        managerName: station.manager
-            ? [station.manager.firstName, station.manager.lastName].filter(Boolean).join(' ') || '—'
-            : '—',
-    })), [data?.data])
-
+    const stations = data?.data ?? []
     const paginationMeta = data?.meta
 
     const handleSearchChange = useCallback((value: string) => {
@@ -59,16 +50,22 @@ export default function StationsListRoute() {
 
     const columns = useMemo(() => [
         { header: 'Name', accessor: 'name' as const },
-        { header: 'Type', accessor: 'displayType' as const },
-        { header: 'City', accessor: 'cityName' as const },
-        { header: 'Manager', accessor: 'managerName' as const },
+        { header: 'Type', cell: (station: StationItem) => station.type },
+        { header: 'City', cell: (station: StationItem) => station.address?.city?.name ?? '—' },
+        {
+            header: 'Manager',
+            cell: (station: StationItem) => {
+                const m = station.manager
+                return m ? [m.firstName, m.lastName].filter(Boolean).join(' ') || '—' : '—'
+            },
+        },
         {
             header: 'Status',
-            cell: (station: (typeof stations)[number]) => <StatusBadge status={station.active ? 'ACTIVE' : 'INACTIVE'} />,
+            cell: (station: StationItem) => <StatusBadge status={station.active ? 'ACTIVE' : 'INACTIVE'} />,
         },
         {
             header: 'Actions',
-            cell: (station: (typeof stations)[number]) => (
+            cell: (station: StationItem) => (
                 <Button variant="ghost" size="icon" onClick={() => navigate(`/stations/edit/${station.id}`)}>
                     <IconEdit className="h-4 w-4" />
                 </Button>

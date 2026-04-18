@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -12,21 +11,7 @@ import { useGetPlanById, useUpdatePlan } from '~/queries/plans'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const updateSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    description: z.string().optional(),
-    validityDays: z.coerce.number().min(1, 'Must be at least 1 day'),
-    kmLimit: z.coerce.number().min(0, 'Must be 0 or more'),
-    price: z.coerce.number().min(0, 'Must be 0 or more'),
-    deposit: z.coerce.number().min(0, 'Must be 0 or more'),
-    gst: z.coerce.number().min(0, 'Must be 0 or more'),
-    registrationFee: z.coerce.number().min(0, 'Must be 0 or more'),
-    active: z.enum(['true', 'false']),
-})
-
-export type UpdateFormValues = z.infer<typeof updateSchema>
-type UpdateFormInput = z.input<typeof updateSchema>
+import { updatePlanSchema, type UpdatePlanFormValues, type UpdatePlanFormInput } from '~/schemas'
 
 export default function EditPlanRoute() {
     const { id } = useParams()
@@ -34,8 +19,8 @@ export default function EditPlanRoute() {
     const { data: plan, isLoading } = useGetPlanById(id)
     const updatePlan = useUpdatePlan()
 
-    const form = useForm<UpdateFormInput, unknown, UpdateFormValues>({
-        resolver: zodResolver(updateSchema),
+    const form = useForm<UpdatePlanFormInput, unknown, UpdatePlanFormValues>({
+        resolver: zodResolver(updatePlanSchema),
     })
 
     useEffect(() => {
@@ -54,7 +39,7 @@ export default function EditPlanRoute() {
         }
     }, [plan, form])
 
-    const onSubmit = useCallback((values: UpdateFormValues) => {
+    const onSubmit = useCallback((values: UpdatePlanFormValues) => {
         if (!id) return
 
         updatePlan.mutate({

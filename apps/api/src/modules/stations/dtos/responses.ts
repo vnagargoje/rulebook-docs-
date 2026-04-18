@@ -25,7 +25,7 @@ export const StationResponse = Type.Object({
     id: Type.String(),
     type: Type.Enum(StationType),
     name: Type.String(),
-    longitute: Type.Optional(Type.Number({ precision: 11, scale: 8 })),
+    longitude: Type.Optional(Type.Number({ precision: 11, scale: 8 })),
     latitude: Type.Optional(Type.Number({ precision: 10, scale: 8 })),
     active: Type.Boolean(),
     address: Type.Optional(AddressResponse),

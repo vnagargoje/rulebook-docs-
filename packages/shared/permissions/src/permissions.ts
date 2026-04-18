@@ -28,5 +28,7 @@ export const permissions: Permissions<Roles[keyof Roles], Subjects, Actions> = {
         can(Actions.manage, Subjects.UserPlan)
         can(Actions.manage, Subjects.Booking)
         can(Actions.manage, Subjects.Station)
+        can(Actions.manage, Subjects.Vehicle)
+        can(Actions.manage, Subjects.Battery)
     },
 }

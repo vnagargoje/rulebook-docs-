@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,16 +12,7 @@ import { inactiveVehicleStatusOptions, type InactiveVehicleRecord, type Vehicle 
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const updateSchema = z.object({
-    id: z.string(),
-    reportedDate: z.string().min(1, 'Reported date is required'),
-    vehicleId: z.string().min(1, 'Vehicle is required'),
-    description: z.string().min(1, 'Description is required'),
-    status: z.enum(['REPORTED', 'UNDER_REVIEW', 'RESOLVED']),
-})
-
-export type UpdateInactiveValues = z.infer<typeof updateSchema>
+import { updateInactiveVehicleSchema, type UpdateInactiveVehicleValues } from '~/schemas'
 
 export default function EditInactiveRoute() {
     const { id } = useParams()
@@ -30,8 +20,8 @@ export default function EditInactiveRoute() {
     const [vehicles, setVehicles] = useState<Vehicle[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
-    const form = useForm({
-        resolver: zodResolver(updateSchema) as any,
+    const form = useForm<UpdateInactiveVehicleValues>({
+        resolver: zodResolver(updateInactiveVehicleSchema) as any,
     })
 
     useEffect(() => {
@@ -58,7 +48,7 @@ export default function EditInactiveRoute() {
         void load()
     }, [id, navigate, form])
 
-    const onSubmit = async (values: UpdateInactiveValues) => {
+    const onSubmit = async (values: UpdateInactiveVehicleValues) => {
         try {
             await mockApi.saveInactiveVehicle(values as InactiveVehicleRecord)
             toast.success('Downtime record updated')

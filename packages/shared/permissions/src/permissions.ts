@@ -16,6 +16,8 @@ export const permissions: Permissions<Roles[keyof Roles], Subjects, Actions> = {
     swap_manager({ can }) {
         can(Actions.read, Subjects.Booking)
         can(Actions.update, Subjects.Booking)
+        can(Actions.create, Subjects.BatterySwap)
+        can(Actions.read, Subjects.BatterySwap)
     },
     system_user() {},
     system_admin({ can, extend }) {
@@ -30,5 +32,6 @@ export const permissions: Permissions<Roles[keyof Roles], Subjects, Actions> = {
         can(Actions.manage, Subjects.Station)
         can(Actions.manage, Subjects.Vehicle)
         can(Actions.manage, Subjects.Battery)
+        can(Actions.manage, Subjects.BatterySwap)
     },
 }

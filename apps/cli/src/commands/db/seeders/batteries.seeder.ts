@@ -28,7 +28,10 @@ interface PdfImage {
     data: Buffer;
 }
 
-function extractBatteriesFromPdf(): { batteryId: string; pngBuffer: Buffer }[] {
+function extractBatteriesFromPdf(): {
+    batteryQrId: string;
+    pngBuffer: Buffer;
+}[] {
     const buf = readFileSync(PDF_PATH);
     const str = buf.toString('latin1');
 
@@ -85,7 +88,7 @@ function extractBatteriesFromPdf(): { batteryId: string; pngBuffer: Buffer }[] {
         }
 
         return {
-            batteryId: batteryIds[index],
+            batteryQrId: batteryIds[index],
             pngBuffer: PNG.sync.write(png),
         };
     });
@@ -126,9 +129,9 @@ export class BatteriesSeeder implements Seeder {
         let created = 0;
         let skipped = 0;
 
-        for (const { batteryId, pngBuffer } of batteries) {
+        for (const { batteryQrId, pngBuffer } of batteries) {
             const existing = await manager.findOne(BatteryEntity, {
-                where: { batteryId },
+                where: { batteryQrId },
             });
 
             if (existing) {
@@ -136,7 +139,7 @@ export class BatteriesSeeder implements Seeder {
                 continue;
             }
 
-            const s3Key = `batteries/qr-codes/${batteryId}.png`;
+            const s3Key = `batteries/qr-codes/${batteryQrId}.png`;
 
             await s3Client.send(
                 new PutObjectCommand({
@@ -149,7 +152,7 @@ export class BatteriesSeeder implements Seeder {
 
             const baseUrl = (s3Endpoint ?? '').replace(/\/$/, '');
             const file = manager.create(FileEntity, {
-                filename: `${batteryId}.png`,
+                filename: `${batteryQrId}.png`,
                 path: `${baseUrl}/${bucket}/${s3Key}`,
                 mimeType: 'image/png',
                 size: pngBuffer.length,
@@ -157,13 +160,13 @@ export class BatteriesSeeder implements Seeder {
             await manager.save(file);
 
             const battery = manager.create(BatteryEntity, {
-                batteryId,
+                batteryQrId,
                 qrCodeId: file.id,
             });
             await manager.save(battery);
 
             created += 1;
-            this.logger.log(`Seeded battery ${batteryId}`);
+            this.logger.log(`Seeded battery ${batteryQrId}`);
         }
 
         this.logger.log(

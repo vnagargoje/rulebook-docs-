@@ -28,16 +28,19 @@ import {
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
 import { BatteryResponse } from '../../dtos/responses';
-import { CreateBatteryPayload, UpdateBatteryPayload } from '../../dtos/payloads';
+import {
+    CreateBatteryPayload,
+    UpdateBatteryPayload,
+} from '../../dtos/payloads';
 import { type Static } from '@sinclair/typebox';
 import { BatterySubject } from '@yugo/permissions';
 import { CreateBatteryCommand, UpdateBatteryCommand } from '@yugo/cqrs';
 
 const PAGINATE_CONFIG: PaginateConfig<BatteryEntity> = {
-    sortableColumns: ['id', 'batteryId', 'createdAt'],
+    sortableColumns: ['id', 'batteryQrId', 'createdAt'],
     relations: ['station'],
     filterableColumns: {
-        batteryId: [FilterOperator.ILIKE],
+        batteryQrId: [FilterOperator.ILIKE],
         gpsId: [FilterOperator.ILIKE],
         stationId: [FilterOperator.EQ],
         'station.name': [FilterOperator.ILIKE],

@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,30 +12,15 @@ import { useStations } from '~/queries/stations'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const createSchema = z.object({
-    batteryCode: z.string().min(1, 'Code is required'),
-    gpsId: z.string().optional(),
-    capacity: z.string().optional(),
-    range: z.string().optional(),
-    lifecycle: z.string().optional(),
-    chargingTime: z.string().optional(),
-    weight: z.string().optional(),
-    mfgDate: z.string().optional(),
-    warranty: z.string().optional(),
-    removable: z.boolean(),
-    stationId: z.string().optional(),
-})
-
-type CreateFormValues = z.infer<typeof createSchema>
+import { createBatterySchema, type CreateBatteryFormValues } from '~/schemas'
 
 export default function CreateBatteryRoute() {
     const navigate = useNavigate()
     const createBattery = useCreateBattery()
     const { data: stations } = useStations({ limit: 100 })
 
-    const form = useForm<CreateFormValues>({
-        resolver: zodResolver(createSchema),
+    const form = useForm<CreateBatteryFormValues>({
+        resolver: zodResolver(createBatterySchema),
         defaultValues: {
             batteryCode: '',
             gpsId: '',
@@ -57,7 +41,7 @@ export default function CreateBatteryRoute() {
         value: s.id,
     })), [stations?.data])
 
-    const onSubmit = useCallback((values: CreateFormValues) => {
+    const onSubmit = useCallback((values: CreateBatteryFormValues) => {
         createBattery.mutate({
             batteryId: values.batteryCode,
             gpsId: values.gpsId || undefined,

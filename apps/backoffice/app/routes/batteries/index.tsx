@@ -5,7 +5,7 @@ import { IconPlus, IconEdit } from '@tabler/icons-react'
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
-import { useBatteries, type BatteriesListParams } from '~/queries/batteries'
+import { useBatteries, type BatteriesListParams, type BatteryItem } from '~/queries/batteries'
 
 export default function BatteriesListRoute() {
     const navigate = useNavigate()
@@ -29,14 +29,7 @@ export default function BatteriesListRoute() {
 
     const { data, isLoading } = useBatteries(queryParams)
 
-    const batteries = useMemo(() => (data?.data ?? []).map((battery) => ({
-        ...battery,
-        capacity: battery.properties?.capacity ?? '—',
-        range: battery.properties?.range ?? '—',
-        stationName: battery.station?.name ?? 'Unassigned',
-        removable: battery.properties?.removableOption ? 'Yes' : 'No',
-    })), [data?.data])
-
+    const batteries = data?.data ?? []
     const paginationMeta = data?.meta
 
     const handleSearchChange = useCallback((value: string) => {
@@ -47,13 +40,13 @@ export default function BatteriesListRoute() {
     const columns = useMemo(() => [
         { header: 'Code', accessor: 'batteryId' as const },
         { header: 'GPS ID', accessor: 'gpsId' as const },
-        { header: 'Capacity', accessor: 'capacity' as const },
-        { header: 'Range', accessor: 'range' as const },
-        { header: 'Station', accessor: 'stationName' as const },
-        { header: 'Removable', accessor: 'removable' as const },
+        { header: 'Capacity', cell: (b: BatteryItem) => b.properties?.capacity ?? '—' },
+        { header: 'Range', cell: (b: BatteryItem) => b.properties?.range ?? '—' },
+        { header: 'Station', cell: (b: BatteryItem) => b.station?.name ?? 'Unassigned' },
+        { header: 'Removable', cell: (b: BatteryItem) => b.properties?.removableOption ? 'Yes' : 'No' },
         {
             header: 'Actions',
-            cell: (b: (typeof batteries)[number]) => (
+            cell: (b: BatteryItem) => (
                 <Button variant="ghost" size="icon" onClick={() => navigate(`/batteries/edit/${b.id}`)}>
                     <IconEdit className="h-4 w-4" />
                 </Button>

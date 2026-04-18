@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,13 +12,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 import { useCallback, useMemo, useState } from 'react'
-
-const batteryAssignmentSchema = z.object({
-    stationId: z.string().min(1, 'Station is required'),
-    batteryIds: z.array(z.string()).min(1, 'At least one battery is required'),
-})
-
-type BatteryAssignmentValues = z.infer<typeof batteryAssignmentSchema>
+import { batteryAssignmentSchema, type BatteryAssignmentValues } from '~/schemas'
 
 export default function AssignBatteriesRoute() {
     const navigate = useNavigate()

@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -12,19 +11,7 @@ import { useGetTopUpById, useUpdateTopUp } from '~/queries/top-ups'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const updateSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    description: z.string().optional(),
-    validityDays: z.coerce.number().min(1, 'Must be at least 1 day'),
-    kmLimit: z.coerce.number().min(0, 'Must be 0 or more'),
-    price: z.coerce.number().min(0, 'Must be 0 or more'),
-    gst: z.coerce.number().min(0, 'Must be 0 or more'),
-    active: z.enum(['true', 'false']),
-})
-
-export type UpdateTopUpValues = z.infer<typeof updateSchema>
-type UpdateTopUpInput = z.input<typeof updateSchema>
+import { updateTopUpPlanSchema, type UpdateTopUpPlanFormValues, type UpdateTopUpPlanFormInput } from '~/schemas'
 
 export default function EditTopUpPlanRoute() {
     const { id } = useParams()
@@ -32,8 +19,8 @@ export default function EditTopUpPlanRoute() {
     const { data: topUp, isLoading } = useGetTopUpById(id)
     const updateTopUp = useUpdateTopUp()
 
-    const form = useForm<UpdateTopUpInput, unknown, UpdateTopUpValues>({
-        resolver: zodResolver(updateSchema),
+    const form = useForm<UpdateTopUpPlanFormInput, unknown, UpdateTopUpPlanFormValues>({
+        resolver: zodResolver(updateTopUpPlanSchema),
     })
 
     useEffect(() => {
@@ -50,7 +37,7 @@ export default function EditTopUpPlanRoute() {
         }
     }, [topUp, form])
 
-    const onSubmit = useCallback((values: UpdateTopUpValues) => {
+    const onSubmit = useCallback((values: UpdateTopUpPlanFormValues) => {
         if (!id) return
 
         updateTopUp.mutate({

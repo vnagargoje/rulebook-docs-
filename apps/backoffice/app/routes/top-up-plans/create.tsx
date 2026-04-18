@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -12,26 +11,14 @@ import { useCreateTopUp } from '~/queries/top-ups'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const createSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    description: z.string().optional(),
-    validityDays: z.coerce.number().min(1, 'Must be at least 1 day'),
-    kmLimit: z.coerce.number().min(0, 'Must be 0 or more'),
-    price: z.coerce.number().min(0, 'Must be 0 or more'),
-    gst: z.coerce.number().min(0, 'Must be 0 or more'),
-    active: z.enum(['true', 'false']),
-})
-
-export type CreateTopUpValues = z.infer<typeof createSchema>
-type CreateTopUpInput = z.input<typeof createSchema>
+import { createTopUpPlanSchema, type CreateTopUpPlanFormValues, type CreateTopUpPlanFormInput } from '~/schemas'
 
 export default function CreateTopUpPlanRoute() {
     const navigate = useNavigate()
     const createTopUp = useCreateTopUp()
 
-    const form = useForm<CreateTopUpInput, unknown, CreateTopUpValues>({
-        resolver: zodResolver(createSchema),
+    const form = useForm<CreateTopUpPlanFormInput, unknown, CreateTopUpPlanFormValues>({
+        resolver: zodResolver(createTopUpPlanSchema),
         defaultValues: {
             name: '',
             description: '',
@@ -43,7 +30,7 @@ export default function CreateTopUpPlanRoute() {
         },
     })
 
-    const onSubmit = useCallback((values: CreateTopUpValues) => {
+    const onSubmit = useCallback((values: CreateTopUpPlanFormValues) => {
         createTopUp.mutate({
             name: values.name,
             description: values.description,

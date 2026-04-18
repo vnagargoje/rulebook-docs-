@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,18 +12,7 @@ import { maintenanceStatusOptions, type MaintenanceRecord, type Vehicle } from '
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const updateSchema = z.object({
-    id: z.string(),
-    reportedDate: z.string().min(1, 'Reported date is required'),
-    vehicleId: z.string().min(1, 'Vehicle is required'),
-    issueDescription: z.string().min(1, 'Description is required'),
-    technicianName: z.string().min(1, 'Technician name is required'),
-    expectedFixDate: z.string().min(1, 'Expected fix date is required'),
-    status: z.enum(['REPORTED', 'IN_PROGRESS', 'RESOLVED']),
-})
-
-export type UpdateMaintenanceValues = z.infer<typeof updateSchema>
+import { updateMaintenanceSchema, type UpdateMaintenanceValues } from '~/schemas'
 
 export default function EditMaintenanceRoute() {
     const { id } = useParams()
@@ -32,8 +20,8 @@ export default function EditMaintenanceRoute() {
     const [vehicles, setVehicles] = useState<Vehicle[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
-    const form = useForm({
-        resolver: zodResolver(updateSchema) as any,
+    const form = useForm<UpdateMaintenanceValues>({
+        resolver: zodResolver(updateMaintenanceSchema) as any,
     })
 
     useEffect(() => {

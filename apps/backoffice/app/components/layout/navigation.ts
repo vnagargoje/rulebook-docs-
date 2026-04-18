@@ -1,6 +1,7 @@
 import {
     IconArrowsLeftRight,
     IconBattery,
+    IconCalendarEvent,
     IconChecklist,
     IconClipboardCheck,
     IconLayoutDashboard,
@@ -25,6 +26,7 @@ export const NAVIGATION_ITEMS = [
         ]
     },
     { to: '/vehicles', label: 'Vehicles', description: 'Fleet registration', icon: IconMotorbike },
+    { to: '/bookings', label: 'Bookings', description: 'Customer bookings', icon: IconCalendarEvent },
     { to: '/maintenance', label: 'Maintenance', description: 'Service records', icon: IconTool },
     { to: '/inactive-vehicles', label: 'Inactive Vehicles', description: 'Downtime tracking', icon: IconChecklist },
     { to: '/assignments', label: 'Assignments', description: 'Vehicle allocation', icon: IconArrowsLeftRight },

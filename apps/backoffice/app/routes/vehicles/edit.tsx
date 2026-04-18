@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -13,19 +12,7 @@ import { useStations } from '~/queries/stations'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const updateSchema = z.object({
-    vehicleNumber: z.string().min(1, 'Registration number is required'),
-    rcNumber: z.string().optional(),
-    chassisNumber: z.string().optional(),
-    brand: z.string().optional(),
-    model: z.string().optional(),
-    gpsId: z.string().optional(),
-    insuranceExpiry: z.string().optional(),
-    stationId: z.string().optional(),
-})
-
-type UpdateFormValues = z.infer<typeof updateSchema>
+import { updateVehicleSchema, type UpdateVehicleFormValues } from '~/schemas'
 
 export default function EditVehicleRoute() {
     const { id } = useParams()
@@ -34,8 +21,8 @@ export default function EditVehicleRoute() {
     const updateVehicle = useUpdateVehicle()
     const { data: stations } = useStations({ limit: 100 })
 
-    const form = useForm<UpdateFormValues>({
-        resolver: zodResolver(updateSchema),
+    const form = useForm<UpdateVehicleFormValues>({
+        resolver: zodResolver(updateVehicleSchema),
         defaultValues: {
             vehicleNumber: '',
             rcNumber: '',
@@ -68,7 +55,7 @@ export default function EditVehicleRoute() {
         }
     }, [vehicle, form])
 
-    const onSubmit = useCallback((values: UpdateFormValues) => {
+    const onSubmit = useCallback((values: UpdateVehicleFormValues) => {
         if (!id) return
 
         const payload: UpdateVehiclePayload = {

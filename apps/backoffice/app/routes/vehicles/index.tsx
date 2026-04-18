@@ -5,8 +5,7 @@ import { IconPlus, IconEdit } from '@tabler/icons-react'
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
-import { useVehicles, type VehiclesListParams } from '~/queries/vehicles'
-import { formatDate } from '~/lib/formatter'
+import { useVehicles, type VehiclesListParams, type VehicleItem } from '~/queries/vehicles'
 
 export default function VehiclesListRoute() {
     const navigate = useNavigate()
@@ -30,15 +29,7 @@ export default function VehiclesListRoute() {
 
     const { data, isLoading } = useVehicles(queryParams)
 
-    const vehicles = useMemo(() => (data?.data ?? []).map((vehicle) => ({
-        ...vehicle,
-        brandModel: [vehicle.properties?.brand, vehicle.properties?.model].filter(Boolean).join(' ') || '—',
-        stationName: vehicle.station?.name ?? '—',
-        insuranceExpiry: vehicle.properties?.insuranceExpiry
-            ? formatDate(vehicle.properties.insuranceExpiry)
-            : '—',
-    })), [data?.data])
-
+    const vehicles = data?.data ?? []
     const paginationMeta = data?.meta
 
     const handleSearchChange = useCallback((value: string) => {
@@ -48,18 +39,21 @@ export default function VehiclesListRoute() {
 
     const columns = useMemo(() => [
         { header: 'Reg Number', accessor: 'vehicleNumber' as const },
-        { header: 'Brand/Model', accessor: 'brandModel' as const },
+        {
+            header: 'Brand/Model',
+            cell: (vehicle: VehicleItem) => [vehicle.properties?.brand, vehicle.properties?.model].filter(Boolean).join(' ') || '—',
+        },
         { header: 'GPS ID', accessor: 'gpsId' as const },
-        { header: 'Station', accessor: 'stationName' as const },
+        { header: 'Station', cell: (vehicle: VehicleItem) => vehicle.station?.name ?? '—' },
         {
             header: 'Insurance Expiry',
-            cell: (vehicle: (typeof vehicles)[number]) => (
-                <span className="text-xs text-muted-foreground">{vehicle.insuranceExpiry}</span>
+            cell: (vehicle: VehicleItem) => (
+                <span className="text-xs text-muted-foreground">{vehicle.properties?.insuranceExpiry ?? '—'}</span>
             ),
         },
         {
             header: 'Actions',
-            cell: (vehicle: (typeof vehicles)[number]) => (
+            cell: (vehicle: VehicleItem) => (
                 <Button variant="ghost" size="icon" onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}>
                     <IconEdit className="h-4 w-4" />
                 </Button>

@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import {
     AddressEntity,
-    BatteryEntity,
     HubStationEntity,
     PlanEntity,
     RoleEntity,
@@ -19,7 +18,6 @@ const FAKER_SEED = 20260413;
 const HUB_MANAGER_COUNT = 10;
 const SWAP_MANAGER_COUNT = 10;
 const VEHICLES_PER_STATION = 5;
-const BATTERIES_PER_STATION = 3;
 const DUMMY_PASSWORD = 'dummy-password';
 
 export class DummyDataSeeder implements Seeder {
@@ -34,7 +32,6 @@ export class DummyDataSeeder implements Seeder {
                 managersByKey,
             );
             await this.seedVehicles(manager, stationsByKey);
-            await this.seedBatteries(manager, stationsByKey);
             await this.seedPlans(manager);
             await this.seedTopUps(manager);
         });
@@ -247,60 +244,6 @@ export class DummyDataSeeder implements Seeder {
         }
     }
 
-    private async seedBatteries(
-        manager: EntityManager,
-        stationsByKey: Map<string, StationEntity>,
-    ) {
-        let stationNumber = 1;
-
-        for (const station of stationsByKey.values()) {
-            for (
-                let batteryNumber = 1;
-                batteryNumber <= BATTERIES_PER_STATION;
-                batteryNumber += 1
-            ) {
-                const batteryIdentity = this.buildBatteryId(
-                    stationNumber,
-                    batteryNumber,
-                );
-
-                let battery = await manager.findOne(BatteryEntity, {
-                    where: { batteryId: batteryIdentity },
-                });
-
-                if (!battery) {
-                    battery = manager.create(BatteryEntity, {
-                        batteryId: batteryIdentity,
-                    });
-                }
-
-                battery.gpsId = `GPS-BAT-${faker.string.alphanumeric({
-                    length: 8,
-                    casing: 'upper',
-                })}`;
-                battery.properties = {
-                    capacity: `${faker.number.float({
-                        min: 2.1,
-                        max: 3.2,
-                        fractionDigits: 1,
-                    })}kWh`,
-                    range: `${faker.number.int({ min: 70, max: 120 })}km`,
-                    lifecycle: `${faker.number.int({ min: 900, max: 1800 })}`,
-                    chargingTime: `${faker.number.int({ min: 2, max: 5 })}h`,
-                    removableOption: faker.datatype.boolean(),
-                    seeded: true,
-                    seedType: 'dummy-data',
-                };
-                battery.station = station;
-                battery.stationId = station.id;
-
-                await manager.save(battery);
-            }
-
-            stationNumber += 1;
-        }
-    }
-
     private buildMobileNumber(index: number) {
         return `91${String(index).padStart(10, '0')}`;
     }
@@ -313,10 +256,6 @@ export class DummyDataSeeder implements Seeder {
 
     private buildVehicleNumber(stationNumber: number, vehicleNumber: number) {
         return `KA${String(stationNumber).padStart(2, '0')}YU${String(vehicleNumber).padStart(4, '0')}`;
-    }
-
-    private buildBatteryId(stationNumber: number, batteryNumber: number) {
-        return `BAT-${String(stationNumber).padStart(2, '0')}-${String(batteryNumber).padStart(4, '0')}`;
     }
 
     private async seedPlans(manager: EntityManager) {

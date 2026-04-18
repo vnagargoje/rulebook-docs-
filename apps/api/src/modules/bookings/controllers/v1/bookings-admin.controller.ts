@@ -51,6 +51,7 @@ export class V1BookingsAdminController {
                 id,
                 body.vehicleId,
                 body.batteryId,
+                body.otp,
             ),
         );
     }

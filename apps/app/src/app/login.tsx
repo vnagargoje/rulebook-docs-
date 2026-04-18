@@ -1,27 +1,47 @@
-import { useRouter } from 'expo-router'
 import { useCallback } from 'react'
-import { demoAuthToken } from '@/auth/login.data'
-import { LoginForm } from '@/auth/login-form'
-import type { LoginFormValues } from '@/auth/login.types'
-import { FocusAwareStatusBar } from '@/components/ui'
-import { useAuthStore } from '@/auth/use-auth-store'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import { loginContent } from '@/components/auth/auth.content'
+import { AuthScreenShell } from '@/components/auth/auth-screen-shell'
+import { LoginForm } from '@/components/auth/login-form'
+import {
+    DEFAULT_AUTH_REDIRECT,
+    getOtpScreenParams,
+    normalizeMobileNumber,
+    sanitizeInternalRedirect,
+} from '@/components/auth/auth.utils'
+import type { LoginFormValues } from '@/types/auth/login.types'
+import { useSendOtp } from '@/queries/auth.query'
 
-export default function LoginScreen() {
+export default function LoginPage() {
     const router = useRouter()
-    const signIn = useAuthStore.use.signIn()
+    const searchParams = useLocalSearchParams<{ redirect?: string }>()
+    const redirect = sanitizeInternalRedirect(searchParams.redirect ?? DEFAULT_AUTH_REDIRECT)
+    const sendOtp = useSendOtp()
 
     const handleSubmit = useCallback(
-        (_data: LoginFormValues) => {
-            signIn(demoAuthToken)
-            router.push('/')
+        async (data: LoginFormValues) => {
+            const mobilenumber = normalizeMobileNumber(data.phoneNumber)
+
+            const response = await sendOtp.mutateAsync(mobilenumber)
+            router.push(
+                getOtpScreenParams({
+                    mobilenumber: response.data.mobilenumber ?? mobilenumber,
+                    redirect,
+                }),
+            )
         },
-        [router, signIn],
+        [redirect, router, sendOtp],
     )
 
     return (
-        <>
-            <FocusAwareStatusBar />
-            <LoginForm onSubmit={handleSubmit} />
-        </>
+        <AuthScreenShell
+            eyebrow={loginContent.eyebrow}
+            title={loginContent.title}
+            description={loginContent.heroDescription}>
+            <LoginForm
+                isPending={sendOtp.isPending}
+                onSubmit={handleSubmit}
+            />
+        </AuthScreenShell>
     )
 }

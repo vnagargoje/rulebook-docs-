@@ -48,6 +48,12 @@ export class BatterySubject {
     }
 }
 
+export class BatteryTransportSubject {
+    static get modelName() {
+        return Subjects.BatteryTransport
+    }
+}
+
 export class BatterySwapSubject {
     static get modelName() {
         return Subjects.BatterySwap

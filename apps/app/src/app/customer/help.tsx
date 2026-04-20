@@ -1,8 +1,9 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { SectionHeading } from '@/components/section-heading'
 import { customerSupportCards, customerSupportContent } from '@/data/customer/customer-support.data'
 import { Button, FocusAwareStatusBar, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 
-export default function CustomerSupportScreen() {
+export default function CustomerHelpScreen() {
     return (
         <>
             <FocusAwareStatusBar />
@@ -35,8 +36,21 @@ export default function CustomerSupportScreen() {
                                 <View
                                     key={card.id}
                                     className='rounded-3xl border border-neutral-200 bg-white p-4'>
-                                    <Text className='text-lg font-semibold text-neutral-900'>{card.title}</Text>
-                                    <Text className='mt-2 text-sm leading-6 text-neutral-500'>{card.description}</Text>
+                                    <View className='flex-row items-start gap-4'>
+                                        <View className='mt-1 rounded-2xl bg-primary-50 p-3'>
+                                            <MaterialCommunityIcons
+                                                name={card.iconName}
+                                                size={22}
+                                                color='#2563EB'
+                                            />
+                                        </View>
+                                        <View className='flex-1'>
+                                            <Text className='text-lg font-semibold text-neutral-900'>{card.title}</Text>
+                                            <Text className='mt-2 text-sm leading-6 text-neutral-500'>
+                                                {card.description}
+                                            </Text>
+                                        </View>
+                                    </View>
                                 </View>
                             ))}
                         </View>

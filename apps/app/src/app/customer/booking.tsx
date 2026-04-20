@@ -1,3 +1,4 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { SectionHeading } from '@/components/section-heading'
 import { customerBookingContent, customerBookingSteps } from '@/data/customer/customer-booking.data'
 import { Button, FocusAwareStatusBar, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
@@ -36,11 +37,26 @@ export default function CustomerBookingScreen() {
                                 <View
                                     key={step.id}
                                     className='rounded-3xl border border-neutral-200 bg-white p-4'>
-                                    <Text className='text-xs font-semibold uppercase tracking-[1.2px] text-primary-600'>
-                                        Step {index + 1}
-                                    </Text>
-                                    <Text className='mt-2 text-lg font-semibold text-neutral-900'>{step.title}</Text>
-                                    <Text className='mt-2 text-sm leading-6 text-neutral-500'>{step.description}</Text>
+                                    <View className='flex-row items-start gap-4'>
+                                        <View className='rounded-2xl bg-primary-50 p-3'>
+                                            <MaterialCommunityIcons
+                                                name={step.iconName}
+                                                size={22}
+                                                color='#2563EB'
+                                            />
+                                        </View>
+                                        <View className='flex-1'>
+                                            <Text className='text-xs font-semibold uppercase tracking-[1.2px] text-primary-600'>
+                                                Step {index + 1}
+                                            </Text>
+                                            <Text className='mt-2 text-lg font-semibold text-neutral-900'>
+                                                {step.title}
+                                            </Text>
+                                            <Text className='mt-2 text-sm leading-6 text-neutral-500'>
+                                                {step.description}
+                                            </Text>
+                                        </View>
+                                    </View>
                                 </View>
                             ))}
                         </View>

@@ -2,33 +2,36 @@ import type { CustomerSupportCard } from '@/types/customer/customer-support.type
 
 export const customerSupportContent = {
     heading: {
-        eyebrow: 'Support',
-        title: 'We are here before and during the ride',
-        description: 'The support tab brings together the most common help journeys so users can solve problems fast.',
+        eyebrow: 'Help',
+        title: 'Support that keeps the ride moving',
+        description: 'Find quick answers for booking, payments, account checks, and swap issues in one place.',
     },
     priorityCard: {
-        eyebrow: 'Priority line',
-        title: 'Need immediate ride support?',
+        eyebrow: 'Priority support',
+        title: 'Need help with an active booking?',
         description:
-            'Reach the station team for urgent pickup or swap issues, then follow up in the help center for billing and KYC questions.',
+            'Use the station desk or contact support if your pickup OTP, vehicle handoff, or payment confirmation needs attention.',
         actionLabel: 'Contact support',
     },
 } as const
 
 export const customerSupportCards: CustomerSupportCard[] = [
     {
-        id: 'kyc',
-        title: 'KYC help',
-        description: 'Fix document upload issues, profile mismatches, or verification delays quickly.',
+        id: 'booking',
+        iconName: 'calendar-check-outline',
+        title: 'Booking assistance',
+        description: 'Track pickup details, assigned station, and OTP-related questions before arrival.',
     },
     {
         id: 'billing',
-        title: 'Billing and plans',
-        description: 'Review plan charges, payment retries, and subscription updates from one place.',
+        iconName: 'credit-card-outline',
+        title: 'Payments and plans',
+        description: 'Review recharge status, active plans, and payment confirmation issues without calling support first.',
     },
     {
-        id: 'ride',
-        title: 'Ride assistance',
-        description: 'Get help with pickup OTP, active rides, battery swaps, and station guidance.',
+        id: 'safety',
+        iconName: 'shield-check-outline',
+        title: 'KYC and safety',
+        description: 'Get guidance for document verification, account review, and profile completion.',
     },
 ]

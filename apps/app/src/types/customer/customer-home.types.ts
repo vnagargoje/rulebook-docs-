@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react'
+import type { DimensionValue } from 'react-native'
 import type MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 export type CustomerHomeQuickAction = {
@@ -24,4 +25,27 @@ export type CustomerHomeStation = {
     availability: string
     eta: string
     statusLabel: string
+}
+
+export type CustomerHeroCardProps = {
+    title: string
+    description: string
+    primaryLabel: string
+    secondaryLabel: string
+    onPrimaryPress: () => void
+    onSecondaryPress: () => void
+}
+
+export type CustomerQuickActionCardProps = {
+    action: CustomerHomeQuickAction
+    width: number | `${number}%`
+}
+
+export type CustomerRideStatCardProps = {
+    stat: CustomerHomeRideStat
+    width: DimensionValue
+}
+
+export type CustomerStationCardProps = {
+    station: CustomerHomeStation
 }

@@ -1,5 +1,5 @@
-import type { CustomerRideStatCardProps } from './customer-card.types'
 import { Text, View } from '@/components/ui'
+import type { CustomerRideStatCardProps } from '@/types/customer/customer-home.types'
 
 export function CustomerRideStatCard({ stat, width }: CustomerRideStatCardProps) {
     return (

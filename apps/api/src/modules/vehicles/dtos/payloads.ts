@@ -1,4 +1,5 @@
 import { Type } from '@sinclair/typebox';
+import { VehicleType } from '@yugo/shared';
 
 export const VehiclePropertiesPayload = Type.Object({
     brand: Type.Optional(Type.String()),
@@ -7,6 +8,7 @@ export const VehiclePropertiesPayload = Type.Object({
 });
 
 export const CreateVehiclePayload = Type.Object({
+    type: Type.Optional(Type.Enum(VehicleType)),
     vehicleNumber: Type.Optional(Type.String()),
     rcNumber: Type.Optional(Type.String()),
     chassisNumber: Type.Optional(Type.String()),

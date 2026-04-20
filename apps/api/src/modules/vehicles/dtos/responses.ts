@@ -8,6 +8,7 @@ export const VehiclePropertiesResponse = Type.Object({
 
 export const VehicleResponse = Type.Object({
     id: Type.String(),
+    type: Type.Optional(Type.String()),
     vehicleNumber: Type.Optional(Type.String()),
     rcNumber: Type.Optional(Type.String()),
     chassisNumber: Type.Optional(Type.String()),

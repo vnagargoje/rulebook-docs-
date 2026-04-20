@@ -7,7 +7,7 @@ export enum BatteryStatus {
     IN_USE = 'in_use',
 }
 
-export enum BatteryMovementStatus {
+export enum BatteryTransportStatus {
     IN_TRANSIT = 'in_transit',
     DELIVERED = 'delivered',
 }

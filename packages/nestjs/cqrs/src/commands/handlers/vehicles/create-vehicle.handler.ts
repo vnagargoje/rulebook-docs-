@@ -13,6 +13,7 @@ export class CreateVehicleHandler implements ICommandHandler<CreateVehicleComman
 
         return this.manager.transaction(async (manager) => {
             const vehicle = manager.create(VehicleEntity, {
+                type: payload.type,
                 vehicleNumber: payload.vehicleNumber,
                 rcNumber: payload.rcNumber,
                 chassisNumber: payload.chassisNumber,

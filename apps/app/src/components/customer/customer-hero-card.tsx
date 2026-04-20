@@ -1,4 +1,4 @@
-import yugoLogo from '../../../assets/yugo-logo.png'
+import { assets } from '@/assets'
 import { Button, Image, Text, View } from '@/components/ui'
 import type { CustomerHeroCardProps } from '@/types/customer/customer-home.types'
 
@@ -17,7 +17,7 @@ export function CustomerHeroCard({
 
             <View className='gap-4'>
                 <Image
-                    source={yugoLogo}
+                    source={assets.Brand.Logo}
                     contentFit='contain'
                     className='h-24 w-44 self-start'
                 />

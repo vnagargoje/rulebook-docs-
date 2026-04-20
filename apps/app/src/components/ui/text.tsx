@@ -12,6 +12,12 @@ type Props = {
     tx?: TxKeyPath
 } & TextProps
 
+type TypographyProps = {
+    className?: string
+    text?: string
+    tx?: TxKeyPath
+} & TextProps
+
 export function Text({ className = '', style, tx, children, ...props }: Props) {
     const textStyle = React.useMemo(
         () => twMerge('font-inter text-base font-normal text-black dark:text-white', className),
@@ -35,5 +41,27 @@ export function Text({ className = '', style, tx, children, ...props }: Props) {
             {...props}>
             {tx ? translate(tx) : children}
         </NNText>
+    )
+}
+
+export function Paragraph({ className = '', text, tx, children, ...props }: TypographyProps) {
+    return (
+        <Text
+            className={twMerge('text-sm leading-6 text-neutral-500', className)}
+            tx={tx}
+            {...props}>
+            {text ?? children}
+        </Text>
+    )
+}
+
+export function SubHeading({ className = '', text, tx, children, ...props }: TypographyProps) {
+    return (
+        <Text
+            className={twMerge('text-2xl font-bold text-neutral-900', className)}
+            tx={tx}
+            {...props}>
+            {text ?? children}
+        </Text>
     )
 }

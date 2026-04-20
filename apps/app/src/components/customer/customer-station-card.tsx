@@ -1,5 +1,5 @@
-import type { CustomerStationCardProps } from './customer-card.types'
 import { Text, View } from '@/components/ui'
+import type { CustomerStationCardProps } from '@/types/customer/customer-home.types'
 
 export function CustomerStationCard({ station }: CustomerStationCardProps) {
     return (

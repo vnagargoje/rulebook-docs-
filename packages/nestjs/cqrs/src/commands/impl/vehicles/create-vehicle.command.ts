@@ -1,6 +1,7 @@
-import { type VehicleProperties } from '@yugo/shared'
+import { type VehicleProperties, type VehicleType } from '@yugo/shared'
 
 export interface CreateVehiclePayload {
+    type?: VehicleType
     vehicleNumber?: string
     rcNumber?: string
     chassisNumber?: string

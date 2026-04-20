@@ -1,4 +1,4 @@
-import { type BatteryProperties } from '@yugo/shared'
+import { BatteryStatus, type BatteryProperties } from '@yugo/shared'
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm'
 import { FileEntity } from './file.entity.js'
 import { IdTimestamppedEntity } from './id-timestampped.entity.js'
@@ -14,6 +14,9 @@ export class BatteryEntity extends IdTimestamppedEntity {
 
     @Column('json', { nullable: true })
     properties: BatteryProperties
+
+    @Column('enum', { enum: BatteryStatus, default: BatteryStatus.AVAILABLE })
+    status: BatteryStatus
 
     // Relations
     @Column('varchar', { nullable: true })

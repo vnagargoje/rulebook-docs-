@@ -12,12 +12,17 @@ export const permissions: Permissions<Roles[keyof Roles], Subjects, Actions> = {
         can(Actions.create, Subjects.Booking)
         can(Actions.read, Subjects.Booking)
     },
-    hub_manager() {},
+    hub_manager({ can }) {
+        can(Actions.create, Subjects.BatteryTransport)
+        can(Actions.read, Subjects.BatteryTransport)
+    },
     swap_manager({ can }) {
         can(Actions.read, Subjects.Booking)
         can(Actions.update, Subjects.Booking)
         can(Actions.create, Subjects.BatterySwap)
         can(Actions.read, Subjects.BatterySwap)
+        can(Actions.create, Subjects.BatteryTransport)
+        can(Actions.read, Subjects.BatteryTransport)
     },
     system_user() {},
     system_admin({ can, extend }) {
@@ -32,6 +37,7 @@ export const permissions: Permissions<Roles[keyof Roles], Subjects, Actions> = {
         can(Actions.manage, Subjects.Station)
         can(Actions.manage, Subjects.Vehicle)
         can(Actions.manage, Subjects.Battery)
+        can(Actions.manage, Subjects.BatteryTransport)
         can(Actions.manage, Subjects.BatterySwap)
     },
 }

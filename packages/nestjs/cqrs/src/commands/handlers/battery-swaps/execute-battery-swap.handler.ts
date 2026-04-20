@@ -9,7 +9,7 @@ import {
     FileEntity,
     UserPlanEntity,
 } from '@yugo/nestjs-database/entities'
-import { BookingStatus } from '@yugo/shared'
+import { BookingStatus, BatteryStatus } from '@yugo/shared'
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { toBuffer } from 'qrcode'
 import { DataSource, EntityManager } from 'typeorm'
@@ -78,9 +78,11 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
             await manager.save(booking)
 
             oldBattery.stationId = stationId
+            oldBattery.status = BatteryStatus.DRAINED
             await manager.save(oldBattery)
 
             newBattery.stationId = null as any
+            newBattery.status = BatteryStatus.IN_USE
             await manager.save(newBattery)
 
             const swapHistory = manager.create(BatterySwapHistoryEntity, {

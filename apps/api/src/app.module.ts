@@ -32,6 +32,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { StationsModule } from './modules/stations/stations.module';
 import { VehiclesModule } from './modules/vehicles/vehicles.module';
 import { BatteriesModule } from './modules/batteries/batteries.module';
+import { BatteryTransportsModule } from './modules/battery-transports/battery-transports.module';
 import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module';
 
 @Module({
@@ -94,6 +95,7 @@ import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module
         VehiclesModule,
         BatteriesModule,
         BatterySwapsModule,
+        BatteryTransportsModule,
     ],
     providers: [
         JwtStrategy,

@@ -28,7 +28,10 @@ import {
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
 import { VehicleResponse } from '../../dtos/responses';
-import { CreateVehiclePayload, UpdateVehiclePayload } from '../../dtos/payloads';
+import {
+    CreateVehiclePayload,
+    UpdateVehiclePayload,
+} from '../../dtos/payloads';
 import { type Static } from '@sinclair/typebox';
 import { VehicleSubject } from '@yugo/permissions';
 import { CreateVehicleCommand, UpdateVehicleCommand } from '@yugo/cqrs';
@@ -37,6 +40,7 @@ const PAGINATE_CONFIG: PaginateConfig<VehicleEntity> = {
     sortableColumns: ['id', 'vehicleNumber', 'createdAt'],
     relations: ['station'],
     filterableColumns: {
+        type: [FilterOperator.EQ],
         vehicleNumber: [FilterOperator.ILIKE],
         gpsId: [FilterOperator.ILIKE],
         stationId: [FilterOperator.EQ, FilterOperator.NULL],

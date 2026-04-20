@@ -1,6 +1,6 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import type { CustomerQuickActionCardProps } from './customer-card.types'
 import { Text, View } from '@/components/ui'
+import type { CustomerQuickActionCardProps } from '@/types/customer/customer-home.types'
 
 export function CustomerQuickActionCard({ action, width }: CustomerQuickActionCardProps) {
     return (

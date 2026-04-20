@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { BatteryEntity, BookingEntity, FileEntity, UserPlanEntity, VehicleEntity } from '@yugo/nestjs-database/entities'
-import { BookingStatus, UserPlanStatus } from '@yugo/shared'
+import { BookingStatus, BatteryStatus, UserPlanStatus } from '@yugo/shared'
 import { addDays } from 'date-fns'
 import { toBuffer } from 'qrcode'
 import { DataSource, EntityManager } from 'typeorm'
@@ -88,6 +88,10 @@ export class AssignVehicleToBookingHandler implements ICommandHandler<AssignVehi
             booking.stationId = vehicle.stationId ?? null
             booking.status = BookingStatus.ONGOING
             await manager.save(booking)
+
+            battery.status = BatteryStatus.IN_USE
+            battery.stationId = null as any
+            await manager.save(battery)
 
             userPlan.status = UserPlanStatus.ACTIVE
             userPlan.startsAt = new Date()

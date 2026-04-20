@@ -1,5 +1,6 @@
 export * from './address.entity.js'
 export * from './battery.entity.js'
+export * from './battery-swap-history.entity.js'
 export * from './booking.entity.js'
 export * from './city.entity.js'
 export * from './country.entity.js'

@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
-export class completeApr_18_20261776507168850 implements MigrationInterface {
-    name = 'completeApr_18_20261776507168850'
+export class completeApr_18_20261776514596722 implements MigrationInterface {
+    name = 'completeApr_18_20261776514596722'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE \`countries\` (\`code\` varchar(255) NOT NULL, \`name\` varchar(255) NULL, PRIMARY KEY (\`code\`)) ENGINE=InnoDB`);
@@ -10,7 +10,7 @@ export class completeApr_18_20261776507168850 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE \`roles\` (\`name\` varchar(255) NOT NULL, PRIMARY KEY (\`name\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`user_kycs\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`documentId\` varchar(255) NOT NULL, \`type\` enum ('aadhar', 'pan', 'driving_license') NOT NULL, \`status\` enum ('pending', 'approved', 'rejected', 'verified') NOT NULL DEFAULT 'pending', \`verifiedAt\` datetime NULL, \`notes\` text NULL, \`userId\` varchar(255) NOT NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`files\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`filename\` varchar(255) NULL, \`path\` varchar(255) NOT NULL, \`mimeType\` varchar(255) NULL, \`size\` int NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
-        await queryRunner.query(`CREATE TABLE \`batteries\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`batteryId\` varchar(255) NOT NULL, \`gpsId\` varchar(255) NULL, \`properties\` json NULL, \`qrCodeId\` varchar(255) NULL, \`stationId\` varchar(255) NULL, UNIQUE INDEX \`IDX_80c9709f1e1240d98c38d4353c\` (\`batteryId\`), UNIQUE INDEX \`REL_f575b49083c8ddf1c92f79fc30\` (\`qrCodeId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`batteries\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`batteryQrId\` varchar(255) NOT NULL, \`gpsId\` varchar(255) NULL, \`properties\` json NULL, \`qrCodeId\` varchar(255) NULL, \`stationId\` varchar(255) NULL, UNIQUE INDEX \`IDX_9afc283ccef094119e9e8ebacd\` (\`batteryQrId\`), UNIQUE INDEX \`REL_f575b49083c8ddf1c92f79fc30\` (\`qrCodeId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`vehicles\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`vehicleNumber\` varchar(255) NULL, \`rcNumber\` varchar(255) NULL, \`chassisNumber\` varchar(255) NULL, \`gpsId\` varchar(255) NULL, \`properties\` json NULL, \`stationId\` varchar(255) NULL, UNIQUE INDEX \`IDX_6165f51ba0c8c31b6ab41838e3\` (\`vehicleNumber\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`stations\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`type\` enum ('swap_station', 'hub_station') NOT NULL, \`name\` varchar(255) NOT NULL, \`latitude\` decimal(10,8) NULL, \`longitude\` decimal(11,8) NULL, \`active\` tinyint NOT NULL DEFAULT 1, \`addressId\` varchar(255) NULL, \`managerId\` varchar(255) NULL, UNIQUE INDEX \`REL_d077f78e3da856a69763bb467c\` (\`addressId\`), INDEX \`IDX_ee84d76806d2dbd975c7708efc\` (\`type\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`users\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`email\` varchar(255) NULL, \`mobilenumber\` varchar(255) NULL, \`password\` varchar(255) NULL, \`firstName\` varchar(255) NULL, \`lastName\` varchar(255) NULL, \`avatar\` varchar(255) NULL, \`dateOfBirth\` date NULL, \`gender\` enum ('male', 'female', 'other') NULL, \`properties\` json NULL, INDEX \`IDX_c65791a450647d236039188a07\` (\`email\`, \`mobilenumber\`), UNIQUE INDEX \`IDX_97672ac88f789774dd47f7c8be\` (\`email\`), UNIQUE INDEX \`IDX_41823e592cca849bbb4c7e72a7\` (\`mobilenumber\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
@@ -21,6 +21,7 @@ export class completeApr_18_20261776507168850 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE \`user_top_ups\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`userId\` varchar(255) NOT NULL, \`userPlanId\` varchar(255) NOT NULL, \`topUpId\` varchar(255) NOT NULL, \`topUpSnapshot\` json NOT NULL, \`appliedAt\` datetime NOT NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`user_plans\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`userId\` varchar(255) NOT NULL, \`planId\` varchar(255) NOT NULL, \`planSnapshot\` json NOT NULL, \`status\` enum ('purchased', 'failed', 'pending', 'active', 'expired', 'cancelled') NOT NULL DEFAULT 'active', \`startsAt\` datetime NULL, \`expiresAt\` datetime NULL, \`remainingKm\` decimal(10,2) NOT NULL, \`qrCodeId\` varchar(255) NULL, UNIQUE INDEX \`REL_a08e6a0f0c8f18adc7c7895013\` (\`qrCodeId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`bookings\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`userPlanId\` varchar(255) NOT NULL, \`stationId\` varchar(255) NULL, \`vehicleId\` varchar(255) NULL, \`batteryId\` varchar(255) NULL, \`status\` enum ('inactive', 'draft', 'created', 'ongoing', 'completed', 'cancelled') NOT NULL DEFAULT 'inactive', \`pickupOtp\` varchar(4) NOT NULL, UNIQUE INDEX \`IDX_6e9c1282d4cb4fe1980c4a4df4\` (\`userPlanId\`), UNIQUE INDEX \`REL_6e9c1282d4cb4fe1980c4a4df4\` (\`userPlanId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`battery_swap_histories\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`userPlanId\` varchar(255) NOT NULL, \`bookingId\` varchar(255) NOT NULL, \`vehicleId\` varchar(255) NULL, \`oldBatteryId\` varchar(255) NULL, \`newBatteryId\` varchar(255) NULL, \`fromStationId\` varchar(255) NULL, \`toStationId\` varchar(255) NULL, \`swappedById\` varchar(255) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`users_roles_roles\` (\`usersId\` varchar(26) NOT NULL, \`rolesName\` varchar(255) NOT NULL, INDEX \`IDX_df951a64f09865171d2d7a502b\` (\`usersId\`), INDEX \`IDX_9fc16941d812c4d99e9eb6c279\` (\`rolesName\`), PRIMARY KEY (\`usersId\`, \`rolesName\`)) ENGINE=InnoDB`);
         await queryRunner.query(`ALTER TABLE \`states\` ADD CONSTRAINT \`FK_8077396702f265b2185404feb01\` FOREIGN KEY (\`countryCode\`) REFERENCES \`countries\`(\`code\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`cities\` ADD CONSTRAINT \`FK_ded8a17cd090922d5bac8a2361f\` FOREIGN KEY (\`stateId\`) REFERENCES \`states\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
@@ -42,6 +43,14 @@ export class completeApr_18_20261776507168850 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`bookings\` ADD CONSTRAINT \`FK_4dfd5423c41bfb10974dd3b4c1d\` FOREIGN KEY (\`stationId\`) REFERENCES \`stations\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`bookings\` ADD CONSTRAINT \`FK_30909e71d6dd969e95d995258f1\` FOREIGN KEY (\`vehicleId\`) REFERENCES \`vehicles\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`bookings\` ADD CONSTRAINT \`FK_80e8bb89f3847bc22dfdf4869d9\` FOREIGN KEY (\`batteryId\`) REFERENCES \`batteries\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` ADD CONSTRAINT \`FK_fd93526a8b9220563cfc1844d48\` FOREIGN KEY (\`userPlanId\`) REFERENCES \`user_plans\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` ADD CONSTRAINT \`FK_e57cdb24e745d99534c669e1530\` FOREIGN KEY (\`bookingId\`) REFERENCES \`bookings\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` ADD CONSTRAINT \`FK_f74c8e079e81dcea5848a26c79e\` FOREIGN KEY (\`vehicleId\`) REFERENCES \`vehicles\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` ADD CONSTRAINT \`FK_470d9d29823dab291e57e39c84e\` FOREIGN KEY (\`oldBatteryId\`) REFERENCES \`batteries\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` ADD CONSTRAINT \`FK_0a5fc1c8265eafa835c400523d2\` FOREIGN KEY (\`newBatteryId\`) REFERENCES \`batteries\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` ADD CONSTRAINT \`FK_61be5f925723e3a34f9ec7dbbf8\` FOREIGN KEY (\`fromStationId\`) REFERENCES \`stations\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` ADD CONSTRAINT \`FK_8a2e8f9ba0e2d45dc430dbd3471\` FOREIGN KEY (\`toStationId\`) REFERENCES \`stations\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` ADD CONSTRAINT \`FK_c97747d51cbaa20eebc0669166c\` FOREIGN KEY (\`swappedById\`) REFERENCES \`users\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`users_roles_roles\` ADD CONSTRAINT \`FK_df951a64f09865171d2d7a502b1\` FOREIGN KEY (\`usersId\`) REFERENCES \`users\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
         await queryRunner.query(`ALTER TABLE \`users_roles_roles\` ADD CONSTRAINT \`FK_9fc16941d812c4d99e9eb6c2798\` FOREIGN KEY (\`rolesName\`) REFERENCES \`roles\`(\`name\`) ON DELETE CASCADE ON UPDATE CASCADE`);
     }
@@ -49,6 +58,14 @@ export class completeApr_18_20261776507168850 implements MigrationInterface {
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE \`users_roles_roles\` DROP FOREIGN KEY \`FK_9fc16941d812c4d99e9eb6c2798\``);
         await queryRunner.query(`ALTER TABLE \`users_roles_roles\` DROP FOREIGN KEY \`FK_df951a64f09865171d2d7a502b1\``);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` DROP FOREIGN KEY \`FK_c97747d51cbaa20eebc0669166c\``);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` DROP FOREIGN KEY \`FK_8a2e8f9ba0e2d45dc430dbd3471\``);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` DROP FOREIGN KEY \`FK_61be5f925723e3a34f9ec7dbbf8\``);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` DROP FOREIGN KEY \`FK_0a5fc1c8265eafa835c400523d2\``);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` DROP FOREIGN KEY \`FK_470d9d29823dab291e57e39c84e\``);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` DROP FOREIGN KEY \`FK_f74c8e079e81dcea5848a26c79e\``);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` DROP FOREIGN KEY \`FK_e57cdb24e745d99534c669e1530\``);
+        await queryRunner.query(`ALTER TABLE \`battery_swap_histories\` DROP FOREIGN KEY \`FK_fd93526a8b9220563cfc1844d48\``);
         await queryRunner.query(`ALTER TABLE \`bookings\` DROP FOREIGN KEY \`FK_80e8bb89f3847bc22dfdf4869d9\``);
         await queryRunner.query(`ALTER TABLE \`bookings\` DROP FOREIGN KEY \`FK_30909e71d6dd969e95d995258f1\``);
         await queryRunner.query(`ALTER TABLE \`bookings\` DROP FOREIGN KEY \`FK_4dfd5423c41bfb10974dd3b4c1d\``);
@@ -72,6 +89,7 @@ export class completeApr_18_20261776507168850 implements MigrationInterface {
         await queryRunner.query(`DROP INDEX \`IDX_9fc16941d812c4d99e9eb6c279\` ON \`users_roles_roles\``);
         await queryRunner.query(`DROP INDEX \`IDX_df951a64f09865171d2d7a502b\` ON \`users_roles_roles\``);
         await queryRunner.query(`DROP TABLE \`users_roles_roles\``);
+        await queryRunner.query(`DROP TABLE \`battery_swap_histories\``);
         await queryRunner.query(`DROP INDEX \`REL_6e9c1282d4cb4fe1980c4a4df4\` ON \`bookings\``);
         await queryRunner.query(`DROP INDEX \`IDX_6e9c1282d4cb4fe1980c4a4df4\` ON \`bookings\``);
         await queryRunner.query(`DROP TABLE \`bookings\``);
@@ -92,7 +110,7 @@ export class completeApr_18_20261776507168850 implements MigrationInterface {
         await queryRunner.query(`DROP INDEX \`IDX_6165f51ba0c8c31b6ab41838e3\` ON \`vehicles\``);
         await queryRunner.query(`DROP TABLE \`vehicles\``);
         await queryRunner.query(`DROP INDEX \`REL_f575b49083c8ddf1c92f79fc30\` ON \`batteries\``);
-        await queryRunner.query(`DROP INDEX \`IDX_80c9709f1e1240d98c38d4353c\` ON \`batteries\``);
+        await queryRunner.query(`DROP INDEX \`IDX_9afc283ccef094119e9e8ebacd\` ON \`batteries\``);
         await queryRunner.query(`DROP TABLE \`batteries\``);
         await queryRunner.query(`DROP TABLE \`files\``);
         await queryRunner.query(`DROP TABLE \`user_kycs\``);

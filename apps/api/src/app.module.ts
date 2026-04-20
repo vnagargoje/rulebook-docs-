@@ -32,6 +32,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { StationsModule } from './modules/stations/stations.module';
 import { VehiclesModule } from './modules/vehicles/vehicles.module';
 import { BatteriesModule } from './modules/batteries/batteries.module';
+import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module';
 
 @Module({
     imports: [
@@ -92,6 +93,7 @@ import { BatteriesModule } from './modules/batteries/batteries.module';
         StationsModule,
         VehiclesModule,
         BatteriesModule,
+        BatterySwapsModule,
     ],
     providers: [
         JwtStrategy,

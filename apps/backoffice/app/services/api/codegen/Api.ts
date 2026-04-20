@@ -1954,45 +1954,6 @@ export class Api<
      * No description
      *
      * @tags user-plans
-     * @name V1UserPlansPurchasePlan
-     * @request POST:/v1/user-plans
-     * @secure
-     */
-    v1UserPlansPurchasePlan: (
-      data: {
-        planId: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          userId: string;
-          planId: string;
-          planSnapshot: any;
-          status: string;
-          startsAt: string | null;
-          expiresAt: string | null;
-          remainingKm: number;
-          qrCodeId: string | null;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-        path: `/v1/user-plans`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags user-plans
      * @name V1UserPlansGetMyPlanById
      * @request GET:/v1/user-plans/{id}
      * @secure
@@ -2017,6 +1978,45 @@ export class Api<
         path: `/v1/user-plans/${id}`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags user-plans
+     * @name V1UserPlansPurchasePlan
+     * @request POST:/v1/user-plans/purchase
+     * @secure
+     */
+    v1UserPlansPurchasePlan: (
+      data: {
+        planId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          id: string;
+          userId: string;
+          planId: string;
+          planSnapshot: any;
+          status: string;
+          startsAt: string | null;
+          expiresAt: string | null;
+          remainingKm: number;
+          qrCodeId: string | null;
+          createdAt: string;
+          updatedAt: string;
+        },
+        any
+      >({
+        path: `/v1/user-plans/purchase`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -2116,11 +2116,11 @@ export class Api<
      * No description
      *
      * @tags bookings
-     * @name V1BookingsGetMyBookings
+     * @name V1BookingsGetAllBookings
      * @request GET:/v1/bookings
      * @secure
      */
-    v1BookingsGetMyBookings: (
+    v1BookingsGetAllBookings: (
       query?: {
         /**
          * Page number to retrieve. If you provide invalid value the default page number will applied
@@ -2203,17 +2203,53 @@ export class Api<
         {
           data: {
             id: string;
-            userId: string;
             userPlanId: string;
-            stationId: string;
-            vehicleId: string | null;
-            batteryId: string | null;
+            userPlan: {
+              id: string;
+              status: string;
+              planSnapshot: any;
+              startsAt?: string;
+              expiresAt?: string;
+              remainingKm: number;
+              plan?: {
+                id: string;
+                name: string;
+                validityDays: number;
+                kmLimit: number;
+                price: number;
+                deposit: number;
+                totalAmount: number;
+              };
+              qrCode?: {
+                id: string;
+                filename?: string;
+                path: string;
+                mimeType?: string;
+              };
+            };
+            stationId?: string;
+            station?: {
+              id: string;
+              name: string;
+              type: string;
+              latitude?: number;
+              longitude?: number;
+              active: boolean;
+            };
+            vehicleId?: string;
+            vehicle?: {
+              id: string;
+              vehicleNumber?: string;
+              rcNumber?: string;
+              chassisNumber?: string;
+            };
+            batteryId?: string;
+            battery?: {
+              id: string;
+              batteryQrId: string;
+            };
             status: string;
             pickupOtp: string;
-            startedAt: string | null;
-            completedAt: string | null;
-            cancelledAt: string | null;
-            cancellationReason: string | null;
             createdAt: string;
             updatedAt: string;
           }[];
@@ -2249,49 +2285,6 @@ export class Api<
      * No description
      *
      * @tags bookings
-     * @name V1BookingsCreateBooking
-     * @request POST:/v1/bookings
-     * @secure
-     */
-    v1BookingsCreateBooking: (
-      data: {
-        userPlanId: string;
-        stationId: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          userId: string;
-          userPlanId: string;
-          stationId: string;
-          vehicleId: string | null;
-          batteryId: string | null;
-          status: string;
-          pickupOtp: string;
-          startedAt: string | null;
-          completedAt: string | null;
-          cancelledAt: string | null;
-          cancellationReason: string | null;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-        path: `/v1/bookings`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags bookings
      * @name V1BookingsGetBookingById
      * @request GET:/v1/bookings/{id}
      * @secure
@@ -2300,17 +2293,53 @@ export class Api<
       this.request<
         {
           id: string;
-          userId: string;
           userPlanId: string;
-          stationId: string;
-          vehicleId: string | null;
-          batteryId: string | null;
+          userPlan: {
+            id: string;
+            status: string;
+            planSnapshot: any;
+            startsAt?: string;
+            expiresAt?: string;
+            remainingKm: number;
+            plan?: {
+              id: string;
+              name: string;
+              validityDays: number;
+              kmLimit: number;
+              price: number;
+              deposit: number;
+              totalAmount: number;
+            };
+            qrCode?: {
+              id: string;
+              filename?: string;
+              path: string;
+              mimeType?: string;
+            };
+          };
+          stationId?: string;
+          station?: {
+            id: string;
+            name: string;
+            type: string;
+            latitude?: number;
+            longitude?: number;
+            active: boolean;
+          };
+          vehicleId?: string;
+          vehicle?: {
+            id: string;
+            vehicleNumber?: string;
+            rcNumber?: string;
+            chassisNumber?: string;
+          };
+          batteryId?: string;
+          battery?: {
+            id: string;
+            batteryQrId: string;
+          };
           status: string;
           pickupOtp: string;
-          startedAt: string | null;
-          completedAt: string | null;
-          cancelledAt: string | null;
-          cancellationReason: string | null;
           createdAt: string;
           updatedAt: string;
         },
@@ -2336,23 +2365,64 @@ export class Api<
       data: {
         vehicleId: string;
         batteryId: string;
+        /**
+         * @minLength 4
+         * @maxLength 4
+         */
+        otp: string;
       },
       params: RequestParams = {},
     ) =>
       this.request<
         {
           id: string;
-          userId: string;
           userPlanId: string;
-          stationId: string;
-          vehicleId: string | null;
-          batteryId: string | null;
+          userPlan: {
+            id: string;
+            status: string;
+            planSnapshot: any;
+            startsAt?: string;
+            expiresAt?: string;
+            remainingKm: number;
+            plan?: {
+              id: string;
+              name: string;
+              validityDays: number;
+              kmLimit: number;
+              price: number;
+              deposit: number;
+              totalAmount: number;
+            };
+            qrCode?: {
+              id: string;
+              filename?: string;
+              path: string;
+              mimeType?: string;
+            };
+          };
+          stationId?: string;
+          station?: {
+            id: string;
+            name: string;
+            type: string;
+            latitude?: number;
+            longitude?: number;
+            active: boolean;
+          };
+          vehicleId?: string;
+          vehicle?: {
+            id: string;
+            vehicleNumber?: string;
+            rcNumber?: string;
+            chassisNumber?: string;
+          };
+          batteryId?: string;
+          battery?: {
+            id: string;
+            batteryQrId: string;
+          };
           status: string;
           pickupOtp: string;
-          startedAt: string | null;
-          completedAt: string | null;
-          cancelledAt: string | null;
-          cancellationReason: string | null;
           createdAt: string;
           updatedAt: string;
         },
@@ -2836,10 +2906,12 @@ export class Api<
          *
          *
          *
-         * **Example:** filter.stationId=$eq:John Doe
+         * **Example:** filter.stationId=$eq:John Doe&filter.stationId=$null:John Doe
          *
          * **Available Operations**
          * - $eq
+         *
+         * - $null
          *
          * - $and
          *
@@ -3132,13 +3204,13 @@ export class Api<
          */
         limit?: number;
         /**
-         * Filter by batteryId query param.
+         * Filter by batteryQrId query param.
          *
-         * **Format:** filter.batteryId={$not}:OPERATION:VALUE
+         * **Format:** filter.batteryQrId={$not}:OPERATION:VALUE
          *
          *
          *
-         * **Example:** filter.batteryId=$ilike:John Doe
+         * **Example:** filter.batteryQrId=$ilike:John Doe
          *
          * **Available Operations**
          * - $ilike
@@ -3147,7 +3219,7 @@ export class Api<
          *
          * - $or
          */
-        "filter.batteryId"?: string[];
+        "filter.batteryQrId"?: string[];
         /**
          * Filter by gpsId query param.
          *
@@ -3206,7 +3278,7 @@ export class Api<
          * **Format:** {fieldName}:{DIRECTION}
          *
          *
-         * **Example:** sortBy=id:DESC&sortBy=batteryId:DESC
+         * **Example:** sortBy=id:DESC&sortBy=batteryQrId:DESC
          *
          *
          * **Default Value:** createdAt:DESC
@@ -3214,15 +3286,15 @@ export class Api<
          * **Available Fields**
          * - id
          *
-         * - batteryId
+         * - batteryQrId
          *
          * - createdAt
          */
         sortBy?: (
           | "id:ASC"
           | "id:DESC"
-          | "batteryId:ASC"
-          | "batteryId:DESC"
+          | "batteryQrId:ASC"
+          | "batteryQrId:DESC"
           | "createdAt:ASC"
           | "createdAt:DESC"
         )[];
@@ -3233,7 +3305,7 @@ export class Api<
         {
           data: {
             id: string;
-            batteryId: string;
+            batteryQrId: string;
             gpsId?: string;
             properties?: {
               mfgDate?: string;
@@ -3292,7 +3364,7 @@ export class Api<
      */
     v1BatteriesCreateOneBattery: (
       data: {
-        batteryId: string;
+        batteryQrId: string;
         gpsId?: string;
         properties?: {
           mfgDate?: string;
@@ -3311,7 +3383,7 @@ export class Api<
       this.request<
         {
           id: string;
-          batteryId: string;
+          batteryQrId: string;
           gpsId?: string;
           properties?: {
             mfgDate?: string;
@@ -3355,7 +3427,7 @@ export class Api<
       this.request<
         {
           id: string;
-          batteryId: string;
+          batteryQrId: string;
           gpsId?: string;
           properties?: {
             mfgDate?: string;
@@ -3396,7 +3468,7 @@ export class Api<
     v1BatteriesUpdateOneBattery: (
       id: string,
       data: {
-        batteryId?: string;
+        batteryQrId?: string;
         gpsId?: string;
         properties?: {
           mfgDate?: string;
@@ -3415,7 +3487,7 @@ export class Api<
       this.request<
         {
           id: string;
-          batteryId: string;
+          batteryQrId: string;
           gpsId?: string;
           properties?: {
             mfgDate?: string;
@@ -3443,6 +3515,253 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-swaps
+     * @name V1BatterySwapsVerifyInwardBattery
+     * @request POST:/v1/battery-swaps/verify-inward
+     * @secure
+     */
+    v1BatterySwapsVerifyInwardBattery: (
+      data: {
+        bookingId: string;
+        /** Physical battery ID from QR scan */
+        batteryQrId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          verified: boolean;
+          bookingId: string;
+          batteryId: string;
+          batteryQrId: string;
+        },
+        any
+      >({
+        path: `/v1/battery-swaps/verify-inward`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-swaps
+     * @name V1BatterySwapsExecuteSwap
+     * @request POST:/v1/battery-swaps/execute
+     * @secure
+     */
+    v1BatterySwapsExecuteSwap: (
+      data: {
+        bookingId: string;
+        /** Physical battery ID from QR scan */
+        newBatteryQrId: string;
+        /** Station where the swap is happening */
+        stationId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          swapHistoryId: string;
+          bookingId: string;
+          vehicleId?: string;
+          oldBatteryId: string;
+          oldBatteryQrId: string;
+          newBatteryId: string;
+          newBatteryQrId: string;
+          fromStationId?: string;
+          toStationId?: string;
+          swappedById: string;
+          swappedAt?: string;
+        },
+        any
+      >({
+        path: `/v1/battery-swaps/execute`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-swaps
+     * @name V1BatterySwapsGetSwapHistory
+     * @request GET:/v1/battery-swaps/history
+     * @secure
+     */
+    v1BatterySwapsGetSwapHistory: (
+      query?: {
+        /**
+         * Page number to retrieve. If you provide invalid value the default page number will applied
+         *
+         * **Example:** 1
+         *
+         *
+         * **Default Value:** 1
+         *
+         */
+        page?: number;
+        /**
+         * Number of records per page.
+         *
+         *
+         * **Example:** 20
+         *
+         *
+         *
+         * **Default Value:** 20
+         *
+         *
+         *
+         * **Max Value:** 100
+         *
+         *
+         * If provided value is greater than max value, max value will be applied.
+         */
+        limit?: number;
+        /**
+         * Filter by bookingId query param.
+         *
+         * **Format:** filter.bookingId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.bookingId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.bookingId"?: string[];
+        /**
+         * Filter by userPlanId query param.
+         *
+         * **Format:** filter.userPlanId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.userPlanId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.userPlanId"?: string[];
+        /**
+         * Filter by swappedById query param.
+         *
+         * **Format:** filter.swappedById={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.swappedById=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.swappedById"?: string[];
+        /**
+         * Parameter to sort by.
+         * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
+         *
+         * **Format:** {fieldName}:{DIRECTION}
+         *
+         *
+         * **Example:** sortBy=id:DESC&sortBy=createdAt:DESC
+         *
+         *
+         * **Default Value:** createdAt:DESC
+         *
+         * **Available Fields**
+         * - id
+         *
+         * - createdAt
+         */
+        sortBy?: ("id:ASC" | "id:DESC" | "createdAt:ASC" | "createdAt:DESC")[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          data: {
+            id: string;
+            userPlanId: string;
+            bookingId: string;
+            vehicleId: string;
+            oldBatteryId: string;
+            oldBattery?: {
+              id: string;
+              batteryQrId: string;
+            };
+            newBatteryId: string;
+            newBattery?: {
+              id: string;
+              batteryQrId: string;
+            };
+            fromStationId?: string;
+            fromStation?: {
+              id: string;
+              name: string;
+              type: string;
+            };
+            toStationId?: string;
+            toStation?: {
+              id: string;
+              name: string;
+              type: string;
+            };
+            swappedById: string;
+            createdAt: string;
+          }[];
+          meta: {
+            itemsPerPage: number;
+            totalItems: number;
+            currentPage: number;
+            totalPages: number;
+            sortBy: [string, "ASC" | "DESC"][];
+            searchBy: string[];
+            search: string;
+            filter?: object;
+          };
+          links: {
+            first?: string;
+            last?: string;
+            current: string;
+            previous?: string;
+            next?: string;
+          };
+        },
+        any
+      >({
+        path: `/v1/battery-swaps/history`,
+        method: "GET",
+        query: query,
+        secure: true,
         format: "json",
         ...params,
       }),

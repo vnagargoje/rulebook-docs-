@@ -13,7 +13,7 @@ export class CreateBatteryHandler implements ICommandHandler<CreateBatteryComman
 
         return this.manager.transaction(async (manager) => {
             const battery = manager.create(BatteryEntity, {
-                batteryId: payload.batteryId,
+                batteryQrId: payload.batteryQrId,
                 gpsId: payload.gpsId,
                 properties: payload.properties,
                 stationId: payload.stationId,

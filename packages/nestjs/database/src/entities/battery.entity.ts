@@ -7,7 +7,7 @@ import { StationEntity } from './station.entity.js'
 @Entity({ name: 'batteries' })
 export class BatteryEntity extends IdTimestamppedEntity {
     @Column('varchar', { unique: true })
-    batteryId: string
+    batteryQrId: string
 
     @Column('varchar', { nullable: true })
     gpsId: string

@@ -7,4 +7,5 @@ export enum Subjects {
     Station = 'Station',
     Vehicle = 'Vehicle',
     Battery = 'Battery',
+    BatterySwap = 'BatterySwap',
 }

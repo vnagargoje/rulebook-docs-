@@ -12,7 +12,7 @@ export const BatteryPropertiesPayload = Type.Object({
 });
 
 export const CreateBatteryPayload = Type.Object({
-    batteryId: Type.String(),
+    batteryQrId: Type.String(),
     gpsId: Type.Optional(Type.String()),
     properties: Type.Optional(BatteryPropertiesPayload),
     stationId: Type.Optional(Type.String()),

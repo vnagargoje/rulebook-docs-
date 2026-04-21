@@ -1,7 +1,7 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
-export class completeApr_20_20261776684183855 implements MigrationInterface {
-    name = 'completeApr_20_20261776684183855'
+export class completeApr_21_20261776765015981 implements MigrationInterface {
+    name = 'completeApr_21_20261776765015981'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE \`countries\` (\`code\` varchar(255) NOT NULL, \`name\` varchar(255) NULL, PRIMARY KEY (\`code\`)) ENGINE=InnoDB`);
@@ -23,6 +23,7 @@ export class completeApr_20_20261776684183855 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE \`bookings\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`userPlanId\` varchar(255) NOT NULL, \`stationId\` varchar(255) NULL, \`vehicleId\` varchar(255) NULL, \`batteryId\` varchar(255) NULL, \`status\` enum ('inactive', 'draft', 'created', 'ongoing', 'completed', 'cancelled') NOT NULL DEFAULT 'inactive', \`pickupOtp\` varchar(4) NOT NULL, UNIQUE INDEX \`IDX_6e9c1282d4cb4fe1980c4a4df4\` (\`userPlanId\`), UNIQUE INDEX \`REL_6e9c1282d4cb4fe1980c4a4df4\` (\`userPlanId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`battery_swap_histories\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`userPlanId\` varchar(255) NOT NULL, \`bookingId\` varchar(255) NOT NULL, \`vehicleId\` varchar(255) NULL, \`oldBatteryId\` varchar(255) NULL, \`newBatteryId\` varchar(255) NULL, \`fromStationId\` varchar(255) NULL, \`toStationId\` varchar(255) NULL, \`swappedById\` varchar(255) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`battery_transports\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`fromStationId\` varchar(255) NOT NULL, \`toStationId\` varchar(255) NOT NULL, \`vehicleId\` varchar(255) NOT NULL, \`initiatedById\` varchar(255) NULL, \`receivedById\` varchar(255) NULL, \`batteryIds\` json NOT NULL, \`status\` enum ('in_transit', 'delivered') NOT NULL DEFAULT 'in_transit', \`receivedAt\` timestamp NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`vehicle_surrenders\` (\`id\` varchar(26) NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`penalty\` int NOT NULL DEFAULT '0', \`miscCharges\` int NOT NULL DEFAULT '0', \`refundAmount\` int NOT NULL DEFAULT '0', \`notes\` varchar(255) NULL, \`vehicleId\` varchar(255) NOT NULL, \`bookingId\` varchar(255) NOT NULL, UNIQUE INDEX \`IDX_a23eedfc8b4e172a9f25ee31d1\` (\`bookingId\`), UNIQUE INDEX \`REL_a23eedfc8b4e172a9f25ee31d1\` (\`bookingId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`users_roles_roles\` (\`usersId\` varchar(26) NOT NULL, \`rolesName\` varchar(255) NOT NULL, INDEX \`IDX_df951a64f09865171d2d7a502b\` (\`usersId\`), INDEX \`IDX_9fc16941d812c4d99e9eb6c279\` (\`rolesName\`), PRIMARY KEY (\`usersId\`, \`rolesName\`)) ENGINE=InnoDB`);
         await queryRunner.query(`ALTER TABLE \`states\` ADD CONSTRAINT \`FK_8077396702f265b2185404feb01\` FOREIGN KEY (\`countryCode\`) REFERENCES \`countries\`(\`code\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`cities\` ADD CONSTRAINT \`FK_ded8a17cd090922d5bac8a2361f\` FOREIGN KEY (\`stateId\`) REFERENCES \`states\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
@@ -57,6 +58,8 @@ export class completeApr_20_20261776684183855 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`battery_transports\` ADD CONSTRAINT \`FK_920089c2a75be125955d1cb7d72\` FOREIGN KEY (\`vehicleId\`) REFERENCES \`vehicles\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`battery_transports\` ADD CONSTRAINT \`FK_0460d4566fa4957f7534f3eb665\` FOREIGN KEY (\`initiatedById\`) REFERENCES \`users\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`battery_transports\` ADD CONSTRAINT \`FK_faa9d8d75076eaf78942c56fab4\` FOREIGN KEY (\`receivedById\`) REFERENCES \`users\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`vehicle_surrenders\` ADD CONSTRAINT \`FK_3ccacaca685ef7788f950154557\` FOREIGN KEY (\`vehicleId\`) REFERENCES \`vehicles\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`vehicle_surrenders\` ADD CONSTRAINT \`FK_a23eedfc8b4e172a9f25ee31d1b\` FOREIGN KEY (\`bookingId\`) REFERENCES \`bookings\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`users_roles_roles\` ADD CONSTRAINT \`FK_df951a64f09865171d2d7a502b1\` FOREIGN KEY (\`usersId\`) REFERENCES \`users\`(\`id\`) ON DELETE CASCADE ON UPDATE CASCADE`);
         await queryRunner.query(`ALTER TABLE \`users_roles_roles\` ADD CONSTRAINT \`FK_9fc16941d812c4d99e9eb6c2798\` FOREIGN KEY (\`rolesName\`) REFERENCES \`roles\`(\`name\`) ON DELETE CASCADE ON UPDATE CASCADE`);
     }
@@ -64,6 +67,8 @@ export class completeApr_20_20261776684183855 implements MigrationInterface {
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE \`users_roles_roles\` DROP FOREIGN KEY \`FK_9fc16941d812c4d99e9eb6c2798\``);
         await queryRunner.query(`ALTER TABLE \`users_roles_roles\` DROP FOREIGN KEY \`FK_df951a64f09865171d2d7a502b1\``);
+        await queryRunner.query(`ALTER TABLE \`vehicle_surrenders\` DROP FOREIGN KEY \`FK_a23eedfc8b4e172a9f25ee31d1b\``);
+        await queryRunner.query(`ALTER TABLE \`vehicle_surrenders\` DROP FOREIGN KEY \`FK_3ccacaca685ef7788f950154557\``);
         await queryRunner.query(`ALTER TABLE \`battery_transports\` DROP FOREIGN KEY \`FK_faa9d8d75076eaf78942c56fab4\``);
         await queryRunner.query(`ALTER TABLE \`battery_transports\` DROP FOREIGN KEY \`FK_0460d4566fa4957f7534f3eb665\``);
         await queryRunner.query(`ALTER TABLE \`battery_transports\` DROP FOREIGN KEY \`FK_920089c2a75be125955d1cb7d72\``);
@@ -100,6 +105,9 @@ export class completeApr_20_20261776684183855 implements MigrationInterface {
         await queryRunner.query(`DROP INDEX \`IDX_9fc16941d812c4d99e9eb6c279\` ON \`users_roles_roles\``);
         await queryRunner.query(`DROP INDEX \`IDX_df951a64f09865171d2d7a502b\` ON \`users_roles_roles\``);
         await queryRunner.query(`DROP TABLE \`users_roles_roles\``);
+        await queryRunner.query(`DROP INDEX \`REL_a23eedfc8b4e172a9f25ee31d1\` ON \`vehicle_surrenders\``);
+        await queryRunner.query(`DROP INDEX \`IDX_a23eedfc8b4e172a9f25ee31d1\` ON \`vehicle_surrenders\``);
+        await queryRunner.query(`DROP TABLE \`vehicle_surrenders\``);
         await queryRunner.query(`DROP TABLE \`battery_transports\``);
         await queryRunner.query(`DROP TABLE \`battery_swap_histories\``);
         await queryRunner.query(`DROP INDEX \`REL_6e9c1282d4cb4fe1980c4a4df4\` ON \`bookings\``);

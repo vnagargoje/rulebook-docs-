@@ -34,6 +34,7 @@ import { VehiclesModule } from './modules/vehicles/vehicles.module';
 import { BatteriesModule } from './modules/batteries/batteries.module';
 import { BatteryTransportsModule } from './modules/battery-transports/battery-transports.module';
 import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module';
+import { SurrendersModule } from './modules/surrenders/surrenders.module';
 
 @Module({
     imports: [
@@ -96,6 +97,7 @@ import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module
         BatteriesModule,
         BatterySwapsModule,
         BatteryTransportsModule,
+        SurrendersModule,
     ],
     providers: [
         JwtStrategy,

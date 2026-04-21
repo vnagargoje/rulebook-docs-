@@ -1,4 +1,4 @@
-import { UserPlanStatus } from '@yugo/shared'
+import { type PlanSnapshotProperties, UserPlanStatus } from '@yugo/shared'
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm'
 import { FileEntity } from './file.entity.js'
 import { IdTimestamppedEntity } from './id-timestampped.entity.js'
@@ -23,7 +23,7 @@ export class UserPlanEntity extends IdTimestamppedEntity {
     plan: PlanEntity
 
     @Column('json')
-    planSnapshot: Record<string, any>
+    planSnapshot: PlanSnapshotProperties
 
     @Column('enum', { enum: UserPlanStatus, default: UserPlanStatus.ACTIVE })
     status: UserPlanStatus

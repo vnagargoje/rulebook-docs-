@@ -1,4 +1,5 @@
-import { BadRequestException, Logger, NotFoundException } from '@nestjs/common'
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
@@ -9,8 +10,8 @@ import {
     FileEntity,
     UserPlanEntity,
 } from '@yugo/nestjs-database/entities'
-import { BookingStatus, BatteryStatus } from '@yugo/shared'
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { BatteryStatus, BookingStatus, UserPlanStatus } from '@yugo/shared'
+import { isAfter } from 'date-fns'
 import { toBuffer } from 'qrcode'
 import { DataSource, EntityManager } from 'typeorm'
 import { ExecuteBatterySwapCommand } from '../../impl/battery-swaps/execute-battery-swap.command.js'
@@ -19,7 +20,6 @@ const ACTIVE_BOOKING_STATUSES = [BookingStatus.ONGOING]
 
 @CommandHandler(ExecuteBatterySwapCommand)
 export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBatterySwapCommand> {
-    private readonly logger = new Logger(ExecuteBatterySwapHandler.name)
     private readonly s3Client: S3Client
 
     constructor(
@@ -72,6 +72,13 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
                 throw new BadRequestException('New battery cannot be the same as the old battery')
             }
 
+            const plan = await manager.findOne(UserPlanEntity, {
+                where: { id: booking.userPlanId },
+            })
+            if (!plan || isAfter(new Date(), plan.expiresAt) || plan.status !== UserPlanStatus.ACTIVE) {
+                throw new NotFoundException('User dont have a valid plan for battery swapping')
+            }
+
             const fromStationId = newBattery.stationId
 
             booking.batteryId = newBattery.id
@@ -98,10 +105,6 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
             await manager.save(swapHistory)
 
             await this.regeneratePlanQrCode(manager, booking.userPlanId, booking.vehicleId!, newBattery.id)
-
-            this.logger.log(
-                `Battery swap completed: booking=${bookingId}, old=${oldBattery.batteryQrId}, new=${newBattery.batteryQrId}, swap=${swapHistory.id}`,
-            )
 
             return {
                 swapHistoryId: swapHistory.id,
@@ -166,7 +169,5 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
             userPlan.qrCodeId = file.id
             await manager.save(userPlan)
         }
-
-        this.logger.log(`Plan QR code regenerated for user plan ${userPlan.id}`)
     }
 }

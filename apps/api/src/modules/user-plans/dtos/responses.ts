@@ -10,6 +10,12 @@ export const UserPlanResponse = Type.Object({
     expiresAt: Type.Union([Type.String(), Type.Null()]),
     remainingKm: Type.Number(),
     qrCodeId: Type.Union([Type.String(), Type.Null()]),
+    qrCode: Type.Optional(
+        Type.Object({
+            id: Type.String(),
+            path: Type.String(),
+        }),
+    ),
     createdAt: Type.String(),
     updatedAt: Type.String(),
 });

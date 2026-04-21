@@ -59,3 +59,9 @@ export class BatterySwapSubject {
         return Subjects.BatterySwap
     }
 }
+
+export class VehicleSurrenderSubject {
+    static get modelName() {
+        return Subjects.VehicleSurrender
+    }
+}

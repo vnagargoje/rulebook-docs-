@@ -3,10 +3,8 @@ type: docker
 name: yugo-deploy
 
 trigger:
-  branch:
-    - dev
   event:
-    - push
+    - tag
 
 steps:
   - name: docker-build-api

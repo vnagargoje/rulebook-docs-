@@ -64,9 +64,9 @@ export default function CustomerLayout() {
                 }}
             />
             <Tabs.Screen
-                name='support'
+                name='help'
                 options={{
-                    title: 'Support',
+                    title: 'Help',
                     tabBarIcon: ({ color }) => (
                         <MaterialCommunityIcons
                             name='lifebuoy'
@@ -74,11 +74,11 @@ export default function CustomerLayout() {
                             color={color}
                         />
                     ),
-                    tabBarButtonTestID: 'customer-support-tab',
+                    tabBarButtonTestID: 'customer-help-tab',
                 }}
             />
             <Tabs.Screen
-                name='settings'
+                name='profile'
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color }) => (

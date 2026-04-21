@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import type { AxiosError } from 'axios'
+import { isAxiosError } from 'axios'
 import { Dimensions, Platform } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
 
@@ -10,9 +10,16 @@ export const WIDTH = width
 export const HEIGHT = height
 
 // for onError react queries and mutations
-export function showError(error: AxiosError) {
-    console.log(JSON.stringify(error?.response?.data))
-    const description = extractError(error?.response?.data).trimEnd()
+export function showError(error: unknown) {
+    const description = isAxiosError(error)
+        ? extractError(error.response?.data).trimEnd()
+        : extractError(error).trimEnd()
+
+    if (isAxiosError(error)) {
+        console.log(JSON.stringify(error.response?.data))
+    } else {
+        console.log(error)
+    }
 
     showMessage({
         message: 'Error',
@@ -28,6 +35,14 @@ export function showErrorMessage(message: string = 'Something went wrong ') {
         message,
         type: 'danger',
         duration: 4000,
+    })
+}
+
+export function showSuccessMessage(message: string) {
+    showMessage({
+        message,
+        type: 'success',
+        duration: 3000,
     })
 }
 

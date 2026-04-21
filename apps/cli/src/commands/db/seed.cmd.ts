@@ -10,6 +10,7 @@ import { DataSource } from 'typeorm';
 import { SeederConstructor, SeederExecutor } from 'typeorm-extension';
 import {
     AdminSeeder,
+    BatteriesSeeder,
     CountryStateCitiesSeeder,
     DummyDataSeeder,
     RolesSeeder,
@@ -42,6 +43,7 @@ export class SeedDbCommand extends CommandRunner {
                 RolesSeeder,
                 AdminSeeder,
                 CountryStateCitiesSeeder,
+                BatteriesSeeder,
             ];
             const dummyDataSeeds: SeederConstructor[] = [
                 RolesSeeder,
@@ -83,7 +85,9 @@ export class SeedDbCommand extends CommandRunner {
                     default: allSeeds.map((s) => s.name),
                 });
                 if (seedsAnswer.length) {
-                    seeds = allSeeds.filter((s) => seedsAnswer.includes(s.name));
+                    seeds = allSeeds.filter((s) =>
+                        seedsAnswer.includes(s.name),
+                    );
                 } else {
                     this.logger.log('No seeders selected. Exiting.');
                     return;

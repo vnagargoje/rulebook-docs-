@@ -5,4 +5,8 @@ export enum Subjects {
     UserPlan = 'UserPlan',
     Booking = 'Booking',
     Station = 'Station',
+    Vehicle = 'Vehicle',
+    Battery = 'Battery',
+    BatteryTransport = 'BatteryTransport',
+    BatterySwap = 'BatterySwap',
 }

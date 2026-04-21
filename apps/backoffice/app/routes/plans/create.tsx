@@ -1,55 +1,58 @@
+import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
 import { SelectField, TextAreaField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
-import { mockApi } from '~/services/mockApi'
-import { type Plan } from '~/types/admin'
+import { useCreatePlan } from '~/queries/plans'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
-
-const createSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    description: z.string().min(1, 'Description is required'),
-    validityDays: z.coerce.number().min(1, 'Must be at least 1 day'),
-    kmRange: z.coerce.number().min(0, 'Must be 0 or more'),
-    price: z.coerce.number().min(0, 'Must be 0 or more'),
-    deposit: z.coerce.number().min(0, 'Must be 0 or more'),
-    status: z.enum(['ACTIVE', 'INACTIVE']),
-})
-
-export type CreateFormValues = z.infer<typeof createSchema>
+import { createPlanSchema, type CreatePlanFormValues, type CreatePlanFormInput } from '~/schemas'
 
 export default function CreatePlanRoute() {
     const navigate = useNavigate()
+    const createPlan = useCreatePlan()
 
-    const form = useForm({
-        resolver: zodResolver(createSchema) as any,
+    const form = useForm<CreatePlanFormInput, unknown, CreatePlanFormValues>({
+        resolver: zodResolver(createPlanSchema),
         defaultValues: {
             name: '',
             description: '',
             validityDays: 30,
-            kmRange: 1000,
+            kmLimit: 1000,
             price: 5000,
             deposit: 2000,
-            status: 'ACTIVE',
+            gst: 0,
+            registrationFee: 0,
+            active: 'true',
         },
     })
 
-    const onSubmit = async (values: CreateFormValues) => {
-        try {
-            await mockApi.savePlan('plans', values as unknown as Plan)
-            toast.success('Plan created successfully')
-            navigate('/plans')
-        } catch (error) {
-            toast.error('Failed to create plan')
-        }
-    }
+    const onSubmit = useCallback((values: CreatePlanFormValues) => {
+        createPlan.mutate({
+            name: values.name,
+            description: values.description,
+            validityDays: values.validityDays,
+            kmLimit: values.kmLimit,
+            price: values.price,
+            deposit: values.deposit,
+            gst: values.gst,
+            registrationFee: values.registrationFee,
+            active: values.active === 'true',
+        }, {
+            onSuccess: () => {
+                toast.success('Plan created successfully')
+                navigate('/plans')
+            },
+            onError: () => {
+                toast.error('Failed to create plan')
+            },
+        })
+    }, [createPlan, navigate])
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
@@ -79,7 +82,7 @@ export default function CreatePlanRoute() {
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Limits & Validity</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <TextInputField control={form.control} name="validityDays" label="Validity Duration (Days)" type="number" />
-                                    <TextInputField control={form.control} name="kmRange" label="Distance Allowance (KM)" type="number" />
+                                    <TextInputField control={form.control} name="kmLimit" label="Distance Allowance (KM)" type="number" />
                                 </div>
                             </div>
 
@@ -90,19 +93,23 @@ export default function CreatePlanRoute() {
                                     <TextInputField control={form.control} name="deposit" label="Security Deposit (₹)" type="number" />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <TextInputField control={form.control} name="gst" label="GST (₹)" type="number" />
+                                    <TextInputField control={form.control} name="registrationFee" label="Registration Fee (₹)" type="number" />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <SelectField
                                         control={form.control}
-                                        name="status"
+                                        name="active"
                                         label="Plan Availability"
-                                        options={[{ label: 'Currently Active', value: 'ACTIVE' }, { label: 'Inactive / Hidden', value: 'INACTIVE' }]}
+                                        options={[{ label: 'Currently Active', value: 'true' }, { label: 'Inactive / Hidden', value: 'false' }]}
                                     />
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/plans')}>Cancel</Button>
-                                <Button type="submit" className="min-w-[140px] uppercase text-xs font-bold tracking-widest">
-                                    Publish Plan
+                                <Button type="submit" disabled={createPlan.isPending} className="min-w-35 uppercase text-xs font-bold tracking-widest">
+                                    {createPlan.isPending ? 'Creating...' : 'Publish Plan'}
                                 </Button>
                             </div>
                         </form>

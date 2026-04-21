@@ -35,3 +35,27 @@ export class StationSubject {
         return Subjects.Station
     }
 }
+
+export class VehicleSubject {
+    static get modelName() {
+        return Subjects.Vehicle
+    }
+}
+
+export class BatterySubject {
+    static get modelName() {
+        return Subjects.Battery
+    }
+}
+
+export class BatteryTransportSubject {
+    static get modelName() {
+        return Subjects.BatteryTransport
+    }
+}
+
+export class BatterySwapSubject {
+    static get modelName() {
+        return Subjects.BatterySwap
+    }
+}

@@ -14,16 +14,20 @@ export function SelectField({
         <FormField
             control={control}
             name={name}
-            render={({ field }) => (
+            render={({ field }) => {
+                const selectValue = typeof field.value === 'string' && field.value.length > 0 ? field.value : undefined
+
+                return (
                 <FormItem>
                     <FormLabel>{label}</FormLabel>
                     <Select
-                        value={field.value ?? undefined}
+                        key={`${name}-${selectValue ?? 'empty'}`}
+                        value={selectValue}
                         onValueChange={field.onChange}
                         disabled={disabled}>
                         <FormControl>
                             <SelectTrigger className='w-full'>
-                                <SelectValue placeholder={placeholder} />
+                                <SelectValue placeholder={placeholder ?? `Select ${label}`} />
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -38,7 +42,8 @@ export function SelectField({
                     </Select>
                     <FormMessage />
                 </FormItem>
-            )}
+                )
+            }}
         />
     )
 }

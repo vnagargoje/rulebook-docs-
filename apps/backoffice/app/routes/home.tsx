@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
 
-import { useAdminSession } from '~/hooks/use-admin-session'
+import { useAdminSession } from '~/hooks'
 
 export default function Home() {
     const navigate = useNavigate()

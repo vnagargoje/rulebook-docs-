@@ -1,6 +1,6 @@
 import yugoLogo from '../../../assets/yugo-logo.png'
-import type { CustomerHeroCardProps } from './customer-card.types'
 import { Button, Image, Text, View } from '@/components/ui'
+import type { CustomerHeroCardProps } from '@/types/customer/customer-home.types'
 
 export function CustomerHeroCard({
     title,

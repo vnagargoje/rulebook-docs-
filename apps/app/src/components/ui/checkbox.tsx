@@ -35,7 +35,7 @@ export function Root({ checked = false, children, onChange, disabled, className 
     return (
         <Pressable
             onPress={handleChange}
-            className={`flex-row items-center ${className} ${disabled ? 'opacity-50' : ''}`}
+            className={`flex-row items-start gap-3 ${className} ${disabled ? 'opacity-50' : ''}`}
             accessibilityState={{ checked }}
             disabled={disabled}
             {...props}>
@@ -61,7 +61,7 @@ function Label({ text, testID, className = '' }: LabelProps) {
 }
 
 export function CheckboxIcon({ checked = false }: IconProps) {
-    const color = checked ? colors.primary[300] : colors.charcoal[400]
+    const color = checked ? colors.primary[600] : colors.charcoal[400]
     return (
         <MotiView
             style={{
@@ -69,7 +69,7 @@ export function CheckboxIcon({ checked = false }: IconProps) {
                 width: SIZE,
                 borderColor: color,
             }}
-            className='items-center justify-center rounded-[5px] border-2'
+            className='shrink-0 items-center justify-center rounded-[5px] border-2'
             from={{ backgroundColor: 'transparent', borderColor: '#CCCFD6' }}
             animate={{
                 backgroundColor: checked ? color : 'transparent',

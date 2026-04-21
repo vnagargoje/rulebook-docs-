@@ -4,12 +4,11 @@ import { ThemeProvider } from '@react-navigation/native'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import * as React from 'react'
-import { StyleSheet } from 'react-native'
 import FlashMessage from 'react-native-flash-message'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
+import { hydrateAuth } from '@/stores/auth.store'
 import { useThemeConfig } from '@/components/ui/use-theme-config'
-import { hydrateAuth } from '@/features/auth/use-auth-store'
 
 import { APIProvider } from '@/lib/api'
 import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme'
@@ -20,7 +19,7 @@ export { ErrorBoundary } from 'expo-router'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const unstable_settings = {
-    initialRouteName: '(app)',
+    initialRouteName: 'index',
 }
 
 hydrateAuth()
@@ -38,15 +37,27 @@ export default function RootLayout() {
         <Providers>
             <Stack>
                 <Stack.Screen
-                    name='(app)'
+                    name='index'
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
-                    name='onboarding'
+                    name='customer'
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name='swap-manager'
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name='hub-manager'
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name='login'
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name='otp'
                     options={{ headerShown: false }}
                 />
             </Stack>
@@ -57,10 +68,7 @@ export default function RootLayout() {
 function Providers({ children }: { children: React.ReactNode }) {
     const theme = useThemeConfig()
     return (
-        <GestureHandlerRootView
-            style={styles.container}
-            // eslint-disable-next-line better-tailwindcss/no-unknown-classes
-            className={theme.dark ? `dark` : undefined}>
+        <GestureHandlerRootView className='flex-1'>
             <KeyboardProvider>
                 <ThemeProvider value={theme}>
                     <APIProvider>
@@ -74,9 +82,3 @@ function Providers({ children }: { children: React.ReactNode }) {
         </GestureHandlerRootView>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-})

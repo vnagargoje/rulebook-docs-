@@ -1,10 +1,13 @@
-import { type VehicleProperties } from '@yugo/shared'
+import { type VehicleProperties, VehicleType } from '@yugo/shared'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 import { IdTimestamppedEntity } from './id-timestampped.entity.js'
 import { StationEntity } from './station.entity.js'
 
 @Entity({ name: 'vehicles' })
 export class VehicleEntity extends IdTimestamppedEntity {
+    @Column('enum', { enum: VehicleType, default: VehicleType.RENTAL })
+    type: VehicleType
+
     @Column('varchar', { nullable: true, unique: true })
     vehicleNumber: string
 

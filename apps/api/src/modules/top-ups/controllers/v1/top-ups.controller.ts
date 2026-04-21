@@ -1,0 +1,61 @@
+import { ApiResource } from '@/decorators/api-resource.decorator';
+import { AppAuthGuard } from '@/guards/app.guard';
+import {
+    Controller,
+    Get,
+    NotFoundException,
+    Param,
+    UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { TopUpEntity } from '@yugo/nestjs-database/entities';
+import {
+    FilterOperator,
+    Paginate,
+    paginate,
+    PaginateConfig,
+    type PaginateQuery,
+} from 'nestjs-paginate';
+import { DataSource } from 'typeorm';
+import { TopUpResponse } from '../../dtos/responses';
+
+const PAGINATE_CONFIG: PaginateConfig<TopUpEntity> = {
+    sortableColumns: ['id', 'name', 'price', 'createdAt'],
+    searchableColumns: ['name', 'description'],
+    defaultLimit: 50,
+    filterableColumns: {
+        active: [FilterOperator.EQ],
+        price: [FilterOperator.GTE, FilterOperator.LTE],
+    },
+    defaultSortBy: [['createdAt', 'DESC']],
+};
+
+@ApiTags('top-ups')
+@ApiBearerAuth()
+@UseGuards(AppAuthGuard)
+@Controller({ path: 'top-ups', version: '1' })
+export class V1TopUpsController {
+    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
+
+    @ApiResource(TopUpResponse, PAGINATE_CONFIG)
+    @Get()
+    async getTopUps(@Paginate() query: PaginateQuery) {
+        const qb = this.datasource.manager
+            .createQueryBuilder(TopUpEntity, 'topUp')
+            .where('topUp.active = :active', { active: true });
+        return paginate(query, qb, PAGINATE_CONFIG);
+    }
+
+    @ApiResource(TopUpResponse)
+    @Get(':id')
+    async getTopUpById(@Param('id') id: string) {
+        const topUp = await this.datasource.manager.findOne(TopUpEntity, {
+            where: { id },
+        });
+        if (!topUp) {
+            throw new NotFoundException('Top-up not found');
+        }
+        return topUp;
+    }
+}

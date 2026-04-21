@@ -1,8 +1,8 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { ConfigService } from '@nestjs/config'
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
+import { DeepvueConfig } from 'src/types/index.js'
 import xior from 'xior'
 import { LicenseInitiateCommand } from '../../impl/kyc/license-initiate.command.js'
-import { DeepvueConfig } from '../../../types.js'
 
 @CommandHandler(LicenseInitiateCommand)
 export class LicenseInitiateHandler implements ICommandHandler<LicenseInitiateCommand> {

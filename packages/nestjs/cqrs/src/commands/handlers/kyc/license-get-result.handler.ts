@@ -4,9 +4,9 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { UserEntity, UserKycEntity } from '@yugo/nestjs-database/entities'
 import { KycDocumentType, KycStatus } from '@yugo/shared'
+import { DeepvueConfig } from 'src/types/index.js'
 import { DataSource } from 'typeorm'
 import xior from 'xior'
-import { DeepvueConfig } from '../../../types.js'
 import { LicenseGetResultCommand } from '../../impl/kyc/license-get-result.command.js'
 
 @CommandHandler(LicenseGetResultCommand)

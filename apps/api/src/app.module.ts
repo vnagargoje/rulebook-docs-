@@ -13,6 +13,7 @@ import {
     loggerConfig,
     redisConfig,
     deepvueConfig,
+    razorpayConfig,
     s3ClientConfig,
     s3BucketConfig,
 } from './config';
@@ -47,6 +48,7 @@ import { SurrendersModule } from './modules/surrenders/surrenders.module';
                 loggerConfig,
                 redisConfig,
                 deepvueConfig,
+                razorpayConfig,
                 s3ClientConfig,
                 s3BucketConfig,
             ],

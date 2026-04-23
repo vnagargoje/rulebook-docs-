@@ -5,8 +5,8 @@ import { InjectDataSource } from '@nestjs/typeorm'
 import { PlanEntity, TransactionEntity, UserEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
 import { PaymentStatus, UserPlanStatus } from '@yugo/shared'
 import Razorpay from 'razorpay'
+import { RazorpayConfig } from 'src/types/index.js'
 import { DataSource, EntityManager, In } from 'typeorm'
-import { RazorpayConfig } from '../../../types.js'
 import { PurchasePlanCommand } from '../../impl/user-plans/purchase-plan.command.js'
 
 @CommandHandler(PurchasePlanCommand)

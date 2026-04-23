@@ -5,8 +5,8 @@ import { InjectDataSource } from '@nestjs/typeorm'
 import { BookingEntity, TransactionEntity } from '@yugo/nestjs-database/entities'
 import { BookingStatus, PaymentStatus, UserPlanStatus } from '@yugo/shared'
 import { createHmac, randomInt } from 'crypto'
+import { RazorpayConfig } from 'src/types/index.js'
 import { DataSource } from 'typeorm'
-import { RazorpayConfig } from '../../../types.js'
 import { VerifyPaymentCommand } from '../../impl/user-plans/verify-payment.command.js'
 
 @CommandHandler(VerifyPaymentCommand)

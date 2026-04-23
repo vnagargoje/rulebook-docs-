@@ -10,6 +10,1691 @@
  * ---------------------------------------------------------------
  */
 
+export interface V1AuthSignInResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    roles: string[];
+  };
+}
+
+export interface V1AuthSignInBody {
+  /** @format email */
+  email: string;
+  password: string;
+}
+
+export interface V1AuthSendOtpResponse {
+  mobilenumber: string;
+  method: "sms";
+  otpSent: boolean;
+}
+
+export interface V1AuthSendOtpBody {
+  mobilenumber: string;
+}
+
+export interface V1AuthVerifyOtpResponse {
+  verified: boolean;
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+export interface V1AuthVerifyOtpBody {
+  mobilenumber: string;
+  otp: string;
+}
+
+export interface AadhaarConnectResponse {
+  sessionId: string;
+  captcha: string;
+}
+
+export interface AadhaarGenerateOtpResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface AadhaarGenerateOtpBody {
+  sessionId: string;
+  captcha: string;
+  aadhaarNumber: string;
+}
+
+export interface AadhaarVerifyOtpResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface AadhaarVerifyOtpBody {
+  sessionId: string;
+  otp: string;
+  aadhaarNumber: string;
+}
+
+export interface AadhaarReloadCaptchaResponse {
+  captcha: string;
+}
+
+export interface PanVerifyResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface PanVerifyBody {
+  pan: string;
+}
+
+export interface LicenseInitiateResponse {
+  requestId: string;
+}
+
+export interface LicenseInitiateBody {
+  dlNumber: string;
+  dateOfBirth: string;
+}
+
+export interface LicenseGetResultResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface KycGetStatusResponse {
+  aadhaar: {
+    id: string;
+    documentId: string;
+    type: string;
+    status: string;
+    verifiedAt: string | null;
+    notes: string | null;
+  } | null;
+  pan: {
+    id: string;
+    documentId: string;
+    type: string;
+    status: string;
+    verifiedAt: string | null;
+    notes: string | null;
+  } | null;
+  license: {
+    id: string;
+    documentId: string;
+    type: string;
+    status: string;
+    verifiedAt: string | null;
+    notes: string | null;
+  } | null;
+}
+
+export interface V1StatesListManyStatesResponse {
+  data: {
+    id: string;
+    code: string;
+    name: string;
+    latitude: number;
+    longitude: number;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1CitiesListManyCitiesResponse {
+  data: {
+    id: string;
+    name: string;
+    latitude: number;
+    longitude: number;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1UsersGetManyUsersResponse {
+  data: {
+    id: string;
+    /** @format email */
+    email?: string;
+    mobilenumber?: string;
+    firstName?: string;
+    lastName?: string;
+    gender?: "male" | "female" | "other";
+    properties?: any;
+    /** @format date */
+    dateOfBirth?: string;
+    roles?: {
+      name: string;
+    }[];
+    addresses?: {
+      id: string;
+      lineOne: string;
+      lineTwo?: string;
+      pincode: string;
+      city?: {
+        id: string;
+        name: string;
+        state?: {
+          id: string;
+          name: string;
+          code: string;
+        };
+      };
+    }[];
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1UsersCreateOneUserResponse {
+  id: string;
+  /** @format email */
+  email?: string;
+  mobilenumber?: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: "male" | "female" | "other";
+  properties?: any;
+  /** @format date */
+  dateOfBirth?: string;
+  roles?: {
+    name: string;
+  }[];
+  addresses?: {
+    id: string;
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    city?: {
+      id: string;
+      name: string;
+      state?: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+  }[];
+}
+
+export interface V1UsersCreateOneUserBody {
+  /** @format email */
+  email?: string;
+  mobilenumber: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: "male" | "female" | "other";
+  role?:
+    | "customer"
+    | "swap_manager"
+    | "hub_manager"
+    | "system_admin"
+    | "system_user";
+  properties?: any;
+  /** @format date */
+  dateOfBirth?: string;
+  address?: {
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    cityId?: string;
+  };
+}
+
+export interface V1UsersGetOneUserResponse {
+  id: string;
+  /** @format email */
+  email?: string;
+  mobilenumber?: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: "male" | "female" | "other";
+  properties?: any;
+  /** @format date */
+  dateOfBirth?: string;
+  roles?: {
+    name: string;
+  }[];
+  addresses?: {
+    id: string;
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    city?: {
+      id: string;
+      name: string;
+      state?: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+  }[];
+}
+
+export interface V1UsersPatchOneUserResponse {
+  id: string;
+  /** @format email */
+  email?: string;
+  mobilenumber?: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: "male" | "female" | "other";
+  properties?: any;
+  /** @format date */
+  dateOfBirth?: string;
+  roles?: {
+    name: string;
+  }[];
+  addresses?: {
+    id: string;
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    city?: {
+      id: string;
+      name: string;
+      state?: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+  }[];
+}
+
+export interface V1UsersPatchOneUserBody {
+  /** @format email */
+  email?: string;
+  mobilenumber?: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: "male" | "female" | "other";
+  role?:
+    | "customer"
+    | "swap_manager"
+    | "hub_manager"
+    | "system_admin"
+    | "system_user";
+  properties?: any;
+  /** @format date */
+  dateOfBirth?: string;
+  address?: {
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    cityId?: string;
+  };
+}
+
+export interface V1PlansGetPlansResponse {
+  data: {
+    id: string;
+    name: string;
+    description: string | null;
+    validityDays: number;
+    kmLimit: number;
+    price: number;
+    deposit: number;
+    gst: number;
+    registrationFee: number;
+    totalAmount: number;
+    active: boolean;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1PlansGetPlanByIdResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  validityDays: number;
+  kmLimit: number;
+  price: number;
+  deposit: number;
+  gst: number;
+  registrationFee: number;
+  totalAmount: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1PlansAdminCreatePlanResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  validityDays: number;
+  kmLimit: number;
+  price: number;
+  deposit: number;
+  gst: number;
+  registrationFee: number;
+  totalAmount: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1PlansAdminCreatePlanBody {
+  name: string;
+  description?: string;
+  validityDays: number;
+  kmLimit: number;
+  price: number;
+  deposit: number;
+  gst: number;
+  registrationFee?: number;
+  active?: boolean;
+}
+
+export interface V1PlansAdminUpdatePlanResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  validityDays: number;
+  kmLimit: number;
+  price: number;
+  deposit: number;
+  gst: number;
+  registrationFee: number;
+  totalAmount: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1PlansAdminUpdatePlanBody {
+  name?: string;
+  description?: string;
+  validityDays?: number;
+  kmLimit?: number;
+  price?: number;
+  deposit?: number;
+  gst?: number;
+  registrationFee?: number;
+  active?: boolean;
+}
+
+export interface V1TopUpsGetTopUpsResponse {
+  data: {
+    id: string;
+    name: string;
+    description: string | null;
+    validityDays: number;
+    kmLimit: number;
+    price: number;
+    gst: number;
+    active: boolean;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1TopUpsGetTopUpByIdResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  validityDays: number;
+  kmLimit: number;
+  price: number;
+  gst: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1TopUpsAdminCreateTopUpResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  validityDays: number;
+  kmLimit: number;
+  price: number;
+  gst: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1TopUpsAdminCreateTopUpBody {
+  name: string;
+  description?: string;
+  validityDays: number;
+  kmLimit: number;
+  price: number;
+  gst: number;
+  active?: boolean;
+}
+
+export interface V1TopUpsAdminUpdateTopUpResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  validityDays: number;
+  kmLimit: number;
+  price: number;
+  gst: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1TopUpsAdminUpdateTopUpBody {
+  name?: string;
+  description?: string;
+  validityDays?: number;
+  kmLimit?: number;
+  price?: number;
+  gst?: number;
+  active?: boolean;
+}
+
+export interface V1UserPlansGetMyPlansResponse {
+  data: {
+    id: string;
+    userId: string;
+    planId: string;
+    planSnapshot: any;
+    status: string;
+    startsAt: string | null;
+    expiresAt: string | null;
+    remainingKm: number;
+    qrCodeId: string | null;
+    qrCode?: {
+      id: string;
+      path: string;
+    };
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1UserPlansGetMyPlanByIdResponse {
+  id: string;
+  userId: string;
+  planId: string;
+  planSnapshot: any;
+  status: string;
+  startsAt: string | null;
+  expiresAt: string | null;
+  remainingKm: number;
+  qrCodeId: string | null;
+  qrCode?: {
+    id: string;
+    path: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1UserPlansPurchasePlanResponse {
+  id: string;
+  userId: string;
+  planId: string;
+  planSnapshot: any;
+  status: string;
+  startsAt: string | null;
+  expiresAt: string | null;
+  remainingKm: number;
+  qrCodeId: string | null;
+  qrCode?: {
+    id: string;
+    path: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1UserPlansPurchasePlanBody {
+  planId: string;
+}
+
+export interface V1UserPlansApplyTopUpResponse {
+  id: string;
+  userId: string;
+  planId: string;
+  planSnapshot: any;
+  status: string;
+  startsAt: string | null;
+  expiresAt: string | null;
+  remainingKm: number;
+  qrCodeId: string | null;
+  qrCode?: {
+    id: string;
+    path: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1UserPlansApplyTopUpBody {
+  topUpId: string;
+  userPlanId: string;
+}
+
+export interface V1UserPlansScanQrResponse {
+  userPlan: {
+    id: string;
+    status: string;
+    planSnapshot: any;
+    remainingKm: number;
+    startsAt: string | null;
+    expiresAt: string | null;
+    qrCodeUrl: string | null;
+  };
+  user: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    mobilenumber: string | null;
+    email: string | null;
+  } | null;
+  plan: {
+    id: string;
+    name: string;
+  } | null;
+  booking: {
+    id: string;
+    status: string;
+    stationId: string;
+    vehicleId: string | null;
+    batteryId: string | null;
+    pickupOtp: string;
+    startedAt: string | null;
+    completedAt: string | null;
+  } | null;
+}
+
+export interface V1BookingsGetAllBookingsResponse {
+  data: {
+    id: string;
+    userPlanId: string;
+    userPlan: {
+      id: string;
+      status: string;
+      planSnapshot: any;
+      startsAt?: string;
+      expiresAt?: string;
+      remainingKm: number;
+      plan?: {
+        id: string;
+        name: string;
+        validityDays: number;
+        kmLimit: number;
+        price: number;
+        deposit: number;
+        totalAmount: number;
+      };
+      qrCode?: {
+        id: string;
+        filename?: string;
+        path: string;
+        mimeType?: string;
+      };
+    };
+    stationId?: string;
+    station?: {
+      id: string;
+      name: string;
+      type: string;
+      latitude?: number;
+      longitude?: number;
+      active: boolean;
+    };
+    vehicleId?: string;
+    vehicle?: {
+      id: string;
+      vehicleNumber?: string;
+      rcNumber?: string;
+      chassisNumber?: string;
+    };
+    batteryId?: string;
+    battery?: {
+      id: string;
+      batteryQrId: string;
+    };
+    status: string;
+    pickupOtp: string;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1BookingsGetBookingByIdResponse {
+  id: string;
+  userPlanId: string;
+  userPlan: {
+    id: string;
+    status: string;
+    planSnapshot: any;
+    startsAt?: string;
+    expiresAt?: string;
+    remainingKm: number;
+    plan?: {
+      id: string;
+      name: string;
+      validityDays: number;
+      kmLimit: number;
+      price: number;
+      deposit: number;
+      totalAmount: number;
+    };
+    qrCode?: {
+      id: string;
+      filename?: string;
+      path: string;
+      mimeType?: string;
+    };
+  };
+  stationId?: string;
+  station?: {
+    id: string;
+    name: string;
+    type: string;
+    latitude?: number;
+    longitude?: number;
+    active: boolean;
+  };
+  vehicleId?: string;
+  vehicle?: {
+    id: string;
+    vehicleNumber?: string;
+    rcNumber?: string;
+    chassisNumber?: string;
+  };
+  batteryId?: string;
+  battery?: {
+    id: string;
+    batteryQrId: string;
+  };
+  status: string;
+  pickupOtp: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1BookingsAdminAssignVehicleResponse {
+  id: string;
+  userPlanId: string;
+  userPlan: {
+    id: string;
+    status: string;
+    planSnapshot: any;
+    startsAt?: string;
+    expiresAt?: string;
+    remainingKm: number;
+    plan?: {
+      id: string;
+      name: string;
+      validityDays: number;
+      kmLimit: number;
+      price: number;
+      deposit: number;
+      totalAmount: number;
+    };
+    qrCode?: {
+      id: string;
+      filename?: string;
+      path: string;
+      mimeType?: string;
+    };
+  };
+  stationId?: string;
+  station?: {
+    id: string;
+    name: string;
+    type: string;
+    latitude?: number;
+    longitude?: number;
+    active: boolean;
+  };
+  vehicleId?: string;
+  vehicle?: {
+    id: string;
+    vehicleNumber?: string;
+    rcNumber?: string;
+    chassisNumber?: string;
+  };
+  batteryId?: string;
+  battery?: {
+    id: string;
+    batteryQrId: string;
+  };
+  status: string;
+  pickupOtp: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface V1BookingsAdminAssignVehicleBody {
+  vehicleId: string;
+  batteryId: string;
+  /**
+   * @minLength 4
+   * @maxLength 4
+   */
+  otp: string;
+}
+
+export interface V1StationsGetManyStationsResponse {
+  data: {
+    id: string;
+    type: "swap_station" | "hub_station";
+    name: string;
+    longitude?: number;
+    latitude?: number;
+    active: boolean;
+    address?: {
+      id: string;
+      lineOne: string;
+      lineTwo?: string;
+      pincode: string;
+      city?: {
+        id: string;
+        name: string;
+        state?: {
+          id: string;
+          name: string;
+          code: string;
+        };
+      };
+    };
+    managerId?: string;
+    manager?: {
+      id: string;
+      /** @format email */
+      email?: string;
+      mobilenumber?: string;
+      firstName?: string;
+      lastName?: string;
+    };
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1StationsCreateOneStationResponse {
+  id: string;
+  type: "swap_station" | "hub_station";
+  name: string;
+  longitude?: number;
+  latitude?: number;
+  active: boolean;
+  address?: {
+    id: string;
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    city?: {
+      id: string;
+      name: string;
+      state?: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+  };
+  managerId?: string;
+  manager?: {
+    id: string;
+    /** @format email */
+    email?: string;
+    mobilenumber?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}
+
+export interface V1StationsCreateOneStationBody {
+  type: "swap_station" | "hub_station";
+  name: string;
+  longitude?: number;
+  latitude?: number;
+  /** @default true */
+  active: boolean;
+  address?: {
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    cityId?: string;
+  };
+  managerId?: string;
+}
+
+export interface V1StationsGetOneStationResponse {
+  id: string;
+  type: "swap_station" | "hub_station";
+  name: string;
+  longitude?: number;
+  latitude?: number;
+  active: boolean;
+  address?: {
+    id: string;
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    city?: {
+      id: string;
+      name: string;
+      state?: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+  };
+  managerId?: string;
+  manager?: {
+    id: string;
+    /** @format email */
+    email?: string;
+    mobilenumber?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}
+
+export interface V1StationsUpdateOneStationResponse {
+  id: string;
+  type: "swap_station" | "hub_station";
+  name: string;
+  longitude?: number;
+  latitude?: number;
+  active: boolean;
+  address?: {
+    id: string;
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    city?: {
+      id: string;
+      name: string;
+      state?: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+  };
+  managerId?: string;
+  manager?: {
+    id: string;
+    /** @format email */
+    email?: string;
+    mobilenumber?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}
+
+export interface V1StationsUpdateOneStationBody {
+  type: "swap_station" | "hub_station";
+  name: string;
+  longitude?: number;
+  latitude?: number;
+  /** @default true */
+  active: boolean;
+  address?: {
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    cityId?: string;
+  };
+  managerId?: string;
+}
+
+export interface V1VehiclesGetManyVehiclesResponse {
+  data: {
+    id: string;
+    type?: string;
+    vehicleNumber?: string;
+    rcNumber?: string;
+    chassisNumber?: string;
+    gpsId?: string;
+    properties?: {
+      brand?: string;
+      model?: string;
+      insuranceExpiry?: string;
+    };
+    stationId?: string;
+    station?: {
+      id: string;
+      name?: string;
+      type?: string;
+    };
+    createdAt?: string;
+    updatedAt?: string;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1VehiclesCreateOneVehicleResponse {
+  id: string;
+  type?: string;
+  vehicleNumber?: string;
+  rcNumber?: string;
+  chassisNumber?: string;
+  gpsId?: string;
+  properties?: {
+    brand?: string;
+    model?: string;
+    insuranceExpiry?: string;
+  };
+  stationId?: string;
+  station?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1VehiclesCreateOneVehicleBody {
+  type?: "rental" | "transport";
+  vehicleNumber?: string;
+  rcNumber?: string;
+  chassisNumber?: string;
+  gpsId?: string;
+  properties?: {
+    brand?: string;
+    model?: string;
+    insuranceExpiry?: string;
+  };
+  stationId?: string;
+}
+
+export interface V1VehiclesGetOneVehicleResponse {
+  id: string;
+  type?: string;
+  vehicleNumber?: string;
+  rcNumber?: string;
+  chassisNumber?: string;
+  gpsId?: string;
+  properties?: {
+    brand?: string;
+    model?: string;
+    insuranceExpiry?: string;
+  };
+  stationId?: string;
+  station?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1VehiclesUpdateOneVehicleResponse {
+  id: string;
+  type?: string;
+  vehicleNumber?: string;
+  rcNumber?: string;
+  chassisNumber?: string;
+  gpsId?: string;
+  properties?: {
+    brand?: string;
+    model?: string;
+    insuranceExpiry?: string;
+  };
+  stationId?: string;
+  station?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1VehiclesUpdateOneVehicleBody {
+  type?: "rental" | "transport";
+  vehicleNumber?: string;
+  rcNumber?: string;
+  chassisNumber?: string;
+  gpsId?: string;
+  properties?: {
+    brand?: string;
+    model?: string;
+    insuranceExpiry?: string;
+  };
+  stationId?: string;
+}
+
+export interface V1BatteriesGetManyBatteriesResponse {
+  data: {
+    id: string;
+    batteryQrId: string;
+    gpsId?: string;
+    properties?: {
+      mfgDate?: string;
+      capacity?: string;
+      range?: string;
+      lifecycle?: string;
+      chargingTime?: string;
+      weight?: string;
+      warranty?: string;
+      removableOption?: boolean;
+    };
+    stationId?: string;
+    station?: {
+      id: string;
+      name?: string;
+      type?: string;
+    };
+    createdAt?: string;
+    updatedAt?: string;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1BatteriesCreateOneBatteryResponse {
+  id: string;
+  batteryQrId: string;
+  gpsId?: string;
+  properties?: {
+    mfgDate?: string;
+    capacity?: string;
+    range?: string;
+    lifecycle?: string;
+    chargingTime?: string;
+    weight?: string;
+    warranty?: string;
+    removableOption?: boolean;
+  };
+  stationId?: string;
+  station?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1BatteriesCreateOneBatteryBody {
+  batteryQrId: string;
+  gpsId?: string;
+  properties?: {
+    mfgDate?: string;
+    capacity?: string;
+    range?: string;
+    lifecycle?: string;
+    chargingTime?: string;
+    weight?: string;
+    warranty?: string;
+    removableOption?: boolean;
+  };
+  stationId?: string;
+}
+
+export interface V1BatteriesGetOneBatteryResponse {
+  id: string;
+  batteryQrId: string;
+  gpsId?: string;
+  properties?: {
+    mfgDate?: string;
+    capacity?: string;
+    range?: string;
+    lifecycle?: string;
+    chargingTime?: string;
+    weight?: string;
+    warranty?: string;
+    removableOption?: boolean;
+  };
+  stationId?: string;
+  station?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1BatteriesUpdateOneBatteryResponse {
+  id: string;
+  batteryQrId: string;
+  gpsId?: string;
+  properties?: {
+    mfgDate?: string;
+    capacity?: string;
+    range?: string;
+    lifecycle?: string;
+    chargingTime?: string;
+    weight?: string;
+    warranty?: string;
+    removableOption?: boolean;
+  };
+  stationId?: string;
+  station?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1BatteriesUpdateOneBatteryBody {
+  batteryQrId?: string;
+  gpsId?: string;
+  properties?: {
+    mfgDate?: string;
+    capacity?: string;
+    range?: string;
+    lifecycle?: string;
+    chargingTime?: string;
+    weight?: string;
+    warranty?: string;
+    removableOption?: boolean;
+  };
+  stationId?: string;
+}
+
+export interface V1BatterySwapsVerifyInwardBatteryResponse {
+  verified: boolean;
+  bookingId: string;
+  batteryId: string;
+  batteryQrId: string;
+}
+
+export interface V1BatterySwapsVerifyInwardBatteryBody {
+  bookingId: string;
+  /** Physical battery ID from QR scan */
+  batteryQrId: string;
+}
+
+export interface V1BatterySwapsExecuteSwapResponse {
+  swapHistoryId: string;
+  bookingId: string;
+  vehicleId?: string;
+  oldBatteryId: string;
+  oldBatteryQrId: string;
+  newBatteryId: string;
+  newBatteryQrId: string;
+  fromStationId?: string;
+  toStationId?: string;
+  swappedById: string;
+  swappedAt?: string;
+}
+
+export interface V1BatterySwapsExecuteSwapBody {
+  bookingId: string;
+  /** Physical battery ID from QR scan */
+  newBatteryQrId: string;
+  /** Station where the swap is happening */
+  stationId: string;
+}
+
+export interface V1BatterySwapsGetSwapHistoryResponse {
+  data: {
+    id: string;
+    userPlanId: string;
+    bookingId: string;
+    vehicleId: string;
+    oldBatteryId: string;
+    oldBattery?: {
+      id: string;
+      batteryQrId: string;
+    };
+    newBatteryId: string;
+    newBattery?: {
+      id: string;
+      batteryQrId: string;
+    };
+    fromStationId?: string;
+    fromStation?: {
+      id: string;
+      name: string;
+      type: string;
+    };
+    toStationId?: string;
+    toStation?: {
+      id: string;
+      name: string;
+      type: string;
+    };
+    swappedById: string;
+    createdAt: string;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1BatteryTransportsDispatchBatteriesResponse {
+  id: string;
+  fromStationId: string;
+  fromStation?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  toStationId: string;
+  toStation?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  vehicleId: string;
+  vehicle?: {
+    id: string;
+    vehicleNumber?: string;
+  };
+  initiatedById: string;
+  receivedById?: string;
+  batteryIds: string[];
+  status: "in_transit" | "delivered";
+  receivedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1BatteryTransportsDispatchBatteriesBody {
+  /** Source station ID */
+  fromStationId: string;
+  /** Destination station ID */
+  toStationId: string;
+  /** Vehicle carrying the batteries */
+  vehicleId: string;
+  /**
+   * List of battery QR IDs to dispatch
+   * @minItems 1
+   */
+  batteryQrIds: string[];
+}
+
+export interface V1BatteryTransportsReceiveBatteriesResponse {
+  id: string;
+  fromStationId: string;
+  fromStation?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  toStationId: string;
+  toStation?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  vehicleId: string;
+  vehicle?: {
+    id: string;
+    vehicleNumber?: string;
+  };
+  initiatedById: string;
+  receivedById?: string;
+  batteryIds: string[];
+  status: "in_transit" | "delivered";
+  receivedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1BatteryTransportsReceiveBatteriesBody {
+  /**
+   * List of battery QR IDs being received
+   * @minItems 1
+   */
+  batteryQrIds: string[];
+}
+
+export interface V1BatteryTransportsUpdateBatteryStatusResponse {
+  id: string;
+  batteryQrId: string;
+  status:
+    | "available"
+    | "charged"
+    | "charging"
+    | "drained"
+    | "in_transit"
+    | "in_use";
+  stationId?: string;
+  station?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1BatteryTransportsUpdateBatteryStatusBody {
+  /** New battery status (only drained→charging and charging→charged allowed) */
+  status:
+    | "available"
+    | "charged"
+    | "charging"
+    | "drained"
+    | "in_transit"
+    | "in_use";
+}
+
+export interface V1BatteryTransportsGetManyMovementsResponse {
+  data: {
+    id: string;
+    fromStationId: string;
+    fromStation?: {
+      id: string;
+      name?: string;
+      type?: string;
+    };
+    toStationId: string;
+    toStation?: {
+      id: string;
+      name?: string;
+      type?: string;
+    };
+    vehicleId: string;
+    vehicle?: {
+      id: string;
+      vehicleNumber?: string;
+    };
+    initiatedById: string;
+    receivedById?: string;
+    batteryIds: string[];
+    status: "in_transit" | "delivered";
+    receivedAt?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1BatteryTransportsGetOneMovementResponse {
+  id: string;
+  fromStationId: string;
+  fromStation?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  toStationId: string;
+  toStation?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  vehicleId: string;
+  vehicle?: {
+    id: string;
+    vehicleNumber?: string;
+  };
+  initiatedById: string;
+  receivedById?: string;
+  batteryIds: string[];
+  status: "in_transit" | "delivered";
+  receivedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1BatteryTransportsGetMovementBatteriesResponse {
+  id: string;
+  batteryQrId: string;
+  status:
+    | "available"
+    | "charged"
+    | "charging"
+    | "drained"
+    | "in_transit"
+    | "in_use";
+  stationId?: string;
+  station?: {
+    id: string;
+    name?: string;
+    type?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface V1VehicleSurrenderGetAllSurrendersResponse {
+  customerId: string;
+  customerName: string | null;
+  depositAmount: number;
+  rtoPenalty: number;
+  refundAmount: number;
+}
+
+export interface V1VehicleSurrenderGetSurrenderDetailsResponse {
+  customerId: string;
+  customerName: string | null;
+  depositAmount: number;
+  rtoPenalty: number;
+  refundAmount: number;
+}
+
+export interface V1VehicleSurrenderSurrenderVehicleResponse {
+  id: string;
+  bookingId: string;
+  userPlanId: string;
+  vehicleId: string;
+  vehicle: {
+    id: string;
+    vehicleNumber: string;
+  };
+  penalty: number;
+  miscCharges: number;
+  refundAmount: number;
+  notes: string | null;
+}
+
+export interface V1VehicleSurrenderSurrenderVehicleBody {
+  /**
+   * @min 0
+   * @default 0
+   */
+  penalty: number;
+  /**
+   * @min 0
+   * @default 0
+   */
+  miscCharges: number;
+  /**
+   * @min 0
+   * @default 0
+   */
+  refundAmount: number;
+  notes?: string | null;
+}
+
 import type {
   HeadersDefaults,
   ResponseType,
@@ -202,6 +1887,7 @@ export class Api<
      * @name V1AuthSignIn
      * @request POST:/v1/auth/signin
      */
+<<<<<<< HEAD
     v1AuthSignIn: (
       data: {
         /** @format email */
@@ -222,6 +1908,10 @@ export class Api<
         },
         any
       >({
+=======
+    v1AuthSignIn: (data: V1AuthSignInBody, params: RequestParams = {}) =>
+      this.request<V1AuthSignInResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/auth/signin`,
         method: "POST",
         body: data,
@@ -237,6 +1927,7 @@ export class Api<
      * @name V1AuthSendOtp
      * @request POST:/v1/auth/otp/send
      */
+<<<<<<< HEAD
     v1AuthSendOtp: (
       data: {
         mobilenumber: string;
@@ -251,6 +1942,10 @@ export class Api<
         },
         any
       >({
+=======
+    v1AuthSendOtp: (data: V1AuthSendOtpBody, params: RequestParams = {}) =>
+      this.request<V1AuthSendOtpResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/auth/otp/send`,
         method: "POST",
         body: data,
@@ -266,6 +1961,7 @@ export class Api<
      * @name V1AuthVerifyOtp
      * @request POST:/v1/auth/otp/verify
      */
+<<<<<<< HEAD
     v1AuthVerifyOtp: (
       data: {
         mobilenumber: string;
@@ -281,6 +1977,10 @@ export class Api<
         },
         any
       >({
+=======
+    v1AuthVerifyOtp: (data: V1AuthVerifyOtpBody, params: RequestParams = {}) =>
+      this.request<V1AuthVerifyOtpResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/auth/otp/verify`,
         method: "POST",
         body: data,
@@ -298,6 +1998,7 @@ export class Api<
      * @secure
      */
     aadhaarConnect: (params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           sessionId: string;
@@ -305,6 +2006,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<AadhaarConnectResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/kyc/aadhaar/connect`,
         method: "GET",
         secure: true,
@@ -321,6 +2025,7 @@ export class Api<
      * @secure
      */
     aadhaarGenerateOtp: (
+<<<<<<< HEAD
       data: {
         sessionId: string;
         captcha: string;
@@ -335,6 +2040,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: AadhaarGenerateOtpBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<AadhaarGenerateOtpResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/kyc/aadhaar/generate/otp`,
         method: "POST",
         body: data,
@@ -353,6 +2064,7 @@ export class Api<
      * @secure
      */
     aadhaarVerifyOtp: (
+<<<<<<< HEAD
       data: {
         sessionId: string;
         otp: string;
@@ -367,6 +2079,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: AadhaarVerifyOtpBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<AadhaarVerifyOtpResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/kyc/aadhaar/verify/otp`,
         method: "POST",
         body: data,
@@ -390,12 +2108,16 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
+<<<<<<< HEAD
       this.request<
         {
           captcha: string;
         },
         any
       >({
+=======
+      this.request<AadhaarReloadCaptchaResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/kyc/aadhaar/reload-captcha`,
         method: "GET",
         query: query,
@@ -412,6 +2134,7 @@ export class Api<
      * @request POST:/v1/kyc/pan/verify
      * @secure
      */
+<<<<<<< HEAD
     panVerify: (
       data: {
         pan: string;
@@ -425,6 +2148,10 @@ export class Api<
         },
         any
       >({
+=======
+    panVerify: (data: PanVerifyBody, params: RequestParams = {}) =>
+      this.request<PanVerifyResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/kyc/pan/verify`,
         method: "POST",
         body: data,
@@ -442,6 +2169,7 @@ export class Api<
      * @request POST:/v1/kyc/license/initiate
      * @secure
      */
+<<<<<<< HEAD
     licenseInitiate: (
       data: {
         dlNumber: string;
@@ -455,6 +2183,10 @@ export class Api<
         },
         any
       >({
+=======
+    licenseInitiate: (data: LicenseInitiateBody, params: RequestParams = {}) =>
+      this.request<LicenseInitiateResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/kyc/license/initiate`,
         method: "POST",
         body: data,
@@ -478,6 +2210,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
+<<<<<<< HEAD
       this.request<
         {
           success: boolean;
@@ -485,6 +2218,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<LicenseGetResultResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/kyc/license/result`,
         method: "GET",
         query: query,
@@ -502,6 +2238,7 @@ export class Api<
      * @secure
      */
     kycGetStatus: (params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           aadhaar: {
@@ -531,6 +2268,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<KycGetStatusResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/kyc/status`,
         method: "GET",
         secure: true,
@@ -615,35 +2355,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          data: {
-            id: string;
-            code: string;
-            name: string;
-            latitude: number;
-            longitude: number;
-          }[];
-          meta: {
-            itemsPerPage: number;
-            totalItems: number;
-            currentPage: number;
-            totalPages: number;
-            sortBy: [string, "ASC" | "DESC"][];
-            searchBy: string[];
-            search: string;
-            filter?: object;
-          };
-          links: {
-            first?: string;
-            last?: string;
-            current: string;
-            previous?: string;
-            next?: string;
-          };
-        },
-        any
-      >({
+      this.request<V1StatesListManyStatesResponse, any>({
         path: `/v1/states`,
         method: "GET",
         query: query,
@@ -728,34 +2440,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          data: {
-            id: string;
-            name: string;
-            latitude: number;
-            longitude: number;
-          }[];
-          meta: {
-            itemsPerPage: number;
-            totalItems: number;
-            currentPage: number;
-            totalPages: number;
-            sortBy: [string, "ASC" | "DESC"][];
-            searchBy: string[];
-            search: string;
-            filter?: object;
-          };
-          links: {
-            first?: string;
-            last?: string;
-            current: string;
-            previous?: string;
-            next?: string;
-          };
-        },
-        any
-      >({
+      this.request<V1CitiesListManyCitiesResponse, any>({
         path: `/v1/cities`,
         method: "GET",
         query: query,
@@ -954,6 +2639,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
+<<<<<<< HEAD
       this.request<
         {
           data: {
@@ -1006,6 +2692,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1UsersGetManyUsersResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/users`,
         method: "GET",
         query: query,
@@ -1023,6 +2712,7 @@ export class Api<
      * @secure
      */
     v1UsersCreateOneUser: (
+<<<<<<< HEAD
       data: {
         /** @format email */
         email?: string;
@@ -1081,6 +2771,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1UsersCreateOneUserBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1UsersCreateOneUserResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/users`,
         method: "POST",
         body: data,
@@ -1099,6 +2795,7 @@ export class Api<
      * @secure
      */
     v1UsersGetOneUser: (id: string, params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           id: string;
@@ -1132,6 +2829,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1UsersGetOneUserResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/users/${id}`,
         method: "GET",
         secure: true,
@@ -1149,6 +2849,7 @@ export class Api<
      */
     v1UsersPatchOneUser: (
       id: string,
+<<<<<<< HEAD
       data: {
         /** @format email */
         email?: string;
@@ -1207,6 +2908,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1UsersPatchOneUserBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1UsersPatchOneUserResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/users/${id}`,
         method: "PATCH",
         body: data,
@@ -1348,6 +3055,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
+<<<<<<< HEAD
       this.request<
         {
           data: {
@@ -1385,6 +3093,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1PlansGetPlansResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/plans`,
         method: "GET",
         query: query,
@@ -1402,6 +3113,7 @@ export class Api<
      * @secure
      */
     v1PlansGetPlanById: (id: string, params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           id: string;
@@ -1420,6 +3132,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1PlansGetPlanByIdResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/plans/${id}`,
         method: "GET",
         secure: true,
@@ -1436,6 +3151,7 @@ export class Api<
      * @secure
      */
     v1PlansAdminCreatePlan: (
+<<<<<<< HEAD
       data: {
         name: string;
         description?: string;
@@ -1467,6 +3183,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1PlansAdminCreatePlanBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1PlansAdminCreatePlanResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/admin/plans`,
         method: "POST",
         body: data,
@@ -1486,6 +3208,7 @@ export class Api<
      */
     v1PlansAdminUpdatePlan: (
       id: string,
+<<<<<<< HEAD
       data: {
         name?: string;
         description?: string;
@@ -1517,6 +3240,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1PlansAdminUpdatePlanBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1PlansAdminUpdatePlanResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/admin/plans/${id}`,
         method: "PATCH",
         body: data,
@@ -1658,6 +3387,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
+<<<<<<< HEAD
       this.request<
         {
           data: {
@@ -1692,6 +3422,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1TopUpsGetTopUpsResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/top-ups`,
         method: "GET",
         query: query,
@@ -1709,6 +3442,7 @@ export class Api<
      * @secure
      */
     v1TopUpsGetTopUpById: (id: string, params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           id: string;
@@ -1724,6 +3458,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1TopUpsGetTopUpByIdResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/top-ups/${id}`,
         method: "GET",
         secure: true,
@@ -1740,6 +3477,7 @@ export class Api<
      * @secure
      */
     v1TopUpsAdminCreateTopUp: (
+<<<<<<< HEAD
       data: {
         name: string;
         description?: string;
@@ -1766,6 +3504,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1TopUpsAdminCreateTopUpBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1TopUpsAdminCreateTopUpResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/admin/top-ups`,
         method: "POST",
         body: data,
@@ -1785,6 +3529,7 @@ export class Api<
      */
     v1TopUpsAdminUpdateTopUp: (
       id: string,
+<<<<<<< HEAD
       data: {
         name?: string;
         description?: string;
@@ -1811,6 +3556,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1TopUpsAdminUpdateTopUpBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1TopUpsAdminUpdateTopUpResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/admin/top-ups/${id}`,
         method: "PATCH",
         body: data,
@@ -1907,6 +3658,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
+<<<<<<< HEAD
       this.request<
         {
           data: {
@@ -1942,6 +3694,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1UserPlansGetMyPlansResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/user-plans`,
         method: "GET",
         query: query,
@@ -1959,6 +3714,7 @@ export class Api<
      * @secure
      */
     v1UserPlansGetMyPlanById: (id: string, params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           id: string;
@@ -1975,6 +3731,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1UserPlansGetMyPlanByIdResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/user-plans/${id}`,
         method: "GET",
         secure: true,
@@ -1991,6 +3750,7 @@ export class Api<
      * @secure
      */
     v1UserPlansPurchasePlan: (
+<<<<<<< HEAD
       data: {
         planId: string;
       },
@@ -2012,6 +3772,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1UserPlansPurchasePlanBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1UserPlansPurchasePlanResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/user-plans/purchase`,
         method: "POST",
         body: data,
@@ -2030,6 +3796,7 @@ export class Api<
      * @secure
      */
     v1UserPlansApplyTopUp: (
+<<<<<<< HEAD
       data: {
         topUpId: string;
         userPlanId: string;
@@ -2052,6 +3819,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1UserPlansApplyTopUpBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1UserPlansApplyTopUpResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/user-plans/top-up`,
         method: "POST",
         body: data,
@@ -2070,6 +3843,7 @@ export class Api<
      * @secure
      */
     v1UserPlansScanQr: (id: string, params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           userPlan: {
@@ -2105,6 +3879,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1UserPlansScanQrResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/user-plans/${id}/scan`,
         method: "GET",
         secure: true,
@@ -2199,6 +3976,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
+<<<<<<< HEAD
       this.request<
         {
           data: {
@@ -2273,6 +4051,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1BookingsGetAllBookingsResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/bookings`,
         method: "GET",
         query: query,
@@ -2290,6 +4071,7 @@ export class Api<
      * @secure
      */
     v1BookingsGetBookingById: (id: string, params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           id: string;
@@ -2345,6 +4127,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1BookingsGetBookingByIdResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/bookings/${id}`,
         method: "GET",
         secure: true,
@@ -2362,6 +4147,7 @@ export class Api<
      */
     v1BookingsAdminAssignVehicle: (
       id: string,
+<<<<<<< HEAD
       data: {
         vehicleId: string;
         batteryId: string;
@@ -2428,6 +4214,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1BookingsAdminAssignVehicleBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BookingsAdminAssignVehicleResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/admin/bookings/${id}/assign-vehicle`,
         method: "PATCH",
         body: data,
@@ -2573,6 +4365,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
+<<<<<<< HEAD
       this.request<
         {
           data: {
@@ -2627,6 +4420,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1StationsGetManyStationsResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/stations`,
         method: "GET",
         query: query,
@@ -2644,6 +4440,7 @@ export class Api<
      * @secure
      */
     v1StationsCreateOneStation: (
+<<<<<<< HEAD
       data: {
         type: "swap_station" | "hub_station";
         name: string;
@@ -2696,6 +4493,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1StationsCreateOneStationBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1StationsCreateOneStationResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/stations`,
         method: "POST",
         body: data,
@@ -2714,6 +4517,7 @@ export class Api<
      * @secure
      */
     v1StationsGetOneStation: (id: string, params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           id: string;
@@ -2749,6 +4553,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1StationsGetOneStationResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/stations/${id}`,
         method: "GET",
         secure: true,
@@ -2766,6 +4573,7 @@ export class Api<
      */
     v1StationsUpdateOneStation: (
       id: string,
+<<<<<<< HEAD
       data: {
         type: "swap_station" | "hub_station";
         name: string;
@@ -2818,6 +4626,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1StationsUpdateOneStationBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1StationsUpdateOneStationResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/stations/${id}`,
         method: "PATCH",
         body: data,
@@ -2866,6 +4680,26 @@ export class Api<
          */
         limit?: number;
         /**
+<<<<<<< HEAD
+=======
+         * Filter by type query param.
+         *
+         * **Format:** filter.type={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.type=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.type"?: string[];
+        /**
+>>>>>>> upstream/dev
          * Filter by vehicleNumber query param.
          *
          * **Format:** filter.vehicleNumber={$not}:OPERATION:VALUE
@@ -2965,6 +4799,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
+<<<<<<< HEAD
       this.request<
         {
           data: {
@@ -3007,6 +4842,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1VehiclesGetManyVehiclesResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/vehicles`,
         method: "GET",
         query: query,
@@ -3024,6 +4862,7 @@ export class Api<
      * @secure
      */
     v1VehiclesCreateOneVehicle: (
+<<<<<<< HEAD
       data: {
         vehicleNumber?: string;
         rcNumber?: string;
@@ -3061,6 +4900,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1VehiclesCreateOneVehicleBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1VehiclesCreateOneVehicleResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/vehicles`,
         method: "POST",
         body: data,
@@ -3079,6 +4924,7 @@ export class Api<
      * @secure
      */
     v1VehiclesGetOneVehicle: (id: string, params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           id: string;
@@ -3102,6 +4948,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1VehiclesGetOneVehicleResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/vehicles/${id}`,
         method: "GET",
         secure: true,
@@ -3119,6 +4968,7 @@ export class Api<
      */
     v1VehiclesUpdateOneVehicle: (
       id: string,
+<<<<<<< HEAD
       data: {
         vehicleNumber?: string;
         rcNumber?: string;
@@ -3156,6 +5006,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1VehiclesUpdateOneVehicleBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1VehiclesUpdateOneVehicleResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/vehicles/${id}`,
         method: "PATCH",
         body: data,
@@ -3204,6 +5060,7 @@ export class Api<
          */
         limit?: number;
         /**
+<<<<<<< HEAD
          * Filter by batteryId query param.
          *
          * **Format:** filter.batteryId={$not}:OPERATION:VALUE
@@ -3211,6 +5068,15 @@ export class Api<
          *
          *
          * **Example:** filter.batteryId=$ilike:John Doe
+=======
+         * Filter by batteryQrId query param.
+         *
+         * **Format:** filter.batteryQrId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.batteryQrId=$ilike:John Doe
+>>>>>>> upstream/dev
          *
          * **Available Operations**
          * - $ilike
@@ -3219,7 +5085,11 @@ export class Api<
          *
          * - $or
          */
+<<<<<<< HEAD
         "filter.batteryId"?: string[];
+=======
+        "filter.batteryQrId"?: string[];
+>>>>>>> upstream/dev
         /**
          * Filter by gpsId query param.
          *
@@ -3278,7 +5148,11 @@ export class Api<
          * **Format:** {fieldName}:{DIRECTION}
          *
          *
+<<<<<<< HEAD
          * **Example:** sortBy=id:DESC&sortBy=batteryId:DESC
+=======
+         * **Example:** sortBy=id:DESC&sortBy=batteryQrId:DESC
+>>>>>>> upstream/dev
          *
          *
          * **Default Value:** createdAt:DESC
@@ -3286,21 +5160,31 @@ export class Api<
          * **Available Fields**
          * - id
          *
+<<<<<<< HEAD
          * - batteryId
+=======
+         * - batteryQrId
+>>>>>>> upstream/dev
          *
          * - createdAt
          */
         sortBy?: (
           | "id:ASC"
           | "id:DESC"
+<<<<<<< HEAD
           | "batteryId:ASC"
           | "batteryId:DESC"
+=======
+          | "batteryQrId:ASC"
+          | "batteryQrId:DESC"
+>>>>>>> upstream/dev
           | "createdAt:ASC"
           | "createdAt:DESC"
         )[];
       },
       params: RequestParams = {},
     ) =>
+<<<<<<< HEAD
       this.request<
         {
           data: {
@@ -3346,6 +5230,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1BatteriesGetManyBatteriesResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/batteries`,
         method: "GET",
         query: query,
@@ -3363,6 +5250,7 @@ export class Api<
      * @secure
      */
     v1BatteriesCreateOneBattery: (
+<<<<<<< HEAD
       data: {
         batteryId: string;
         gpsId?: string;
@@ -3406,6 +5294,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1BatteriesCreateOneBatteryBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatteriesCreateOneBatteryResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/batteries`,
         method: "POST",
         body: data,
@@ -3424,6 +5318,7 @@ export class Api<
      * @secure
      */
     v1BatteriesGetOneBattery: (id: string, params: RequestParams = {}) =>
+<<<<<<< HEAD
       this.request<
         {
           id: string;
@@ -3450,6 +5345,9 @@ export class Api<
         },
         any
       >({
+=======
+      this.request<V1BatteriesGetOneBatteryResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/batteries/${id}`,
         method: "GET",
         secure: true,
@@ -3467,6 +5365,7 @@ export class Api<
      */
     v1BatteriesUpdateOneBattery: (
       id: string,
+<<<<<<< HEAD
       data: {
         batteryId?: string;
         gpsId?: string;
@@ -3510,6 +5409,12 @@ export class Api<
         },
         any
       >({
+=======
+      data: V1BatteriesUpdateOneBatteryBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatteriesUpdateOneBatteryResponse, any>({
+>>>>>>> upstream/dev
         path: `/v1/batteries/${id}`,
         method: "PATCH",
         body: data,
@@ -3518,5 +5423,484 @@ export class Api<
         format: "json",
         ...params,
       }),
+<<<<<<< HEAD
+=======
+
+    /**
+     * No description
+     *
+     * @tags battery-swaps
+     * @name V1BatterySwapsVerifyInwardBattery
+     * @request POST:/v1/battery-swaps/verify-inward
+     * @secure
+     */
+    v1BatterySwapsVerifyInwardBattery: (
+      data: V1BatterySwapsVerifyInwardBatteryBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatterySwapsVerifyInwardBatteryResponse, any>({
+        path: `/v1/battery-swaps/verify-inward`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-swaps
+     * @name V1BatterySwapsExecuteSwap
+     * @request POST:/v1/battery-swaps/execute
+     * @secure
+     */
+    v1BatterySwapsExecuteSwap: (
+      data: V1BatterySwapsExecuteSwapBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatterySwapsExecuteSwapResponse, any>({
+        path: `/v1/battery-swaps/execute`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-swaps
+     * @name V1BatterySwapsGetSwapHistory
+     * @request GET:/v1/battery-swaps/history
+     * @secure
+     */
+    v1BatterySwapsGetSwapHistory: (
+      query?: {
+        /**
+         * Page number to retrieve. If you provide invalid value the default page number will applied
+         *
+         * **Example:** 1
+         *
+         *
+         * **Default Value:** 1
+         *
+         */
+        page?: number;
+        /**
+         * Number of records per page.
+         *
+         *
+         * **Example:** 20
+         *
+         *
+         *
+         * **Default Value:** 20
+         *
+         *
+         *
+         * **Max Value:** 100
+         *
+         *
+         * If provided value is greater than max value, max value will be applied.
+         */
+        limit?: number;
+        /**
+         * Filter by bookingId query param.
+         *
+         * **Format:** filter.bookingId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.bookingId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.bookingId"?: string[];
+        /**
+         * Filter by userPlanId query param.
+         *
+         * **Format:** filter.userPlanId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.userPlanId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.userPlanId"?: string[];
+        /**
+         * Filter by swappedById query param.
+         *
+         * **Format:** filter.swappedById={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.swappedById=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.swappedById"?: string[];
+        /**
+         * Parameter to sort by.
+         * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
+         *
+         * **Format:** {fieldName}:{DIRECTION}
+         *
+         *
+         * **Example:** sortBy=id:DESC&sortBy=createdAt:DESC
+         *
+         *
+         * **Default Value:** createdAt:DESC
+         *
+         * **Available Fields**
+         * - id
+         *
+         * - createdAt
+         */
+        sortBy?: ("id:ASC" | "id:DESC" | "createdAt:ASC" | "createdAt:DESC")[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatterySwapsGetSwapHistoryResponse, any>({
+        path: `/v1/battery-swaps/history`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-transports
+     * @name V1BatteryTransportsDispatchBatteries
+     * @request POST:/v1/battery-transports/dispatch
+     * @secure
+     */
+    v1BatteryTransportsDispatchBatteries: (
+      data: V1BatteryTransportsDispatchBatteriesBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatteryTransportsDispatchBatteriesResponse, any>({
+        path: `/v1/battery-transports/dispatch`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-transports
+     * @name V1BatteryTransportsReceiveBatteries
+     * @request POST:/v1/battery-transports/{id}/receive
+     * @secure
+     */
+    v1BatteryTransportsReceiveBatteries: (
+      id: string,
+      data: V1BatteryTransportsReceiveBatteriesBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatteryTransportsReceiveBatteriesResponse, any>({
+        path: `/v1/battery-transports/${id}/receive`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-transports
+     * @name V1BatteryTransportsUpdateBatteryStatus
+     * @request PATCH:/v1/battery-transports/batteries/{batteryId}/status
+     * @secure
+     */
+    v1BatteryTransportsUpdateBatteryStatus: (
+      batteryId: string,
+      data: V1BatteryTransportsUpdateBatteryStatusBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatteryTransportsUpdateBatteryStatusResponse, any>({
+        path: `/v1/battery-transports/batteries/${batteryId}/status`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-transports
+     * @name V1BatteryTransportsGetManyMovements
+     * @request GET:/v1/battery-transports
+     * @secure
+     */
+    v1BatteryTransportsGetManyMovements: (
+      query?: {
+        /**
+         * Page number to retrieve. If you provide invalid value the default page number will applied
+         *
+         * **Example:** 1
+         *
+         *
+         * **Default Value:** 1
+         *
+         */
+        page?: number;
+        /**
+         * Number of records per page.
+         *
+         *
+         * **Example:** 20
+         *
+         *
+         *
+         * **Default Value:** 20
+         *
+         *
+         *
+         * **Max Value:** 100
+         *
+         *
+         * If provided value is greater than max value, max value will be applied.
+         */
+        limit?: number;
+        /**
+         * Filter by fromStationId query param.
+         *
+         * **Format:** filter.fromStationId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.fromStationId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.fromStationId"?: string[];
+        /**
+         * Filter by toStationId query param.
+         *
+         * **Format:** filter.toStationId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.toStationId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.toStationId"?: string[];
+        /**
+         * Filter by vehicleId query param.
+         *
+         * **Format:** filter.vehicleId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.vehicleId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.vehicleId"?: string[];
+        /**
+         * Filter by status query param.
+         *
+         * **Format:** filter.status={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.status=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.status"?: string[];
+        /**
+         * Parameter to sort by.
+         * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
+         *
+         * **Format:** {fieldName}:{DIRECTION}
+         *
+         *
+         * **Example:** sortBy=id:DESC&sortBy=createdAt:DESC
+         *
+         *
+         * **Default Value:** createdAt:DESC
+         *
+         * **Available Fields**
+         * - id
+         *
+         * - createdAt
+         *
+         * - status
+         */
+        sortBy?: (
+          | "id:ASC"
+          | "id:DESC"
+          | "createdAt:ASC"
+          | "createdAt:DESC"
+          | "status:ASC"
+          | "status:DESC"
+        )[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatteryTransportsGetManyMovementsResponse, any>({
+        path: `/v1/battery-transports`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-transports
+     * @name V1BatteryTransportsGetOneMovement
+     * @request GET:/v1/battery-transports/{id}
+     * @secure
+     */
+    v1BatteryTransportsGetOneMovement: (
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatteryTransportsGetOneMovementResponse, any>({
+        path: `/v1/battery-transports/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags battery-transports
+     * @name V1BatteryTransportsGetMovementBatteries
+     * @request GET:/v1/battery-transports/{id}/batteries
+     * @secure
+     */
+    v1BatteryTransportsGetMovementBatteries: (
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1BatteryTransportsGetMovementBatteriesResponse, any>({
+        path: `/v1/battery-transports/${id}/batteries`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehicle-surrender
+     * @name V1VehicleSurrenderGetAllSurrenders
+     * @request GET:/v1/vehicle-surrender
+     * @secure
+     */
+    v1VehicleSurrenderGetAllSurrenders: (params: RequestParams = {}) =>
+      this.request<V1VehicleSurrenderGetAllSurrendersResponse, any>({
+        path: `/v1/vehicle-surrender`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehicle-surrender
+     * @name V1VehicleSurrenderGetSurrenderDetails
+     * @request GET:/v1/vehicle-surrender/{vehicleNumber}
+     * @secure
+     */
+    v1VehicleSurrenderGetSurrenderDetails: (
+      vehicleNumber: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1VehicleSurrenderGetSurrenderDetailsResponse, any>({
+        path: `/v1/vehicle-surrender/${vehicleNumber}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags vehicle-surrender
+     * @name V1VehicleSurrenderSurrenderVehicle
+     * @request POST:/v1/vehicle-surrender/{vehicleNumber}/surrender
+     * @secure
+     */
+    v1VehicleSurrenderSurrenderVehicle: (
+      vehicleNumber: string,
+      data: V1VehicleSurrenderSurrenderVehicleBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1VehicleSurrenderSurrenderVehicleResponse, any>({
+        path: `/v1/vehicle-surrender/${vehicleNumber}/surrender`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+>>>>>>> upstream/dev
   };
 }

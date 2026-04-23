@@ -54,7 +54,7 @@ export const BookingResponse = Type.Object({
     battery: Type.Optional(
         Type.Object({
             id: Type.String(),
-            batteryId: Type.String(),
+            batteryQrId: Type.String(),
         }),
     ),
     status: Type.String(),

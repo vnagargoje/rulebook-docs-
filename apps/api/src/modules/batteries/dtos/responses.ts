@@ -13,7 +13,7 @@ export const BatteryPropertiesResponse = Type.Object({
 
 export const BatteryResponse = Type.Object({
     id: Type.String(),
-    batteryId: Type.String(),
+    batteryQrId: Type.String(),
     gpsId: Type.Optional(Type.String()),
     properties: Type.Optional(BatteryPropertiesResponse),
     stationId: Type.Optional(Type.String()),

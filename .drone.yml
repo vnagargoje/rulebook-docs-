@@ -56,28 +56,6 @@ steps:
         - latest
         - ${DRONE_COMMIT_SHA:0:8}
 
-  - name: deploy-to-droplet
-    image: appleboy/drone-ssh
-    settings:
-      host:
-        from_secret: DROPLET_HOST
-      username: officebot
-      key:
-        from_secret: SSH_PRIVATE_KEY
-      script:
-        - cd ~/yugo
-        - echo "$DOCR_TOKEN" | docker login registry.digitalocean.com -u $DOCR_TOKEN --password-stdin
-        - docker compose pull
-        - docker compose up -d --remove-orphans
-        - docker image prune -f
-    environment:
-      DOCR_TOKEN:
-        from_secret: DOCR_TOKEN
-    depends_on:
-      - docker-build-api
-      - docker-build-henchman
-      - docker-build-backoffice
-
 trigger:
   event:
     - push

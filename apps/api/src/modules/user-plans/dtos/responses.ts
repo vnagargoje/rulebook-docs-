@@ -1,5 +1,13 @@
 import { Type } from '@sinclair/typebox';
 
+export const PurchasePlanOrderResponse = Type.Object({
+    razorpayOrderId: Type.String(),
+    amount: Type.Number(),
+    currency: Type.String(),
+    key: Type.String(),
+    userPlanId: Type.String(),
+});
+
 export const UserPlanResponse = Type.Object({
     id: Type.String(),
     userId: Type.String(),

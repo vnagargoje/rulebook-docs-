@@ -2,12 +2,6 @@ kind: pipeline
 type: docker
 name: yugo-deploy
 
-trigger:
-    event:
-      - push
-    branch:
-      - dev
-
 steps:
   - name: docker-build-api
     image: plugins/docker
@@ -75,3 +69,9 @@ steps:
       - docker-build-api
       - docker-build-henchman
       - docker-build-backoffice
+
+trigger:
+    event:
+      - push
+    branch:
+      - dev

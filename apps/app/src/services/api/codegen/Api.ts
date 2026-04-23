@@ -1887,31 +1887,8 @@ export class Api<
      * @name V1AuthSignIn
      * @request POST:/v1/auth/signin
      */
-<<<<<<< HEAD
-    v1AuthSignIn: (
-      data: {
-        /** @format email */
-        email: string;
-        password: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          accessToken: string;
-          refreshToken: string;
-          user: {
-            id: string;
-            email: string;
-            roles: string[];
-          };
-        },
-        any
-      >({
-=======
     v1AuthSignIn: (data: V1AuthSignInBody, params: RequestParams = {}) =>
       this.request<V1AuthSignInResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/auth/signin`,
         method: "POST",
         body: data,
@@ -1927,25 +1904,8 @@ export class Api<
      * @name V1AuthSendOtp
      * @request POST:/v1/auth/otp/send
      */
-<<<<<<< HEAD
-    v1AuthSendOtp: (
-      data: {
-        mobilenumber: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          mobilenumber: string;
-          method: "sms";
-          otpSent: boolean;
-        },
-        any
-      >({
-=======
     v1AuthSendOtp: (data: V1AuthSendOtpBody, params: RequestParams = {}) =>
       this.request<V1AuthSendOtpResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/auth/otp/send`,
         method: "POST",
         body: data,
@@ -1961,26 +1921,8 @@ export class Api<
      * @name V1AuthVerifyOtp
      * @request POST:/v1/auth/otp/verify
      */
-<<<<<<< HEAD
-    v1AuthVerifyOtp: (
-      data: {
-        mobilenumber: string;
-        otp: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          verified: boolean;
-          accessToken?: string;
-          refreshToken?: string;
-        },
-        any
-      >({
-=======
     v1AuthVerifyOtp: (data: V1AuthVerifyOtpBody, params: RequestParams = {}) =>
       this.request<V1AuthVerifyOtpResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/auth/otp/verify`,
         method: "POST",
         body: data,
@@ -1998,17 +1940,7 @@ export class Api<
      * @secure
      */
     aadhaarConnect: (params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          sessionId: string;
-          captcha: string;
-        },
-        any
-      >({
-=======
       this.request<AadhaarConnectResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/kyc/aadhaar/connect`,
         method: "GET",
         secure: true,
@@ -2025,27 +1957,10 @@ export class Api<
      * @secure
      */
     aadhaarGenerateOtp: (
-<<<<<<< HEAD
-      data: {
-        sessionId: string;
-        captcha: string;
-        aadhaarNumber: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          success: boolean;
-          message: string;
-        },
-        any
-      >({
-=======
       data: AadhaarGenerateOtpBody,
       params: RequestParams = {},
     ) =>
       this.request<AadhaarGenerateOtpResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/kyc/aadhaar/generate/otp`,
         method: "POST",
         body: data,
@@ -2064,27 +1979,10 @@ export class Api<
      * @secure
      */
     aadhaarVerifyOtp: (
-<<<<<<< HEAD
-      data: {
-        sessionId: string;
-        otp: string;
-        aadhaarNumber: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          success: boolean;
-          message: string;
-        },
-        any
-      >({
-=======
       data: AadhaarVerifyOtpBody,
       params: RequestParams = {},
     ) =>
       this.request<AadhaarVerifyOtpResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/kyc/aadhaar/verify/otp`,
         method: "POST",
         body: data,
@@ -2108,16 +2006,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          captcha: string;
-        },
-        any
-      >({
-=======
       this.request<AadhaarReloadCaptchaResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/kyc/aadhaar/reload-captcha`,
         method: "GET",
         query: query,
@@ -2134,24 +2023,8 @@ export class Api<
      * @request POST:/v1/kyc/pan/verify
      * @secure
      */
-<<<<<<< HEAD
-    panVerify: (
-      data: {
-        pan: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          success: boolean;
-          message: string;
-        },
-        any
-      >({
-=======
     panVerify: (data: PanVerifyBody, params: RequestParams = {}) =>
       this.request<PanVerifyResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/kyc/pan/verify`,
         method: "POST",
         body: data,
@@ -2169,24 +2042,8 @@ export class Api<
      * @request POST:/v1/kyc/license/initiate
      * @secure
      */
-<<<<<<< HEAD
-    licenseInitiate: (
-      data: {
-        dlNumber: string;
-        dateOfBirth: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          requestId: string;
-        },
-        any
-      >({
-=======
     licenseInitiate: (data: LicenseInitiateBody, params: RequestParams = {}) =>
       this.request<LicenseInitiateResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/kyc/license/initiate`,
         method: "POST",
         body: data,
@@ -2210,17 +2067,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          success: boolean;
-          message: string;
-        },
-        any
-      >({
-=======
       this.request<LicenseGetResultResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/kyc/license/result`,
         method: "GET",
         query: query,
@@ -2238,39 +2085,7 @@ export class Api<
      * @secure
      */
     kycGetStatus: (params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          aadhaar: {
-            id: string;
-            documentId: string;
-            type: string;
-            status: string;
-            verifiedAt: string | null;
-            notes: string | null;
-          } | null;
-          pan: {
-            id: string;
-            documentId: string;
-            type: string;
-            status: string;
-            verifiedAt: string | null;
-            notes: string | null;
-          } | null;
-          license: {
-            id: string;
-            documentId: string;
-            type: string;
-            status: string;
-            verifiedAt: string | null;
-            notes: string | null;
-          } | null;
-        },
-        any
-      >({
-=======
       this.request<KycGetStatusResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/kyc/status`,
         method: "GET",
         secure: true,
@@ -2639,62 +2454,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          data: {
-            id: string;
-            /** @format email */
-            email?: string;
-            mobilenumber?: string;
-            firstName?: string;
-            lastName?: string;
-            gender?: "male" | "female" | "other";
-            properties?: any;
-            /** @format date */
-            dateOfBirth?: string;
-            roles?: {
-              name: string;
-            }[];
-            addresses?: {
-              id: string;
-              lineOne: string;
-              lineTwo?: string;
-              pincode: string;
-              city?: {
-                id: string;
-                name: string;
-                state?: {
-                  id: string;
-                  name: string;
-                  code: string;
-                };
-              };
-            }[];
-          }[];
-          meta: {
-            itemsPerPage: number;
-            totalItems: number;
-            currentPage: number;
-            totalPages: number;
-            sortBy: [string, "ASC" | "DESC"][];
-            searchBy: string[];
-            search: string;
-            filter?: object;
-          };
-          links: {
-            first?: string;
-            last?: string;
-            current: string;
-            previous?: string;
-            next?: string;
-          };
-        },
-        any
-      >({
-=======
       this.request<V1UsersGetManyUsersResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/users`,
         method: "GET",
         query: query,
@@ -2712,71 +2472,10 @@ export class Api<
      * @secure
      */
     v1UsersCreateOneUser: (
-<<<<<<< HEAD
-      data: {
-        /** @format email */
-        email?: string;
-        mobilenumber: string;
-        firstName?: string;
-        lastName?: string;
-        gender?: "male" | "female" | "other";
-        role?:
-          | "customer"
-          | "swap_manager"
-          | "hub_manager"
-          | "system_admin"
-          | "system_user";
-        properties?: any;
-        /** @format date */
-        dateOfBirth?: string;
-        address?: {
-          lineOne: string;
-          lineTwo?: string;
-          pincode: string;
-          cityId?: string;
-        };
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          /** @format email */
-          email?: string;
-          mobilenumber?: string;
-          firstName?: string;
-          lastName?: string;
-          gender?: "male" | "female" | "other";
-          properties?: any;
-          /** @format date */
-          dateOfBirth?: string;
-          roles?: {
-            name: string;
-          }[];
-          addresses?: {
-            id: string;
-            lineOne: string;
-            lineTwo?: string;
-            pincode: string;
-            city?: {
-              id: string;
-              name: string;
-              state?: {
-                id: string;
-                name: string;
-                code: string;
-              };
-            };
-          }[];
-        },
-        any
-      >({
-=======
       data: V1UsersCreateOneUserBody,
       params: RequestParams = {},
     ) =>
       this.request<V1UsersCreateOneUserResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/users`,
         method: "POST",
         body: data,
@@ -2795,43 +2494,7 @@ export class Api<
      * @secure
      */
     v1UsersGetOneUser: (id: string, params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          id: string;
-          /** @format email */
-          email?: string;
-          mobilenumber?: string;
-          firstName?: string;
-          lastName?: string;
-          gender?: "male" | "female" | "other";
-          properties?: any;
-          /** @format date */
-          dateOfBirth?: string;
-          roles?: {
-            name: string;
-          }[];
-          addresses?: {
-            id: string;
-            lineOne: string;
-            lineTwo?: string;
-            pincode: string;
-            city?: {
-              id: string;
-              name: string;
-              state?: {
-                id: string;
-                name: string;
-                code: string;
-              };
-            };
-          }[];
-        },
-        any
-      >({
-=======
       this.request<V1UsersGetOneUserResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/users/${id}`,
         method: "GET",
         secure: true,
@@ -2849,71 +2512,10 @@ export class Api<
      */
     v1UsersPatchOneUser: (
       id: string,
-<<<<<<< HEAD
-      data: {
-        /** @format email */
-        email?: string;
-        mobilenumber?: string;
-        firstName?: string;
-        lastName?: string;
-        gender?: "male" | "female" | "other";
-        role?:
-          | "customer"
-          | "swap_manager"
-          | "hub_manager"
-          | "system_admin"
-          | "system_user";
-        properties?: any;
-        /** @format date */
-        dateOfBirth?: string;
-        address?: {
-          lineOne: string;
-          lineTwo?: string;
-          pincode: string;
-          cityId?: string;
-        };
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          /** @format email */
-          email?: string;
-          mobilenumber?: string;
-          firstName?: string;
-          lastName?: string;
-          gender?: "male" | "female" | "other";
-          properties?: any;
-          /** @format date */
-          dateOfBirth?: string;
-          roles?: {
-            name: string;
-          }[];
-          addresses?: {
-            id: string;
-            lineOne: string;
-            lineTwo?: string;
-            pincode: string;
-            city?: {
-              id: string;
-              name: string;
-              state?: {
-                id: string;
-                name: string;
-                code: string;
-              };
-            };
-          }[];
-        },
-        any
-      >({
-=======
       data: V1UsersPatchOneUserBody,
       params: RequestParams = {},
     ) =>
       this.request<V1UsersPatchOneUserResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/users/${id}`,
         method: "PATCH",
         body: data,
@@ -3055,47 +2657,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          data: {
-            id: string;
-            name: string;
-            description: string | null;
-            validityDays: number;
-            kmLimit: number;
-            price: number;
-            deposit: number;
-            gst: number;
-            registrationFee: number;
-            totalAmount: number;
-            active: boolean;
-            createdAt: string;
-            updatedAt: string;
-          }[];
-          meta: {
-            itemsPerPage: number;
-            totalItems: number;
-            currentPage: number;
-            totalPages: number;
-            sortBy: [string, "ASC" | "DESC"][];
-            searchBy: string[];
-            search: string;
-            filter?: object;
-          };
-          links: {
-            first?: string;
-            last?: string;
-            current: string;
-            previous?: string;
-            next?: string;
-          };
-        },
-        any
-      >({
-=======
       this.request<V1PlansGetPlansResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/plans`,
         method: "GET",
         query: query,
@@ -3113,28 +2675,7 @@ export class Api<
      * @secure
      */
     v1PlansGetPlanById: (id: string, params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          id: string;
-          name: string;
-          description: string | null;
-          validityDays: number;
-          kmLimit: number;
-          price: number;
-          deposit: number;
-          gst: number;
-          registrationFee: number;
-          totalAmount: number;
-          active: boolean;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       this.request<V1PlansGetPlanByIdResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/plans/${id}`,
         method: "GET",
         secure: true,
@@ -3151,44 +2692,10 @@ export class Api<
      * @secure
      */
     v1PlansAdminCreatePlan: (
-<<<<<<< HEAD
-      data: {
-        name: string;
-        description?: string;
-        validityDays: number;
-        kmLimit: number;
-        price: number;
-        deposit: number;
-        gst: number;
-        registrationFee?: number;
-        active?: boolean;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          name: string;
-          description: string | null;
-          validityDays: number;
-          kmLimit: number;
-          price: number;
-          deposit: number;
-          gst: number;
-          registrationFee: number;
-          totalAmount: number;
-          active: boolean;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       data: V1PlansAdminCreatePlanBody,
       params: RequestParams = {},
     ) =>
       this.request<V1PlansAdminCreatePlanResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/admin/plans`,
         method: "POST",
         body: data,
@@ -3208,44 +2715,10 @@ export class Api<
      */
     v1PlansAdminUpdatePlan: (
       id: string,
-<<<<<<< HEAD
-      data: {
-        name?: string;
-        description?: string;
-        validityDays?: number;
-        kmLimit?: number;
-        price?: number;
-        deposit?: number;
-        gst?: number;
-        registrationFee?: number;
-        active?: boolean;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          name: string;
-          description: string | null;
-          validityDays: number;
-          kmLimit: number;
-          price: number;
-          deposit: number;
-          gst: number;
-          registrationFee: number;
-          totalAmount: number;
-          active: boolean;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       data: V1PlansAdminUpdatePlanBody,
       params: RequestParams = {},
     ) =>
       this.request<V1PlansAdminUpdatePlanResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/admin/plans/${id}`,
         method: "PATCH",
         body: data,
@@ -3387,44 +2860,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          data: {
-            id: string;
-            name: string;
-            description: string | null;
-            validityDays: number;
-            kmLimit: number;
-            price: number;
-            gst: number;
-            active: boolean;
-            createdAt: string;
-            updatedAt: string;
-          }[];
-          meta: {
-            itemsPerPage: number;
-            totalItems: number;
-            currentPage: number;
-            totalPages: number;
-            sortBy: [string, "ASC" | "DESC"][];
-            searchBy: string[];
-            search: string;
-            filter?: object;
-          };
-          links: {
-            first?: string;
-            last?: string;
-            current: string;
-            previous?: string;
-            next?: string;
-          };
-        },
-        any
-      >({
-=======
       this.request<V1TopUpsGetTopUpsResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/top-ups`,
         method: "GET",
         query: query,
@@ -3442,25 +2878,7 @@ export class Api<
      * @secure
      */
     v1TopUpsGetTopUpById: (id: string, params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          id: string;
-          name: string;
-          description: string | null;
-          validityDays: number;
-          kmLimit: number;
-          price: number;
-          gst: number;
-          active: boolean;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       this.request<V1TopUpsGetTopUpByIdResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/top-ups/${id}`,
         method: "GET",
         secure: true,
@@ -3477,39 +2895,10 @@ export class Api<
      * @secure
      */
     v1TopUpsAdminCreateTopUp: (
-<<<<<<< HEAD
-      data: {
-        name: string;
-        description?: string;
-        validityDays: number;
-        kmLimit: number;
-        price: number;
-        gst: number;
-        active?: boolean;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          name: string;
-          description: string | null;
-          validityDays: number;
-          kmLimit: number;
-          price: number;
-          gst: number;
-          active: boolean;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       data: V1TopUpsAdminCreateTopUpBody,
       params: RequestParams = {},
     ) =>
       this.request<V1TopUpsAdminCreateTopUpResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/admin/top-ups`,
         method: "POST",
         body: data,
@@ -3529,39 +2918,10 @@ export class Api<
      */
     v1TopUpsAdminUpdateTopUp: (
       id: string,
-<<<<<<< HEAD
-      data: {
-        name?: string;
-        description?: string;
-        validityDays?: number;
-        kmLimit?: number;
-        price?: number;
-        gst?: number;
-        active?: boolean;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          name: string;
-          description: string | null;
-          validityDays: number;
-          kmLimit: number;
-          price: number;
-          gst: number;
-          active: boolean;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       data: V1TopUpsAdminUpdateTopUpBody,
       params: RequestParams = {},
     ) =>
       this.request<V1TopUpsAdminUpdateTopUpResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/admin/top-ups/${id}`,
         method: "PATCH",
         body: data,
@@ -3658,45 +3018,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          data: {
-            id: string;
-            userId: string;
-            planId: string;
-            planSnapshot: any;
-            status: string;
-            startsAt: string | null;
-            expiresAt: string | null;
-            remainingKm: number;
-            qrCodeId: string | null;
-            createdAt: string;
-            updatedAt: string;
-          }[];
-          meta: {
-            itemsPerPage: number;
-            totalItems: number;
-            currentPage: number;
-            totalPages: number;
-            sortBy: [string, "ASC" | "DESC"][];
-            searchBy: string[];
-            search: string;
-            filter?: object;
-          };
-          links: {
-            first?: string;
-            last?: string;
-            current: string;
-            previous?: string;
-            next?: string;
-          };
-        },
-        any
-      >({
-=======
       this.request<V1UserPlansGetMyPlansResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/user-plans`,
         method: "GET",
         query: query,
@@ -3714,26 +3036,7 @@ export class Api<
      * @secure
      */
     v1UserPlansGetMyPlanById: (id: string, params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          id: string;
-          userId: string;
-          planId: string;
-          planSnapshot: any;
-          status: string;
-          startsAt: string | null;
-          expiresAt: string | null;
-          remainingKm: number;
-          qrCodeId: string | null;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       this.request<V1UserPlansGetMyPlanByIdResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/user-plans/${id}`,
         method: "GET",
         secure: true,
@@ -3750,34 +3053,10 @@ export class Api<
      * @secure
      */
     v1UserPlansPurchasePlan: (
-<<<<<<< HEAD
-      data: {
-        planId: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          userId: string;
-          planId: string;
-          planSnapshot: any;
-          status: string;
-          startsAt: string | null;
-          expiresAt: string | null;
-          remainingKm: number;
-          qrCodeId: string | null;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       data: V1UserPlansPurchasePlanBody,
       params: RequestParams = {},
     ) =>
       this.request<V1UserPlansPurchasePlanResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/user-plans/purchase`,
         method: "POST",
         body: data,
@@ -3796,35 +3075,10 @@ export class Api<
      * @secure
      */
     v1UserPlansApplyTopUp: (
-<<<<<<< HEAD
-      data: {
-        topUpId: string;
-        userPlanId: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          userId: string;
-          planId: string;
-          planSnapshot: any;
-          status: string;
-          startsAt: string | null;
-          expiresAt: string | null;
-          remainingKm: number;
-          qrCodeId: string | null;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       data: V1UserPlansApplyTopUpBody,
       params: RequestParams = {},
     ) =>
       this.request<V1UserPlansApplyTopUpResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/user-plans/top-up`,
         method: "POST",
         body: data,
@@ -3843,45 +3097,7 @@ export class Api<
      * @secure
      */
     v1UserPlansScanQr: (id: string, params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          userPlan: {
-            id: string;
-            status: string;
-            planSnapshot: any;
-            remainingKm: number;
-            startsAt: string | null;
-            expiresAt: string | null;
-            qrCodeUrl: string | null;
-          };
-          user: {
-            id: string;
-            firstName: string | null;
-            lastName: string | null;
-            mobilenumber: string | null;
-            email: string | null;
-          } | null;
-          plan: {
-            id: string;
-            name: string;
-          } | null;
-          booking: {
-            id: string;
-            status: string;
-            stationId: string;
-            vehicleId: string | null;
-            batteryId: string | null;
-            pickupOtp: string;
-            startedAt: string | null;
-            completedAt: string | null;
-          } | null;
-        },
-        any
-      >({
-=======
       this.request<V1UserPlansScanQrResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/user-plans/${id}/scan`,
         method: "GET",
         secure: true,
@@ -3976,84 +3192,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          data: {
-            id: string;
-            userPlanId: string;
-            userPlan: {
-              id: string;
-              status: string;
-              planSnapshot: any;
-              startsAt?: string;
-              expiresAt?: string;
-              remainingKm: number;
-              plan?: {
-                id: string;
-                name: string;
-                validityDays: number;
-                kmLimit: number;
-                price: number;
-                deposit: number;
-                totalAmount: number;
-              };
-              qrCode?: {
-                id: string;
-                filename?: string;
-                path: string;
-                mimeType?: string;
-              };
-            };
-            stationId?: string;
-            station?: {
-              id: string;
-              name: string;
-              type: string;
-              latitude?: number;
-              longitude?: number;
-              active: boolean;
-            };
-            vehicleId?: string;
-            vehicle?: {
-              id: string;
-              vehicleNumber?: string;
-              rcNumber?: string;
-              chassisNumber?: string;
-            };
-            batteryId?: string;
-            battery?: {
-              id: string;
-              batteryId: string;
-            };
-            status: string;
-            pickupOtp: string;
-            createdAt: string;
-            updatedAt: string;
-          }[];
-          meta: {
-            itemsPerPage: number;
-            totalItems: number;
-            currentPage: number;
-            totalPages: number;
-            sortBy: [string, "ASC" | "DESC"][];
-            searchBy: string[];
-            search: string;
-            filter?: object;
-          };
-          links: {
-            first?: string;
-            last?: string;
-            current: string;
-            previous?: string;
-            next?: string;
-          };
-        },
-        any
-      >({
-=======
       this.request<V1BookingsGetAllBookingsResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/bookings`,
         method: "GET",
         query: query,
@@ -4071,65 +3210,7 @@ export class Api<
      * @secure
      */
     v1BookingsGetBookingById: (id: string, params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          id: string;
-          userPlanId: string;
-          userPlan: {
-            id: string;
-            status: string;
-            planSnapshot: any;
-            startsAt?: string;
-            expiresAt?: string;
-            remainingKm: number;
-            plan?: {
-              id: string;
-              name: string;
-              validityDays: number;
-              kmLimit: number;
-              price: number;
-              deposit: number;
-              totalAmount: number;
-            };
-            qrCode?: {
-              id: string;
-              filename?: string;
-              path: string;
-              mimeType?: string;
-            };
-          };
-          stationId?: string;
-          station?: {
-            id: string;
-            name: string;
-            type: string;
-            latitude?: number;
-            longitude?: number;
-            active: boolean;
-          };
-          vehicleId?: string;
-          vehicle?: {
-            id: string;
-            vehicleNumber?: string;
-            rcNumber?: string;
-            chassisNumber?: string;
-          };
-          batteryId?: string;
-          battery?: {
-            id: string;
-            batteryId: string;
-          };
-          status: string;
-          pickupOtp: string;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       this.request<V1BookingsGetBookingByIdResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/bookings/${id}`,
         method: "GET",
         secure: true,
@@ -4147,79 +3228,10 @@ export class Api<
      */
     v1BookingsAdminAssignVehicle: (
       id: string,
-<<<<<<< HEAD
-      data: {
-        vehicleId: string;
-        batteryId: string;
-        /**
-         * @minLength 4
-         * @maxLength 4
-         */
-        otp: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          userPlanId: string;
-          userPlan: {
-            id: string;
-            status: string;
-            planSnapshot: any;
-            startsAt?: string;
-            expiresAt?: string;
-            remainingKm: number;
-            plan?: {
-              id: string;
-              name: string;
-              validityDays: number;
-              kmLimit: number;
-              price: number;
-              deposit: number;
-              totalAmount: number;
-            };
-            qrCode?: {
-              id: string;
-              filename?: string;
-              path: string;
-              mimeType?: string;
-            };
-          };
-          stationId?: string;
-          station?: {
-            id: string;
-            name: string;
-            type: string;
-            latitude?: number;
-            longitude?: number;
-            active: boolean;
-          };
-          vehicleId?: string;
-          vehicle?: {
-            id: string;
-            vehicleNumber?: string;
-            rcNumber?: string;
-            chassisNumber?: string;
-          };
-          batteryId?: string;
-          battery?: {
-            id: string;
-            batteryId: string;
-          };
-          status: string;
-          pickupOtp: string;
-          createdAt: string;
-          updatedAt: string;
-        },
-        any
-      >({
-=======
       data: V1BookingsAdminAssignVehicleBody,
       params: RequestParams = {},
     ) =>
       this.request<V1BookingsAdminAssignVehicleResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/admin/bookings/${id}/assign-vehicle`,
         method: "PATCH",
         body: data,
@@ -4365,64 +3377,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          data: {
-            id: string;
-            type: "swap_station" | "hub_station";
-            name: string;
-            longitude?: number;
-            latitude?: number;
-            active: boolean;
-            address?: {
-              id: string;
-              lineOne: string;
-              lineTwo?: string;
-              pincode: string;
-              city?: {
-                id: string;
-                name: string;
-                state?: {
-                  id: string;
-                  name: string;
-                  code: string;
-                };
-              };
-            };
-            managerId?: string;
-            manager?: {
-              id: string;
-              /** @format email */
-              email?: string;
-              mobilenumber?: string;
-              firstName?: string;
-              lastName?: string;
-            };
-          }[];
-          meta: {
-            itemsPerPage: number;
-            totalItems: number;
-            currentPage: number;
-            totalPages: number;
-            sortBy: [string, "ASC" | "DESC"][];
-            searchBy: string[];
-            search: string;
-            filter?: object;
-          };
-          links: {
-            first?: string;
-            last?: string;
-            current: string;
-            previous?: string;
-            next?: string;
-          };
-        },
-        any
-      >({
-=======
       this.request<V1StationsGetManyStationsResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/stations`,
         method: "GET",
         query: query,
@@ -4440,65 +3395,10 @@ export class Api<
      * @secure
      */
     v1StationsCreateOneStation: (
-<<<<<<< HEAD
-      data: {
-        type: "swap_station" | "hub_station";
-        name: string;
-        longitude?: number;
-        latitude?: number;
-        /** @default true */
-        active: boolean;
-        address?: {
-          lineOne: string;
-          lineTwo?: string;
-          pincode: string;
-          cityId?: string;
-        };
-        managerId?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          type: "swap_station" | "hub_station";
-          name: string;
-          longitude?: number;
-          latitude?: number;
-          active: boolean;
-          address?: {
-            id: string;
-            lineOne: string;
-            lineTwo?: string;
-            pincode: string;
-            city?: {
-              id: string;
-              name: string;
-              state?: {
-                id: string;
-                name: string;
-                code: string;
-              };
-            };
-          };
-          managerId?: string;
-          manager?: {
-            id: string;
-            /** @format email */
-            email?: string;
-            mobilenumber?: string;
-            firstName?: string;
-            lastName?: string;
-          };
-        },
-        any
-      >({
-=======
       data: V1StationsCreateOneStationBody,
       params: RequestParams = {},
     ) =>
       this.request<V1StationsCreateOneStationResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/stations`,
         method: "POST",
         body: data,
@@ -4517,45 +3417,7 @@ export class Api<
      * @secure
      */
     v1StationsGetOneStation: (id: string, params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          id: string;
-          type: "swap_station" | "hub_station";
-          name: string;
-          longitude?: number;
-          latitude?: number;
-          active: boolean;
-          address?: {
-            id: string;
-            lineOne: string;
-            lineTwo?: string;
-            pincode: string;
-            city?: {
-              id: string;
-              name: string;
-              state?: {
-                id: string;
-                name: string;
-                code: string;
-              };
-            };
-          };
-          managerId?: string;
-          manager?: {
-            id: string;
-            /** @format email */
-            email?: string;
-            mobilenumber?: string;
-            firstName?: string;
-            lastName?: string;
-          };
-        },
-        any
-      >({
-=======
       this.request<V1StationsGetOneStationResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/stations/${id}`,
         method: "GET",
         secure: true,
@@ -4573,65 +3435,10 @@ export class Api<
      */
     v1StationsUpdateOneStation: (
       id: string,
-<<<<<<< HEAD
-      data: {
-        type: "swap_station" | "hub_station";
-        name: string;
-        longitude?: number;
-        latitude?: number;
-        /** @default true */
-        active: boolean;
-        address?: {
-          lineOne: string;
-          lineTwo?: string;
-          pincode: string;
-          cityId?: string;
-        };
-        managerId?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          type: "swap_station" | "hub_station";
-          name: string;
-          longitude?: number;
-          latitude?: number;
-          active: boolean;
-          address?: {
-            id: string;
-            lineOne: string;
-            lineTwo?: string;
-            pincode: string;
-            city?: {
-              id: string;
-              name: string;
-              state?: {
-                id: string;
-                name: string;
-                code: string;
-              };
-            };
-          };
-          managerId?: string;
-          manager?: {
-            id: string;
-            /** @format email */
-            email?: string;
-            mobilenumber?: string;
-            firstName?: string;
-            lastName?: string;
-          };
-        },
-        any
-      >({
-=======
       data: V1StationsUpdateOneStationBody,
       params: RequestParams = {},
     ) =>
       this.request<V1StationsUpdateOneStationResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/stations/${id}`,
         method: "PATCH",
         body: data,
@@ -4680,8 +3487,6 @@ export class Api<
          */
         limit?: number;
         /**
-<<<<<<< HEAD
-=======
          * Filter by type query param.
          *
          * **Format:** filter.type={$not}:OPERATION:VALUE
@@ -4699,7 +3504,6 @@ export class Api<
          */
         "filter.type"?: string[];
         /**
->>>>>>> upstream/dev
          * Filter by vehicleNumber query param.
          *
          * **Format:** filter.vehicleNumber={$not}:OPERATION:VALUE
@@ -4799,52 +3603,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          data: {
-            id: string;
-            vehicleNumber?: string;
-            rcNumber?: string;
-            chassisNumber?: string;
-            gpsId?: string;
-            properties?: {
-              brand?: string;
-              model?: string;
-              insuranceExpiry?: string;
-            };
-            stationId?: string;
-            station?: {
-              id: string;
-              name?: string;
-              type?: string;
-            };
-            createdAt?: string;
-            updatedAt?: string;
-          }[];
-          meta: {
-            itemsPerPage: number;
-            totalItems: number;
-            currentPage: number;
-            totalPages: number;
-            sortBy: [string, "ASC" | "DESC"][];
-            searchBy: string[];
-            search: string;
-            filter?: object;
-          };
-          links: {
-            first?: string;
-            last?: string;
-            current: string;
-            previous?: string;
-            next?: string;
-          };
-        },
-        any
-      >({
-=======
       this.request<V1VehiclesGetManyVehiclesResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/vehicles`,
         method: "GET",
         query: query,
@@ -4862,50 +3621,10 @@ export class Api<
      * @secure
      */
     v1VehiclesCreateOneVehicle: (
-<<<<<<< HEAD
-      data: {
-        vehicleNumber?: string;
-        rcNumber?: string;
-        chassisNumber?: string;
-        gpsId?: string;
-        properties?: {
-          brand?: string;
-          model?: string;
-          insuranceExpiry?: string;
-        };
-        stationId?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          vehicleNumber?: string;
-          rcNumber?: string;
-          chassisNumber?: string;
-          gpsId?: string;
-          properties?: {
-            brand?: string;
-            model?: string;
-            insuranceExpiry?: string;
-          };
-          stationId?: string;
-          station?: {
-            id: string;
-            name?: string;
-            type?: string;
-          };
-          createdAt?: string;
-          updatedAt?: string;
-        },
-        any
-      >({
-=======
       data: V1VehiclesCreateOneVehicleBody,
       params: RequestParams = {},
     ) =>
       this.request<V1VehiclesCreateOneVehicleResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/vehicles`,
         method: "POST",
         body: data,
@@ -4924,33 +3643,7 @@ export class Api<
      * @secure
      */
     v1VehiclesGetOneVehicle: (id: string, params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          id: string;
-          vehicleNumber?: string;
-          rcNumber?: string;
-          chassisNumber?: string;
-          gpsId?: string;
-          properties?: {
-            brand?: string;
-            model?: string;
-            insuranceExpiry?: string;
-          };
-          stationId?: string;
-          station?: {
-            id: string;
-            name?: string;
-            type?: string;
-          };
-          createdAt?: string;
-          updatedAt?: string;
-        },
-        any
-      >({
-=======
       this.request<V1VehiclesGetOneVehicleResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/vehicles/${id}`,
         method: "GET",
         secure: true,
@@ -4968,50 +3661,10 @@ export class Api<
      */
     v1VehiclesUpdateOneVehicle: (
       id: string,
-<<<<<<< HEAD
-      data: {
-        vehicleNumber?: string;
-        rcNumber?: string;
-        chassisNumber?: string;
-        gpsId?: string;
-        properties?: {
-          brand?: string;
-          model?: string;
-          insuranceExpiry?: string;
-        };
-        stationId?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          vehicleNumber?: string;
-          rcNumber?: string;
-          chassisNumber?: string;
-          gpsId?: string;
-          properties?: {
-            brand?: string;
-            model?: string;
-            insuranceExpiry?: string;
-          };
-          stationId?: string;
-          station?: {
-            id: string;
-            name?: string;
-            type?: string;
-          };
-          createdAt?: string;
-          updatedAt?: string;
-        },
-        any
-      >({
-=======
       data: V1VehiclesUpdateOneVehicleBody,
       params: RequestParams = {},
     ) =>
       this.request<V1VehiclesUpdateOneVehicleResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/vehicles/${id}`,
         method: "PATCH",
         body: data,
@@ -5060,15 +3713,6 @@ export class Api<
          */
         limit?: number;
         /**
-<<<<<<< HEAD
-         * Filter by batteryId query param.
-         *
-         * **Format:** filter.batteryId={$not}:OPERATION:VALUE
-         *
-         *
-         *
-         * **Example:** filter.batteryId=$ilike:John Doe
-=======
          * Filter by batteryQrId query param.
          *
          * **Format:** filter.batteryQrId={$not}:OPERATION:VALUE
@@ -5076,7 +3720,6 @@ export class Api<
          *
          *
          * **Example:** filter.batteryQrId=$ilike:John Doe
->>>>>>> upstream/dev
          *
          * **Available Operations**
          * - $ilike
@@ -5085,11 +3728,7 @@ export class Api<
          *
          * - $or
          */
-<<<<<<< HEAD
-        "filter.batteryId"?: string[];
-=======
         "filter.batteryQrId"?: string[];
->>>>>>> upstream/dev
         /**
          * Filter by gpsId query param.
          *
@@ -5148,11 +3787,7 @@ export class Api<
          * **Format:** {fieldName}:{DIRECTION}
          *
          *
-<<<<<<< HEAD
-         * **Example:** sortBy=id:DESC&sortBy=batteryId:DESC
-=======
          * **Example:** sortBy=id:DESC&sortBy=batteryQrId:DESC
->>>>>>> upstream/dev
          *
          *
          * **Default Value:** createdAt:DESC
@@ -5160,79 +3795,22 @@ export class Api<
          * **Available Fields**
          * - id
          *
-<<<<<<< HEAD
-         * - batteryId
-=======
          * - batteryQrId
->>>>>>> upstream/dev
          *
          * - createdAt
          */
         sortBy?: (
           | "id:ASC"
           | "id:DESC"
-<<<<<<< HEAD
-          | "batteryId:ASC"
-          | "batteryId:DESC"
-=======
           | "batteryQrId:ASC"
           | "batteryQrId:DESC"
->>>>>>> upstream/dev
           | "createdAt:ASC"
           | "createdAt:DESC"
         )[];
       },
       params: RequestParams = {},
     ) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          data: {
-            id: string;
-            batteryId: string;
-            gpsId?: string;
-            properties?: {
-              mfgDate?: string;
-              capacity?: string;
-              range?: string;
-              lifecycle?: string;
-              chargingTime?: string;
-              weight?: string;
-              warranty?: string;
-              removableOption?: boolean;
-            };
-            stationId?: string;
-            station?: {
-              id: string;
-              name?: string;
-              type?: string;
-            };
-            createdAt?: string;
-            updatedAt?: string;
-          }[];
-          meta: {
-            itemsPerPage: number;
-            totalItems: number;
-            currentPage: number;
-            totalPages: number;
-            sortBy: [string, "ASC" | "DESC"][];
-            searchBy: string[];
-            search: string;
-            filter?: object;
-          };
-          links: {
-            first?: string;
-            last?: string;
-            current: string;
-            previous?: string;
-            next?: string;
-          };
-        },
-        any
-      >({
-=======
       this.request<V1BatteriesGetManyBatteriesResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/batteries`,
         method: "GET",
         query: query,
@@ -5250,56 +3828,10 @@ export class Api<
      * @secure
      */
     v1BatteriesCreateOneBattery: (
-<<<<<<< HEAD
-      data: {
-        batteryId: string;
-        gpsId?: string;
-        properties?: {
-          mfgDate?: string;
-          capacity?: string;
-          range?: string;
-          lifecycle?: string;
-          chargingTime?: string;
-          weight?: string;
-          warranty?: string;
-          removableOption?: boolean;
-        };
-        stationId?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          batteryId: string;
-          gpsId?: string;
-          properties?: {
-            mfgDate?: string;
-            capacity?: string;
-            range?: string;
-            lifecycle?: string;
-            chargingTime?: string;
-            weight?: string;
-            warranty?: string;
-            removableOption?: boolean;
-          };
-          stationId?: string;
-          station?: {
-            id: string;
-            name?: string;
-            type?: string;
-          };
-          createdAt?: string;
-          updatedAt?: string;
-        },
-        any
-      >({
-=======
       data: V1BatteriesCreateOneBatteryBody,
       params: RequestParams = {},
     ) =>
       this.request<V1BatteriesCreateOneBatteryResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/batteries`,
         method: "POST",
         body: data,
@@ -5318,36 +3850,7 @@ export class Api<
      * @secure
      */
     v1BatteriesGetOneBattery: (id: string, params: RequestParams = {}) =>
-<<<<<<< HEAD
-      this.request<
-        {
-          id: string;
-          batteryId: string;
-          gpsId?: string;
-          properties?: {
-            mfgDate?: string;
-            capacity?: string;
-            range?: string;
-            lifecycle?: string;
-            chargingTime?: string;
-            weight?: string;
-            warranty?: string;
-            removableOption?: boolean;
-          };
-          stationId?: string;
-          station?: {
-            id: string;
-            name?: string;
-            type?: string;
-          };
-          createdAt?: string;
-          updatedAt?: string;
-        },
-        any
-      >({
-=======
       this.request<V1BatteriesGetOneBatteryResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/batteries/${id}`,
         method: "GET",
         secure: true,
@@ -5365,56 +3868,10 @@ export class Api<
      */
     v1BatteriesUpdateOneBattery: (
       id: string,
-<<<<<<< HEAD
-      data: {
-        batteryId?: string;
-        gpsId?: string;
-        properties?: {
-          mfgDate?: string;
-          capacity?: string;
-          range?: string;
-          lifecycle?: string;
-          chargingTime?: string;
-          weight?: string;
-          warranty?: string;
-          removableOption?: boolean;
-        };
-        stationId?: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<
-        {
-          id: string;
-          batteryId: string;
-          gpsId?: string;
-          properties?: {
-            mfgDate?: string;
-            capacity?: string;
-            range?: string;
-            lifecycle?: string;
-            chargingTime?: string;
-            weight?: string;
-            warranty?: string;
-            removableOption?: boolean;
-          };
-          stationId?: string;
-          station?: {
-            id: string;
-            name?: string;
-            type?: string;
-          };
-          createdAt?: string;
-          updatedAt?: string;
-        },
-        any
-      >({
-=======
       data: V1BatteriesUpdateOneBatteryBody,
       params: RequestParams = {},
     ) =>
       this.request<V1BatteriesUpdateOneBatteryResponse, any>({
->>>>>>> upstream/dev
         path: `/v1/batteries/${id}`,
         method: "PATCH",
         body: data,
@@ -5423,8 +3880,6 @@ export class Api<
         format: "json",
         ...params,
       }),
-<<<<<<< HEAD
-=======
 
     /**
      * No description
@@ -5901,6 +4356,5 @@ export class Api<
         format: "json",
         ...params,
       }),
->>>>>>> upstream/dev
   };
 }

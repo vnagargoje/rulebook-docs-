@@ -15,7 +15,11 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { type Static } from '@sinclair/typebox';
-import { ApplyTopUpCommand, PurchasePlanCommand } from '@yugo/cqrs';
+import {
+    ApplyTopUpCommand,
+    PurchasePlanCommand,
+    VerifyPaymentCommand,
+} from '@yugo/cqrs';
 import { GetUserPlanByQrQuery } from '@yugo/cqrs';
 import { UserPlanEntity } from '@yugo/nestjs-database/entities';
 import {
@@ -26,8 +30,16 @@ import {
     type PaginateQuery,
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
-import { ApplyTopUpPayload, PurchasePlanPayload } from '../../dtos/payloads';
-import { UserPlanQrScanResponse, UserPlanResponse } from '../../dtos/responses';
+import {
+    ApplyTopUpPayload,
+    PurchasePlanPayload,
+    VerifyPaymentPayload,
+} from '../../dtos/payloads';
+import {
+    PurchasePlanOrderResponse,
+    UserPlanQrScanResponse,
+    UserPlanResponse,
+} from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<UserPlanEntity> = {
     sortableColumns: ['id', 'status', 'createdAt'],
@@ -78,7 +90,7 @@ export class V1UserPlansController {
     }
 
     @ApiBody({ schema: PurchasePlanPayload })
-    @ApiResource(UserPlanResponse)
+    @ApiResource(PurchasePlanOrderResponse)
     @Post('purchase')
     async purchasePlan(
         @Body() body: Static<typeof PurchasePlanPayload>,
@@ -86,6 +98,23 @@ export class V1UserPlansController {
     ) {
         return this.commandBus.execute(
             new PurchasePlanCommand(user.id, body.planId),
+        );
+    }
+
+    @ApiBody({ schema: VerifyPaymentPayload })
+    @ApiResource(UserPlanResponse)
+    @Post('verify-payment')
+    async verifyPayment(
+        @Body() body: Static<typeof VerifyPaymentPayload>,
+        @AuthenticatedUser() user: ContextUserType,
+    ) {
+        return this.commandBus.execute(
+            new VerifyPaymentCommand(
+                user.id,
+                body.razorpayOrderId,
+                body.razorpayPaymentId,
+                body.razorpaySignature,
+            ),
         );
     }
 

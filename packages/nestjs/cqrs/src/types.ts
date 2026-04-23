@@ -4,3 +4,9 @@ export interface DeepvueConfig {
     apiKey: string;
     baseUrl: string;
 }
+
+export interface RazorpayConfig {
+    apiKey: string;
+    apiSecret: string;
+    webhookSecret: string;
+}

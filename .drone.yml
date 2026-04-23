@@ -21,14 +21,20 @@ steps:
   - name: build-api
     commands:
       - "docker buildx build --platform linux/amd64 -f Dockerfile.api . -t registry.digitalocean.com/yugo-builds/api:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/api:latest"
+    depends_on:
+      - login
 
   - name: build-henchmen
     commands:
       - "docker buildx build --platform linux/amd64 -f Dockerfile.henchmen . -t registry.digitalocean.com/yugo-builds/henchman:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/henchman:latest"
+    depends_on:
+      - build-api
 
   - name: build-backoffice
     commands:
       - "docker buildx build --platform linux/amd64 -f apps/backoffice/Dockerfile . -t registry.digitalocean.com/yugo-builds/backoffice:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/backoffice:latest"
+    depends_on:
+      - build-henchmen
 
   - name: push-api
     commands:

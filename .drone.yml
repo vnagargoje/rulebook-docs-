@@ -3,7 +3,7 @@ type: digitalocean
 name: yugo-deploy
 
 token:
-  from_secret: DO_TOKEN
+  from_secret: DOCR_TOKEN
 
 server:
   image: docker-20-04

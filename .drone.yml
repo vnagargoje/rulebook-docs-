@@ -15,14 +15,14 @@ steps:
         from_secret: DOCR_TOKEN
       password:
         from_secret: DOCR_TOKEN
-      repo: registry.digitalocean.com/yugo/api
+      repo: registry.digitalocean.com/yugo-builds/api
       dockerfile: Dockerfile.api
       context: .
       tags:
         - latest
         - ${DRONE_COMMIT_SHA:0:8}
 
-  - name: docker-build-henchmen
+  - name: docker-build-henchman
     image: plugins/docker
     settings:
       registry: registry.digitalocean.com
@@ -30,7 +30,7 @@ steps:
         from_secret: DOCR_TOKEN
       password:
         from_secret: DOCR_TOKEN
-      repo: registry.digitalocean.com/yugo/henchmen
+      repo: registry.digitalocean.com/yugo-builds/henchman
       dockerfile: Dockerfile.henchmen
       context: .
       tags:
@@ -45,7 +45,7 @@ steps:
         from_secret: DOCR_TOKEN
       password:
         from_secret: DOCR_TOKEN
-      repo: registry.digitalocean.com/yugo/backoffice
+      repo: registry.digitalocean.com/yugo-builds/backoffice
       dockerfile: apps/backoffice/Dockerfile
       context: .
       tags:
@@ -71,5 +71,5 @@ steps:
         from_secret: DOCR_TOKEN
     depends_on:
       - docker-build-api
-      - docker-build-henchmen
+      - docker-build-henchman
       - docker-build-backoffice

@@ -8,6 +8,7 @@ volumes:
 services:
   watchtower:
     image: containrrr/watchtower
+    container_name: watchtower
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -21,28 +22,41 @@ services:
       - yugo_net
 
   traefik:
-    image: traefik:v3.0
+    image: traefik:v3.3
+    container_name: traefik
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik_certs:/letsencrypt
     command:
+      - --log.level=DEBUG
+      - --accesslog
       - --api.dashboard=true
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.forwardedHeaders.insecure
       - --certificatesresolvers.le.acme.httpchallenge=true
       - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
-      - --certificatesresolvers.le.acme.email=tech@yugoev.com
+      - --certificatesresolvers.le.acme.email=tech@foamingo.com
       - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
     labels:
       - traefik.enable=true
-      - traefik.http.routers.traefik.rule=Host(`traefik.yugoev.com`)
+      - traefik.http.routers.traefik.rule=Host(`traefik.foamingo.com`)
       - traefik.http.routers.traefik.entrypoints=websecure
+      - traefik.http.routers.traefik.tls=true
       - traefik.http.routers.traefik.tls.certresolver=le
       - traefik.http.routers.traefik.service=api@internal
       - traefik.http.routers.traefik.middlewares=traefik-auth
@@ -51,40 +65,41 @@ services:
       - yugo_net
 
   api:
-    image: registry.digitalocean.com/yugo/api:${API_TAG:-latest}
+    image: registry.digitalocean.com/yugo-builds/api:${API_TAG:-latest}
+    container_name: api
     restart: always
-    env_file: .env.api
+    env_file: envs/.env.api
     networks:
       - yugo_net
     labels:
       - traefik.enable=true
-      - traefik.http.routers.api.rule=Host(`api.yugoev.com`)
+      - traefik.http.routers.api.rule=Host(`api.foamingo.com`)
       - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls=true
       - traefik.http.routers.api.tls.certresolver=le
       - traefik.http.services.api.loadbalancer.server.port=4500
 
-  henchmen:
-    image: registry.digitalocean.com/yugo/henchmen:${HENCHMEN_TAG:-latest}
+  henchman:
+    image: registry.digitalocean.com/yugo-builds/henchman:${HENCHMAN_TAG:-latest}
+    container_name: henchman
     restart: always
-    env_file: .env.henchmen
+    env_file: envs/.env.henchman
     networks:
       - yugo_net
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.henchmen.rule=Host(`henchmen.yugoev.com`)
-      - traefik.http.routers.henchmen.entrypoints=websecure
-      - traefik.http.routers.henchmen.tls.certresolver=le
-      - traefik.http.services.henchmen.loadbalancer.server.port=4502
+      - "com.centurylinklabs.watchtower.enable=true"
 
   backoffice:
-    image: registry.digitalocean.com/yugo/backoffice:${BACKOFFICE_TAG:-latest}
+    image: registry.digitalocean.com/yugo-builds/backoffice:${BACKOFFICE_TAG:-latest}
+    container_name: backoffice
     restart: always
-    env_file: .env.backoffice
+    env_file: envs/.env.backoffice
     networks:
       - yugo_net
     labels:
       - traefik.enable=true
-      - traefik.http.routers.backoffice.rule=Host(`admin.yugoev.com`)
+      - traefik.http.routers.backoffice.rule=Host(`admin.foamingo.com`)
       - traefik.http.routers.backoffice.entrypoints=websecure
+      - traefik.http.routers.backoffice.tls=true
       - traefik.http.routers.backoffice.tls.certresolver=le
       - traefik.http.services.backoffice.loadbalancer.server.port=3000

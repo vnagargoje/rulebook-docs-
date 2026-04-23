@@ -71,7 +71,7 @@ steps:
       - docker-build-backoffice
 
 trigger:
-    event:
-      - push
-    branch:
-      - dev
+  event:
+    - push
+  branch:
+    - dev

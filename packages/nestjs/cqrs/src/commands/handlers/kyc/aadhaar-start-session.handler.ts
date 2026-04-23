@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
+import { DeepvueConfig } from 'src/types/index.js'
 import xior from 'xior'
-import { DeepvueConfig } from '../../../types.js'
 import { AadhaarStartSessionCommand } from '../../impl/kyc/aadhaar-start-session.command.js'
 
 @CommandHandler(AadhaarStartSessionCommand)

@@ -3,9 +3,9 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { UserKycEntity } from '@yugo/nestjs-database/entities'
 import { KycDocumentType, KycStatus } from '@yugo/shared'
+import { DeepvueConfig } from 'src/types/index.js'
 import { DataSource } from 'typeorm'
 import xior from 'xior'
-import { DeepvueConfig } from '../../../types.js'
 import { AadhaarGenerateOtpCommand } from '../../impl/kyc/aadhaar-generate-otp.command.js'
 
 @CommandHandler(AadhaarGenerateOtpCommand)

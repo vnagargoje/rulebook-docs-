@@ -14,7 +14,7 @@ export default function CustomerProfileScreen() {
 
     const handleLoginPress = useCallback(() => {
         router.push({
-            pathname: '/login',
+            pathname: '/auth/sign-in',
             params: {
                 redirect: '/customer/profile',
             },

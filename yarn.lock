@@ -10039,6 +10039,7 @@ __metadata:
     jest: "npm:^29.7.0"
     jest-expo: "npm:~54.0.16"
     jest-junit: "npm:^16.0.0"
+    jwt-decode: "npm:^4.0.0"
     lint-staged: "npm:^16.2.7"
     lodash.memoize: "npm:^4.1.2"
     moti: "npm:^0.30.0"
@@ -10055,6 +10056,7 @@ __metadata:
     react-native-keyboard-controller: "npm:^1.18.5"
     react-native-mmkv: "npm:~4.1.1"
     react-native-nitro-modules: "npm:^0.33.2"
+    react-native-otp-entry: "npm:^1.8.5"
     react-native-reanimated: "npm:~4.1.6"
     react-native-restart: "npm:0.0.27"
     react-native-safe-area-context: "npm:5.6.2"
@@ -18613,6 +18615,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jwt-decode@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "jwt-decode@npm:4.0.0"
+  checksum: 10c0/de75bbf89220746c388cf6a7b71e56080437b77d2edb29bae1c2155048b02c6b8c59a3e5e8d6ccdfd54f0b8bda25226e491a4f1b55ac5f8da04cfbadec4e546c
+  languageName: node
+  linkType: hard
+
 "keyv@npm:^4.5.4":
   version: 4.5.4
   resolution: "keyv@npm:4.5.4"
@@ -23144,6 +23153,16 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10c0/1784fb51abbca6f82d792134055352c42a3bafb3450fc326b04f3cea092126ab1c9ebf152fc0ca43130c46f1537996b06ff33e644a576b03eb97f4413f5c76c3
+  languageName: node
+  linkType: hard
+
+"react-native-otp-entry@npm:^1.8.5":
+  version: 1.8.5
+  resolution: "react-native-otp-entry@npm:1.8.5"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/706f69a72eb0e1e9caa3b64330bc029b563616d4a5592a9573011638dfc8aee28f9455b53ea1bbaf27070ef1f7aeda474db4cf4753e4a3ef803797d88da9d57a
   languageName: node
   linkType: hard
 

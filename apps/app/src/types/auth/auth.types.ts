@@ -1,4 +1,19 @@
-import type { ReactNode } from 'react'
+export type UserRole = 'customer' | 'swap_manager' | 'hub_manager'
+
+export type JwtPayload = {
+    id?: string
+    email?: string
+    mobileNumber?: string
+    roles?: string[]
+    exp?: number
+    sub?: string
+}
+
+export type AuthenticationResult = {
+    authenticated: boolean
+    role?: UserRole
+    userId?: string
+}
 
 export type AuthToken = {
     access: string
@@ -46,13 +61,6 @@ export type VerifyOtpPayload = {
 export type VerifyOtpVariables = {
     phoneNumber: string
     otp: string
-}
-
-export type AuthScreenShellProps = {
-    eyebrow: string
-    title: string
-    description: string
-    children: ReactNode
 }
 
 export type RefreshTokenResponse = {

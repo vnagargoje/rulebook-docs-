@@ -1,8 +1,14 @@
 import { SectionHeading } from '@/components/section-heading'
 import { swapManagerContent, swapManagerMetrics } from '@/data/swap-manager/swap-manager.data'
-import { FocusAwareStatusBar, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
+import { Button, FocusAwareStatusBar, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
+import { useAuthStore } from '@/stores/auth.store'
+import { useCallback } from 'react'
 
 export default function SwapManagerScreen() {
+        const signOut = useAuthStore.use.signOut()
+        const handleSignOut = useCallback(() => {
+            signOut()
+        }, [signOut])
     return (
         <>
             <FocusAwareStatusBar />
@@ -36,6 +42,12 @@ export default function SwapManagerScreen() {
                                 </View>
                             ))}
                         </View>
+                        <Button
+                            label="Sign Out"
+                            onPress={handleSignOut}
+                            className='h-12 rounded-xl bg-neutral-900'
+                            textClassName='text-base font-semibold text-white'
+                        />
                     </View>
                 </ScrollView>
             </SafeAreaView>

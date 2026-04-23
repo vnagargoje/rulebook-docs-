@@ -10302,6 +10302,7 @@ __metadata:
   resolution: "@yugo/permissions@workspace:packages/shared/permissions"
   dependencies:
     "@casl/ability": "npm:^6.7.3"
+    "@yugo/shared": "workspace:*"
     "@yugo/tsconfig": "workspace:*"
     del-cli: "npm:^7.0.0"
     tsup: "npm:^8.0.0"

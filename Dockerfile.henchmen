@@ -8,11 +8,7 @@ COPY packages ./packages
 COPY apps ./apps
 
 RUN yarn install --immutable
-RUN yarn workspace @yugo/shared build
-RUN yarn workspace @yugo/utils build
-RUN yarn workspace @yugo/nestjs-database build
-RUN yarn workspace @yugo/nestjs-framework build
-RUN yarn workspace @yugo/henchmen build
+RUN yarn turbo run build --filter=@yugo/henchmen
 
 FROM base AS deps
 WORKDIR /app

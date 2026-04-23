@@ -8,9 +8,7 @@ COPY packages ./packages
 COPY apps ./apps
 
 RUN yarn install --immutable
-RUN yarn workspace @yugo/shared build
-RUN yarn workspace @yugo/utils build
-RUN yarn workspace @yugo/backoffice build
+RUN yarn turbo run build --filter=@yugo/backoffice
 
 FROM base AS deps
 WORKDIR /app

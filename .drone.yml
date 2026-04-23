@@ -51,33 +51,33 @@ steps:
     depends_on:
       - build-backoffice
 
-#   - name: send_failure
-#     environment:
-#         webhook:
-#             from_secret: WEBHOOK
-#     commands:
-#       - |
-#         curl -i -X POST -H 'Content-Type: application/json' -d "{\"text\": \"❌ YUGO BACKEND build failed: ${DRONE_COMMIT_SHA:0:10} on ${DRONE_COMMIT_BRANCH}\\n${DRONE_COMMIT_LINK}\"}" $webhook
-#     when:
-#         status: failure
-#     depends_on:
-#       - push-api
-#       - push-henchmen
-#       - push-backoffice
-# 
-#   - name: send_success
-#     environment:
-#         webhook:
-#             from_secret: WEBHOOK
-#     commands:
-#       - |
-#         curl -i -X POST -H 'Content-Type: application/json' -d "{\"text\": \"✅ YUGO BACKEND build succeeded: ${DRONE_COMMIT_SHA:0:10} on ${DRONE_COMMIT_BRANCH}\\n${DRONE_COMMIT_LINK}\"}" $webhook
-#     when:
-#         status: success
-#     depends_on:
-#       - push-api
-#       - push-henchmen
-#       - push-backoffice
+  - name: send_failure
+    environment:
+        webhook:
+            from_secret: WEBHOOK
+    commands:
+      - |
+        curl -i -X POST -H 'Content-Type: application/json' -d "{\"text\": \"❌ YUGO BACKEND build failed: ${DRONE_COMMIT_SHA:0:10} on ${DRONE_COMMIT_BRANCH}\\n${DRONE_COMMIT_LINK}\"}" $webhook
+    when:
+        status: failure
+    depends_on:
+      - push-api
+      - push-henchmen
+      - push-backoffice
+
+  - name: send_success
+    environment:
+        webhook:
+            from_secret: WEBHOOK
+    commands:
+      - |
+        curl -i -X POST -H 'Content-Type: application/json' -d "{\"text\": \"✅ YUGO BACKEND build succeeded: ${DRONE_COMMIT_SHA:0:10} on ${DRONE_COMMIT_BRANCH}\\n${DRONE_COMMIT_LINK}\"}" $webhook
+    when:
+        status: success
+    depends_on:
+      - push-api
+      - push-henchmen
+      - push-backoffice
 
 trigger:
     event:

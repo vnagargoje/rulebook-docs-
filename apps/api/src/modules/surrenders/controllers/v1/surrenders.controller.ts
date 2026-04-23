@@ -13,19 +13,40 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { type Static } from '@sinclair/typebox';
 import {
     GetVehicleSurrenderDetailsQuery,
     SurrenderVehicleCommand,
 } from '@yugo/cqrs';
 import { AccessService, Actions } from '@yugo/nestjs-casl';
+import { VehicleSurrenderEntity } from '@yugo/nestjs-database/entities';
 import { VehicleSurrenderSubject } from '@yugo/permissions';
 import { type Request } from 'express';
+import {
+    FilterOperator,
+    Paginate,
+    paginate,
+    PaginateConfig,
+    type PaginateQuery,
+} from 'nestjs-paginate';
+import { DataSource } from 'typeorm';
 import { SurrenderVehiclePayload } from '../../dtos/payloads';
 import {
     SurrenderVehicleResponse,
     VehicleSurrenderDetailsResponse,
 } from '../../dtos/responses';
+
+const PAGINATE_CONFIG: PaginateConfig<VehicleSurrenderEntity> = {
+    sortableColumns: ['createdAt'],
+    defaultLimit: 50,
+    defaultSortBy: [['createdAt', 'DESC']],
+    filterableColumns: {
+        vehicleId: [FilterOperator.EQ],
+        bookingId: [FilterOperator.EQ],
+    },
+    relations: ['booking', 'vehicle'],
+};
 
 @ApiTags('vehicle-surrender')
 @ApiBearerAuth()
@@ -33,10 +54,35 @@ import {
 @Controller({ path: 'vehicle-surrender', version: '1' })
 export class V1VehicleSurrenderController {
     constructor(
+        @InjectDataSource() private readonly datasource: DataSource,
+        @Inject(AccessService) private readonly accessService: AccessService,
         private readonly queryBus: QueryBus,
         private readonly commandBus: CommandBus,
-        @Inject(AccessService) private readonly accessService: AccessService,
     ) {}
+
+    @ApiResource(VehicleSurrenderDetailsResponse)
+    @Get()
+    async getAllSurrenders(
+        @Paginate() query: PaginateQuery,
+        @Req() req: Request,
+    ) {
+        if (
+            !this.accessService.hasAbility(
+                req.user,
+                Actions.manage,
+                new VehicleSurrenderSubject(),
+            )
+        ) {
+            throw new ForbiddenException(
+                'You are not allowed to perform this action',
+            );
+        }
+        const qb = this.datasource.manager.createQueryBuilder(
+            VehicleSurrenderEntity,
+            'surrender',
+        );
+        return paginate(query, qb, PAGINATE_CONFIG);
+    }
 
     @ApiResource(VehicleSurrenderDetailsResponse)
     @Get(':vehicleNumber')

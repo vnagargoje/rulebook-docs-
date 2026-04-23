@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { pascalCase, snakeCase } from 'change-case';
+import { extractInlineSchemas } from './extract-openapi-schemas.js';
 
 export const setupSwagger = async (app: INestApplication) => {
     const env = process.env;
@@ -18,11 +19,13 @@ export const setupSwagger = async (app: INestApplication) => {
 
     const options = builder.build();
 
-    const document = SwaggerModule.createDocument(app, options, {
-        operationIdFactory: (controllerKey, methodKey) => {
-            return `${snakeCase(controllerKey.replace('Controller', ''))}${pascalCase(methodKey)}`;
-        },
-    });
+    const document = extractInlineSchemas(
+        SwaggerModule.createDocument(app, options, {
+            operationIdFactory: (controllerKey, methodKey) => {
+                return `${snakeCase(controllerKey.replace('Controller', ''))}${pascalCase(methodKey)}`;
+            },
+        }),
+    );
     SwaggerModule.setup('openapi', app, document, {
         jsonDocumentUrl: 'openapi.json',
         yamlDocumentUrl: 'openapi.yaml',

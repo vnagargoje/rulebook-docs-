@@ -2,7 +2,7 @@
 /// <reference types="uniwind/types" />
 
 declare module 'uniwind' {
-    export type UniwindConfig = {
+    export interface UniwindConfig {
         themes: readonly ['light', 'dark']
     }
 }

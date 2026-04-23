@@ -3,7 +3,7 @@ RUN corepack enable
 
 FROM base AS build
 WORKDIR /app
-COPY package.json yarn.lock .yarnrc.yml ./
+COPY package.json yarn.lock .yarnrc.yml turbo.json ./
 COPY packages ./packages
 COPY apps ./apps
 

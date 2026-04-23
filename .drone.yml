@@ -2,6 +2,14 @@ kind: pipeline
 type: digitalocean
 name: yugo-deploy
 
+token:
+  from_secret: DO_TOKEN
+
+server:
+  image: docker-20-04
+  size: s-2vcpu-4gb
+  region: nyc1
+
 steps:
   - name: docker-build-api
     image: plugins/docker

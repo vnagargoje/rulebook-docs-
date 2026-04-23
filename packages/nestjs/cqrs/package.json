@@ -37,6 +37,7 @@
         "builder-pattern": "^2.2.0",
         "date-fns": "^4.1.0",
         "qrcode": "^1.5.4",
+        "razorpay": "^2.9.6",
         "xior": "^0.8.3"
     }
 }

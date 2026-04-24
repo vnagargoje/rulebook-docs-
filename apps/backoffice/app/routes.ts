@@ -35,6 +35,7 @@ export default [
             index('routes/vehicles/index.tsx'),
             route('create', 'routes/vehicles/create.tsx'),
             route('edit/:id', 'routes/vehicles/edit.tsx'),
+            route(':id', 'routes/vehicles/view.tsx'),
         ]),
 
         ...prefix('bookings', [
@@ -70,6 +71,7 @@ export default [
         ...prefix('surrender', [
             index('routes/surrender/index.tsx'),
             route('create', 'routes/surrender/create.tsx'),
+            route(':bookingId', 'routes/surrender/view.tsx'),
         ]),
     ]),
 ] satisfies RouteConfig

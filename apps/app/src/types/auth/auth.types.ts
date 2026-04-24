@@ -1,3 +1,10 @@
+import type {
+    V1AuthSendOtpBody,
+    V1AuthSendOtpResponse,
+    V1AuthVerifyOtpBody,
+    V1AuthVerifyOtpResponse,
+} from '@/services/api/codegen/Api'
+
 export type UserRole = 'customer' | 'swap_manager' | 'hub_manager'
 
 export type JwtPayload = {
@@ -31,32 +38,19 @@ export type AuthState = {
     hydrate: () => void
 }
 
-export type SendOtpResponse = {
-    mobilenumber: string
-    method: 'sms'
-    otpSent: boolean
-}
+export type SendOtpResponse = V1AuthSendOtpResponse
 
-export type SendOtpPayload = {
-    mobilenumber: string
-}
+export type SendOtpPayload = V1AuthSendOtpBody
 
-export type VerifyOtpResponse = {
-    verified?: boolean
-    accessToken?: string
-    refreshToken?: string
-}
+export type VerifyOtpResponse = V1AuthVerifyOtpResponse
 
-export type VerifiedOtpResponse = {
+export type VerifiedOtpResponse = VerifyOtpResponse & {
     verified: true
     accessToken: string
     refreshToken: string
 }
 
-export type VerifyOtpPayload = {
-    mobilenumber: string
-    otp: string
-}
+export type VerifyOtpPayload = V1AuthVerifyOtpBody
 
 export type VerifyOtpVariables = {
     phoneNumber: string

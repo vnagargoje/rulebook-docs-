@@ -65,4 +65,7 @@ export const {
     v1BatteriesCreateOneBattery,
     v1BatteriesGetOneBattery,
     v1BatteriesUpdateOneBattery,
+    v1VehicleSurrenderGetAllSurrenders,
+    v1VehicleSurrenderGetSurrenderDetails,
+    v1VehicleSurrenderSurrenderVehicle,
 } = api.v1

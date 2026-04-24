@@ -1,75 +1,80 @@
-import { useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
-import { SelectField, TextAreaField, TextInputField } from '~/components/forms/controlled-fields'
+import { TextAreaField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
-import { mockApi } from '~/services/mockApi'
-import { surrenderStatusOptions, type CustomerVehicleAssignment, type User, type Vehicle, type VehicleSurrender } from '~/types/admin'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
+import { formatCurrency } from '~/lib/formatter'
+import { useSurrenderDetails, useSurrenderVehicle } from '~/queries/surrender'
 import { createSurrenderSchema, type CreateSurrenderValues } from '~/schemas'
 
 export default function CreateSurrenderRoute() {
     const navigate = useNavigate()
-    const [vehicles, setVehicles] = useState<Vehicle[]>([])
-    const [users, setUsers] = useState<User[]>([])
-    const [assignments, setAssignments] = useState<CustomerVehicleAssignment[]>([])
-
-    useEffect(() => {
-        void Promise.all([
-            mockApi.listVehicles(),
-            mockApi.listUsers(),
-            mockApi.listCustomerVehicleAssignments()
-        ]).then(([v, u, a]) => {
-            setVehicles(v)
-            setUsers(u)
-            setAssignments(a)
-        })
-    }, [])
+    const surrenderVehicle = useSurrenderVehicle()
 
     const form = useForm({
-        resolver: zodResolver(createSurrenderSchema) as any,
+        resolver: zodResolver(createSurrenderSchema),
         defaultValues: {
-            vehicleId: '',
-            customerId: '',
-            remarks: '',
-            penaltyCharges: 0,
-            depositReturnAmount: 0,
-            status: 'SUBMITTED',
+            vehicleNumber: '',
+            penalty: 0,
+            miscCharges: 0,
+            refundAmount: 0,
+            notes: '',
         },
     })
 
-    // Auto-fetch customer when vehicle is selected
-    useEffect(() => {
-        const subscription = form.watch((value, { name }) => {
-            if (name === 'vehicleId' && value.vehicleId) {
-                const assignment = assignments.find(a => a.vehicleId === value.vehicleId)
-                if (assignment) {
-                    form.setValue('customerId', assignment.customerId)
-                }
-            }
-        })
-        return () => subscription.unsubscribe()
-    }, [form, assignments])
+    const vehicleNumber = form.watch('vehicleNumber')?.trim()
+
+    const detailsQuery = useSurrenderDetails(vehicleNumber, false)
+
+    const fetchSurrenderDetails = useCallback(async () => {
+        if (!vehicleNumber) {
+            toast.error('Enter a vehicle number first')
+            return
+        }
+
+        const result = await detailsQuery.refetch()
+
+        if (result.error) {
+            toast.error('Failed to fetch surrender details')
+            return
+        }
+
+        if (result.data) {
+            form.setValue('penalty', result.data.rtoPenalty ?? 0)
+            form.setValue('refundAmount', result.data.refundAmount ?? 0)
+            toast.success('Surrender details loaded')
+        }
+    }, [detailsQuery, form, vehicleNumber])
 
     const onSubmit = async (values: CreateSurrenderValues) => {
         try {
-            await mockApi.saveSurrender(values as unknown as VehicleSurrender)
+            if (!detailsQuery.data) {
+                toast.error('Fetch surrender details before submitting')
+                return
+            }
+
+            await surrenderVehicle.mutateAsync({
+                vehicleNumber: values.vehicleNumber,
+                data: {
+                    penalty: values.penalty,
+                    miscCharges: values.miscCharges,
+                    refundAmount: values.refundAmount,
+                    notes: values.notes?.trim() || null,
+                },
+            })
             toast.success('Vehicle surrender processed successfully')
             navigate('/surrender')
-        } catch (error) {
+        } catch (_error) {
             toast.error('Failed to process surrender')
         }
     }
-
-    const getVehicleName = (id: string) => vehicles.find((v) => v.id === id)?.registrationNumber || id
-    const vehicleOptions = assignments.map(a => ({ label: getVehicleName(a.vehicleId), value: a.vehicleId }))
-    const customerOptions = users.map(u => ({ label: `${u.name} (${u.email})`, value: u.id }))
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
@@ -86,42 +91,53 @@ export default function CreateSurrenderRoute() {
             <Card className="border-border/40 shadow-sm bg-white overflow-hidden">
                 <CardContent className="p-8">
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
-
-                            <SelectField
-                                control={form.control}
-                                name="vehicleId"
-                                label="Vehicle Returning"
-                                placeholder="Select Assigned Vehicle"
-                                options={vehicleOptions}
-                            />
-
-                            <SelectField
-                                control={form.control}
-                                name="customerId"
-                                label="Customer (Resolved from Vehicle)"
-                                placeholder="Awaiting Vehicle Selection"
-                                options={customerOptions}
-                                disabled
-                            />
-
-                            <TextAreaField control={form.control} name="remarks" label="Remarks / Damage Notes" placeholder="Detail any damages or notable conditions on return." />
-
-                            <div className="grid grid-cols-2 gap-6">
-                                <TextInputField control={form.control} name="penaltyCharges" label="Penalty/Charges (₹)" type="number" />
-                                <TextInputField control={form.control} name="depositReturnAmount" label="Deposit Return (₹)" type="number" />
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                                <TextInputField
+                                    control={form.control}
+                                    name="vehicleNumber"
+                                    label="Vehicle Number"
+                                    placeholder="Enter vehicle number"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={fetchSurrenderDetails}
+                                    disabled={detailsQuery.isFetching}>
+                                    {detailsQuery.isFetching ? 'Fetching...' : 'Fetch Details'}
+                                </Button>
                             </div>
 
-                            <SelectField
-                                control={form.control}
-                                name="status"
-                                label="Closure Status"
-                                options={surrenderStatusOptions.map(t => ({ label: t.replace(/_/g, ' '), value: t }))}
-                            />
+                            {detailsQuery.data ? (
+                                <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
+                                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Surrender Details</div>
+                                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                                        <div className="text-sm"><span className="text-muted-foreground">Customer ID:</span> {detailsQuery.data.customerId}</div>
+                                        <div className="text-sm"><span className="text-muted-foreground">Customer Name:</span> {detailsQuery.data.customerName ?? '—'}</div>
+                                        <div className="text-sm"><span className="text-muted-foreground">Deposit Amount:</span> {formatCurrency(detailsQuery.data.depositAmount)}</div>
+                                        <div className="text-sm"><span className="text-muted-foreground">RTO Penalty:</span> {formatCurrency(detailsQuery.data.rtoPenalty)}</div>
+                                        <div className="text-sm"><span className="text-muted-foreground">Suggested Refund:</span> {formatCurrency(detailsQuery.data.refundAmount)}</div>
+                                    </div>
+                                </div>
+                            ) : null}
+
+                            <div className="grid grid-cols-2 gap-6">
+                                <TextInputField control={form.control} name="penalty" label="Penalty (₹)" type="number" />
+                                <TextInputField control={form.control} name="miscCharges" label="Misc Charges (₹)" type="number" />
+                            </div>
+
+                            <TextInputField control={form.control} name="refundAmount" label="Refund Amount (₹)" type="number" />
+
+                            <TextAreaField control={form.control} name="notes" label="Notes" placeholder="Optional notes for surrender processing." />
 
                             <div className="flex justify-end gap-3 pt-6 border-t mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/surrender')}>Cancel Workflow</Button>
-                                <Button type="submit" className="min-w-[140px] uppercase text-xs font-bold tracking-widest">Process Surrender</Button>
+                                <Button
+                                    type="submit"
+                                    className="min-w-[140px] uppercase text-xs font-bold tracking-widest"
+                                    disabled={surrenderVehicle.isPending || !detailsQuery.data}>
+                                    {surrenderVehicle.isPending ? 'Processing...' : 'Process Surrender'}
+                                </Button>
                             </div>
                         </form>
                     </Form>

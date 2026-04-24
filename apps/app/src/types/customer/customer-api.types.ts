@@ -1,14 +1,8 @@
-export type CustomerProfileResponse = {
-    id: string
-    firstName?: string | null
-    lastName?: string | null
-    email?: string | null
-    mobilenumber?: string | null
-}
+import type {
+    V1UsersGetOneUserResponse,
+    V1UsersPatchOneUserBody,
+} from '@/services/api/codegen/Api'
 
-export type UpdateCustomerProfilePayload = Partial<{
-    firstName: string
-    lastName: string
-    email: string
-    mobilenumber: string
-}>
+export type CustomerProfileResponse = V1UsersGetOneUserResponse
+
+export type UpdateCustomerProfilePayload = V1UsersPatchOneUserBody

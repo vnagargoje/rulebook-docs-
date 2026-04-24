@@ -24,8 +24,10 @@ export default function VerifyOtpPage() {
     const router = useRouter()
     const [otp, setOtp] = useState<string>()
     const otpInputRef = useRef<OtpInputRef>(null)
-    const searchParams = useLocalSearchParams<{ mobilenumber?: string }>()
+    const searchParams = useLocalSearchParams<{ mobilenumber?: string; redirect?: string; planId?: string }>()
     const mobilenumber = String(searchParams.mobilenumber ?? '')
+    const redirect = searchParams.redirect ? String(searchParams.redirect) : ''
+    const planId = searchParams.planId ? String(searchParams.planId) : ''
     const verifyOtp = useVerifyOtp()
     const { refetch } = useIsAuthenticated()
 
@@ -64,11 +66,24 @@ export default function VerifyOtpPage() {
                     }
 
                     await refetch()
+
+                    if (redirect) {
+                        const params = new URLSearchParams()
+
+                        if (planId && redirect === '/customer/confirm-booking') {
+                            params.set('planId', planId)
+                        }
+
+                        const nextRoute = params.toString() ? `${redirect}?${params.toString()}` : redirect
+                        router.replace(nextRoute as any)
+                        return
+                    }
+
                     router.replace('/')
                 },
             },
         )
-    }, [mobilenumber, otp, refetch, router, verifyOtp])
+    }, [mobilenumber, otp, planId, redirect, refetch, router, verifyOtp])
 
     const isDisabled = !otp || otp.length < 4 || verifyOtp.isPending
 

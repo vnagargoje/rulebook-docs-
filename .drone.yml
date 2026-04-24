@@ -36,6 +36,12 @@ steps:
     depends_on:
       - build-henchmen
 
+  - name: build-cli
+    commands:
+      - "docker buildx build --platform linux/amd64 -f apps/cli/Dockerfile . -t registry.digitalocean.com/yugo-builds/cli:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/cli:latest"
+    depends_on:
+      - build-base
+
   - name: push-api
     commands:
       - "docker push registry.digitalocean.com/yugo-builds/api:${DRONE_COMMIT_SHA:0:10}"
@@ -56,12 +62,6 @@ steps:
       - "docker push registry.digitalocean.com/yugo-builds/backoffice:latest"
     depends_on:
       - build-backoffice
-
-  - name: build-cli
-    commands:
-      - "docker buildx build --platform linux/amd64 -f apps/cli/Dockerfile . -t registry.digitalocean.com/yugo-builds/cli:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/cli:latest"
-    depends_on:
-      - build-base
 
   - name: push-cli
     commands:

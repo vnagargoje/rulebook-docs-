@@ -22,11 +22,12 @@ export default function BookingsListRoute() {
         }
 
         if (statusFilter !== 'all') {
-            params['filter.status'] = [statusFilter]
+            params['filter.status'] = [`$eq:${statusFilter}`]
         }
 
         return params
     }, [page, statusFilter])
+    
 
     const { data, isLoading } = useBookings(queryParams)
 
@@ -85,11 +86,12 @@ export default function BookingsListRoute() {
                         field: 'status',
                         label: 'Status',
                         options: [
+                            { label: 'Draft', value: 'draft' },
                             { label: 'Created', value: 'created' },
-                            { label: 'Vehicle Assigned', value: 'vehicle_assigned' },
-                            { label: 'In Progress', value: 'in_progress' },
+                            { label: 'Ongoing', value: 'ongoing' },
                             { label: 'Completed', value: 'completed' },
                             { label: 'Cancelled', value: 'cancelled' },
+                            { label: 'Inactive', value: 'inactive' },
                         ],
                     },
                 ]}

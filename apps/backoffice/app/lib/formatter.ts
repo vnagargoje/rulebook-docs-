@@ -7,12 +7,16 @@ export function formatLabel(value: string) {
         .replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
-export function formatCurrency(value: number) {
+export function formatCurrency(value?: number | null) {
     return new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency: 'INR',
         maximumFractionDigits: 0,
-    }).format(value)
+    }).format(value ?? 0)
+}
+
+export function formatKm(value?: number | null) {
+    return `${Number(value ?? 0).toLocaleString('en-IN')} km`
 }
 
 export function formatDate(value: string) {

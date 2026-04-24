@@ -1,76 +1,64 @@
-networks:
-  yugo_net:
-    driver: bridge
+version: "3.9"
 
-volumes:
-  traefik_certs:
+networks:
+  traefik:
+    external: true
 
 services:
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    command:
+      - "--api.dashboard=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--certificatesresolvers.letsencrypt.acme.email=tech@foamingo.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--accesslog"
+      - "--log.level=DEBUG"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./configs/traefik/acme.json:/etc/traefik/acme.json"
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.foamingo.com`)"
+
   watchtower:
-    image: containrrr/watchtower
+    image: containrrr/watchtower:latest
     container_name: watchtower
-    restart: always
+    restart: unless-stopped
+    environment:
+      - DOCKER_API_VERSION=1.40
+    env_file:
+      - /home/officebot/yugo/envs/.watchtower.env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /home/officebot/.docker/config.json:/config.json
-    environment:
-      WATCHTOWER_MONITOR_ONLY: "true"
-      WATCHTOWER_NOTIFICATIONS: slack
-      WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL: ${SLACK_WEBHOOK_URL}
-      WATCHTOWER_POLL_INTERVAL: 300
+      - /home/officebot/.docker/config.json:/config.json:ro
     networks:
-      - yugo_net
-
-  traefik:
-    image: traefik:v3.3
-    container_name: traefik
-    restart: always
-    ports:
-      - target: 80
-        published: 80
-        protocol: tcp
-        mode: host
-      - target: 443
-        published: 443
-        protocol: tcp
-        mode: host
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik_certs:/letsencrypt
-    command:
-      - --log.level=DEBUG
-      - --accesslog
-      - --api.dashboard=true
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
-      - --entrypoints.web.forwardedHeaders.insecure
-      - --certificatesresolvers.le.acme.httpchallenge=true
-      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
-      - --certificatesresolvers.le.acme.email=tech@foamingo.com
-      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.traefik.rule=Host(`traefik.foamingo.com`)
-      - traefik.http.routers.traefik.entrypoints=websecure
-      - traefik.http.routers.traefik.tls=true
-      - traefik.http.routers.traefik.tls.certresolver=le
-      - traefik.http.routers.traefik.service=api@internal
-      - traefik.http.routers.traefik.middlewares=traefik-auth
-      - traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_AUTH_USER:-admin}:${TRAEFIK_AUTH_HASH}
-    networks:
-      - yugo_net
+      - traefik
 
   api:
-    image: registry.digitalocean.com/yugo-builds/api:${API_TAG:-latest}
+    image: registry.digitalocean.com/yugo-builds/api:latest
     container_name: api
     restart: always
     env_file: envs/.env.api
     networks:
-      - yugo_net
+      - traefik
     labels:
       - traefik.enable=true
       - traefik.http.routers.api.rule=Host(`api.foamingo.com`)
@@ -80,22 +68,22 @@ services:
       - traefik.http.services.api.loadbalancer.server.port=4500
 
   henchman:
-    image: registry.digitalocean.com/yugo-builds/henchman:${HENCHMAN_TAG:-latest}
-    container_name: henchman
+    image: registry.digitalocean.com/yugo-builds/henchman:latest
+    container_name: henchmen
     restart: always
-    env_file: envs/.env.henchman
+    env_file: envs/.env.henchmen
     networks:
-      - yugo_net
+      - traefik
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
   backoffice:
-    image: registry.digitalocean.com/yugo-builds/backoffice:${BACKOFFICE_TAG:-latest}
+    image: registry.digitalocean.com/yugo-builds/backoffice:latest
     container_name: backoffice
     restart: always
     env_file: envs/.env.backoffice
     networks:
-      - yugo_net
+      - traefik
     labels:
       - traefik.enable=true
       - traefik.http.routers.backoffice.rule=Host(`admin.foamingo.com`)

@@ -57,6 +57,19 @@ steps:
     depends_on:
       - build-backoffice
 
+  - name: build-cli
+    commands:
+      - "docker buildx build --platform linux/amd64 -f apps/cli/Dockerfile . -t registry.digitalocean.com/yugo-builds/cli:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/cli:latest"
+    depends_on:
+      - build-base
+
+  - name: push-cli
+    commands:
+      - "docker push registry.digitalocean.com/yugo-builds/cli:${DRONE_COMMIT_SHA:0:10}"
+      - "docker push registry.digitalocean.com/yugo-builds/cli:latest"
+    depends_on:
+      - build-cli
+
   - name: send_failure
     environment:
         webhook:
@@ -70,6 +83,7 @@ steps:
       - push-api
       - push-henchmen
       - push-backoffice
+      - push-cli
 
   - name: send_success
     environment:
@@ -84,6 +98,7 @@ steps:
       - push-api
       - push-henchmen
       - push-backoffice
+      - push-cli
 
 trigger:
     event:

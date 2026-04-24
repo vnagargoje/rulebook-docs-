@@ -6,6 +6,7 @@ WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml turbo.json ./
 COPY packages ./packages
 COPY apps ./apps
+COPY migrations ./migrations
 
 RUN yarn install --immutable
 RUN yarn turbo run build --filter=@yugo/cli
@@ -25,5 +26,6 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/apps/cli/dist ./apps/cli/dist
 COPY --from=build /app/apps/cli/package.json ./apps/cli/package.json
+COPY --from=build /app/migrations ./migrations
 
 CMD ["node", "apps/cli/dist/main.js"]

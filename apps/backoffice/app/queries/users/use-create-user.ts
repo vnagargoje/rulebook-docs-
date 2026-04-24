@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { V1UsersCreateOneUserBody } from '~/services/api/codegen/Api'
 import { v1UsersCreateOneUser } from '~/services/api/sdk'
 import { userKeys } from './keys'
 
-export type CreateUserPayload = Parameters<typeof v1UsersCreateOneUser>[0]
+export type CreateUserPayload = V1UsersCreateOneUserBody
 
 export function useCreateUser() {
     const queryClient = useQueryClient()

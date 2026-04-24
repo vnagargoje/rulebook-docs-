@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
+import type { V1UsersGetOneUserResponse } from '~/services/api/codegen/Api'
 import { v1UsersGetOneUser } from '~/services/api/sdk'
 import { userKeys } from './keys'
-import type { UserItem } from './use-users'
 
-export type UserDetail = UserItem
+export type UserDetail = V1UsersGetOneUserResponse
 
 export function useGetUserById(id: string | undefined) {
     return useQuery({

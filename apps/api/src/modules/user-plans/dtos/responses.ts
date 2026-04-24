@@ -18,6 +18,16 @@ export const UserPlanResponse = Type.Object({
     ),
     createdAt: Type.String(),
     updatedAt: Type.String(),
+    topUps: Type.Optional(
+        Type.Array(
+            Type.Object({
+                id: Type.String(),
+                topUpId: Type.String(),
+                topUpSnapshot: Type.Any(),
+                appliedAt: Type.String(),
+            }),
+        ),
+    ),
 });
 
 export const UserPlanQrScanResponse = Type.Object({

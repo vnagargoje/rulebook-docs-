@@ -22,9 +22,12 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/yarn.lock ./yarn.lock
+COPY --from=build /app/.yarnrc.yml ./.yarnrc.yml
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/apps/backoffice/build ./apps/backoffice/build
 COPY --from=build /app/apps/backoffice/package.json ./apps/backoffice/package.json
 
 EXPOSE 3000
-CMD ["npm", "run", "start", "--workspace", "@yugo/backoffice"]
+CMD ["yarn", "workspace", "@yugo/backoffice", "start"]

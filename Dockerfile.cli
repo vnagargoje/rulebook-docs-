@@ -1,12 +1,29 @@
-FROM node:22-bookworm-slim
+FROM node:22-alpine AS base
+RUN corepack enable
 
-WORKDIR /usr/src/app
+FROM base AS build
+WORKDIR /app
+COPY package.json yarn.lock .yarnrc.yml turbo.json ./
+COPY packages ./packages
+COPY apps ./apps
 
-COPY --from=yugo/builder /usr/src/app /usr/src/app
+RUN yarn install --immutable
+RUN yarn turbo run build --filter=@yugo/cli
 
-RUN corepack enable && corepack prepare yarn@4.3.1 --activate \
-  && yarn workspaces focus --production --all
+FROM base AS deps
+WORKDIR /app
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY packages ./packages
+COPY apps ./apps
+RUN yarn workspaces focus @yugo/cli --production
 
-USER node
+FROM base AS production
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/packages ./packages
+COPY --from=build /app/apps/cli/dist ./apps/cli/dist
+COPY --from=build /app/apps/cli/package.json ./apps/cli/package.json
 
 CMD ["node", "apps/cli/dist/main.js"]

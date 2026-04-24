@@ -38,7 +38,7 @@ steps:
 
   - name: build-cli
     commands:
-      - "docker buildx build --platform linux/amd64 -f apps/cli/Dockerfile . -t registry.digitalocean.com/yugo-builds/cli:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/cli:latest"
+      - "docker buildx build --platform linux/amd64 -f Dockerfile.cli . -t registry.digitalocean.com/yugo-builds/cli:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/cli:latest"
     depends_on:
       - build-backoffice
 

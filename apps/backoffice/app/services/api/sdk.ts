@@ -50,7 +50,7 @@ export const {
     v1TopUpsGetTopUpById,
     v1TopUpsAdminCreateTopUp,
     v1TopUpsAdminUpdateTopUp,
-    v1BookingsGetMyBookings,
+    v1BookingsGetAllBookings,
     v1BookingsGetBookingById,
     v1BookingsAdminAssignVehicle,
     v1StationsGetManyStations,

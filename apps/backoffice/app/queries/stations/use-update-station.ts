@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { V1StationsUpdateOneStationBody } from '~/services/api/codegen/Api'
 import { v1StationsUpdateOneStation } from '~/services/api/sdk'
 import { stationKeys } from './keys'
 
-export type UpdateStationPayload = Parameters<typeof v1StationsUpdateOneStation>[1]
+export type UpdateStationPayload = V1StationsUpdateOneStationBody
 
 export function useUpdateStation() {
     const queryClient = useQueryClient()

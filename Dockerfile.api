@@ -28,4 +28,4 @@ COPY --from=build /app/apps/api/package.json ./apps/api/package.json
 COPY migrations ./migrations
 
 EXPOSE 4500
-CMD ["node", "apps/api/dist/main.js"]
+CMD ["node", "apps/api/dist/src/main.js"]

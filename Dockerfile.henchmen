@@ -28,4 +28,4 @@ COPY --from=build /app/apps/henchmen/package.json ./apps/henchmen/package.json
 COPY migrations ./migrations
 
 EXPOSE 4502
-CMD ["node", "apps/henchmen/dist/main.js"]
+CMD ["node", "apps/henchmen/dist/src/main.js"]

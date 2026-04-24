@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { V1BookingsAdminAssignVehicleBody } from '~/services/api/codegen/Api'
 import { v1BookingsAdminAssignVehicle } from '~/services/api/sdk'
 import { bookingKeys } from './keys'
 
-export type AssignVehiclePayload = Parameters<typeof v1BookingsAdminAssignVehicle>[1]
+export type AssignVehiclePayload = V1BookingsAdminAssignVehicleBody
 
 export function useAssignVehicle() {
     const queryClient = useQueryClient()

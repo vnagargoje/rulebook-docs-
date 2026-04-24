@@ -21,7 +21,7 @@ export default function Index() {
 
     if (!data?.authenticated) {
         void SplashScreen.hideAsync()
-        return <Redirect href='/auth/sign-in' />
+        return <Redirect href='/customer' />
     }
 
     const route = ROLE_ROUTES[data.role ?? 'customer']

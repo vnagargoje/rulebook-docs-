@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit } from '@tabler/icons-react'
+import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -54,9 +54,14 @@ export default function VehiclesListRoute() {
         {
             header: 'Actions',
             cell: (vehicle: VehicleItem) => (
-                <Button variant="ghost" size="icon" onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}>
-                    <IconEdit className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => navigate(`/vehicles/${vehicle.id}`)}>
+                        <IconEye className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}>
+                        <IconEdit className="h-4 w-4" />
+                    </Button>
+                </div>
             ),
         },
     ], [navigate])

@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
+import type { V1PlansGetPlanByIdResponse } from '~/services/api/codegen/Api'
 import { v1PlansGetPlanById } from '~/services/api/sdk'
 import { planKeys } from './keys'
-import type { PlanItem } from './use-plans'
 
-export type PlanDetail = PlanItem
+export type PlanDetail = V1PlansGetPlanByIdResponse
 
 export function useGetPlanById(id: string | undefined) {
     return useQuery({

@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { V1BatteriesCreateOneBatteryBody } from '~/services/api/codegen/Api'
 import { v1BatteriesCreateOneBattery } from '~/services/api/sdk'
 import { batteryKeys } from './keys'
 
-export type CreateBatteryPayload = Parameters<typeof v1BatteriesCreateOneBattery>[0]
+export type CreateBatteryPayload = V1BatteriesCreateOneBatteryBody
 
 export function useCreateBattery() {
     const queryClient = useQueryClient()

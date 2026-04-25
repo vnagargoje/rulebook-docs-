@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 import { hydrateAuth } from '@/stores/auth.store'
 import { useThemeConfig } from '@/components/ui/use-theme-config'
+import { FocusAwareStatusBar } from '@/components/ui'
 
 import { APIProvider } from '@/lib/api'
 import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme'
@@ -70,6 +71,7 @@ function Providers({ children }: { children: React.ReactNode }) {
             <SafeAreaProvider>
                 <KeyboardProvider>
                     <ThemeProvider value={theme}>
+                        <FocusAwareStatusBar />
                         <APIProvider>
                             <BottomSheetModalProvider>
                                 {children}

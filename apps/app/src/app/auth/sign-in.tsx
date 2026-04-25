@@ -12,7 +12,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { assets } from '@/assets'
-import { FocusAwareStatusBar, Paragraph, SubHeading, Text, View } from '@/components/ui'
+import { Paragraph, SubHeading, Text, View } from '@/components/ui'
 import colors from '@/components/ui/colors'
 import { normalizeMobileNumber } from '@/components/auth/auth.utils'
 import { useSendOtp } from '@/queries/auth.query'
@@ -61,7 +61,6 @@ export default function SignInPage() {
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             keyboardVerticalOffset={10}>
-            <FocusAwareStatusBar />
             <SafeAreaView className='flex h-full flex-col items-center justify-center bg-white px-6'>
                 <View className='w-full items-center'>
                     <Image

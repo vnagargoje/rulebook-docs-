@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 import { PriceRow, StatTile } from '@/components/customer/plan-detail'
-import { Button, FocusAwareStatusBar, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
+import { Button, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
 import { formatCurrencyIN, formatKmIN } from '@/lib/formatters/customer'
 import { usePlanById } from '@/queries/customer'
 import { useAuthStore } from '@/stores/auth.store'
@@ -34,7 +34,6 @@ export default function PlanDetailScreen() {
 
     return (
         <>
-            <FocusAwareStatusBar />
             <View className='flex-1 bg-background'>
                 <ScrollView
                     showsVerticalScrollIndicator={false}

@@ -14,7 +14,7 @@ import { OtpInput } from 'react-native-otp-entry'
 import type { OtpInputRef } from 'react-native-otp-entry'
 
 import { assets } from '@/assets'
-import { FocusAwareStatusBar, Paragraph, SubHeading, Text, View } from '@/components/ui'
+import { Paragraph, SubHeading, Text, View } from '@/components/ui'
 import colors from '@/components/ui/colors'
 import { showErrorMessage } from '@/components/ui'
 import { isVerifiedOtpResponse } from '@/components/auth/auth.utils'
@@ -92,7 +92,6 @@ export default function VerifyOtpPage() {
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={10}>
-            <FocusAwareStatusBar />
             <SafeAreaView className='flex h-full bg-white'>
                 <ScrollView
                     contentContainerStyle={{

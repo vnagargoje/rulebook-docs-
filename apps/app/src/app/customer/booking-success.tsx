@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router'
 import { useCallback } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { Button, FocusAwareStatusBar, ScrollView, Text, View } from '@/components/ui'
+import { Button, ScrollView, Text, View } from '@/components/ui'
 
 export default function BookingSuccessScreen() {
     const router = useRouter()
@@ -19,7 +19,6 @@ export default function BookingSuccessScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: insets.top, paddingBottom: insets.bottom }}>
-            <FocusAwareStatusBar />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 20, paddingVertical: 32 }}
                 showsVerticalScrollIndicator={false}

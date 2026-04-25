@@ -33,6 +33,10 @@ export type AuthStatus = 'idle' | 'signOut' | 'signIn'
 export type AuthState = {
     token: AuthToken | null
     status: AuthStatus
+    user: {
+        id: string | null
+        role: UserRole | null
+    }
     signIn: (token: AuthToken) => void
     signOut: () => void
     hydrate: () => void

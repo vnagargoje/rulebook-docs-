@@ -66,6 +66,7 @@ export default [
             route('create', 'routes/batteries/create.tsx'),
             route('edit/:id', 'routes/batteries/edit.tsx'),
             route('assign', 'routes/batteries/assign.tsx'),
+            route(':id', 'routes/batteries/view.tsx'),
         ]),
 
         ...prefix('surrender', [

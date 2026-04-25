@@ -4,6 +4,7 @@ import { toast } from 'sonner-native'
 
 import { Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 import { useAuthStore } from '@/stores/auth.store'
+import { StationDetailsSection } from '@/components/swap-manager/profile/station-info'
 
 export default function SwapManagerProfileScreen() {
     const token = useAuthStore.use.token()
@@ -95,6 +96,8 @@ export default function SwapManagerProfileScreen() {
                             </View>
                         </View>
                     </View>
+
+                    <StationDetailsSection />
 
                     <View className='rounded-3xl border border-neutral-200 bg-white p-4'>
                         <Text className='px-1 text-xs font-bold uppercase tracking-[1.2px] text-neutral-400'>

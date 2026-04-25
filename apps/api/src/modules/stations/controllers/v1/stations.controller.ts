@@ -16,8 +16,11 @@ import {
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
+import { type Static } from '@sinclair/typebox';
+import { CreateStationCommand, UpdateStationCommand } from '@yugo/cqrs';
 import { AccessService, Actions } from '@yugo/nestjs-casl';
 import { StationEntity } from '@yugo/nestjs-database/entities';
+import { StationSubject } from '@yugo/permissions';
 import { type Request } from 'express';
 import {
     FilterOperator,
@@ -27,11 +30,8 @@ import {
     type PaginateQuery,
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
-import { StationResponse } from '../../dtos/responses';
 import { CreateStationPayload } from '../../dtos/payloads';
-import { type Static } from '@sinclair/typebox';
-import { StationSubject } from '@yugo/permissions';
-import { CreateStationCommand, UpdateStationCommand } from '@yugo/cqrs';
+import { StationResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<StationEntity> = {
     sortableColumns: ['id', 'name', 'createdAt'],

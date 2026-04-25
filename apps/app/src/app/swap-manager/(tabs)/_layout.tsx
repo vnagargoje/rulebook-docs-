@@ -82,6 +82,20 @@ export default function () {
                 }}
             />
             <Tabs.Screen
+                name='inventory'
+                options={{
+                    title: 'Inventory',
+                    tabBarIcon: ({ color }) => (
+                        <MaterialCommunityIcons
+                            name='battery-sync-outline'
+                            size={22}
+                            color={color}
+                        />
+                    ),
+                    tabBarButtonTestID: 'swap-manager-inventory-tab',
+                }}
+            />
+            <Tabs.Screen
                 name='profile'
                 options={{
                     title: 'Profile',

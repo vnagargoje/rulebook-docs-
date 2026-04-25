@@ -1,7 +1,8 @@
+import { colors } from '@/components/ui'
+import Entypo from '@expo/vector-icons/Entypo'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { SplashScreen, Tabs } from 'expo-router'
 import { useCallback, useEffect } from 'react'
-import { colors } from '@/components/ui'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function () {
@@ -42,9 +43,27 @@ export default function () {
                 options={{
                     title: 'Home',
                     tabBarIcon: ({ color }) => (
-                        <MaterialCommunityIcons name='home-outline' size={22} color={color} />
+                        <MaterialCommunityIcons
+                            name='home-outline'
+                            size={22}
+                            color={color}
+                        />
                     ),
                     tabBarButtonTestID: 'customer-home-tab',
+                }}
+            />
+            <Tabs.Screen
+                name='batteries'
+                options={{
+                    title: 'Batteries',
+                    tabBarIcon: ({ color }) => (
+                        <Entypo
+                            name='battery'
+                            size={24}
+                            color={color}
+                        />
+                    ),
+                    tabBarButtonTestID: 'customer-profile-tab',
                 }}
             />
             <Tabs.Screen
@@ -52,7 +71,11 @@ export default function () {
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color }) => (
-                        <MaterialCommunityIcons name='account-outline' size={22} color={color} />
+                        <MaterialCommunityIcons
+                            name='account-outline'
+                            size={22}
+                            color={color}
+                        />
                     ),
                     tabBarButtonTestID: 'customer-profile-tab',
                 }}

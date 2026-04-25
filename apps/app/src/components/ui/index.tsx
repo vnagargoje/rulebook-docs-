@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import Svg from 'react-native-svg'
 import { withUniwind } from 'uniwind'
 
@@ -15,10 +14,22 @@ export * from './select'
 export * from './screen-loader'
 export * from './text'
 export * from './utils'
+export * from './qr-scanner'
 
-// export base components from react-native
-export { ActivityIndicator, Pressable, ScrollView, TouchableOpacity, View } from 'react-native'
-export { SafeAreaView } from 'react-native-safe-area-context'
+import {
+    ActivityIndicator as RNActivityIndicator,
+    Pressable as RNPressable,
+    ScrollView as RNScrollView,
+    TouchableOpacity as RNTouchableOpacity,
+    View as RNView,
+} from 'react-native'
+import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context'
 
-// Apply withUniwind to Svg to add className support
+export const View = withUniwind(RNView)
+export const Pressable = withUniwind(RNPressable)
+export const ScrollView = withUniwind(RNScrollView)
+export const TouchableOpacity = withUniwind(RNTouchableOpacity)
+export const ActivityIndicator = withUniwind(RNActivityIndicator)
+export const SafeAreaView = withUniwind(RNSafeAreaView)
+
 export const StyledSvg = withUniwind(Svg)

@@ -37,13 +37,14 @@ import { BatterySubject } from '@yugo/permissions';
 import { CreateBatteryCommand, UpdateBatteryCommand } from '@yugo/cqrs';
 
 const PAGINATE_CONFIG: PaginateConfig<BatteryEntity> = {
-    sortableColumns: ['id', 'batteryQrId', 'createdAt'],
-    relations: ['station'],
+    sortableColumns: ['id', 'batteryQrId', 'createdAt', 'stationId'],
+    relations: ['station', 'qrCode'],
     filterableColumns: {
         batteryQrId: [FilterOperator.ILIKE],
         gpsId: [FilterOperator.ILIKE],
         stationId: [FilterOperator.EQ],
         'station.name': [FilterOperator.ILIKE],
+        'station.managerId': [FilterOperator.EQ],
     },
     defaultSortBy: [['createdAt', 'DESC']],
 };

@@ -1,4 +1,3 @@
-import type { Href } from 'expo-router'
 import { Redirect } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 
@@ -6,11 +5,11 @@ import { FullScreenLoader } from '@/components/shared/full-screen-loader'
 import { useIsAuthenticated } from '@/queries/auth.query'
 import type { UserRole } from '@/types/auth/auth.types'
 
-const ROLE_ROUTES: Record<UserRole, Href> = {
+const ROLE_ROUTES: Record<UserRole, any> = {
     customer: '/customer',
     swap_manager: '/swap-manager',
     hub_manager: '/hub-manager',
-} as const
+}
 
 export default function Index() {
     const { data, isLoading } = useIsAuthenticated()

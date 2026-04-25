@@ -41,6 +41,7 @@ const PAGINATE_CONFIG: PaginateConfig<StationEntity> = {
         name: [FilterOperator.ILIKE],
         'manager.firstName': [FilterOperator.ILIKE],
         'manager.lastName': [FilterOperator.ILIKE],
+        managerId: [FilterOperator.EQ],
     },
     defaultSortBy: [['createdAt', 'DESC']],
 };

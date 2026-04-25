@@ -3,8 +3,10 @@ import { SplashScreen, Tabs } from 'expo-router'
 import { useCallback, useEffect } from 'react'
 
 import { colors } from '@/components/ui'
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 export default function CustomerTabsLayout() {
+    const insets = useSafeAreaInsets()
+
     const hideSplash = useCallback(async () => {
         await SplashScreen.hideAsync()
     }, [])
@@ -26,9 +28,9 @@ export default function CustomerTabsLayout() {
                 tabBarStyle: {
                     backgroundColor: colors.white,
                     borderTopColor: colors.primary[100],
-                    height: 68,
+                    height: 68 + insets.bottom,
                     paddingTop: 8,
-                    paddingBottom: 8,
+                    paddingBottom: 8 + insets.bottom,
                 },
                 tabBarLabelStyle: {
                     fontSize: 12,

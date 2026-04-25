@@ -41,7 +41,14 @@ import {
 
 const PAGINATE_CONFIG: PaginateConfig<BatterySwapHistoryEntity> = {
     sortableColumns: ['id', 'createdAt'],
-    relations: ['oldBattery', 'newBattery', 'fromStation', 'toStation'],
+    relations: [
+        'oldBattery',
+        'newBattery',
+        'fromStation',
+        'toStation',
+        'userPlan',
+        'userPlan.user',
+    ],
     filterableColumns: {
         bookingId: [FilterOperator.EQ],
         userPlanId: [FilterOperator.EQ],

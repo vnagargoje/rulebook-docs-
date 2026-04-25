@@ -1,43 +1,22 @@
-import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus } from '@tabler/icons-react'
+import { IconEye, IconPlus } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
-import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
-import { mockApi } from '~/services/mockApi'
-import { type User, type Vehicle, type VehicleSurrender } from '~/types/admin'
-import { toast } from 'sonner'
 import { formatCurrency, formatDate } from '~/lib/formatter'
+import { useSurrenders, type SurrenderListItem } from '~/queries/surrender'
 
 export default function SurrendersListRoute() {
     const navigate = useNavigate()
-    const [surrenders, setSurrenders] = useState<VehicleSurrender[]>([])
-    const [vehicles, setVehicles] = useState<Vehicle[]>([])
-    const [users, setUsers] = useState<User[]>([])
+    const { data, isLoading } = useSurrenders()
 
-    const loadData = useCallback(async () => {
-        try {
-            const [nextSurrenders, nextVehicles, nextUsers] = await Promise.all([
-                mockApi.listSurrenders(),
-                mockApi.listVehicles(),
-                mockApi.listUsers(),
-            ])
-            setSurrenders(nextSurrenders)
-            setVehicles(nextVehicles)
-            setUsers(nextUsers)
-        } catch (error) {
-            toast.error('Failed to load surrender records')
-        }
-    }, [])
+    const surrenders = data?.data ?? []
+    const meta = data?.meta
 
-    useEffect(() => {
-        void loadData()
-    }, [loadData])
-
-    const getVehicleName = (id: string) => vehicles.find((v) => v.id === id)?.registrationNumber || id
-    const getCustomerName = (id: string) => users.find((c) => c.id === id)?.name || id
+    if (isLoading) {
+        return <div className="p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase">Loading Surrenders...</div>
+    }
 
     return (
         <div className="space-y-6">
@@ -53,16 +32,26 @@ export default function SurrendersListRoute() {
             </div>
 
             <ResourceTable
-                title="Surrender Records"
                 data={surrenders}
                 emptyMessage="No surrenders found."
+                totalItems={meta?.totalItems}
+                totalPages={meta?.totalPages}
+                currentPage={meta?.currentPage}
                 columns={[
-                    { header: 'Vehicle', cell: (s) => getVehicleName(s.vehicleId) },
-                    { header: 'Customer', cell: (s) => getCustomerName(s.customerId) },
-                    { header: 'Penalty', cell: (s) => formatCurrency(s.penaltyCharges) },
-                    { header: 'Returned Deposit', cell: (s) => formatCurrency(s.depositReturnAmount) },
-                    { header: 'Date', cell: (s) => formatDate(s.submittedAt) },
-                    { header: 'Status', cell: (s) => <StatusBadge status={s.status} /> }
+                    { header: 'Vehicle', cell: (s: SurrenderListItem) => s.vehicle?.vehicleNumber ?? s.vehicleId },
+                    { header: 'Booking', cell: (s: SurrenderListItem) => s.bookingId },
+                    { header: 'Penalty', cell: (s: SurrenderListItem) => formatCurrency(s.penalty) },
+                    { header: 'Misc Charges', cell: (s: SurrenderListItem) => formatCurrency(s.miscCharges) },
+                    { header: 'Refund Amount', cell: (s: SurrenderListItem) => formatCurrency(s.refundAmount) },
+                    { header: 'Date', cell: (s: SurrenderListItem) => formatDate(s.createdAt) },
+                    {
+                        header: 'Actions',
+                        cell: (s: SurrenderListItem) => (
+                            <Button variant="ghost" size="icon" onClick={() => navigate(`/surrender/${s.bookingId}`)}>
+                                <IconEye className="h-4 w-4" />
+                            </Button>
+                        ),
+                    },
                 ]}
             />
         </div>

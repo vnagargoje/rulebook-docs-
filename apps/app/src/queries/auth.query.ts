@@ -4,7 +4,7 @@ import { showError, showSuccessMessage } from '@/components/ui'
 import { createAuthToken, isVerifiedOtpResponse } from '@/components/auth/auth.utils'
 import { client } from '@/lib/api/client'
 import { getToken, getUserId, getUserRole, isTokenExpired } from '@/lib/auth'
-import { signIn } from '@/stores/auth.store'
+import { signIn, useAuthStore } from '@/stores/auth.store'
 import type { AuthenticationResult, SendOtpResponse, VerifyOtpResponse, VerifyOtpVariables } from '@/types/auth/auth.types'
 
 const handleMutationError = (error: unknown) => {
@@ -14,22 +14,16 @@ const handleMutationError = (error: unknown) => {
 export const useIsAuthenticated = createQuery<AuthenticationResult>({
     queryKey: ['isAuthenticated'],
     fetcher: async () => {
-        try {
-            const token = getToken()
-            if (!token?.access) {
-                return { authenticated: false }
-            }
+        const { token, user } = useAuthStore.getState()
 
-            if (isTokenExpired(token.access)) {
-                return { authenticated: false }
-            }
-
-            const role = getUserRole()
-            const userId = getUserId()
-
-            return { authenticated: true, role: role ?? undefined, userId: userId ?? undefined }
-        } catch {
+        if (!token?.access || isTokenExpired(token.access)) {
             return { authenticated: false }
+        }
+
+        return {
+            authenticated: true,
+            role: user.role ?? undefined,
+            userId: user.id ?? undefined,
         }
     },
 })

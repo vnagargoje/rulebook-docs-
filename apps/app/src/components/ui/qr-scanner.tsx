@@ -43,6 +43,11 @@ export function QrScanner({ onScan, onClose, title, description }: QrScannerProp
             isScanned.current = true
             setScanned(true)
             onScan(data)
+            // Reset after a short delay so the next battery can be scanned
+            setTimeout(() => {
+                isScanned.current = false
+                setScanned(false)
+            }, 1500)
         }
     }
 

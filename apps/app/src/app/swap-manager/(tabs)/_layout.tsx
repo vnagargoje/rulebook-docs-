@@ -1,4 +1,5 @@
 import { colors } from '@/components/ui'
+import { FontAwesome } from '@expo/vector-icons'
 import Entypo from '@expo/vector-icons/Entypo'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { SplashScreen, Tabs } from 'expo-router'
@@ -49,7 +50,7 @@ export default function () {
                             color={color}
                         />
                     ),
-                    tabBarButtonTestID: 'customer-home-tab',
+                    tabBarButtonTestID: 'swap-manager-home-tab',
                 }}
             />
             <Tabs.Screen
@@ -63,7 +64,21 @@ export default function () {
                             color={color}
                         />
                     ),
-                    tabBarButtonTestID: 'customer-profile-tab',
+                    tabBarButtonTestID: 'swap-manager-batteries-tab',
+                }}
+            />
+            <Tabs.Screen
+                name='history'
+                options={{
+                    title: 'History',
+                    tabBarIcon: ({ color }) => (
+                        <FontAwesome
+                            name='history'
+                            size={24}
+                            color={color}
+                        />
+                    ),
+                    tabBarButtonTestID: 'swap-manager-history-tab',
                 }}
             />
             <Tabs.Screen
@@ -77,7 +92,7 @@ export default function () {
                             color={color}
                         />
                     ),
-                    tabBarButtonTestID: 'customer-profile-tab',
+                    tabBarButtonTestID: 'swap-manager-profile-tab',
                 }}
             />
         </Tabs>

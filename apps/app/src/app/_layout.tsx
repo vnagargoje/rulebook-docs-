@@ -15,6 +15,7 @@ import { APIProvider } from '@/lib/api'
 import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme'
 // Import  global CSS file
 import '../global.css'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 export { ErrorBoundary } from 'expo-router'
 
@@ -66,17 +67,19 @@ function Providers({ children }: { children: React.ReactNode }) {
     const theme = useThemeConfig()
     return (
         <GestureHandlerRootView className='flex-1'>
-            <KeyboardProvider>
-                <ThemeProvider value={theme}>
-                    <APIProvider>
-                        <BottomSheetModalProvider>
-                            {children}
-                            <FlashMessage position='top' />
-                            <Toaster />
-                        </BottomSheetModalProvider>
-                    </APIProvider>
-                </ThemeProvider>
-            </KeyboardProvider>
+            <SafeAreaProvider>
+                <KeyboardProvider>
+                    <ThemeProvider value={theme}>
+                        <APIProvider>
+                            <BottomSheetModalProvider>
+                                {children}
+                                <FlashMessage position='top' />
+                                <Toaster />
+                            </BottomSheetModalProvider>
+                        </APIProvider>
+                    </ThemeProvider>
+                </KeyboardProvider>
+            </SafeAreaProvider>
         </GestureHandlerRootView>
     )
 }

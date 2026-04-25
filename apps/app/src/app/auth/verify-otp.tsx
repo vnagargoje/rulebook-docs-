@@ -1,13 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
-import {
-    ActivityIndicator,
-    Image,
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-} from 'react-native'
+import { ActivityIndicator, Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { OtpInput } from 'react-native-otp-entry'
@@ -19,6 +11,7 @@ import colors from '@/components/ui/colors'
 import { showErrorMessage } from '@/components/ui'
 import { isVerifiedOtpResponse } from '@/components/auth/auth.utils'
 import { useIsAuthenticated, useVerifyOtp } from '@/queries/auth.query'
+import { useAuthStore } from '@/stores/auth.store'
 
 export default function VerifyOtpPage() {
     const router = useRouter()
@@ -66,6 +59,13 @@ export default function VerifyOtpPage() {
                     }
 
                     await refetch()
+
+                    const userRole = useAuthStore.getState().user.role
+
+                    if (userRole && userRole !== 'customer') {
+                        router.replace('/')
+                        return
+                    }
 
                     if (redirect) {
                         const params = new URLSearchParams()
@@ -143,9 +143,15 @@ export default function VerifyOtpPage() {
                     />
 
                     <View className='mt-4 flex-row items-center'>
-                        <Paragraph text='Entered wrong number? ' className='leading-5' />
+                        <Paragraph
+                            text='Entered wrong number? '
+                            className='leading-5'
+                        />
                         <Pressable onPress={() => router.back()}>
-                            <Paragraph text='Change number' className='font-medium text-primary-600 underline' />
+                            <Paragraph
+                                text='Change number'
+                                className='font-medium text-primary-600 underline'
+                            />
                         </Pressable>
                     </View>
 
@@ -154,13 +160,11 @@ export default function VerifyOtpPage() {
                             className={`w-52 items-center justify-center rounded-xl py-4 ${isDisabled ? 'bg-neutral-300' : 'bg-primary-600'}`}
                             disabled={isDisabled}
                             onPress={handleSubmit}>
-                            {verifyOtp.isPending
-                                ? (
-                                    <ActivityIndicator color='#ffffff' />
-                                )
-                                : (
-                                    <Text className='text-base font-semibold text-white'>Verify</Text>
-                                )}
+                            {verifyOtp.isPending ? (
+                                <ActivityIndicator color='#ffffff' />
+                            ) : (
+                                <Text className='text-base font-semibold text-white'>Verify</Text>
+                            )}
                         </Pressable>
                     </View>
                 </ScrollView>

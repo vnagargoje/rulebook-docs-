@@ -1507,6 +1507,14 @@ export interface V1BatterySwapsGetSwapHistoryResponse {
     userPlanId: string;
     bookingId: string;
     vehicleId: string;
+    userPlan?: {
+      userId: string;
+      user: {
+        mobilenumber: string;
+        firstName: string;
+        lastName: string;
+      };
+    };
     oldBatteryId: string;
     oldBattery?: {
       id: string;
@@ -1516,18 +1524,6 @@ export interface V1BatterySwapsGetSwapHistoryResponse {
     newBattery?: {
       id: string;
       batteryQrId: string;
-    };
-    fromStationId?: string;
-    fromStation?: {
-      id: string;
-      name: string;
-      type: string;
-    };
-    toStationId?: string;
-    toStation?: {
-      id: string;
-      name: string;
-      type: string;
     };
     swappedById: string;
     createdAt: string;

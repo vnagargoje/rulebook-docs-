@@ -10,7 +10,7 @@ export default function () {
                 contentStyle: { backgroundColor: colors.white },
             }}>
             <Stack.Screen name='(tabs)' />
+            <Stack.Screen name='execute-swap' />
         </Stack>
     )
 }
- 

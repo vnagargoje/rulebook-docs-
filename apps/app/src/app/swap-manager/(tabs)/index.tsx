@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router'
 import { useCallback } from 'react'
 import { RefreshControl } from 'react-native'
 
@@ -5,13 +6,14 @@ import { ActionCard, InventoryStats, RecentActivityItem } from '@/components/swa
 import { SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 
 export default function () {
+    const router = useRouter()
     const handleRefresh = useCallback(() => {
         // Mock refresh
     }, [])
 
     const handleExecuteSwap = useCallback(() => {
-        // No action for now
-    }, [])
+        router.push('/swap-manager/execute-swap')
+    }, [router])
 
     return (
         <SafeAreaView

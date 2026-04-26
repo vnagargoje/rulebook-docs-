@@ -11,6 +11,8 @@ export default function () {
             }}>
             <Stack.Screen name='(tabs)' />
             <Stack.Screen name='execute-swap' />
+            <Stack.Screen name='battery-outward' />
+            <Stack.Screen name='battery-inward' />
         </Stack>
     )
 }

@@ -28,6 +28,7 @@ export default function HubManagerProfileScreen() {
 
     const handleSignOut = useCallback(() => {
         toast('Sign out?', {
+            id: 'hub-manager-signout-confirm',
             description: 'You will be signed out of your account.',
             action: {
                 label: 'Sign Out',

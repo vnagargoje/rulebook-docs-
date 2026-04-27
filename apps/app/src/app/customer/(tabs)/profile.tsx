@@ -65,6 +65,7 @@ export default function CustomerProfileScreen() {
 
     const handleSignOut = useCallback(() => {
         toast('Sign out?', {
+            id: 'customer-signout-confirm',
             description: 'You will be signed out of your account.',
             action: {
                 label: 'Sign Out',

@@ -29,6 +29,7 @@ export default function SwapManagerProfileScreen() {
 
     const handleSignOut = useCallback(() => {
         toast('Sign out?', {
+            id: 'swap-manager-signout-confirm',
             description: 'You will be signed out of your account.',
             action: {
                 label: 'Sign Out',

@@ -41,10 +41,19 @@ export default function BookingsListRoute() {
 
     const columns = useMemo(() => [
         { header: 'Booking ID', accessor: 'id' as const },
-        { header: 'Station ID', accessor: 'stationId' as const },
+        {
+            header: 'Station',
+            cell: (booking: BookingItem) => (
+                <span>{(booking as any).station?.name ?? booking.stationId ?? '—'}</span>
+            ),
+        },
         { header: 'Status', cell: (booking: BookingItem) => <StatusBadge status={booking.status.toUpperCase()} /> },
-        { header: 'Vehicle', accessor: 'vehicleId' as const },
-        { header: 'Pickup OTP', accessor: 'pickupOtp' as const },
+        {
+            header: 'Vehicle',
+            cell: (booking: BookingItem) => (
+                <span>{(booking as any).vehicle?.vehicleNumber ?? booking.vehicleId ?? '—'}</span>
+            ),
+        },
         {
             header: 'Created',
             cell: (booking: BookingItem) => <span className="text-xs text-muted-foreground">{formatDate(booking.createdAt)}</span>,

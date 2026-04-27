@@ -1,15 +1,30 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useRouter } from 'expo-router'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { toast } from 'sonner-native'
 
+import { DetailRow } from '@/components/profile'
 import { Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
+import { useMyProfile } from '@/queries/profile'
 import { useAuthStore } from '@/stores/auth.store'
 
 export default function HubManagerProfileScreen() {
     const router = useRouter()
     const token = useAuthStore.use.token()
     const signOut = useAuthStore.use.signOut()
+    const { data: profile } = useMyProfile()
+
+    const fullName = useMemo(() => {
+        const value = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ').trim()
+        return value || 'Hub Manager'
+    }, [profile?.firstName, profile?.lastName])
+
+    const gender = useMemo(() => {
+        if (!profile?.gender) return null
+        return profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)
+    }, [profile?.gender])
+
+    const dob = profile?.dateOfBirth ? String(profile.dateOfBirth).slice(0, 10) : null
 
     const handleSignOut = useCallback(() => {
         toast('Sign out?', {
@@ -27,6 +42,10 @@ export default function HubManagerProfileScreen() {
             },
         })
     }, [signOut, router])
+
+    const handleEditProfile = useCallback(() => {
+        router.push('/hub-manager/profile/edit')
+    }, [router])
 
     return (
         <SafeAreaView
@@ -52,9 +71,9 @@ export default function HubManagerProfileScreen() {
                             />
                         </View>
                         <View className='flex-1'>
-                            <Text className='text-xl font-bold text-white'>Hub Manager</Text>
+                            <Text className='text-xl font-bold text-white'>{fullName}</Text>
                             <Text className='mt-0.5 text-sm text-[#A9B8CE]'>
-                                {token?.phoneNumber ?? 'Phone verified'}
+                                {profile?.mobilenumber ?? token?.phoneNumber ?? 'Phone verified'}
                             </Text>
                         </View>
                         <View className='rounded-full bg-success-500/20 px-3 py-1'>
@@ -65,9 +84,20 @@ export default function HubManagerProfileScreen() {
 
                 <View className='gap-5 px-4 pt-6'>
                     <View className='rounded-3xl border border-neutral-200 bg-white p-4'>
-                        <Text className='px-1 text-xs font-bold uppercase tracking-[1.2px] text-neutral-400'>
-                            Account
-                        </Text>
+                        <View className='flex-row items-center justify-between px-1'>
+                            <Text className='text-xs font-bold uppercase tracking-[1.2px] text-neutral-400'>
+                                Account
+                            </Text>
+                            <Button
+                                label='Edit Profile'
+                                onPress={handleEditProfile}
+                                variant='outline'
+                                size='sm'
+                                fullWidth={false}
+                                className='h-8 rounded-xl border-neutral-200 bg-neutral-50 px-3'
+                                textClassName='text-xs font-semibold text-neutral-700'
+                            />
+                        </View>
                         <View className='mt-3'>
                             <View className='flex-row items-center py-3.5 px-1'>
                                 <View className='h-10 w-10 rounded-xl bg-primary-50 items-center justify-center'>
@@ -80,7 +110,7 @@ export default function HubManagerProfileScreen() {
                                 <View className='ml-3 flex-1'>
                                     <Text className='text-sm font-semibold text-neutral-900'>Phone Number</Text>
                                     <Text className='text-xs text-neutral-500 mt-0.5'>
-                                        {token?.phoneNumber ?? 'Not available'}
+                                        {profile?.mobilenumber ?? token?.phoneNumber ?? 'Not available'}
                                     </Text>
                                 </View>
                             </View>
@@ -98,6 +128,14 @@ export default function HubManagerProfileScreen() {
                                     <Text className='text-xs text-neutral-500 mt-0.5'>Hub Station Manager</Text>
                                 </View>
                             </View>
+                            <View className='ml-14 border-b border-neutral-100' />
+                            <DetailRow icon='account-outline' label='Full Name' value={fullName !== 'Hub Manager' ? fullName : null} placeholder='Add your name' />
+                            <View className='ml-14 border-b border-neutral-100' />
+                            <DetailRow icon='email-outline' label='Email' value={profile?.email} placeholder='Add email address' />
+                            <View className='ml-14 border-b border-neutral-100' />
+                            <DetailRow icon='gender-male-female' label='Gender' value={gender} placeholder='Not specified' />
+                            <View className='ml-14 border-b border-neutral-100' />
+                            <DetailRow icon='cake-variant-outline' label='Date of Birth' value={dob} placeholder='Not added' />
                         </View>
                     </View>
 

@@ -1,23 +1,47 @@
 import { useRouter } from 'expo-router'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { toast } from 'sonner-native'
 
 import { ActionTile, ProfileMenuItem } from '@/components/customer/profile'
+import { DetailRow } from '@/components/profile'
 import { Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 import { formatKmIN } from '@/lib/formatters/customer'
 import { useMyPlans } from '@/queries/customer'
+import { useMyProfile } from '@/queries/profile'
 import { useAuthStore } from '@/stores/auth.store'
 
 export default function CustomerProfileScreen() {
     const router = useRouter()
     const token = useAuthStore.use.token()
+    const userId = useAuthStore.use.user().id
     const signOut = useAuthStore.use.signOut()
     const isLoggedIn = Boolean(token)
 
     const { data: plansData } = useMyPlans({ variables: { status: ['purchased', 'active'] }, enabled: isLoggedIn })
+    const { data: profile } = useMyProfile()
 
     const activePlan = plansData?.data?.[0]
+    const fullName = useMemo(() => {
+        const value = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ').trim()
+        return value || 'Yugo Rider'
+    }, [profile?.firstName, profile?.lastName])
+    const initials = useMemo(() => {
+        return (fullName[0] ?? token?.phoneNumber?.[0] ?? 'Y').toUpperCase()
+    }, [fullName, token?.phoneNumber])
+    const joinedRole = useMemo(() => profile?.roles?.map((role) => role.name).join(', ') || 'customer', [profile?.roles])
+    const primaryAddress = profile?.addresses?.[0]
+    const addressLine = primaryAddress
+        ? [
+              primaryAddress.lineOne,
+              primaryAddress.lineTwo,
+              primaryAddress.city?.name,
+              primaryAddress.city?.state?.name,
+              primaryAddress.pincode,
+          ]
+              .filter(Boolean)
+              .join(', ')
+        : 'No address saved yet'
 
     const handleLoginPress = useCallback(() => {
         router.push({ pathname: '/auth/sign-in', params: { redirect: '/customer/profile' } })
@@ -35,8 +59,13 @@ export default function CustomerProfileScreen() {
         router.push('/customer/(tabs)/help')
     }, [router])
 
+    const handlePersonalDetails = useCallback(() => {
+        router.push('/customer/profile/edit')
+    }, [router])
+
     const handleSignOut = useCallback(() => {
         toast('Sign out?', {
+            id: 'customer-signout-confirm',
             description: 'You will be signed out of your account.',
             action: {
                 label: 'Sign Out',
@@ -131,14 +160,12 @@ export default function CustomerProfileScreen() {
 
                     <View className='mt-4 flex-row items-center gap-4'>
                         <View className='h-16 w-16 items-center justify-center rounded-full bg-white/15'>
-                            <Text className='text-2xl font-bold text-white'>
-                                {(token?.phoneNumber ?? 'Y')[0].toUpperCase()}
-                            </Text>
+                            <Text className='text-2xl font-bold text-white'>{initials}</Text>
                         </View>
                         <View className='flex-1'>
-                            <Text className='text-xl font-bold text-white'>Yugo Rider</Text>
+                            <Text className='text-xl font-bold text-white'>{fullName}</Text>
                             <Text className='mt-0.5 text-sm text-[#A9B8CE]'>
-                                {token?.phoneNumber ?? 'Phone verified'}
+                                {profile?.mobilenumber ?? token?.phoneNumber ?? 'Phone verified'}
                             </Text>
                         </View>
                         <View className='rounded-full bg-success-500/20 px-3 py-1'>
@@ -169,6 +196,49 @@ export default function CustomerProfileScreen() {
                 </View>
 
                 <View className='gap-5 px-4 pt-6'>
+                    <View className='rounded-3xl border border-neutral-100 bg-white p-5'
+                        style={{ shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 8, elevation: 1 }}>
+                        <View className='mb-1 flex-row items-center justify-between'>
+                            <Text className='text-[11px] font-bold uppercase tracking-[1.2px] text-neutral-400'>
+                                Your Details
+                            </Text>
+                            <Button
+                                label='Edit'
+                                onPress={handlePersonalDetails}
+                                variant='outline'
+                                size='sm'
+                                fullWidth={false}
+                                className='h-8 rounded-xl border-neutral-200 bg-neutral-50 px-4'
+                                textClassName='text-xs font-semibold text-neutral-600'
+                            />
+                        </View>
+
+                        <DetailRow icon='account-outline' label='Full Name' value={fullName !== 'Yugo Rider' ? fullName : null} placeholder='Add your name' />
+                        <View className='ml-11 border-b border-neutral-100' />
+                        <DetailRow icon='email-outline' label='Email' value={profile?.email} placeholder='Add email address' />
+                        <View className='ml-11 border-b border-neutral-100' />
+                        <DetailRow
+                            icon='gender-male-female'
+                            label='Gender'
+                            value={profile?.gender ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1) : null}
+                            placeholder='Not specified'
+                        />
+                        <View className='ml-11 border-b border-neutral-100' />
+                        <DetailRow
+                            icon='cake-variant-outline'
+                            label='Date of Birth'
+                            value={profile?.dateOfBirth ? String(profile.dateOfBirth).slice(0, 10) : null}
+                            placeholder='Not added'
+                        />
+                        <View className='ml-11 border-b border-neutral-100' />
+                        <DetailRow
+                            icon='map-marker-outline'
+                            label='Address'
+                            value={primaryAddress ? addressLine : null}
+                            placeholder='No address saved'
+                        />
+                    </View>
+
                     <View className='gap-3'>
                         <Text className='px-1 text-xs font-bold uppercase tracking-[1.2px] text-neutral-400'>
                             Quick actions
@@ -214,7 +284,7 @@ export default function CustomerProfileScreen() {
                                 icon='account-circle-outline'
                                 label='Personal Details'
                                 subtitle='Name, email, phone number'
-                                onPress={() => handleComingSoon('Personal Details')}
+                                onPress={handlePersonalDetails}
                             />
                             <View className='ml-14 border-b border-neutral-100' />
                             <ProfileMenuItem

@@ -9,7 +9,10 @@ export function StationDetailsSection() {
         data: station,
         isLoading,
         isError,
-    } = useManagerSwapStation({ variables: { managerId: data?.userId ?? '' } })
+    } = useManagerSwapStation({ 
+        variables: { managerId: data?.userId ?? '' },
+        enabled: !!data?.userId,
+    })
 
     if (isLoading) {
         return (

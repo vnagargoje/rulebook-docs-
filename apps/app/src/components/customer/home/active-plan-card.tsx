@@ -12,7 +12,12 @@ type Props = {
 
 export function ActivePlanCard({ plan, onRecharge }: Props) {
     const planName = (plan.planSnapshot as any)?.name ?? 'Plan'
-    const kmLimit = (plan.planSnapshot as any)?.kmLimit ?? (Number(plan.remainingKm) || 1)
+    const topUpsKm = (plan.topUps as any[] ?? []).reduce(
+        (sum: number, tu: any) => sum + (Number((tu.topUpSnapshot as any)?.kmLimit) || 0),
+        0,
+    )
+    const planKm = Number((plan.planSnapshot as any)?.kmLimit) || 0
+    const kmLimit = planKm + topUpsKm || Number(plan.remainingKm) || 1
     const remainingKm = Number(plan.remainingKm)
     const progressPct = Math.min(100, (remainingKm / kmLimit) * 100)
     const validityDays = (plan.planSnapshot as any)?.validityDays ?? '—'

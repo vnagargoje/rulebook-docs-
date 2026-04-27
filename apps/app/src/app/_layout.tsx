@@ -4,7 +4,6 @@ import { ThemeProvider } from '@react-navigation/native'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import * as React from 'react'
-import FlashMessage from 'react-native-flash-message'
 import { Toaster } from 'sonner-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
@@ -75,7 +74,6 @@ function Providers({ children }: { children: React.ReactNode }) {
                         <APIProvider>
                             <BottomSheetModalProvider>
                                 {children}
-                                <FlashMessage position='top' />
                                 <Toaster />
                             </BottomSheetModalProvider>
                         </APIProvider>

@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback } from 'react'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner-native'
 
 import { SummaryRow } from '@/components/customer/confirm-booking'
@@ -12,6 +13,7 @@ import { usePurchasePlan } from '@/queries/customer'
 export default function ConfirmBookingScreen() {
     const { planId } = useLocalSearchParams<{ planId: string }>()
     const router = useRouter()
+    const queryClient = useQueryClient()
 
     const { data: plan, isLoading } = usePlanById({ variables: { id: planId! } })
     const purchaseMutation = usePurchasePlan()
@@ -23,6 +25,7 @@ export default function ConfirmBookingScreen() {
             { planId },
             {
                 onSuccess: (userPlan) => {
+                    queryClient.invalidateQueries({ queryKey: ['user-plans'] })
                     toast.success('Booking confirmed!', {
                         description: `${plan?.name} plan booked successfully.`,
                     })
@@ -38,7 +41,7 @@ export default function ConfirmBookingScreen() {
                 },
             },
         )
-    }, [planId, plan, purchaseMutation, router])
+    }, [planId, plan, purchaseMutation, queryClient, router])
 
     const isPending = purchaseMutation.isPending
 

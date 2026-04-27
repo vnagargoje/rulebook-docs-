@@ -68,13 +68,19 @@ export default function CustomerTabsLayout() {
                 }}
             />
             <Tabs.Screen
+                name='swap-stations'
+                options={{
+                    title: 'Stations',
+                    tabBarIcon: ({ color }) => (
+                        <MaterialCommunityIcons name='lightning-bolt-circle' size={22} color={color} />
+                    ),
+                    tabBarButtonTestID: 'customer-swap-stations-tab',
+                }}
+            />
+            <Tabs.Screen
                 name='help'
                 options={{
-                    title: 'Help',
-                    tabBarIcon: ({ color }) => (
-                        <MaterialCommunityIcons name='lifebuoy' size={22} color={color} />
-                    ),
-                    tabBarButtonTestID: 'customer-help-tab',
+                    href: null,
                 }}
             />
             <Tabs.Screen

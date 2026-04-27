@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const createVehicleSchema = z.object({
+    type: z.enum(['rental', 'transport']).optional(),
     vehicleNumber: z.string().min(1, 'Registration number is required'),
     rcNumber: z.string().optional(),
     chassisNumber: z.string().optional(),
@@ -12,6 +13,7 @@ export const createVehicleSchema = z.object({
 })
 
 export const updateVehicleSchema = z.object({
+    type: z.enum(['rental', 'transport']).optional(),
     vehicleNumber: z.string().min(1, 'Registration number is required'),
     rcNumber: z.string().optional(),
     chassisNumber: z.string().optional(),

@@ -78,7 +78,7 @@ export class V1BatteriesController {
     async getOneBattery(@Param('id') id: string, @Req() req: Request) {
         const battery = await this.datasource.manager.findOne(BatteryEntity, {
             where: { id },
-            relations: ['station'],
+            relations: ['station', 'qrCode'],
         });
         if (!battery) {
             throw new NotFoundException('Battery not found');

@@ -21,9 +21,14 @@ export const useGetSwapStations = createQuery<StationsResponse>({
     },
 })
 
-export const useGetHubStation = createQuery<StationsResponse, { managerId: string }>({
+export const useGetHubStation = createQuery<StationsResponse | null, { managerId: string }>({
     queryKey: ['hub-manager', 'hub-station'],
     fetcher: async ({ managerId }) => {
+        // Return null if managerId is empty to prevent unnecessary API calls
+        if (!managerId || managerId.trim() === '') {
+            return null
+        }
+
         const response = await client.v1.v1StationsGetManyStations({
             page: 1,
             limit: 10,

@@ -102,6 +102,4 @@ steps:
 
 trigger:
     event:
-      - push
-    branch:
-      - dev
+      - tag

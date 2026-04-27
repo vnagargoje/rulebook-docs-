@@ -8,6 +8,8 @@ COPY packages ./packages
 COPY apps ./apps
 
 RUN yarn install --immutable
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 RUN yarn turbo run build --filter=@yugo/backoffice
 
 FROM base AS deps

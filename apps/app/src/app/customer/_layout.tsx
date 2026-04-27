@@ -84,6 +84,24 @@ export default function CustomerLayout() {
                     headerShadowVisible: false,
                 }}
             />
+            <Stack.Screen
+                name='station/[id]'
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Stack.Screen
+                name='profile/edit'
+                options={{
+                    headerShown: true,
+                    title: 'Edit Profile',
+                    headerBackTitle: 'Back',
+                    headerTintColor: colors.primary[600],
+                    headerTitleStyle: { color: colors.neutral[900], fontWeight: '600' },
+                    headerStyle: { backgroundColor: colors.white },
+                    headerShadowVisible: false,
+                }}
+            />
         </Stack>
     )
 }

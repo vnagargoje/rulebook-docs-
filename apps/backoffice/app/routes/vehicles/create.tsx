@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 import { createVehicleSchema, type CreateVehicleFormValues } from '~/schemas'
+import { vehicleTypeOptions } from '~/constants'
 
 export default function CreateVehicleRoute() {
     const navigate = useNavigate()
@@ -22,6 +23,7 @@ export default function CreateVehicleRoute() {
     const form = useForm<CreateVehicleFormValues>({
         resolver: zodResolver(createVehicleSchema),
         defaultValues: {
+            type: undefined,
             vehicleNumber: '',
             rcNumber: '',
             chassisNumber: '',
@@ -40,6 +42,7 @@ export default function CreateVehicleRoute() {
 
     const onSubmit = useCallback((values: CreateVehicleFormValues) => {
         const payload: CreateVehiclePayload = {
+            type: values.type || undefined,
             vehicleNumber: values.vehicleNumber || undefined,
             rcNumber: values.rcNumber || undefined,
             chassisNumber: values.chassisNumber || undefined,
@@ -83,6 +86,15 @@ export default function CreateVehicleRoute() {
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Vehicle Profile</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <TextInputField control={form.control} name="vehicleNumber" label="Registration No." placeholder="e.g. MH 01 AB 1234" />
+                                    <SelectField
+                                        control={form.control}
+                                        name="type"
+                                        label="Vehicle Type"
+                                        options={vehicleTypeOptions}
+                                        placeholder="Select type"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <TextInputField control={form.control} name="gpsId" label="GPS Tracker ID" placeholder="e.g. GPS-9902" />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

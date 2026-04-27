@@ -1279,6 +1279,13 @@ export interface V1BatteriesGetManyBatteriesResponse {
   data: {
     id: string;
     batteryQrId: string;
+    status:
+      | "available"
+      | "charged"
+      | "charging"
+      | "drained"
+      | "in_transit"
+      | "in_use";
     gpsId?: string;
     properties?: {
       mfgDate?: string;
@@ -1295,6 +1302,10 @@ export interface V1BatteriesGetManyBatteriesResponse {
       id: string;
       name?: string;
       type?: string;
+    };
+    qrCode?: {
+      id: string;
+      path: string;
     };
     createdAt?: string;
     updatedAt?: string;
@@ -1321,6 +1332,13 @@ export interface V1BatteriesGetManyBatteriesResponse {
 export interface V1BatteriesCreateOneBatteryResponse {
   id: string;
   batteryQrId: string;
+  status:
+    | "available"
+    | "charged"
+    | "charging"
+    | "drained"
+    | "in_transit"
+    | "in_use";
   gpsId?: string;
   properties?: {
     mfgDate?: string;
@@ -1337,6 +1355,10 @@ export interface V1BatteriesCreateOneBatteryResponse {
     id: string;
     name?: string;
     type?: string;
+  };
+  qrCode?: {
+    id: string;
+    path: string;
   };
   createdAt?: string;
   updatedAt?: string;
@@ -1361,6 +1383,13 @@ export interface V1BatteriesCreateOneBatteryBody {
 export interface V1BatteriesGetOneBatteryResponse {
   id: string;
   batteryQrId: string;
+  status:
+    | "available"
+    | "charged"
+    | "charging"
+    | "drained"
+    | "in_transit"
+    | "in_use";
   gpsId?: string;
   properties?: {
     mfgDate?: string;
@@ -1377,6 +1406,10 @@ export interface V1BatteriesGetOneBatteryResponse {
     id: string;
     name?: string;
     type?: string;
+  };
+  qrCode?: {
+    id: string;
+    path: string;
   };
   createdAt?: string;
   updatedAt?: string;
@@ -1385,6 +1418,13 @@ export interface V1BatteriesGetOneBatteryResponse {
 export interface V1BatteriesUpdateOneBatteryResponse {
   id: string;
   batteryQrId: string;
+  status:
+    | "available"
+    | "charged"
+    | "charging"
+    | "drained"
+    | "in_transit"
+    | "in_use";
   gpsId?: string;
   properties?: {
     mfgDate?: string;
@@ -1401,6 +1441,10 @@ export interface V1BatteriesUpdateOneBatteryResponse {
     id: string;
     name?: string;
     type?: string;
+  };
+  qrCode?: {
+    id: string;
+    path: string;
   };
   createdAt?: string;
   updatedAt?: string;
@@ -1467,6 +1511,14 @@ export interface V1BatterySwapsGetSwapHistoryResponse {
     oldBattery?: {
       id: string;
       batteryQrId: string;
+    };
+    userPlan?: {
+      userId: string;
+      user: {
+        mobilenumber: string;
+        firstName: string;
+        lastName: string;
+      };
     };
     newBatteryId: string;
     newBattery?: {
@@ -3447,6 +3499,23 @@ export class Api<
          */
         "filter.manager.lastName"?: string[];
         /**
+         * Filter by managerId query param.
+         *
+         * **Format:** filter.managerId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.managerId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.managerId"?: string[];
+        /**
          * Parameter to sort by.
          * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
          *
@@ -3880,6 +3949,23 @@ export class Api<
          */
         "filter.station.name"?: string[];
         /**
+         * Filter by station.managerId query param.
+         *
+         * **Format:** filter.station.managerId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.station.managerId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.station.managerId"?: string[];
+        /**
          * Parameter to sort by.
          * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
          *
@@ -3897,6 +3983,8 @@ export class Api<
          * - batteryQrId
          *
          * - createdAt
+         *
+         * - stationId
          */
         sortBy?: (
           | "id:ASC"
@@ -3905,6 +3993,8 @@ export class Api<
           | "batteryQrId:DESC"
           | "createdAt:ASC"
           | "createdAt:DESC"
+          | "stationId:ASC"
+          | "stationId:DESC"
         )[];
       },
       params: RequestParams = {},

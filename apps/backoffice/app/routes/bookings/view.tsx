@@ -145,10 +145,11 @@ export default function BookingViewRoute() {
     const planDescription = planSnapshot.description
     const qrCodeUrl = getAssetUrl(booking.userPlan?.qrCode?.path)
     const remainingKm = Number(booking.userPlan?.remainingKm ?? planSnapshot.kmLimit ?? 0)
-    const kmLimit = Number(plan?.kmLimit ?? planSnapshot.kmLimit ?? 0)
     const validityDays = Number(plan?.validityDays ?? planSnapshot.validityDays ?? 0)
     const topUps = booking.userPlan?.topUps ?? []
     const totalTopUpKm = topUps.reduce((sum, topUp) => sum + Number(topUp.topUpSnapshot?.extraKm ?? topUp.topUpSnapshot?.kmLimit ?? 0), 0)
+    const planKmLimit = Number(plan?.kmLimit ?? planSnapshot.kmLimit ?? 0)
+    const kmLimit = planKmLimit + totalTopUpKm
 
     return (
         <div className="mx-auto max-w-7xl space-y-6 pb-12">
@@ -308,7 +309,7 @@ export default function BookingViewRoute() {
                     <CardContent className="space-y-4 p-6">
                         <div className="grid grid-cols-2 gap-3">
                             <StatTile label="Plan value" value={formatCurrency(planSnapshot.totalAmount ?? plan?.totalAmount)} icon={IconReceiptRupee} />
-                            <StatTile label="Purchased KM" value={formatKm(planSnapshot.kmLimit ?? kmLimit)} icon={IconBolt} />
+                            <StatTile label="Purchased KM" value={formatKm(planSnapshot.kmLimit ?? planKmLimit)} icon={IconBolt} />
                         </div>
                         <pre className="max-h-[320px] overflow-auto rounded-2xl border border-border/50 bg-muted/20 p-4 text-xs leading-6 text-muted-foreground">
                             {JSON.stringify(planSnapshot, null, 2)}

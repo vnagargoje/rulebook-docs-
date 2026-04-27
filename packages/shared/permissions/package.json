@@ -15,7 +15,8 @@
         "clean": "del-cli ./dist ./.turbo/"
     },
     "dependencies": {
-        "@casl/ability": "^6.7.3"
+        "@casl/ability": "^6.7.3",
+        "@yugo/shared": "workspace:*"
     },
     "devDependencies": {
         "@yugo/tsconfig": "workspace:*",

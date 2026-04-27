@@ -136,6 +136,7 @@ export class BatteriesSeeder implements Seeder {
                     Key: s3Key,
                     Body: pngBuffer,
                     ContentType: 'image/png',
+                    ACL: 'public-read',
                 }),
             );
 

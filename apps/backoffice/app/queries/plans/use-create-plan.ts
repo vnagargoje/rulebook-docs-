@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { V1PlansAdminCreatePlanBody } from '~/services/api/codegen/Api'
 import { v1PlansAdminCreatePlan } from '~/services/api/sdk'
 import { planKeys } from './keys'
 
-export type CreatePlanPayload = Parameters<typeof v1PlansAdminCreatePlan>[0]
+export type CreatePlanPayload = V1PlansAdminCreatePlanBody
 
 export function useCreatePlan() {
     const queryClient = useQueryClient()

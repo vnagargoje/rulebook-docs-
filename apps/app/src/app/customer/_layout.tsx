@@ -1,96 +1,89 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { SplashScreen, Tabs } from 'expo-router'
-import { useCallback, useEffect } from 'react'
+import { Stack } from 'expo-router'
 
 import { colors } from '@/components/ui'
 
 export default function CustomerLayout() {
-    const hideSplash = useCallback(async () => {
-        await SplashScreen.hideAsync()
-    }, [])
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            hideSplash()
-        }, 1000)
-
-        return () => clearTimeout(timer)
-    }, [hideSplash])
-
     return (
-        <Tabs
+        <Stack
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: colors.primary[600],
-                tabBarInactiveTintColor: colors.neutral[400],
-                tabBarStyle: {
-                    backgroundColor: colors.white,
-                    borderTopColor: colors.primary[100],
-                    height: 68,
-                    paddingTop: 8,
-                    paddingBottom: 8,
-                },
-                tabBarLabelStyle: {
-                    fontSize: 12,
-                    fontWeight: '600',
-                },
+                contentStyle: { backgroundColor: colors.white },
             }}>
-            <Tabs.Screen
-                name='index'
+            <Stack.Screen name='(tabs)' />
+            <Stack.Screen
+                name='plan/[id]'
                 options={{
-                    title: 'Home',
-                    tabBarIcon: ({ color }) => (
-                        <MaterialCommunityIcons
-                            name='home-outline'
-                            size={22}
-                            color={color}
-                        />
-                    ),
-                    tabBarButtonTestID: 'customer-home-tab',
+                    headerShown: true,
+                    title: 'Plan Details',
+                    headerBackTitle: 'Back',
+                    headerTintColor: colors.primary[600],
+                    headerTitleStyle: { color: colors.neutral[900], fontWeight: '600' },
+                    headerStyle: { backgroundColor: colors.white },
+                    headerShadowVisible: false,
                 }}
             />
-            <Tabs.Screen
-                name='booking'
+            <Stack.Screen
+                name='select-station'
                 options={{
-                    title: 'Booking',
-                    tabBarIcon: ({ color }) => (
-                        <MaterialCommunityIcons
-                            name='calendar-check-outline'
-                            size={22}
-                            color={color}
-                        />
-                    ),
-                    tabBarButtonTestID: 'customer-booking-tab',
+                    headerShown: true,
+                    title: 'Select Station',
+                    headerBackTitle: 'Back',
+                    headerTintColor: colors.primary[600],
+                    headerTitleStyle: { color: colors.neutral[900], fontWeight: '600' },
+                    headerStyle: { backgroundColor: colors.white },
+                    headerShadowVisible: false,
                 }}
             />
-            <Tabs.Screen
-                name='help'
+            <Stack.Screen
+                name='confirm-booking'
                 options={{
-                    title: 'Help',
-                    tabBarIcon: ({ color }) => (
-                        <MaterialCommunityIcons
-                            name='lifebuoy'
-                            size={22}
-                            color={color}
-                        />
-                    ),
-                    tabBarButtonTestID: 'customer-help-tab',
+                    headerShown: true,
+                    title: 'Confirm Booking',
+                    headerBackTitle: 'Back',
+                    headerTintColor: colors.primary[600],
+                    headerTitleStyle: { color: colors.neutral[900], fontWeight: '600' },
+                    headerStyle: { backgroundColor: colors.white },
+                    headerShadowVisible: false,
                 }}
             />
-            <Tabs.Screen
-                name='profile'
+            <Stack.Screen
+                name='booking-success'
                 options={{
-                    title: 'Profile',
-                    tabBarIcon: ({ color }) => (
-                        <MaterialCommunityIcons
-                            name='account-outline'
-                            size={22}
-                            color={color}
-                        />
-                    ),
-                    tabBarButtonTestID: 'customer-profile-tab',
+                    headerShown: false,
+                    gestureEnabled: false,
                 }}
             />
-        </Tabs>
+            <Stack.Screen
+                name='confirm-topup'
+                options={{
+                    headerShown: true,
+                    title: 'Confirm Top-Up',
+                    headerBackTitle: 'Back',
+                    headerTintColor: colors.primary[600],
+                    headerTitleStyle: { color: colors.neutral[900], fontWeight: '600' },
+                    headerStyle: { backgroundColor: colors.white },
+                    headerShadowVisible: false,
+                }}
+            />
+            <Stack.Screen
+                name='topup-success'
+                options={{
+                    headerShown: false,
+                    gestureEnabled: false,
+                }}
+            />
+            <Stack.Screen
+                name='booking/[id]'
+                options={{
+                    headerShown: true,
+                    title: 'Booking Details',
+                    headerBackTitle: 'Back',
+                    headerTintColor: colors.primary[600],
+                    headerTitleStyle: { color: colors.neutral[900], fontWeight: '600' },
+                    headerStyle: { backgroundColor: colors.white },
+                    headerShadowVisible: false,
+                }}
+            />
+        </Stack>
     )
 }

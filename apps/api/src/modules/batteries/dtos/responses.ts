@@ -1,4 +1,5 @@
 import { Type } from '@sinclair/typebox';
+import { BatteryStatus } from '@yugo/shared';
 
 export const BatteryPropertiesResponse = Type.Object({
     mfgDate: Type.Optional(Type.String()),
@@ -14,6 +15,7 @@ export const BatteryPropertiesResponse = Type.Object({
 export const BatteryResponse = Type.Object({
     id: Type.String(),
     batteryQrId: Type.String(),
+    status: Type.Enum(BatteryStatus),
     gpsId: Type.Optional(Type.String()),
     properties: Type.Optional(BatteryPropertiesResponse),
     stationId: Type.Optional(Type.String()),
@@ -22,6 +24,12 @@ export const BatteryResponse = Type.Object({
             id: Type.String(),
             name: Type.Optional(Type.String()),
             type: Type.Optional(Type.String()),
+        }),
+    ),
+    qrCode: Type.Optional(
+        Type.Object({
+            id: Type.String(),
+            path: Type.String(),
         }),
     ),
     createdAt: Type.Optional(Type.String()),

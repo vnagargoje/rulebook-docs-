@@ -1,9 +1,10 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
+import type { V1TopUpsGetTopUpsResponse } from '~/services/api/codegen/Api'
 import { v1TopUpsGetTopUps } from '~/services/api/sdk'
 import { topUpKeys } from './keys'
 
-export type TopUpsListParams = Parameters<typeof v1TopUpsGetTopUps>[0]
-export type TopUpsListResponse = Awaited<ReturnType<typeof v1TopUpsGetTopUps>>['data']
+export type TopUpsListParams = NonNullable<Parameters<typeof v1TopUpsGetTopUps>[0]>
+export type TopUpsListResponse = V1TopUpsGetTopUpsResponse
 export type TopUpItem = TopUpsListResponse['data'][number]
 
 export function useTopUps(params?: TopUpsListParams) {

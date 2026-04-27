@@ -1,4 +1,26 @@
-import type { ReactNode } from 'react'
+import type {
+    V1AuthSendOtpBody,
+    V1AuthSendOtpResponse,
+    V1AuthVerifyOtpBody,
+    V1AuthVerifyOtpResponse,
+} from '@/services/api/codegen/Api'
+
+export type UserRole = 'customer' | 'swap_manager' | 'hub_manager'
+
+export type JwtPayload = {
+    id?: string
+    email?: string
+    mobileNumber?: string
+    roles?: string[]
+    exp?: number
+    sub?: string
+}
+
+export type AuthenticationResult = {
+    authenticated: boolean
+    role?: UserRole
+    userId?: string
+}
 
 export type AuthToken = {
     access: string
@@ -11,48 +33,32 @@ export type AuthStatus = 'idle' | 'signOut' | 'signIn'
 export type AuthState = {
     token: AuthToken | null
     status: AuthStatus
+    user: {
+        id: string | null
+        role: UserRole | null
+    }
     signIn: (token: AuthToken) => void
     signOut: () => void
     hydrate: () => void
 }
 
-export type SendOtpResponse = {
-    mobilenumber: string
-    method: 'sms'
-    otpSent: boolean
-}
+export type SendOtpResponse = V1AuthSendOtpResponse
 
-export type SendOtpPayload = {
-    mobilenumber: string
-}
+export type SendOtpPayload = V1AuthSendOtpBody
 
-export type VerifyOtpResponse = {
-    verified?: boolean
-    accessToken?: string
-    refreshToken?: string
-}
+export type VerifyOtpResponse = V1AuthVerifyOtpResponse
 
-export type VerifiedOtpResponse = {
+export type VerifiedOtpResponse = VerifyOtpResponse & {
     verified: true
     accessToken: string
     refreshToken: string
 }
 
-export type VerifyOtpPayload = {
-    mobilenumber: string
-    otp: string
-}
+export type VerifyOtpPayload = V1AuthVerifyOtpBody
 
 export type VerifyOtpVariables = {
     phoneNumber: string
     otp: string
-}
-
-export type AuthScreenShellProps = {
-    eyebrow: string
-    title: string
-    description: string
-    children: ReactNode
 }
 
 export type RefreshTokenResponse = {

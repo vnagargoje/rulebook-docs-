@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import { isAxiosError } from 'axios'
 import { Dimensions, Platform } from 'react-native'
 import { showMessage } from 'react-native-flash-message'
+import { isXiorError } from 'xior'
 
 export const IS_IOS = Platform.OS === 'ios'
 const { width, height } = Dimensions.get('screen')
@@ -11,11 +11,11 @@ export const HEIGHT = height
 
 // for onError react queries and mutations
 export function showError(error: unknown) {
-    const description = isAxiosError(error)
+    const description = isXiorError(error)
         ? extractError(error.response?.data).trimEnd()
         : extractError(error).trimEnd()
 
-    if (isAxiosError(error)) {
+    if (isXiorError(error)) {
         console.log(JSON.stringify(error.response?.data))
     } else {
         console.log(error)

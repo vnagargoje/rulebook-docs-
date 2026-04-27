@@ -157,11 +157,19 @@ export default function BatteryViewRoute() {
                         </div>
                     </CardHeader>
                     <CardContent className='space-y-4 p-6'>
-                        {/* QR identifier display */}
+                        {/* QR image or fallback */}
                         <div className='flex flex-col items-center justify-center gap-4 overflow-hidden rounded-3xl border border-dashed border-border bg-gradient-to-br from-muted/40 to-white p-8'>
-                            <div className='flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary'>
-                                <IconQrcode size={36} />
-                            </div>
+                            {battery.qrCode?.path ? (
+                                <img
+                                    src={battery.qrCode.path}
+                                    alt={`QR code for ${battery.batteryQrId}`}
+                                    className='h-40 w-40 rounded-xl object-contain'
+                                />
+                            ) : (
+                                <div className='flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary'>
+                                    <IconQrcode size={36} />
+                                </div>
+                            )}
                             <div className='text-center'>
                                 <div className='text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground'>
                                     Battery QR ID
@@ -171,6 +179,17 @@ export default function BatteryViewRoute() {
                                 </div>
                             </div>
                         </div>
+                        {/* QR file path */}
+                        {battery.qrCode?.path && (
+                            <div className='rounded-2xl border border-border/50 bg-muted/20 p-4'>
+                                <div className='text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground'>
+                                    QR Code URL
+                                </div>
+                                <div className='mt-2 break-all text-sm font-medium text-foreground'>
+                                    {battery.qrCode.path}
+                                </div>
+                            </div>
+                        )}
                         {/* Reference */}
                         <div className='rounded-2xl border border-border/50 bg-muted/20 p-4'>
                             <div className='text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground'>

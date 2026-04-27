@@ -19,6 +19,7 @@ import {
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
 import { PlanResponse } from '../../dtos/responses';
+import { Public } from '@/decorators/public.decorator';
 
 const PAGINATE_CONFIG: PaginateConfig<PlanEntity> = {
     sortableColumns: ['id', 'name', 'price', 'createdAt'],
@@ -38,6 +39,7 @@ const PAGINATE_CONFIG: PaginateConfig<PlanEntity> = {
 export class V1PlansController {
     constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
+    @Public()
     @Get()
     @ApiResource(PlanResponse, PAGINATE_CONFIG)
     async getPlans(@Paginate() query: PaginateQuery) {
@@ -47,6 +49,7 @@ export class V1PlansController {
         return paginate(query, qb, PAGINATE_CONFIG);
     }
 
+    @Public()
     @Get(':id')
     @ApiResource(PlanResponse)
     async getPlanById(@Param('id') id: string) {

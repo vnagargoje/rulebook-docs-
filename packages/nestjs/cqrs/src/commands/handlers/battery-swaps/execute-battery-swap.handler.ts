@@ -159,6 +159,7 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
                 Key: s3Key,
                 Body: qrBuffer,
                 ContentType: 'image/png',
+                ACL: 'public-read',
             }),
         )
 

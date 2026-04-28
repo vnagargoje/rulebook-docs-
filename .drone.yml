@@ -1,0 +1,107 @@
+kind: pipeline
+type: digitalocean
+name: Build STAGING Yugo Backend & Services
+
+token:
+    from_secret: DOCR_TOKEN
+
+server:
+    image: docker-20-04
+    size: s-2vcpu-4gb
+    region: nyc1
+
+steps:
+  - name: login
+    environment:
+        DOCR_TOKEN:
+            from_secret: DOCR_TOKEN
+    commands:
+      - "echo $DOCR_TOKEN | docker login registry.digitalocean.com --username $DOCR_TOKEN --password-stdin"
+
+  - name: build-api
+    commands:
+      - "docker buildx build --platform linux/amd64 -f Dockerfile.api . -t registry.digitalocean.com/yugo-builds/api:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/api:latest"
+    depends_on:
+      - login
+
+  - name: build-henchmen
+    commands:
+      - "docker buildx build --platform linux/amd64 -f Dockerfile.henchmen . -t registry.digitalocean.com/yugo-builds/henchman:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/henchman:latest"
+    depends_on:
+      - build-api
+
+  - name: build-backoffice
+    commands:
+      - "docker buildx build --platform linux/amd64 -f apps/backoffice/Dockerfile . --build-arg VITE_API_URL=https://api.foamingo.com -t registry.digitalocean.com/yugo-builds/backoffice:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/backoffice:latest"
+    depends_on:
+      - build-henchmen
+
+  - name: build-cli
+    commands:
+      - "docker buildx build --platform linux/amd64 -f Dockerfile.cli . -t registry.digitalocean.com/yugo-builds/cli:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/cli:latest"
+    depends_on:
+      - build-backoffice
+
+  - name: push-api
+    commands:
+      - "docker push registry.digitalocean.com/yugo-builds/api:${DRONE_COMMIT_SHA:0:10}"
+      - "docker push registry.digitalocean.com/yugo-builds/api:latest"
+    depends_on:
+      - build-api
+
+  - name: push-henchmen
+    commands:
+      - "docker push registry.digitalocean.com/yugo-builds/henchman:${DRONE_COMMIT_SHA:0:10}"
+      - "docker push registry.digitalocean.com/yugo-builds/henchman:latest"
+    depends_on:
+      - build-henchmen
+
+  - name: push-backoffice
+    commands:
+      - "docker push registry.digitalocean.com/yugo-builds/backoffice:${DRONE_COMMIT_SHA:0:10}"
+      - "docker push registry.digitalocean.com/yugo-builds/backoffice:latest"
+    depends_on:
+      - build-backoffice
+
+  - name: push-cli
+    commands:
+      - "docker push registry.digitalocean.com/yugo-builds/cli:${DRONE_COMMIT_SHA:0:10}"
+      - "docker push registry.digitalocean.com/yugo-builds/cli:latest"
+    depends_on:
+      - build-cli
+
+  - name: send_failure
+    environment:
+        webhook:
+            from_secret: WEBHOOK
+    commands:
+      - |
+        curl -i -X POST -H 'Content-Type: application/json' -d "{\"text\": \"❌ YUGO BACKEND build failed: ${DRONE_COMMIT_SHA:0:10} on ${DRONE_COMMIT_BRANCH}\\n${DRONE_COMMIT_LINK}\"}" $webhook
+    when:
+        status: failure
+    depends_on:
+      - push-api
+      - push-henchmen
+      - push-backoffice
+      - push-cli
+
+  - name: send_success
+    environment:
+        webhook:
+            from_secret: WEBHOOK
+    commands:
+      - |
+        curl -i -X POST -H 'Content-Type: application/json' -d "{\"text\": \"✅ YUGO BACKEND build succeeded: ${DRONE_COMMIT_SHA:0:10} on ${DRONE_COMMIT_BRANCH}\\n${DRONE_COMMIT_LINK}\"}" $webhook
+    when:
+        status: success
+    depends_on:
+      - push-api
+      - push-henchmen
+      - push-backoffice
+      - push-cli
+
+trigger:
+    branch:
+      - dev
+    event:
+      - push

@@ -3174,7 +3174,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expo/image-utils@npm:^0.8.8":
+"@expo/image-utils@npm:^0.8.13, @expo/image-utils@npm:^0.8.8":
   version: 0.8.13
   resolution: "@expo/image-utils@npm:0.8.13"
   dependencies:
@@ -8969,6 +8969,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/geojson@npm:^7946.0.13":
+  version: 7946.0.16
+  resolution: "@types/geojson@npm:7946.0.16"
+  checksum: 10c0/1ff24a288bd5860b766b073ead337d31d73bdc715e5b50a2cee5cb0af57a1ed02cc04ef295f5fa68dc40fe3e4f104dd31282b2b818a5ba3231bc1001ba084e3c
+  languageName: node
+  linkType: hard
+
 "@types/graceful-fs@npm:^4.1.3":
   version: 4.1.9
   resolution: "@types/graceful-fs@npm:4.1.9"
@@ -10023,6 +10030,7 @@ __metadata:
     eslint-plugin-testing-library: "npm:^7.15.4"
     eslint-plugin-unicorn: "npm:^62.0.0"
     expo: "npm:~54.0.32"
+    expo-camera: "npm:~17.0.10"
     expo-constants: "npm:~18.0.13"
     expo-crypto: "npm:^15.0.8"
     expo-dev-client: "npm:~6.0.20"
@@ -10030,6 +10038,8 @@ __metadata:
     expo-image: "npm:~3.0.11"
     expo-linking: "npm:~8.0.11"
     expo-localization: "npm:~17.0.8"
+    expo-location: "npm:^55.1.8"
+    expo-maps: "npm:^55.0.16"
     expo-router: "npm:~6.0.22"
     expo-splash-screen: "npm:~31.0.13"
     expo-status-bar: "npm:~3.0.9"
@@ -10054,9 +10064,11 @@ __metadata:
     react-native-flash-message: "npm:^0.4.2"
     react-native-gesture-handler: "npm:~2.28.0"
     react-native-keyboard-controller: "npm:^1.18.5"
+    react-native-maps: "npm:^1.27.2"
     react-native-mmkv: "npm:~4.1.1"
     react-native-nitro-modules: "npm:^0.33.2"
     react-native-otp-entry: "npm:^1.8.5"
+    react-native-razorpay: "npm:^3.0.0"
     react-native-reanimated: "npm:~4.1.6"
     react-native-restart: "npm:0.0.27"
     react-native-safe-area-context: "npm:5.6.2"
@@ -10066,6 +10078,7 @@ __metadata:
     react-native-web: "npm:~0.21.2"
     react-native-worklets: "npm:^0.7.2"
     react-query-kit: "npm:^3.3.2"
+    sonner-native: "npm:^0.24.0"
     swagger-typescript-api: "npm:^13.6.8"
     tailwind-merge: "npm:^3.4.0"
     tailwind-variants: "npm:^3.2.2"
@@ -10141,6 +10154,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@yugo/cli@workspace:apps/cli"
   dependencies:
+    "@aws-sdk/client-s3": "npm:^3.1030.0"
     "@countrystatecity/countries": "npm:^1.0.5"
     "@faker-js/faker": "npm:^9.9.0"
     "@nestjs/cli": "npm:^11.0.0"
@@ -10169,6 +10183,7 @@ __metadata:
     inquirer-autocomplete-standalone: "npm:^0.8.1"
     mysql2: "npm:^3.21.0"
     nest-commander: "npm:^3.12.0"
+    pngjs: "npm:^6.0.0"
     reflect-metadata: "npm:^0.2.2"
     rimraf: "npm:^5.0.5"
     rxjs: "npm:^7.8.1"
@@ -10305,6 +10320,7 @@ __metadata:
   resolution: "@yugo/permissions@workspace:packages/shared/permissions"
   dependencies:
     "@casl/ability": "npm:^6.7.3"
+    "@yugo/shared": "workspace:*"
     "@yugo/tsconfig": "workspace:*"
     del-cli: "npm:^7.0.0"
     tsup: "npm:^8.0.0"
@@ -14886,6 +14902,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-camera@npm:~17.0.10":
+  version: 17.0.10
+  resolution: "expo-camera@npm:17.0.10"
+  dependencies:
+    invariant: "npm:^2.2.4"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native-web:
+      optional: true
+  checksum: 10c0/7b43443f5a158845e7a5333f0bd5ddbf05315df9e5fc1ded1bed620d0b82a373147cf0f1b9a73d53a517b9ecf7e5588c15032c503c0eb57484aab8aa70e96127
+  languageName: node
+  linkType: hard
+
 "expo-constants@npm:~18.0.12, expo-constants@npm:~18.0.13":
   version: 18.0.13
   resolution: "expo-constants@npm:18.0.13"
@@ -15038,6 +15071,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-location@npm:^55.1.8":
+  version: 55.1.8
+  resolution: "expo-location@npm:55.1.8"
+  dependencies:
+    "@expo/image-utils": "npm:^0.8.13"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/2bb2e667dd812cd479a72df217c6a55ea7fc6e5edd160ccf7e28223aca6eedfdf598b6ca81e7837fe6562efe65038a23a02d67009eb4155b08a2d0f92cf6b368
+  languageName: node
+  linkType: hard
+
 "expo-manifests@npm:~1.0.10":
   version: 1.0.10
   resolution: "expo-manifests@npm:1.0.10"
@@ -15047,6 +15091,17 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: 10c0/97130cb1800486fc65c1e4269580aef6b6603dd4fce2299ebc3227bdeb38ea24e691ff4f66be9ca9842f4bddcddfe6e3637a1bc5c22d96fe807eadfbd6c44434
+  languageName: node
+  linkType: hard
+
+"expo-maps@npm:^55.0.16":
+  version: 55.0.16
+  resolution: "expo-maps@npm:55.0.16"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/ab5c2fd947c63e7daa5d4b87a889e41eb128133c2598f95b5d684d2751dfee63f018c5ca862a7e4cdd20f9d0aca0e9a353ce3895d77598a26b83794676ab5e10
   languageName: node
   linkType: hard
 
@@ -23156,6 +23211,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-maps@npm:^1.27.2":
+  version: 1.27.2
+  resolution: "react-native-maps@npm:1.27.2"
+  dependencies:
+    "@types/geojson": "npm:^7946.0.13"
+  peerDependencies:
+    react: ">= 18.3.1"
+    react-native: ">= 0.76.0"
+    react-native-web: ">= 0.11"
+  peerDependenciesMeta:
+    react-native-web:
+      optional: true
+  checksum: 10c0/cde71f62c5cc1dee7f1a158d354ddb0a3295b1be589e98991510cbd4586b8eaa1ea6cfe68f6fbb25a87a4c9bb6be4a5aa93b410053f120bc34adfb526a4ca671
+  languageName: node
+  linkType: hard
+
 "react-native-mmkv@npm:~4.1.1":
   version: 4.1.2
   resolution: "react-native-mmkv@npm:4.1.2"
@@ -23184,6 +23255,16 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10c0/706f69a72eb0e1e9caa3b64330bc029b563616d4a5592a9573011638dfc8aee28f9455b53ea1bbaf27070ef1f7aeda474db4cf4753e4a3ef803797d88da9d57a
+  languageName: node
+  linkType: hard
+
+"react-native-razorpay@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "react-native-razorpay@npm:3.0.0"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-native: ">=0.66.0"
+  checksum: 10c0/0726844f172991759c486f824be9ded4a17aa912ec20657a1d80d82b4ac12b4cf7888f83b9f798461bc7a20a41ca06e0c53c878a12facfae87e92ad7ea612794
   languageName: node
   linkType: hard
 
@@ -24869,6 +24950,21 @@ __metadata:
   dependencies:
     atomic-sleep: "npm:^1.0.0"
   checksum: 10c0/9bf338f86147db50e116484f74f2e29a321a12733e0cefab3087c80dd32bf4df3d7407dbcafc13bc39ac269d9dd61dd6ef952354b9503392d4e1e7414f8e360e
+  languageName: node
+  linkType: hard
+
+"sonner-native@npm:^0.24.0":
+  version: 0.24.0
+  resolution: "sonner-native@npm:0.24.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-gesture-handler: ">=2.16.1"
+    react-native-reanimated: ">=3.10.1"
+    react-native-safe-area-context: ">=4.10.5"
+    react-native-screens: ">=3.31.1"
+    react-native-svg: ">=15.6.0"
+  checksum: 10c0/b1b0ba3f075b0bf1895ccda00ace499d2d111f20fb89c0c2574afeb3e07d8cc0885af29824da564c4065bb9f3bc22cfa4801285d114771a36c0ab3f3ba748a05
   languageName: node
   linkType: hard
 

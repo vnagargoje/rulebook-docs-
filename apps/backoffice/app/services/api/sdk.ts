@@ -50,7 +50,7 @@ export const {
     v1TopUpsGetTopUpById,
     v1TopUpsAdminCreateTopUp,
     v1TopUpsAdminUpdateTopUp,
-    v1BookingsGetMyBookings,
+    v1BookingsGetAllBookings,
     v1BookingsGetBookingById,
     v1BookingsAdminAssignVehicle,
     v1StationsGetManyStations,
@@ -65,4 +65,7 @@ export const {
     v1BatteriesCreateOneBattery,
     v1BatteriesGetOneBattery,
     v1BatteriesUpdateOneBattery,
+    v1VehicleSurrenderGetAllSurrenders,
+    v1VehicleSurrenderGetSurrenderDetails,
+    v1VehicleSurrenderSurrenderVehicle,
 } = api.v1

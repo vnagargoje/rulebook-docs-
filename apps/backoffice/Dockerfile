@@ -1,22 +1,35 @@
-FROM node:20-alpine AS development-dependencies-env
-COPY . /app
-WORKDIR /app
-RUN npm ci
+FROM node:22-alpine AS base
+RUN corepack enable
 
-FROM node:20-alpine AS production-dependencies-env
-COPY ./package.json package-lock.json /app/
+FROM base AS build
 WORKDIR /app
-RUN npm ci --omit=dev
+COPY package.json yarn.lock .yarnrc.yml turbo.json ./
+COPY packages ./packages
+COPY apps ./apps
 
-FROM node:20-alpine AS build-env
-COPY . /app/
-COPY --from=development-dependencies-env /app/node_modules /app/node_modules
-WORKDIR /app
-RUN npm run build
+RUN yarn install --immutable
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+RUN yarn turbo run build --filter=@yugo/backoffice
 
-FROM node:20-alpine
-COPY ./package.json package-lock.json /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=build-env /app/build /app/build
+FROM base AS deps
 WORKDIR /app
-CMD ["npm", "run", "start"]
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY packages ./packages
+COPY apps ./apps
+RUN yarn workspaces focus @yugo/backoffice --production
+
+FROM base AS production
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/yarn.lock ./yarn.lock
+COPY --from=build /app/.yarnrc.yml ./.yarnrc.yml
+COPY --from=build /app/packages ./packages
+COPY --from=build /app/apps/backoffice/build ./apps/backoffice/build
+COPY --from=build /app/apps/backoffice/package.json ./apps/backoffice/package.json
+
+EXPOSE 3000
+CMD ["yarn", "workspace", "@yugo/backoffice", "start"]

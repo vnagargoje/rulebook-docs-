@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { V1TopUpsAdminCreateTopUpBody } from '~/services/api/codegen/Api'
 import { v1TopUpsAdminCreateTopUp } from '~/services/api/sdk'
 import { topUpKeys } from './keys'
 
-export type CreateTopUpPayload = Parameters<typeof v1TopUpsAdminCreateTopUp>[0]
+export type CreateTopUpPayload = V1TopUpsAdminCreateTopUpBody
 
 export function useCreateTopUp() {
     const queryClient = useQueryClient()

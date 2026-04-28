@@ -35,6 +35,7 @@ import { SurrenderVehiclePayload } from '../../dtos/payloads';
 import {
     SurrenderVehicleResponse,
     VehicleSurrenderDetailsResponse,
+    VehicleSurrenderListResponse,
 } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<VehicleSurrenderEntity> = {
@@ -60,7 +61,7 @@ export class V1VehicleSurrenderController {
         private readonly commandBus: CommandBus,
     ) {}
 
-    @ApiResource(VehicleSurrenderDetailsResponse)
+    @ApiResource(VehicleSurrenderListResponse, PAGINATE_CONFIG)
     @Get()
     async getAllSurrenders(
         @Paginate() query: PaginateQuery,

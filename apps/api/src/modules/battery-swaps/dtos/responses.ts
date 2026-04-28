@@ -33,6 +33,16 @@ export const BatterySwapHistoryResponse = Type.Object({
             batteryQrId: Type.String(),
         }),
     ),
+    userPlan: Type.Optional(
+        Type.Object({
+            userId: Type.String(),
+            user: Type.Object({
+                mobilenumber: Type.String(),
+                firstName: Type.String(),
+                lastName: Type.String(),
+            }),
+        }),
+    ),
     newBatteryId: Type.String(),
     newBattery: Type.Optional(
         Type.Object({

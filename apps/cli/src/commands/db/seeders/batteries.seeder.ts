@@ -7,18 +7,7 @@ import { PNG } from 'pngjs';
 import { DataSource } from 'typeorm';
 import { Seeder } from 'typeorm-extension';
 
-const PDF_PATH = resolve(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    '..',
-    'src',
-    'commands',
-    'db',
-    'seeders',
-    'battery-qr-codes.pdf',
-);
+const PDF_PATH = resolve(__dirname, 'battery-qr-codes.pdf');
 const QR_WIDTH = 120;
 const QR_HEIGHT = 120;
 
@@ -147,6 +136,7 @@ export class BatteriesSeeder implements Seeder {
                     Key: s3Key,
                     Body: pngBuffer,
                     ContentType: 'image/png',
+                    ACL: 'public-read',
                 }),
             );
 

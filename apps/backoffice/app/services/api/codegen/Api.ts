@@ -587,6 +587,12 @@ export interface V1UserPlansGetMyPlansResponse {
     };
     createdAt: string;
     updatedAt: string;
+    topUps?: {
+      id: string;
+      topUpId: string;
+      topUpSnapshot: any;
+      appliedAt: string;
+    }[];
   }[];
   meta: {
     itemsPerPage: number;
@@ -623,6 +629,12 @@ export interface V1UserPlansGetMyPlanByIdResponse {
   };
   createdAt: string;
   updatedAt: string;
+  topUps?: {
+    id: string;
+    topUpId: string;
+    topUpSnapshot: any;
+    appliedAt: string;
+  }[];
 }
 
 export interface V1UserPlansPurchasePlanResponse {
@@ -641,6 +653,12 @@ export interface V1UserPlansPurchasePlanResponse {
   };
   createdAt: string;
   updatedAt: string;
+  topUps?: {
+    id: string;
+    topUpId: string;
+    topUpSnapshot: any;
+    appliedAt: string;
+  }[];
 }
 
 export interface V1UserPlansPurchasePlanBody {
@@ -663,6 +681,12 @@ export interface V1UserPlansApplyTopUpResponse {
   };
   createdAt: string;
   updatedAt: string;
+  topUps?: {
+    id: string;
+    topUpId: string;
+    topUpSnapshot: any;
+    appliedAt: string;
+  }[];
 }
 
 export interface V1UserPlansApplyTopUpBody {
@@ -709,18 +733,26 @@ export interface V1BookingsGetAllBookingsResponse {
     userPlanId: string;
     userPlan: {
       id: string;
+      userId: string;
+      planId: string;
       status: string;
       planSnapshot: any;
-      startsAt?: string;
-      expiresAt?: string;
+      startsAt: string | null;
+      expiresAt: string | null;
       remainingKm: number;
+      qrCodeId: string | null;
+      createdAt: string;
+      updatedAt: string;
       plan?: {
         id: string;
         name: string;
+        description?: string;
         validityDays: number;
         kmLimit: number;
         price: number;
         deposit: number;
+        gst?: number;
+        registrationFee?: number;
         totalAmount: number;
       };
       qrCode?: {
@@ -729,6 +761,12 @@ export interface V1BookingsGetAllBookingsResponse {
         path: string;
         mimeType?: string;
       };
+      topUps?: {
+        id: string;
+        topUpId: string;
+        topUpSnapshot: any;
+        appliedAt: string;
+      }[];
     };
     stationId?: string;
     station?: {
@@ -780,18 +818,26 @@ export interface V1BookingsGetBookingByIdResponse {
   userPlanId: string;
   userPlan: {
     id: string;
+    userId: string;
+    planId: string;
     status: string;
     planSnapshot: any;
-    startsAt?: string;
-    expiresAt?: string;
+    startsAt: string | null;
+    expiresAt: string | null;
     remainingKm: number;
+    qrCodeId: string | null;
+    createdAt: string;
+    updatedAt: string;
     plan?: {
       id: string;
       name: string;
+      description?: string;
       validityDays: number;
       kmLimit: number;
       price: number;
       deposit: number;
+      gst?: number;
+      registrationFee?: number;
       totalAmount: number;
     };
     qrCode?: {
@@ -800,6 +846,12 @@ export interface V1BookingsGetBookingByIdResponse {
       path: string;
       mimeType?: string;
     };
+    topUps?: {
+      id: string;
+      topUpId: string;
+      topUpSnapshot: any;
+      appliedAt: string;
+    }[];
   };
   stationId?: string;
   station?: {
@@ -833,18 +885,26 @@ export interface V1BookingsAdminAssignVehicleResponse {
   userPlanId: string;
   userPlan: {
     id: string;
+    userId: string;
+    planId: string;
     status: string;
     planSnapshot: any;
-    startsAt?: string;
-    expiresAt?: string;
+    startsAt: string | null;
+    expiresAt: string | null;
     remainingKm: number;
+    qrCodeId: string | null;
+    createdAt: string;
+    updatedAt: string;
     plan?: {
       id: string;
       name: string;
+      description?: string;
       validityDays: number;
       kmLimit: number;
       price: number;
       deposit: number;
+      gst?: number;
+      registrationFee?: number;
       totalAmount: number;
     };
     qrCode?: {
@@ -853,6 +913,12 @@ export interface V1BookingsAdminAssignVehicleResponse {
       path: string;
       mimeType?: string;
     };
+    topUps?: {
+      id: string;
+      topUpId: string;
+      topUpSnapshot: any;
+      appliedAt: string;
+    }[];
   };
   stationId?: string;
   station?: {
@@ -1213,6 +1279,13 @@ export interface V1BatteriesGetManyBatteriesResponse {
   data: {
     id: string;
     batteryQrId: string;
+    status:
+      | "available"
+      | "charged"
+      | "charging"
+      | "drained"
+      | "in_transit"
+      | "in_use";
     gpsId?: string;
     properties?: {
       mfgDate?: string;
@@ -1229,6 +1302,10 @@ export interface V1BatteriesGetManyBatteriesResponse {
       id: string;
       name?: string;
       type?: string;
+    };
+    qrCode?: {
+      id: string;
+      path: string;
     };
     createdAt?: string;
     updatedAt?: string;
@@ -1255,6 +1332,13 @@ export interface V1BatteriesGetManyBatteriesResponse {
 export interface V1BatteriesCreateOneBatteryResponse {
   id: string;
   batteryQrId: string;
+  status:
+    | "available"
+    | "charged"
+    | "charging"
+    | "drained"
+    | "in_transit"
+    | "in_use";
   gpsId?: string;
   properties?: {
     mfgDate?: string;
@@ -1271,6 +1355,10 @@ export interface V1BatteriesCreateOneBatteryResponse {
     id: string;
     name?: string;
     type?: string;
+  };
+  qrCode?: {
+    id: string;
+    path: string;
   };
   createdAt?: string;
   updatedAt?: string;
@@ -1295,6 +1383,13 @@ export interface V1BatteriesCreateOneBatteryBody {
 export interface V1BatteriesGetOneBatteryResponse {
   id: string;
   batteryQrId: string;
+  status:
+    | "available"
+    | "charged"
+    | "charging"
+    | "drained"
+    | "in_transit"
+    | "in_use";
   gpsId?: string;
   properties?: {
     mfgDate?: string;
@@ -1311,6 +1406,10 @@ export interface V1BatteriesGetOneBatteryResponse {
     id: string;
     name?: string;
     type?: string;
+  };
+  qrCode?: {
+    id: string;
+    path: string;
   };
   createdAt?: string;
   updatedAt?: string;
@@ -1319,6 +1418,13 @@ export interface V1BatteriesGetOneBatteryResponse {
 export interface V1BatteriesUpdateOneBatteryResponse {
   id: string;
   batteryQrId: string;
+  status:
+    | "available"
+    | "charged"
+    | "charging"
+    | "drained"
+    | "in_transit"
+    | "in_use";
   gpsId?: string;
   properties?: {
     mfgDate?: string;
@@ -1335,6 +1441,10 @@ export interface V1BatteriesUpdateOneBatteryResponse {
     id: string;
     name?: string;
     type?: string;
+  };
+  qrCode?: {
+    id: string;
+    path: string;
   };
   createdAt?: string;
   updatedAt?: string;
@@ -1401,6 +1511,14 @@ export interface V1BatterySwapsGetSwapHistoryResponse {
     oldBattery?: {
       id: string;
       batteryQrId: string;
+    };
+    userPlan?: {
+      userId: string;
+      user: {
+        mobilenumber: string;
+        firstName: string;
+        lastName: string;
+      };
     };
     newBatteryId: string;
     newBattery?: {
@@ -1646,11 +1764,44 @@ export interface V1BatteryTransportsGetMovementBatteriesResponse {
 }
 
 export interface V1VehicleSurrenderGetAllSurrendersResponse {
-  customerId: string;
-  customerName: string | null;
-  depositAmount: number;
-  rtoPenalty: number;
-  refundAmount: number;
+  data: {
+    id: string;
+    bookingId: string;
+    vehicleId: string;
+    penalty: number;
+    miscCharges: number;
+    refundAmount: number;
+    notes: string | null;
+    createdAt: string;
+    updatedAt: string;
+    vehicle?: {
+      id: string;
+      vehicleNumber: string;
+    } | null;
+    booking?: {
+      id: string;
+      userPlanId: string;
+      userId: string;
+      status: string;
+    } | null;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
 }
 
 export interface V1VehicleSurrenderGetSurrenderDetailsResponse {
@@ -3348,6 +3499,23 @@ export class Api<
          */
         "filter.manager.lastName"?: string[];
         /**
+         * Filter by managerId query param.
+         *
+         * **Format:** filter.managerId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.managerId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.managerId"?: string[];
+        /**
          * Parameter to sort by.
          * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
          *
@@ -3781,6 +3949,23 @@ export class Api<
          */
         "filter.station.name"?: string[];
         /**
+         * Filter by station.managerId query param.
+         *
+         * **Format:** filter.station.managerId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.station.managerId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.station.managerId"?: string[];
+        /**
          * Parameter to sort by.
          * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
          *
@@ -3798,6 +3983,8 @@ export class Api<
          * - batteryQrId
          *
          * - createdAt
+         *
+         * - stationId
          */
         sortBy?: (
           | "id:ASC"
@@ -3806,6 +3993,8 @@ export class Api<
           | "batteryQrId:DESC"
           | "createdAt:ASC"
           | "createdAt:DESC"
+          | "stationId:ASC"
+          | "stationId:DESC"
         )[];
       },
       params: RequestParams = {},
@@ -4305,10 +4494,93 @@ export class Api<
      * @request GET:/v1/vehicle-surrender
      * @secure
      */
-    v1VehicleSurrenderGetAllSurrenders: (params: RequestParams = {}) =>
+    v1VehicleSurrenderGetAllSurrenders: (
+      query?: {
+        /**
+         * Page number to retrieve. If you provide invalid value the default page number will applied
+         *
+         * **Example:** 1
+         *
+         *
+         * **Default Value:** 1
+         *
+         */
+        page?: number;
+        /**
+         * Number of records per page.
+         *
+         *
+         * **Example:** 20
+         *
+         *
+         *
+         * **Default Value:** 50
+         *
+         *
+         *
+         * **Max Value:** 100
+         *
+         *
+         * If provided value is greater than max value, max value will be applied.
+         */
+        limit?: number;
+        /**
+         * Filter by vehicleId query param.
+         *
+         * **Format:** filter.vehicleId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.vehicleId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.vehicleId"?: string[];
+        /**
+         * Filter by bookingId query param.
+         *
+         * **Format:** filter.bookingId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.bookingId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.bookingId"?: string[];
+        /**
+         * Parameter to sort by.
+         * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
+         *
+         * **Format:** {fieldName}:{DIRECTION}
+         *
+         *
+         * **Example:** sortBy=createdAt:DESC
+         *
+         *
+         * **Default Value:** createdAt:DESC
+         *
+         * **Available Fields**
+         * - createdAt
+         */
+        sortBy?: ("createdAt:ASC" | "createdAt:DESC")[];
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<V1VehicleSurrenderGetAllSurrendersResponse, any>({
         path: `/v1/vehicle-surrender`,
         method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,

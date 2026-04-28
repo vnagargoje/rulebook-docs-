@@ -92,6 +92,14 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
             newBattery.status = BatteryStatus.IN_USE
             await manager.save(newBattery)
 
+            const kmLimit = plan.planSnapshot?.kmLimit || 0
+            if (kmLimit > 0) {
+                const rangeStr = oldBattery.properties?.range || '0'
+                const range = parseFloat(rangeStr) || 0
+                plan.remainingKm = Number(plan.remainingKm) - range
+            }
+            await manager.save(plan)
+
             const swapHistory = manager.create(BatterySwapHistoryEntity, {
                 userPlanId: booking.userPlanId,
                 bookingId: booking.id,
@@ -151,6 +159,7 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
                 Key: s3Key,
                 Body: qrBuffer,
                 ContentType: 'image/png',
+                ACL: 'public-read',
             }),
         )
 

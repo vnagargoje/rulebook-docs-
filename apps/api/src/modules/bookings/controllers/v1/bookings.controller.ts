@@ -51,6 +51,7 @@ export class V1BookingsController {
             .innerJoinAndSelect('booking.userPlan', 'userPlan')
             .leftJoinAndSelect('userPlan.plan', 'plan')
             .leftJoinAndSelect('userPlan.qrCode', 'qrCode')
+            .leftJoinAndSelect('userPlan.topUps', 'topUps')
             .leftJoinAndSelect('booking.station', 'station')
             .leftJoinAndSelect('booking.vehicle', 'vehicle')
             .leftJoinAndSelect('booking.battery', 'battery');
@@ -78,6 +79,7 @@ export class V1BookingsController {
             .innerJoinAndSelect('booking.userPlan', 'userPlan')
             .leftJoinAndSelect('userPlan.plan', 'plan')
             .leftJoinAndSelect('userPlan.qrCode', 'qrCode')
+            .leftJoinAndSelect('userPlan.topUps', 'topUps')
             .leftJoinAndSelect('booking.station', 'station')
             .leftJoinAndSelect('booking.vehicle', 'vehicle')
             .leftJoinAndSelect('booking.battery', 'battery');

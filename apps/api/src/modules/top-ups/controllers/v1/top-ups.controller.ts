@@ -19,6 +19,7 @@ import {
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
 import { TopUpResponse } from '../../dtos/responses';
+import { Public } from '@/decorators/public.decorator';
 
 const PAGINATE_CONFIG: PaginateConfig<TopUpEntity> = {
     sortableColumns: ['id', 'name', 'price', 'createdAt'],
@@ -38,6 +39,7 @@ const PAGINATE_CONFIG: PaginateConfig<TopUpEntity> = {
 export class V1TopUpsController {
     constructor(@InjectDataSource() private readonly datasource: DataSource) {}
 
+    @Public()
     @ApiResource(TopUpResponse, PAGINATE_CONFIG)
     @Get()
     async getTopUps(@Paginate() query: PaginateQuery) {
@@ -47,6 +49,7 @@ export class V1TopUpsController {
         return paginate(query, qb, PAGINATE_CONFIG);
     }
 
+    @Public()
     @ApiResource(TopUpResponse)
     @Get(':id')
     async getTopUpById(@Param('id') id: string) {

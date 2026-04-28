@@ -8,17 +8,18 @@ import {
     Pressable,
     TextInput,
 } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { assets } from '@/assets'
-import { FocusAwareStatusBar, Paragraph, SubHeading, Text, View } from '@/components/ui'
+import { Paragraph, SubHeading, Text, View } from '@/components/ui'
 import colors from '@/components/ui/colors'
 import { normalizeMobileNumber } from '@/components/auth/auth.utils'
 import { useSendOtp } from '@/queries/auth.query'
 
 export default function SignInPage() {
     const router = useRouter()
+    const { redirect, planId } = useLocalSearchParams<{ redirect?: string; planId?: string }>()
     const [mobilenumber, setMobilenumber] = useState('')
     const sendOtp = useSendOtp()
 
@@ -38,10 +39,20 @@ export default function SignInPage() {
     const handleSubmit = useCallback(async () => {
         const normalized = normalizeMobileNumber(fullMobileNumber)
         const response = await sendOtp.mutateAsync(normalized)
+        const query = new URLSearchParams({ mobilenumber: response.mobilenumber ?? normalized })
+
+        if (redirect) {
+            query.set('redirect', String(redirect))
+        }
+
+        if (planId) {
+            query.set('planId', String(planId))
+        }
+
         router.push(
-            `/auth/verify-otp?${new URLSearchParams({ mobilenumber: response.mobilenumber ?? normalized }).toString()}`,
+            `/auth/verify-otp?${query.toString()}`,
         )
-    }, [fullMobileNumber, router, sendOtp])
+    }, [fullMobileNumber, planId, redirect, router, sendOtp])
 
     const isDisabled = mobilenumber.length !== 10 || sendOtp.isPending
 
@@ -50,7 +61,6 @@ export default function SignInPage() {
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             keyboardVerticalOffset={10}>
-            <FocusAwareStatusBar />
             <SafeAreaView className='flex h-full flex-col items-center justify-center bg-white px-6'>
                 <View className='w-full items-center'>
                     <Image

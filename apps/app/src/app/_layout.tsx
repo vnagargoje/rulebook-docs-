@@ -4,16 +4,18 @@ import { ThemeProvider } from '@react-navigation/native'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import * as React from 'react'
-import FlashMessage from 'react-native-flash-message'
+import { Toaster } from 'sonner-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 import { hydrateAuth } from '@/stores/auth.store'
 import { useThemeConfig } from '@/components/ui/use-theme-config'
+import { FocusAwareStatusBar } from '@/components/ui'
 
 import { APIProvider } from '@/lib/api'
 import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme'
 // Import  global CSS file
 import '../global.css'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 export { ErrorBoundary } from 'expo-router'
 
@@ -65,16 +67,19 @@ function Providers({ children }: { children: React.ReactNode }) {
     const theme = useThemeConfig()
     return (
         <GestureHandlerRootView className='flex-1'>
-            <KeyboardProvider>
-                <ThemeProvider value={theme}>
-                    <APIProvider>
-                        <BottomSheetModalProvider>
-                            {children}
-                            <FlashMessage position='top' />
-                        </BottomSheetModalProvider>
-                    </APIProvider>
-                </ThemeProvider>
-            </KeyboardProvider>
+            <SafeAreaProvider>
+                <KeyboardProvider>
+                    <ThemeProvider value={theme}>
+                        <FocusAwareStatusBar />
+                        <APIProvider>
+                            <BottomSheetModalProvider>
+                                {children}
+                                <Toaster />
+                            </BottomSheetModalProvider>
+                        </APIProvider>
+                    </ThemeProvider>
+                </KeyboardProvider>
+            </SafeAreaProvider>
         </GestureHandlerRootView>
     )
 }

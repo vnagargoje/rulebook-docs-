@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import { isAxiosError } from 'axios'
 import { Dimensions, Platform } from 'react-native'
-import { showMessage } from 'react-native-flash-message'
+import { toast } from 'sonner-native'
+import { isXiorError } from 'xior'
 
 export const IS_IOS = Platform.OS === 'ios'
 const { width, height } = Dimensions.get('screen')
@@ -11,61 +11,69 @@ export const HEIGHT = height
 
 // for onError react queries and mutations
 export function showError(error: unknown) {
-    const description = isAxiosError(error)
-        ? extractError(error.response?.data).trimEnd()
-        : extractError(error).trimEnd()
+    const backendMessage = isXiorError(error) ? extractError(error.response?.data) : extractError(error)
+    const message = backendMessage.trim() || 'Something went wrong'
 
-    if (isAxiosError(error)) {
+    if (isXiorError(error)) {
         console.log(JSON.stringify(error.response?.data))
     } else {
         console.log(error)
     }
 
-    showMessage({
-        message: 'Error',
-        description,
-        type: 'danger',
-        duration: 4000,
-        icon: 'danger',
-    })
+    toast.error(message)
 }
 
-export function showErrorMessage(message: string = 'Something went wrong ') {
-    showMessage({
-        message,
-        type: 'danger',
-        duration: 4000,
-    })
+export function showErrorMessage(message: string = 'Something went wrong') {
+    toast.error(message)
 }
 
 export function showSuccessMessage(message: string) {
-    showMessage({
-        message,
-        type: 'success',
-        duration: 3000,
-    })
+    toast.success(message)
 }
 
 export function extractError(data: unknown): string {
     if (typeof data === 'string') {
         return data
     }
-    if (Array.isArray(data)) {
-        const messages = data.map((item) => {
-            return `  ${extractError(item)}`
-        })
 
-        return `${messages.join('')}`
+    if (typeof data === 'number' || typeof data === 'boolean') {
+        return String(data)
+    }
+
+    if (Array.isArray(data)) {
+        return data
+            .map((item) => extractError(item).trim())
+            .filter(Boolean)
+            .join('\n')
     }
 
     if (typeof data === 'object' && data !== null) {
-        const messages = Object.entries(data).map((item) => {
-            const [key, value] = item
-            const separator = Array.isArray(value) ? ':\n ' : ': '
+        const record = data as Record<string, unknown>
 
-            return `- ${key}${separator}${extractError(value)} \n `
-        })
-        return `${messages.join('')} `
+        // Prefer backend-standard top-level message fields.
+        if (record.message !== undefined) {
+            return extractError(record.message)
+        }
+
+        if (record.error !== undefined) {
+            return extractError(record.error)
+        }
+
+        if (record.details !== undefined) {
+            return extractError(record.details)
+        }
+
+        if (record.errors !== undefined) {
+            return extractError(record.errors)
+        }
+
+        // Fallback: flatten remaining object values.
+        const messages = Object.values(record)
+            .map((value) => extractError(value).trim())
+            .filter(Boolean)
+
+        return messages.join('\n')
     }
-    return 'Something went wrong '
+
+    return 'Something went wrong'
 }

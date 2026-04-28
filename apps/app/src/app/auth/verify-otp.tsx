@@ -1,31 +1,26 @@
 import { useCallback, useRef, useState } from 'react'
-import {
-    ActivityIndicator,
-    Image,
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-} from 'react-native'
+import { ActivityIndicator, Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { OtpInput } from 'react-native-otp-entry'
 import type { OtpInputRef } from 'react-native-otp-entry'
 
 import { assets } from '@/assets'
-import { FocusAwareStatusBar, Paragraph, SubHeading, Text, View } from '@/components/ui'
+import { Paragraph, SubHeading, Text, View } from '@/components/ui'
 import colors from '@/components/ui/colors'
 import { showErrorMessage } from '@/components/ui'
 import { isVerifiedOtpResponse } from '@/components/auth/auth.utils'
 import { useIsAuthenticated, useVerifyOtp } from '@/queries/auth.query'
+import { useAuthStore } from '@/stores/auth.store'
 
 export default function VerifyOtpPage() {
     const router = useRouter()
     const [otp, setOtp] = useState<string>()
     const otpInputRef = useRef<OtpInputRef>(null)
-    const searchParams = useLocalSearchParams<{ mobilenumber?: string }>()
+    const searchParams = useLocalSearchParams<{ mobilenumber?: string; redirect?: string; planId?: string }>()
     const mobilenumber = String(searchParams.mobilenumber ?? '')
+    const redirect = searchParams.redirect ? String(searchParams.redirect) : ''
+    const planId = searchParams.planId ? String(searchParams.planId) : ''
     const verifyOtp = useVerifyOtp()
     const { refetch } = useIsAuthenticated()
 
@@ -64,11 +59,31 @@ export default function VerifyOtpPage() {
                     }
 
                     await refetch()
+
+                    const userRole = useAuthStore.getState().user.role
+
+                    if (userRole && userRole !== 'customer') {
+                        router.replace('/')
+                        return
+                    }
+
+                    if (redirect) {
+                        const params = new URLSearchParams()
+
+                        if (planId && redirect === '/customer/confirm-booking') {
+                            params.set('planId', planId)
+                        }
+
+                        const nextRoute = params.toString() ? `${redirect}?${params.toString()}` : redirect
+                        router.replace(nextRoute as any)
+                        return
+                    }
+
                     router.replace('/')
                 },
             },
         )
-    }, [mobilenumber, otp, refetch, router, verifyOtp])
+    }, [mobilenumber, otp, planId, redirect, refetch, router, verifyOtp])
 
     const isDisabled = !otp || otp.length < 4 || verifyOtp.isPending
 
@@ -77,7 +92,6 @@ export default function VerifyOtpPage() {
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={10}>
-            <FocusAwareStatusBar />
             <SafeAreaView className='flex h-full bg-white'>
                 <ScrollView
                     contentContainerStyle={{
@@ -129,9 +143,15 @@ export default function VerifyOtpPage() {
                     />
 
                     <View className='mt-4 flex-row items-center'>
-                        <Paragraph text='Entered wrong number? ' className='leading-5' />
+                        <Paragraph
+                            text='Entered wrong number? '
+                            className='leading-5'
+                        />
                         <Pressable onPress={() => router.back()}>
-                            <Paragraph text='Change number' className='font-medium text-primary-600 underline' />
+                            <Paragraph
+                                text='Change number'
+                                className='font-medium text-primary-600 underline'
+                            />
                         </Pressable>
                     </View>
 
@@ -140,13 +160,11 @@ export default function VerifyOtpPage() {
                             className={`w-52 items-center justify-center rounded-xl py-4 ${isDisabled ? 'bg-neutral-300' : 'bg-primary-600'}`}
                             disabled={isDisabled}
                             onPress={handleSubmit}>
-                            {verifyOtp.isPending
-                                ? (
-                                    <ActivityIndicator color='#ffffff' />
-                                )
-                                : (
-                                    <Text className='text-base font-semibold text-white'>Verify</Text>
-                                )}
+                            {verifyOtp.isPending ? (
+                                <ActivityIndicator color='#ffffff' />
+                            ) : (
+                                <Text className='text-base font-semibold text-white'>Verify</Text>
+                            )}
                         </Pressable>
                     </View>
                 </ScrollView>

@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { V1UsersPatchOneUserBody } from '~/services/api/codegen/Api'
 import { v1UsersPatchOneUser } from '~/services/api/sdk'
 import { userKeys } from './keys'
 
-export type UpdateUserPayload = Parameters<typeof v1UsersPatchOneUser>[1]
+export type UpdateUserPayload = V1UsersPatchOneUserBody
 
 export function useUpdateUser() {
     const queryClient = useQueryClient()

@@ -127,6 +127,7 @@ export class AssignVehicleToBookingHandler implements ICommandHandler<AssignVehi
                 Key: s3Key,
                 Body: qrBuffer,
                 ContentType: 'image/png',
+                ACL: 'public-read',
             }),
         )
 

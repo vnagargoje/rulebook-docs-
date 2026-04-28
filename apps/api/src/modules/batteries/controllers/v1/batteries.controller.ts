@@ -37,13 +37,14 @@ import { BatterySubject } from '@yugo/permissions';
 import { CreateBatteryCommand, UpdateBatteryCommand } from '@yugo/cqrs';
 
 const PAGINATE_CONFIG: PaginateConfig<BatteryEntity> = {
-    sortableColumns: ['id', 'batteryQrId', 'createdAt'],
-    relations: ['station'],
+    sortableColumns: ['id', 'batteryQrId', 'createdAt', 'stationId'],
+    relations: ['station', 'qrCode'],
     filterableColumns: {
         batteryQrId: [FilterOperator.ILIKE],
         gpsId: [FilterOperator.ILIKE],
         stationId: [FilterOperator.EQ],
         'station.name': [FilterOperator.ILIKE],
+        'station.managerId': [FilterOperator.EQ],
     },
     defaultSortBy: [['createdAt', 'DESC']],
 };
@@ -77,7 +78,7 @@ export class V1BatteriesController {
     async getOneBattery(@Param('id') id: string, @Req() req: Request) {
         const battery = await this.datasource.manager.findOne(BatteryEntity, {
             where: { id },
-            relations: ['station'],
+            relations: ['station', 'qrCode'],
         });
         if (!battery) {
             throw new NotFoundException('Battery not found');

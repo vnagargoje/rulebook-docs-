@@ -115,6 +115,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         'expo-router',
         ['app-icon-badge', appIconBadgeConfig],
         ['react-native-edge-to-edge'],
+        [
+            'react-native-maps',
+            {
+                androidGoogleMapsApiKey: Env.EXPO_GOOGLE_MAPS_API_KEY,
+            },
+        ],
     ],
     extra: {
         eas: {

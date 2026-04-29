@@ -1,5 +1,5 @@
 import { type RefObject } from 'react'
-import { StyleSheet } from 'react-native'
+import { Platform, StyleSheet } from 'react-native'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps'
 
@@ -32,7 +32,7 @@ export function StationMap({
         <MapView
             ref={mapRef}
             style={StyleSheet.absoluteFillObject}
-            provider={PROVIDER_GOOGLE}
+            provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
             mapType={mapMode}
             initialRegion={{
                 latitude: lat,

@@ -28,6 +28,29 @@ export type SurrenderStatus = (typeof surrenderStatusOptions)[number]
 
 export type ResourceId = string
 
+/** planSnapshot is `any` in codegen – narrow for safe access */
+export interface PlanSnapshot {
+    name?: string
+    price?: number
+    deposit?: number
+    gst?: number
+    registrationFee?: number
+    totalAmount?: number
+    validityDays?: number
+    kmLimit?: number
+}
+
+/** topUpSnapshot is `any` in codegen – narrow for safe access */
+export interface TopUpSnapshot {
+    name?: string
+    description?: string
+    validityDays?: number
+    kmLimit?: number
+    price?: number
+    gst?: number
+    totalAmount?: number
+}
+
 export interface Address {
     line1: string
     line2?: string

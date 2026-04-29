@@ -11,6 +11,10 @@ import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { Form } from '~/components/ui/form'
+import { DetailRow } from '~/components/ui/detail-row'
+import { StatTile } from '~/components/ui/stat-tile'
+import { SectionLabel } from '~/components/ui/section-label'
+import { MetaPill } from '~/components/ui/meta-pill'
 import { useGetBookingById, useAssignVehicle } from '~/queries/bookings'
 import { useVehicles } from '~/queries/vehicles'
 import { useBatteries } from '~/queries/batteries'
@@ -30,48 +34,6 @@ function getAssetUrl(path?: string | null) {
     const normalizedBase = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl
     const normalizedPath = path.startsWith('/') ? path : `/${path}`
     return `${normalizedBase}${normalizedPath}`
-}
-
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
-    return (
-        <div className="flex items-start justify-between gap-4 border-b border-border/40 py-3 last:border-0">
-            <span className="text-sm font-medium text-muted-foreground">{label}</span>
-            <span className="max-w-[62%] break-all text-right text-sm font-semibold text-foreground">{value ?? '—'}</span>
-        </div>
-    )
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-    return <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">{children}</h4>
-}
-
-function MetaPill({ icon: Icon, children }: { icon: typeof IconBolt; children: React.ReactNode }) {
-    return (
-        <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white px-3 py-1.5 text-sm text-muted-foreground shadow-sm">
-            <Icon size={15} className="text-primary" />
-            <span>{children}</span>
-        </span>
-    )
-}
-
-function StatTile({
-    label,
-    value,
-    icon: Icon,
-}: {
-    label: string
-    value: React.ReactNode
-    icon: typeof IconBolt
-}) {
-    return (
-        <div className="rounded-2xl border border-border/50 bg-muted/30 p-4">
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Icon size={18} />
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
-            <div className="mt-1 text-lg font-semibold text-foreground">{value}</div>
-        </div>
-    )
 }
 
 export default function BookingViewRoute() {
@@ -147,9 +109,9 @@ export default function BookingViewRoute() {
     const remainingKm = Number(booking.userPlan?.remainingKm ?? planSnapshot.kmLimit ?? 0)
     const validityDays = Number(plan?.validityDays ?? planSnapshot.validityDays ?? 0)
     const topUps = booking.userPlan?.topUps ?? []
-    const totalTopUpKm = topUps.reduce((sum, topUp) => sum + Number(topUp.topUpSnapshot?.extraKm ?? topUp.topUpSnapshot?.kmLimit ?? 0), 0)
-    const planKmLimit = Number(plan?.kmLimit ?? planSnapshot.kmLimit ?? 0)
-    const kmLimit = planKmLimit + totalTopUpKm
+    const appliedTopUps = topUps.filter((t) => t.status === 'applied')
+    const totalTopUpKm = appliedTopUps.reduce((sum, topUp) => sum + Number(topUp.topUpSnapshot?.kmLimit ?? 0), 0)
+    const kmLimit = Number(booking.userPlan?.totalKm ?? 0)
 
     return (
         <div className="mx-auto max-w-7xl space-y-6 pb-12">
@@ -192,7 +154,7 @@ export default function BookingViewRoute() {
                         <StatTile label="Remaining KM" value={formatKm(remainingKm)} icon={IconBolt} />
                         <StatTile label="KM Limit" value={formatKm(kmLimit)} icon={IconShieldCheck} />
                         <StatTile label="Validity" value={`${validityDays} days`} icon={IconCalendarEvent} />
-                        <StatTile label="Top-Ups" value={topUps.length > 0 ? `${topUps.length} applied` : 'None'} icon={IconReceiptRupee} />
+                        <StatTile label="Top-Ups" value={appliedTopUps.length > 0 ? `${appliedTopUps.length} applied` : 'None'} icon={IconReceiptRupee} />
                     </div>
                 </CardContent>
             </Card>
@@ -309,7 +271,7 @@ export default function BookingViewRoute() {
                     <CardContent className="space-y-4 p-6">
                         <div className="grid grid-cols-2 gap-3">
                             <StatTile label="Plan value" value={formatCurrency(planSnapshot.totalAmount ?? plan?.totalAmount)} icon={IconReceiptRupee} />
-                            <StatTile label="Purchased KM" value={formatKm(planSnapshot.kmLimit ?? planKmLimit)} icon={IconBolt} />
+                            <StatTile label="Purchased KM" value={formatKm(planSnapshot.kmLimit)} icon={IconBolt} />
                         </div>
                         <pre className="max-h-[320px] overflow-auto rounded-2xl border border-border/50 bg-muted/20 p-4 text-xs leading-6 text-muted-foreground">
                             {JSON.stringify(planSnapshot, null, 2)}
@@ -322,29 +284,45 @@ export default function BookingViewRoute() {
                 <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
                     <CardHeader className="border-b border-border/40">
                         <CardTitle>Top-Up History</CardTitle>
-                        <CardDescription>Applied recharges linked to this active plan.</CardDescription>
+                        <CardDescription>All recharges linked to this plan, including pending and failed.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3 p-6">
-                        {topUps.length > 0 ? (
+                        {appliedTopUps.length > 0 ? (
                             <div className="grid gap-3 sm:grid-cols-3">
-                                <StatTile label="Top-Ups" value={topUps.length} icon={IconReceiptRupee} />
+                                <StatTile label="Applied" value={appliedTopUps.length} icon={IconReceiptRupee} />
                                 <StatTile label="Added KM" value={formatKm(totalTopUpKm)} icon={IconBolt} />
-                                <StatTile label="Last Applied" value={formatDate(topUps[0].appliedAt)} icon={IconCalendarEvent} />
+                                <StatTile label="Last Applied" value={formatDate(appliedTopUps[0].appliedAt ?? '')} icon={IconCalendarEvent} />
                             </div>
                         ) : null}
                         {topUps.length > 0 ? topUps.map((topUp) => {
                             const snapshot = topUp.topUpSnapshot ?? {}
                             const extraKm = Number(snapshot.extraKm ?? snapshot.kmLimit ?? 0)
                             const extraDays = Number(snapshot.extraDays ?? snapshot.validityDays ?? 0)
+                            const statusStyles = {
+                                applied: { card: 'border-emerald-100 bg-gradient-to-br from-emerald-50/40 to-white', badge: 'bg-emerald-50 text-emerald-700', km: 'bg-emerald-50 text-emerald-700' },
+                                awaiting: { card: 'border-amber-100 bg-gradient-to-br from-amber-50/40 to-white', badge: 'bg-amber-50 text-amber-700', km: 'bg-muted text-muted-foreground' },
+                                failed: { card: 'border-red-100 bg-gradient-to-br from-red-50/40 to-white', badge: 'bg-red-50 text-red-700', km: 'bg-muted text-muted-foreground' },
+                            }[topUp.status] ?? { card: 'border-border/50 bg-gradient-to-br from-muted/20 to-white', badge: 'bg-muted text-muted-foreground', km: 'bg-muted text-muted-foreground' }
                             return (
-                                <div key={topUp.id} className="rounded-2xl border border-border/50 bg-gradient-to-br from-muted/20 to-white p-4">
+                                <div key={topUp.id} className={`rounded-2xl border p-4 ${statusStyles.card}`}>
                                     <div className="flex items-start justify-between gap-4">
                                         <div>
-                                            <div className="text-sm font-semibold text-foreground">{snapshot.name ?? 'Top-up applied'}</div>
-                                            <div className="mt-1 text-xs text-muted-foreground">Applied {formatDate(topUp.appliedAt)}</div>
+                                            <div className="text-sm font-semibold text-foreground">{snapshot.name ?? 'Top-up'}</div>
+                                            <div className="mt-1 text-xs text-muted-foreground">
+                                                {topUp.status === 'applied'
+                                                    ? `Applied ${topUp.appliedAt ? formatDate(topUp.appliedAt) : ''}`
+                                                    : topUp.status === 'awaiting'
+                                                    ? 'Awaiting payment confirmation'
+                                                    : 'Payment failed'}
+                                            </div>
                                         </div>
-                                        <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
-                                            +{formatKm(extraKm)}
+                                        <div className="flex items-center gap-2">
+                                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] ${statusStyles.badge}`}>{topUp.status}</span>
+                                            {topUp.status === 'applied' && (
+                                                <div className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${statusStyles.km}`}>
+                                                    +{formatKm(extraKm)}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -356,7 +334,7 @@ export default function BookingViewRoute() {
                             )
                         }) : (
                             <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-6 text-sm text-muted-foreground">
-                                No top-ups have been applied to this plan yet.
+                                No top-ups have been added to this plan yet.
                             </div>
                         )}
                     </CardContent>

@@ -1,3 +1,4 @@
+import { AddressType } from '@yugo/shared'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 import { CityEntity } from './city.entity.js'
 import { IdTimestamppedEntity } from './id-timestampped.entity.js'
@@ -14,6 +15,9 @@ export class AddressEntity extends IdTimestamppedEntity {
 
     @Column('varchar', { nullable: false })
     pincode: string
+
+    @Column('enum', { enum: AddressType, nullable: true })
+    type: AddressType
 
     // Relations
     @Column('varchar', { nullable: true })

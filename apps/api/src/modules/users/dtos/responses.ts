@@ -1,5 +1,5 @@
 import { Type } from '@sinclair/typebox';
-import { Gender } from '@yugo/shared';
+import { AddressType, Gender } from '@yugo/shared';
 
 export const RoleResponse = Type.Object({
     name: Type.String(),
@@ -23,6 +23,7 @@ export const AddressResponse = Type.Object({
     lineTwo: Type.Optional(Type.String()),
     pincode: Type.String(),
     city: Type.Optional(CityResponse),
+    type: Type.Optional(Type.Enum(AddressType)),
 });
 
 export const UserResponse = Type.Object({

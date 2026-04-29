@@ -10,3 +10,9 @@ export interface MoovingConfig {
     secretKey: string
     baseUrl: string
 }
+
+export interface RazorpayConfig {
+    apiKey: string
+    apiSecret: string
+    webhookSecret: string
+}

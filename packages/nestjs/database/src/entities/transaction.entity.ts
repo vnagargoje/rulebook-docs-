@@ -2,6 +2,7 @@ import { PaymentStatus } from '@yugo/shared'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 import { IdTimestamppedEntity } from './id-timestampped.entity.js'
 import { UserPlanEntity } from './user-plan.entity.js'
+import { UserTopUpEntity } from './user-top-up.entity.js'
 
 @Entity({ name: 'transactions' })
 export class TransactionEntity extends IdTimestamppedEntity {
@@ -34,4 +35,11 @@ export class TransactionEntity extends IdTimestamppedEntity {
     @ManyToOne(() => UserPlanEntity, { onDelete: 'CASCADE' })
     @JoinColumn()
     userPlan: UserPlanEntity
+
+    @Column('varchar', { nullable: true })
+    userTopUpId: string | null
+
+    @ManyToOne(() => UserTopUpEntity, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn()
+    userTopUp: UserTopUpEntity | null
 }

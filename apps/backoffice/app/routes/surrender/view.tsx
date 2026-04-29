@@ -13,40 +13,10 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { useSurrenderByBookingId } from '~/queries/surrender'
 import { formatCurrency, formatDate } from '~/lib/formatter'
-
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
-    return (
-        <div className="flex items-start justify-between gap-4 border-b border-border/40 py-3 last:border-0">
-            <span className="text-sm font-medium text-muted-foreground">{label}</span>
-            <span className="max-w-[62%] break-all text-right text-sm font-semibold text-foreground">{value ?? '—'}</span>
-        </div>
-    )
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-    return <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">{children}</h4>
-}
-
-function MetaPill({ icon: Icon, children }: { icon: typeof IconCar; children: React.ReactNode }) {
-    return (
-        <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white px-3 py-1.5 text-sm text-muted-foreground shadow-sm">
-            <Icon size={15} className="text-primary" />
-            <span>{children}</span>
-        </span>
-    )
-}
-
-function StatTile({ label, value, icon: Icon }: { label: string; value: React.ReactNode; icon: typeof IconCar }) {
-    return (
-        <div className="rounded-2xl border border-border/50 bg-muted/30 p-4">
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Icon size={18} />
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
-            <div className="mt-1 text-lg font-semibold text-foreground">{value ?? '—'}</div>
-        </div>
-    )
-}
+import { DetailRow } from '~/components/ui/detail-row'
+import { StatTile } from '~/components/ui/stat-tile'
+import { SectionLabel } from '~/components/ui/section-label'
+import { MetaPill } from '~/components/ui/meta-pill'
 
 export default function SurrenderViewRoute() {
     const { bookingId } = useParams()

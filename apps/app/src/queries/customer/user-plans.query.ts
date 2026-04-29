@@ -1,17 +1,21 @@
 import { createMutation, createQuery } from 'react-query-kit'
 
-import { showError, showSuccessMessage } from '@/components/ui'
+import { showError } from '@/components/ui'
 import { client } from '@/lib/api/client'
 import type {
     V1UserPlansGetMyPlansResponse,
-    V1UserPlansPurchasePlanBody,
     V1UserPlansPurchasePlanResponse,
+    V1UserPlansPurchasePlanBody,
+    V1UserPlansVerifyPaymentResponse,
+    V1UserPlansVerifyPaymentBody,
 } from '@/services/api/codegen/Api'
 
-type UserPlansResponse = V1UserPlansGetMyPlansResponse
-type UserPlan = V1UserPlansPurchasePlanResponse
-
-export type { UserPlan, UserPlansResponse }
+export type PurchasePlanOrderResponse = V1UserPlansPurchasePlanResponse
+export type VerifyPaymentVariables = V1UserPlansVerifyPaymentBody
+export type VerifiedUserPlan = V1UserPlansVerifyPaymentResponse
+export type UserPlansResponse = V1UserPlansGetMyPlansResponse
+/** Kept so existing imports of UserPlan still compile */
+export type UserPlan = V1UserPlansVerifyPaymentResponse
 
 export const useMyPlans = createQuery<UserPlansResponse, { status?: string | string[] } | void>({
     queryKey: ['user-plans'],
@@ -33,14 +37,22 @@ export const useMyPlans = createQuery<UserPlansResponse, { status?: string | str
     },
 })
 
-export const usePurchasePlan = createMutation<UserPlan, V1UserPlansPurchasePlanBody>({
-    mutationKey: ['purchase-plan'],
-    mutationFn: async ({ planId }) => {
-        const response = await client.v1.v1UserPlansPurchasePlan({ planId })
+export const useInitiatePlanPurchase = createMutation<PurchasePlanOrderResponse, V1UserPlansPurchasePlanBody>({
+    mutationKey: ['initiate-plan-purchase'],
+    mutationFn: async (data) => {
+        const response = await client.v1.v1UserPlansPurchasePlan(data)
         return response.data
     },
-    onSuccess: () => {
-        showSuccessMessage('Plan purchased successfully!')
+    onError: (error) => {
+        showError(error)
+    },
+})
+
+export const useVerifyPayment = createMutation<VerifiedUserPlan, VerifyPaymentVariables>({
+    mutationKey: ['verify-payment'],
+    mutationFn: async (data) => {
+        const response = await client.v1.v1UserPlansVerifyPayment(data)
+        return response.data
     },
     onError: (error) => {
         showError(error)

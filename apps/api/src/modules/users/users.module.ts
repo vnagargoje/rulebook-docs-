@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { CreateUserHandler, UpdateUserHandler } from '@yugo/cqrs';
+import { CreateUserHandler, UpdateUserHandler, UpdateUserAddressesHandler } from '@yugo/cqrs';
 import { V1UsersController } from './controllers/v1/users.controller';
 
-const Handlers = [CreateUserHandler, UpdateUserHandler];
+const Handlers = [CreateUserHandler, UpdateUserHandler, UpdateUserAddressesHandler];
 
 @Module({
     controllers: [V1UsersController],

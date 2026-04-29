@@ -7,6 +7,12 @@ export enum UserPlanStatus {
     CANCELLED = 'cancelled',
 }
 
+export enum UserTopUpStatus {
+    AWAITING = 'awaiting',
+    APPLIED = 'applied',
+    FAILED = 'failed',
+}
+
 export enum PaymentStatus {
     AWAITING = 'awaiting',
     SUCCEEDED = 'succeeded',

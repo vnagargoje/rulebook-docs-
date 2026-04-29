@@ -25,6 +25,7 @@ export class VerifyPaymentHandler implements ICommandHandler<VerifyPaymentComman
             const transaction = await manager.findOne(TransactionEntity, {
                 where: { razorpayOrderId },
                 relations: ['userPlan'],
+                lock: { mode: 'pessimistic_write' },
             })
             if (!transaction) {
                 throw new NotFoundException('Transaction not found')
@@ -35,7 +36,7 @@ export class VerifyPaymentHandler implements ICommandHandler<VerifyPaymentComman
             }
 
             if (transaction.status !== PaymentStatus.AWAITING) {
-                throw new BadRequestException('This payment has already been processed')
+                throw new BadRequestException({ code: 'PAYMENT_ALREADY_PROCESSED', message: 'This payment has already been processed' })
             }
 
             const expectedSignature = createHmac('sha256', config.apiSecret)
@@ -46,10 +47,7 @@ export class VerifyPaymentHandler implements ICommandHandler<VerifyPaymentComman
                 transaction.status = PaymentStatus.FAILED
                 transaction.razorpayPaymentId = razorpayPaymentId
                 await manager.save(transaction)
-
-                transaction.userPlan.status = UserPlanStatus.FAILED
-                await manager.save(transaction.userPlan)
-
+                // Keep plan in PENDING so the user can retry (don't permanently lock them out).
                 throw new BadRequestException('Payment verification failed. Invalid signature')
             }
 

@@ -101,7 +101,5 @@ steps:
       - push-cli
 
 trigger:
-    branch:
-      - dev
     event:
-      - push
+      - tag

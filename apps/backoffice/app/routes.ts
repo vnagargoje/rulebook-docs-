@@ -74,5 +74,10 @@ export default [
             route('create', 'routes/surrender/create.tsx'),
             route(':bookingId', 'routes/surrender/view.tsx'),
         ]),
+
+        ...prefix('transactions', [
+            index('routes/transactions/index.tsx'),
+            route(':id', 'routes/transactions/view.tsx'),
+        ]),
     ]),
 ] satisfies RouteConfig

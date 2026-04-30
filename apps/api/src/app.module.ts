@@ -13,8 +13,10 @@ import {
     loggerConfig,
     redisConfig,
     deepvueConfig,
+    razorpayConfig,
     s3ClientConfig,
     s3BucketConfig,
+    inngestConfig,
 } from './config';
 import { AppAuthGuard } from './guards/app.guard.js';
 import { TypeboxSerializerInterceptor } from './interceptors/typebox-serializer.interceptor.js';
@@ -35,6 +37,7 @@ import { BatteriesModule } from './modules/batteries/batteries.module';
 import { BatteryTransportsModule } from './modules/battery-transports/battery-transports.module';
 import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module';
 import { SurrendersModule } from './modules/surrenders/surrenders.module';
+import { NestjsInngestModule } from '@yugo/nestjs-inngest';
 
 @Module({
     imports: [
@@ -47,8 +50,10 @@ import { SurrendersModule } from './modules/surrenders/surrenders.module';
                 loggerConfig,
                 redisConfig,
                 deepvueConfig,
+                razorpayConfig,
                 s3ClientConfig,
                 s3BucketConfig,
+                inngestConfig,
             ],
         }),
         LoggerModule.forRootAsync({
@@ -76,6 +81,13 @@ import { SurrendersModule } from './modules/surrenders/surrenders.module';
             inject: [ConfigService],
             useFactory(configService: ConfigService) {
                 return configService.getOrThrow('jwt.config');
+            },
+        }),
+        NestjsInngestModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            async useFactory(configService: ConfigService) {
+                return configService.getOrThrow('inngest.config');
             },
         }),
         PassportModule.register({

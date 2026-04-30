@@ -46,6 +46,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ios: {
         supportsTablet: true,
         bundleIdentifier: Env.EXPO_PUBLIC_BUNDLE_ID,
+        config: {
+            googleMapsApiKey: Env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+        },
         infoPlist: {
             ITSAppUsesNonExemptEncryption: false,
         },
@@ -59,6 +62,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             backgroundColor: '#2E3C4B',
         },
         package: Env.EXPO_PUBLIC_PACKAGE,
+        config: {
+            googleMaps: {
+                apiKey: Env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+            },
+        },
     },
     web: {
         favicon: './assets/favicon.png',
@@ -115,6 +123,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         'expo-router',
         ['app-icon-badge', appIconBadgeConfig],
         ['react-native-edge-to-edge'],
+        [
+            'react-native-maps',
+            {
+                iosGoogleMapsApiKey: Env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+                androidGoogleMapsApiKey: Env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+            },
+        ],
     ],
     extra: {
         eas: {

@@ -21,3 +21,8 @@ export const CreateUserPayload = Type.Object({
 });
 
 export const UpdateUserPayload = Type.Partial(CreateUserPayload);
+
+export const UpdateUserAddressesPayload = Type.Object({
+    current: Type.Optional(AddressPayload),
+    permanent: Type.Optional(AddressPayload),
+});

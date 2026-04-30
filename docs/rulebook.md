@@ -539,6 +539,53 @@ export class CreateUserHandler {
 
 ---
 
+## 🧹 Handler Readability (MANDATORY)
+
+When a CQRS handler has complex or multi-step logic, the `execute()` method **must** be split into small, focused private methods within the same class. The `execute()` method should read as a **high-level orchestration** — each step is a method call with a descriptive name.
+
+### ✅ Correct — Split into private methods
+
+```ts
+@CommandHandler(CreateOrderCommand)
+export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand> {
+    async execute(command: CreateOrderCommand) {
+        return manager.transaction(async (manager) => {
+            const user = await this.validateUser(manager, command.userId)
+            const plan = await this.findActivePlan(manager, command.planId)
+            await this.blockIfActivePlanExists(manager, command.userId)
+            return this.createOrder(manager, user, plan)
+        })
+    }
+
+    private async validateUser(manager: EntityManager, userId: string) {
+        const user = await manager.findOne(UserEntity, { where: { id: userId } })
+        if (!user) throw new NotFoundException('User not found')
+        return user
+    }
+
+    private async findActivePlan(manager: EntityManager, planId: string) { /* ... */ }
+    private async blockIfActivePlanExists(manager: EntityManager, userId: string) { /* ... */ }
+    private async createOrder(manager: EntityManager, user: UserEntity, plan: PlanEntity) { /* ... */ }
+}
+```
+
+### ❌ Bad — Everything in one giant execute()
+
+```ts
+// ❌ 100+ lines inside execute() — hard to read and maintain
+async execute(command: CreateOrderCommand) {
+    // validation logic...
+    // business rule checks...
+    // external API calls...
+    // database operations...
+    // response building...
+}
+```
+
+> **Why?** Improves readability, makes each step testable, and keeps `execute()` as a readable summary of the handler's flow.
+
+---
+
 # 2️⃣ CLIENT (SHARED FRONTEND RULES — Web & Mobile)
 
 ## 🧠 Philosophy (STRICT)

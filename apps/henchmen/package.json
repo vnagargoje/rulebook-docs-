@@ -9,6 +9,7 @@
         "clean": "rimraf dist"
     },
     "dependencies": {
+        "@nestjs-redis/kit": "^0.13.4",
         "@nestjs/common": "^11.0.1",
         "@nestjs/config": "^4.0.4",
         "@nestjs/core": "^11.0.1",
@@ -16,9 +17,11 @@
         "@nestjs/typeorm": "^11.0.1",
         "@yugo/nestjs-database": "workspace:*",
         "@yugo/nestjs-framework": "workspace:*",
+        "@yugo/nestjs-inngest": "workspace:*",
         "@yugo/shared": "workspace:*",
         "@yugo/utils": "workspace:*",
         "mysql2": "^3.21.0",
+        "redis": "^5.12.1",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.1",
         "typeorm": "^0.3.28"

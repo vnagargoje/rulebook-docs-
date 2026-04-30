@@ -6,3 +6,10 @@ export enum UserPlanStatus {
     EXPIRED = 'expired',
     CANCELLED = 'cancelled',
 }
+
+export enum PaymentStatus {
+    AWAITING = 'awaiting',
+    SUCCEEDED = 'succeeded',
+    FAILED = 'failed',
+    CANCELLED = 'cancelled',
+}

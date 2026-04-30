@@ -11,7 +11,6 @@ export default function UsersListRoute() {
     const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState('')
     const [page, setPage] = useState(1)
-    const [roleFilter, setRoleFilter] = useState('all')
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -19,18 +18,15 @@ export default function UsersListRoute() {
             page,
             limit: 10,
             sortBy: ['createdAt:DESC'],
+            'filter.roles.name': ['$in:swap_manager,hub_manager,system_admin,system_user'],
         }
 
         if (deferredSearchQuery) {
             params.search = deferredSearchQuery
         }
 
-        if (roleFilter !== 'all') {
-            params['filter.roles.name'] = [roleFilter]
-        }
-
         return params
-    }, [deferredSearchQuery, page, roleFilter])
+    }, [deferredSearchQuery, page])
 
     const { data, isLoading } = useUsers(queryParams)
 
@@ -39,11 +35,6 @@ export default function UsersListRoute() {
 
     const handleSearchChange = useCallback((value: string) => {
         setSearchQuery(value)
-        setPage(1)
-    }, [])
-
-    const handleFilterChange = useCallback((filters: Record<string, string>) => {
-        setRoleFilter(filters.roles || 'all')
         setPage(1)
     }, [])
 
@@ -78,8 +69,8 @@ export default function UsersListRoute() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <PageHeader
-                    title="User Management"
-                    description="Manage platform users, employees, and their assignments."
+                    title="Employees"
+                    description="Manage employee accounts across the platform."
                 />
                 <Button onClick={() => navigate('/users/create')}>
                     <IconPlus className="mr-2 h-4 w-4" />
@@ -89,28 +80,14 @@ export default function UsersListRoute() {
 
             <ResourceTable
                 data={users}
-                emptyMessage="No users found."
+                emptyMessage="No employees found."
                 searchPlaceholder="Search users by name, email, or mobile..."
                 searchValue={searchQuery}
                 onSearchChange={handleSearchChange}
-                filterValues={{ roles: roleFilter }}
-                onFilterChange={handleFilterChange}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? users.length}
                 onPageChange={setPage}
-                filterConfigs={[
-                    {
-                        field: 'roles',
-                        label: 'Role',
-                        options: [
-                            { label: 'Customer', value: 'customer' },
-                            { label: 'Swap Manager', value: 'swap_manager' },
-                            { label: 'Hub Manager', value: 'hub_manager' },
-                            { label: 'System Admin', value: 'system_admin' },
-                        ],
-                    },
-                ]}
                 columns={columns}
             />
         </div>

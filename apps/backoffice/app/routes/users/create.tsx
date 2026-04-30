@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
 import { SelectField, TextInputField } from '~/components/forms/controlled-fields'
@@ -13,12 +13,17 @@ import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 import { createUserSchema, type CreateUserFormValues } from '~/schemas'
-import { roleOptions, genderOptions } from '~/constants'
+import { customerRoleOptions, employeeRoleOptions, genderOptions } from '~/constants'
 
 export default function CreateUserRoute() {
     const navigate = useNavigate()
+    const location = useLocation()
     const createUser = useCreateUser()
     const { data: states } = useStates()
+    const isCustomerRoute = location.pathname.startsWith('/customers')
+    const roleOptions = isCustomerRoute ? customerRoleOptions : employeeRoleOptions
+    const defaultRole: CreateUserFormValues['role'] = isCustomerRoute ? 'customer' : 'swap_manager'
+    const backPath = isCustomerRoute ? '/customers' : '/users'
 
     const form = useForm<CreateUserFormValues>({
         resolver: zodResolver(createUserSchema),
@@ -29,7 +34,7 @@ export default function CreateUserRoute() {
             email: '',
             gender: undefined,
             dateOfBirth: '',
-            role: 'customer',
+            role: defaultRole,
             stateId: '',
             cityId: '',
             lineOne: '',
@@ -46,11 +51,18 @@ export default function CreateUserRoute() {
         form.setValue('cityId', '')
     }, [selectedStateId, form])
 
+    useEffect(() => {
+        if (isCustomerRoute) {
+            form.setValue('role', 'customer')
+        }
+    }, [form, isCustomerRoute])
+
     const stateOptions = (states ?? []).map((s) => ({ label: s.name, value: s.id }))
     const cityOptions = (cities ?? []).map((c) => ({ label: c.name, value: c.id }))
 
     const onSubmit = (values: CreateUserFormValues) => {
         const mobile = values.mobilenumber.startsWith('91') ? values.mobilenumber : `91${values.mobilenumber}`
+        const role = isCustomerRoute ? 'customer' : values.role
         const payload: CreateUserPayload = {
             mobilenumber: mobile,
             firstName: values.firstName,
@@ -58,9 +70,9 @@ export default function CreateUserRoute() {
             email: values.email || undefined,
             gender: values.gender,
             dateOfBirth: values.dateOfBirth || undefined,
-            role: values.role,
+            role,
             properties: {
-                roleName: values.role,
+                roleName: role,
             },
         }
 
@@ -76,7 +88,7 @@ export default function CreateUserRoute() {
         createUser.mutate(payload, {
             onSuccess: () => {
                 toast.success('User created successfully')
-                navigate('/users')
+                navigate(backPath)
             },
             onError: (error: any) => {
                 toast.error(error?.response?.data?.message || 'Failed to create user')
@@ -87,12 +99,12 @@ export default function CreateUserRoute() {
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate('/users')} className="shrink-0">
+                <Button variant="ghost" size="icon" onClick={() => navigate(backPath)} className="shrink-0">
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader
-                    title="Create User"
-                    description="Onboard a new customer or employee"
+                    title={isCustomerRoute ? 'Create Customer' : 'Create Employee'}
+                    description={isCustomerRoute ? 'Onboard a new customer account' : 'Onboard a new employee account'}
                 />
             </div>
 
@@ -147,22 +159,24 @@ export default function CreateUserRoute() {
                                 </div>
                             </div>
 
-                            <div className="space-y-6">
-                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">System Access & Role</h4>
-                                <div className="max-w-xs">
-                                    <SelectField
-                                        control={form.control}
-                                        name="role"
-                                        label="System Role"
-                                        options={[...roleOptions]}
-                                    />
+                            {!isCustomerRoute && (
+                                <div className="space-y-6">
+                                    <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">System Access & Role</h4>
+                                    <div className="max-w-xs">
+                                        <SelectField
+                                            control={form.control}
+                                            name="role"
+                                            label="System Role"
+                                            options={[...roleOptions]}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
-                                <Button type="button" variant="ghost" onClick={() => navigate('/users')}>Cancel</Button>
+                                <Button type="button" variant="ghost" onClick={() => navigate(backPath)}>Cancel</Button>
                                 <Button type="submit" disabled={createUser.isPending} className="min-w-35 uppercase text-xs font-bold tracking-widest">
-                                    {createUser.isPending ? 'Creating...' : 'Create User'}
+                                    {createUser.isPending ? 'Creating...' : isCustomerRoute ? 'Create Customer' : 'Create Employee'}
                                 </Button>
                             </div>
                         </form>

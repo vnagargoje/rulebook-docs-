@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { StringValue } from 'ms';
 
 export interface TokenPayload {
     id: string;
@@ -10,17 +12,26 @@ export interface TokenPayload {
 
 @Injectable()
 export class TokenService {
-    constructor(private readonly jwtService: JwtService) {}
+    constructor(
+        private readonly jwtService: JwtService,
+        private readonly configService: ConfigService,
+    ) {}
 
     async generateAccessToken(payload: TokenPayload) {
         return this.jwtService.signAsync(payload, {
-            expiresIn: '1h',
+            expiresIn:
+                (this.configService.get<string>(
+                    'JWT_EXPIRES_IN',
+                ) as StringValue) || '180d',
         });
     }
 
     async generateRefreshToken(payload: TokenPayload) {
         return this.jwtService.signAsync(payload, {
-            expiresIn: '7d',
+            expiresIn:
+                (this.configService.get<string>(
+                    'JWT_REFRESH_EXPIRES_IN',
+                ) as StringValue) || '365d',
         });
     }
 

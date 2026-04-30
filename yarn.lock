@@ -11747,6 +11747,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@yugo/henchmen@workspace:apps/henchmen"
   dependencies:
+    "@liaoliaots/nestjs-redis": "npm:^10.0.0"
     "@nestjs-redis/kit": "npm:^0.13.4"
     "@nestjs/cli": "npm:^11.0.0"
     "@nestjs/common": "npm:^11.0.1"

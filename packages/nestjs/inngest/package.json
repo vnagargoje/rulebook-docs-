@@ -1,0 +1,31 @@
+{
+    "name": "@yugo/nestjs-inngest",
+    "version": "0.1.0",
+    "private": true,
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "default": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "dev": "yarn build --watch",
+        "build": "tsup",
+        "clean": "del-cli ./dist ./.turbo/"
+    },
+    "dependencies": {
+        "@golevelup/nestjs-discovery": "^5.0.0",
+        "inngest": "^3.47.0"
+    },
+    "devDependencies": {
+        "@yugo/tsconfig": "workspace:*",
+        "del-cli": "^7.0.0",
+        "tsup": "^8.0.0",
+        "typescript": "^5.4.5"
+    },
+    "peerDependencies": {
+        "@nestjs/common": "*",
+        "reflect-metadata": "*"
+    }
+}

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
 import { SelectField, TextInputField } from '~/components/forms/controlled-fields'
@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 import { updateUserSchema, type UpdateUserFormValues } from '~/schemas'
-import { roleOptions, genderOptions, allowedRoles, allowedGenders } from '~/constants'
+import { employeeRoleOptions, genderOptions, allowedRoles, allowedGenders } from '~/constants'
 
 function getUserProperties(properties: unknown) {
     if (!properties) return {}
@@ -45,9 +45,13 @@ function getGenderValue(gender?: string) {
 export default function EditUserRoute() {
     const { id } = useParams()
     const navigate = useNavigate()
+    const location = useLocation()
     const { data: user, isLoading } = useGetUserById(id)
     const updateUser = useUpdateUser()
     const { data: states } = useStates()
+    const isCustomerRoute = location.pathname.startsWith('/customers')
+    const roleOptions = employeeRoleOptions
+    const backPath = isCustomerRoute ? '/customers' : '/users'
 
     const form = useForm<UpdateUserFormValues>({
         resolver: zodResolver(updateUserSchema),
@@ -58,7 +62,7 @@ export default function EditUserRoute() {
             email: '',
             gender: undefined,
             dateOfBirth: '',
-            role: 'customer',
+            role: isCustomerRoute ? 'customer' : 'swap_manager',
             stateId: '',
             cityId: '',
             lineOne: '',
@@ -86,7 +90,7 @@ export default function EditUserRoute() {
                 email: user.email ?? '',
                 gender: normalizedGender,
                 dateOfBirth: user.dateOfBirth ?? '',
-                role: normalizedRole,
+                role: isCustomerRoute ? 'customer' : normalizedRole,
                 stateId: address?.city?.state?.id ?? '',
                 cityId: address?.city?.id ?? '',
                 lineOne: address?.lineOne ?? '',
@@ -94,13 +98,14 @@ export default function EditUserRoute() {
                 pincode: address?.pincode ?? '',
             })
         }
-    }, [user, form])
+    }, [user, form, isCustomerRoute])
 
     const onSubmit = (values: UpdateUserFormValues) => {
         if (!id || !user) return
 
         const mobile = values.mobilenumber.startsWith('91') ? values.mobilenumber : `91${values.mobilenumber}`
         const existingProperties = user.properties && typeof user.properties === 'object' ? user.properties : {}
+        const role = isCustomerRoute ? 'customer' : values.role
         const payload: UpdateUserPayload = {
             firstName: values.firstName,
             lastName: values.lastName,
@@ -108,10 +113,10 @@ export default function EditUserRoute() {
             email: values.email || undefined,
             gender: values.gender,
             dateOfBirth: values.dateOfBirth || undefined,
-            role: values.role,
+            role,
             properties: {
                 ...existingProperties,
-                roleName: values.role,
+                roleName: role,
             },
         }
 
@@ -129,7 +134,7 @@ export default function EditUserRoute() {
             {
                 onSuccess: () => {
                     toast.success('User updated successfully')
-                    navigate('/users')
+                    navigate(backPath)
                 },
                 onError: (error: any) => {
                     toast.error(error?.response?.data?.message || 'Failed to update user')
@@ -149,12 +154,12 @@ export default function EditUserRoute() {
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate('/users')} className="shrink-0">
+                <Button variant="ghost" size="icon" onClick={() => navigate(backPath)} className="shrink-0">
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader
-                    title="Update User"
-                    description="Modify user profile and system access"
+                    title={isCustomerRoute ? 'Update Customer' : 'Update Employee'}
+                    description={isCustomerRoute ? 'Modify customer profile information' : 'Modify employee profile and system access'}
                 />
             </div>
 
@@ -209,20 +214,22 @@ export default function EditUserRoute() {
                                 </div>
                             </div>
 
-                            <div className="space-y-6">
-                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">System Access & Role</h4>
-                                <div className="max-w-xs">
-                                    <SelectField
-                                        control={form.control}
-                                        name="role"
-                                        label="System Role"
-                                        options={[...roleOptions]}
-                                    />
+                            {!isCustomerRoute && (
+                                <div className="space-y-6">
+                                    <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">System Access & Role</h4>
+                                    <div className="max-w-xs">
+                                        <SelectField
+                                            control={form.control}
+                                            name="role"
+                                            label="System Role"
+                                            options={[...roleOptions]}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
-                                <Button type="button" variant="ghost" onClick={() => navigate('/users')}>Cancel</Button>
+                                <Button type="button" variant="ghost" onClick={() => navigate(backPath)}>Cancel</Button>
                                 <Button type="submit" disabled={updateUser.isPending} className="min-w-35 uppercase text-xs font-bold tracking-widest">
                                     {updateUser.isPending ? 'Saving...' : 'Save Changes'}
                                 </Button>

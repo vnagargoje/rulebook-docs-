@@ -3,7 +3,11 @@ export const roleOptions = [
     { label: 'Swap Manager', value: 'swap_manager' },
     { label: 'Hub Manager', value: 'hub_manager' },
     { label: 'System Admin', value: 'system_admin' },
+    { label: 'System User', value: 'system_user' },
 ] as const
+
+export const employeeRoleOptions = roleOptions.filter((role) => role.value !== 'customer')
+export const customerRoleOptions = roleOptions.filter((role) => role.value === 'customer')
 
 export const genderOptions = [
     { label: 'Male', value: 'male' },

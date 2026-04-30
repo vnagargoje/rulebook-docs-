@@ -21,6 +21,10 @@ interface SidebarProps {
     onToggleCollapse: () => void
 }
 
+function isPathActive(currentPath: string, targetPath: string) {
+    return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`)
+}
+
 export function Sidebar({ session, isCollapsed, onToggleCollapse }: SidebarProps) {
     const location = useLocation()
     const { logout } = useAuth()
@@ -28,7 +32,7 @@ export function Sidebar({ session, isCollapsed, onToggleCollapse }: SidebarProps
 
     useEffect(() => {
         NAVIGATION_ITEMS.forEach(item => {
-            if (item.children?.some(child => location.pathname === child.to || location.pathname.startsWith(child.to))) {
+            if (item.children?.some(child => isPathActive(location.pathname, child.to))) {
                 if (!openMenus.includes(item.label)) {
                     setOpenMenus(prev => [...prev, item.label])
                 }
@@ -84,8 +88,8 @@ export function Sidebar({ session, isCollapsed, onToggleCollapse }: SidebarProps
                         const isMenuOpen = openMenus.includes(item.label)
                         
                         const isParentActive = item.to 
-                            ? (location.pathname === item.to || (item.to !== '/dashboard' && location.pathname.startsWith(item.to)))
-                            : item.children?.some(child => location.pathname === child.to || location.pathname.startsWith(child.to))
+                            ? (item.to === '/dashboard' ? location.pathname === item.to : isPathActive(location.pathname, item.to))
+                            : item.children?.some(child => isPathActive(location.pathname, child.to))
 
                         if (hasChildren) {
                             return (
@@ -125,7 +129,7 @@ export function Sidebar({ session, isCollapsed, onToggleCollapse }: SidebarProps
                                     {!isCollapsed && isMenuOpen && (
                                         <div className="ml-7 flex flex-col gap-1 border-l border-sidebar-border/50 pl-4 py-1.5 animate-in slide-in-from-top-2 duration-200">
                                             {item.children?.map((child) => {
-                                                const isChildActive = location.pathname === child.to || location.pathname.startsWith(child.to)
+                                                const isChildActive = isPathActive(location.pathname, child.to)
                                                 return (
                                                     <NavLink
                                                         key={child.to}
@@ -153,7 +157,7 @@ export function Sidebar({ session, isCollapsed, onToggleCollapse }: SidebarProps
                             )
                         }
 
-                        const isActive = item.to && (location.pathname === item.to || (item.to !== '/dashboard' && location.pathname.startsWith(item.to)))
+                        const isActive = item.to && (item.to === '/dashboard' ? location.pathname === item.to : isPathActive(location.pathname, item.to))
 
                         return (
                             <NavLink

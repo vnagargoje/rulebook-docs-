@@ -1,6 +1,13 @@
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
-import { AddressEntity, StationEntity, HubStationEntity, SwapStationEntity } from '@yugo/nestjs-database/entities'
+import {
+    AddressEntity,
+    StationEntity,
+    HubStationEntity,
+    SwapStationEntity,
+    UserEntity,
+} from '@yugo/nestjs-database/entities'
 import { CreateStationCommand } from 'src/commands/impl/stations/create-station.command.js'
 import { DataSource } from 'typeorm'
 import { StationType } from '@yugo/shared'
@@ -21,10 +28,18 @@ export class CreateStationHandler implements ICommandHandler<CreateStationComman
                 longitude: payload.longitude,
                 latitude: payload.latitude,
                 active: payload.active,
-                managerId: payload.managerId,
             })
 
             await manager.save(station)
+
+            if (payload.managerId) {
+                const user = await manager.findOne(UserEntity, { where: { id: payload.managerId } })
+                if (!user) {
+                    throw new NotFoundException(`Manager not found: ${payload.managerId}`)
+                }
+                user.stationId = station.id
+                await manager.save(user)
+            }
 
             if (payload.address) {
                 const address = manager.create(AddressEntity, {

@@ -1,5 +1,5 @@
 import { Type } from '@sinclair/typebox';
-import { VehicleType } from '@yugo/shared';
+import { VehicleStatus, VehicleType } from '@yugo/shared';
 
 export const VehiclePropertiesPayload = Type.Object({
     brand: Type.Optional(Type.String()),
@@ -15,6 +15,7 @@ export const CreateVehiclePayload = Type.Object({
     gpsId: Type.Optional(Type.String()),
     properties: Type.Optional(VehiclePropertiesPayload),
     stationId: Type.Optional(Type.String()),
+    status: Type.Enum(VehicleStatus, { default: VehicleStatus.AVAILABLE }),
 });
 
 export const UpdateVehiclePayload = Type.Partial(CreateVehiclePayload);

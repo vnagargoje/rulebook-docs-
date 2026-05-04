@@ -43,9 +43,10 @@ export class V1PlansController {
     @Get()
     @ApiResource(PlanResponse, PAGINATE_CONFIG)
     async getPlans(@Paginate() query: PaginateQuery) {
-        const qb = this.datasource.manager
-            .createQueryBuilder(PlanEntity, 'plan')
-            .where('plan.active = :active', { active: true });
+        const qb = this.datasource.manager.createQueryBuilder(
+            PlanEntity,
+            'plan',
+        );
         return paginate(query, qb, PAGINATE_CONFIG);
     }
 

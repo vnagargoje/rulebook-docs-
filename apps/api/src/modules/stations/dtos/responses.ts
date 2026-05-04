@@ -21,6 +21,14 @@ export const AddressResponse = Type.Object({
     city: Type.Optional(CityResponse),
 });
 
+export const StationManagerResponse = Type.Object({
+    id: Type.String(),
+    email: Type.Optional(Type.String({ format: 'email' })),
+    mobilenumber: Type.Optional(Type.String()),
+    firstName: Type.Optional(Type.String()),
+    lastName: Type.Optional(Type.String()),
+});
+
 export const StationResponse = Type.Object({
     id: Type.String(),
     type: Type.Enum(StationType),
@@ -29,14 +37,5 @@ export const StationResponse = Type.Object({
     latitude: Type.Optional(Type.Number({ precision: 10, scale: 8 })),
     active: Type.Boolean(),
     address: Type.Optional(AddressResponse),
-    managerId: Type.Optional(Type.String()),
-    manager: Type.Optional(
-        Type.Object({
-            id: Type.String(),
-            email: Type.Optional(Type.String({ format: 'email' })),
-            mobilenumber: Type.Optional(Type.String()),
-            firstName: Type.Optional(Type.String()),
-            lastName: Type.Optional(Type.String()),
-        }),
-    ),
+    managers: Type.Optional(Type.Array(StationManagerResponse)),
 });

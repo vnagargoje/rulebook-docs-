@@ -2,7 +2,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
-import { PlanEntity, TransactionEntity, UserEntity, UserKycEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
+import { PlanEntity, TransactionEntity, UserKycEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
 import { KycStatus, PaymentStatus, UserPlanStatus } from '@yugo/shared'
 import Razorpay from 'razorpay'
 import { RazorpayConfig } from 'src/types/index.js'
@@ -21,11 +21,6 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
         const manager = this.datasource.manager
         const config = this.configService.getOrThrow<RazorpayConfig>('razorpay.config')
 
-        const user = await manager.findOne(UserEntity, { where: { id: userId } })
-        if (!user) {
-            throw new NotFoundException('User not found')
-        }
-
         return manager.transaction(async (manager) => {
             const kycs = await manager.find(UserKycEntity, { where: { userId } })
             const hasApprovedKyc = kycs.some((k) => k.status === KycStatus.APPROVED || k.status === KycStatus.VERIFIED)
@@ -42,11 +37,15 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
             }
 
             if (pendingPlan) {
-                await manager.update(
-                    TransactionEntity,
-                    { userPlanId: pendingPlan.id, status: PaymentStatus.AWAITING },
-                    { status: PaymentStatus.CANCELLED },
-                )
+                // Lock the transaction row before updating to prevent duplicate-cancel races (M-05)
+                const pendingTx = await manager.findOne(TransactionEntity, {
+                    where: { userPlanId: pendingPlan.id, status: PaymentStatus.AWAITING },
+                    lock: { mode: 'pessimistic_write' },
+                })
+                if (pendingTx) {
+                    pendingTx.status = PaymentStatus.CANCELLED
+                    await manager.save(pendingTx)
+                }
                 pendingPlan.status = UserPlanStatus.CANCELLED
                 await manager.save(pendingPlan)
             }
@@ -80,6 +79,7 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
                 planSnapshot,
                 status: UserPlanStatus.PENDING,
                 remainingKm: plan.kmLimit,
+                totalKm: plan.kmLimit,
             })
             await manager.save(userPlan)
             return this.createRazorpayOrderAndTransaction(manager, config, userPlan, totalAmount, userId, planId)
@@ -112,7 +112,11 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
     }
 
     private async isFirstTimePurchase(manager: EntityManager, userId: string) {
-        const count = await manager.count(UserPlanEntity, { where: { userId, status: UserPlanStatus.EXPIRED } })
+        // Count any plan that was actually paid for — FAILED/CANCELLED from payment are excluded
+        // to prevent gaming first-time pricing by intentionally failing payments
+        const count = await manager.count(UserPlanEntity, {
+            where: { userId, status: In([UserPlanStatus.PURCHASED, UserPlanStatus.ACTIVE, UserPlanStatus.EXPIRED]) },
+        })
         return count === 0
     }
 

@@ -1,14 +1,18 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner-native'
+import RazorpayCheckout from 'react-native-razorpay'
+import type { PaymentSuccessData, PaymentErrorData } from 'react-native-razorpay/src/types'
 
 import { StatTile } from '@/components/customer/shared'
 
 import { Button, Pressable, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
 import { formatCurrencyIN, formatKmIN, formatNumberIN, toSafeNumber } from '@/lib/formatters/customer'
-import { useApplyTopUp, useTopUpById } from '@/queries/customer'
+import { useInitiateTopUpPurchase, useVerifyTopUpPayment, useTopUpById } from '@/queries/customer'
 import { useMyPlans } from '@/queries/customer'
+import { useCustomerProfile } from '@/queries/customer'
 
 export default function ConfirmTopUpScreen() {
     const { topUpId } = useLocalSearchParams<{ topUpId: string }>()
@@ -20,32 +24,115 @@ export default function ConfirmTopUpScreen() {
         enabled: Boolean(topUpId),
     })
     const { data: myPlansData, isLoading: plansLoading } = useMyPlans({ variables: { status: 'active' } })
-    const applyTopUp = useApplyTopUp()
+    const { data: profile } = useCustomerProfile()
+    const initiateTopUpPurchase = useInitiateTopUpPurchase()
+    const verifyTopUpPayment = useVerifyTopUpPayment()
 
     const activePlans = myPlansData?.data ?? []
 
     const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null)
 
-    const isPending = applyTopUp.isPending
+    const resolvedPlanId = selectedPlanId ?? (activePlans.length === 1 ? activePlans[0].id : null)
+    const canProceed = Boolean(topUpId) && Boolean(resolvedPlanId)
+    const isPending = initiateTopUpPurchase.isPending || verifyTopUpPayment.isPending
+    const isRazorpayOpen = useRef(false)
 
     const handleConfirm = useCallback(() => {
-        const userPlanId = selectedPlanId ?? (activePlans.length === 1 ? activePlans[0].id : null)
-        if (!topUpId || !userPlanId) return
+        const userPlanId = resolvedPlanId
+        if (!topUpId || !userPlanId) {
+            toast.error('Please select an active plan to continue')
+            return
+        }
 
-        applyTopUp.mutate(
+        // Step 1: create a Razorpay order on the backend
+        initiateTopUpPurchase.mutate(
             { topUpId, userPlanId },
             {
-                onSuccess: () => {
-                    queryClient.invalidateQueries({ queryKey: ['user-plans'] })
-                    queryClient.invalidateQueries({ queryKey: ['bookings'] })
-                    router.replace({
-                        pathname: '/customer/topup-success',
-                        params: { topUpId, userPlanId },
-                    })
+                onSuccess: async (orderData) => {
+                    const options = {
+                        description: `${topUp?.name ?? 'Top-Up'} – Yugo`,
+                        currency: orderData.currency,
+                        key: orderData.key,
+                        amount: orderData.amount,
+                        name: 'Yugo',
+                        order_id: orderData.razorpayOrderId,
+                        prefill: {
+                            name: [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || undefined,
+                            email: profile?.email ?? undefined,
+                            contact: profile?.mobilenumber ?? undefined,
+                        },
+                        theme: { color: '#22C55E' },
+                        modal: { confirm_close: true },
+                    }
+
+                    try {
+                        // Step 2: open Razorpay checkout UI
+                        isRazorpayOpen.current = true
+                        const paymentData: PaymentSuccessData = await RazorpayCheckout.open(options)
+                        isRazorpayOpen.current = false
+
+                        // Guard: empty/missing signature must never reach the server
+                        if (!paymentData.razorpay_signature) {
+                            toast.error('Payment error', { description: 'Signature missing from payment response. Please try again.' })
+                            return
+                        }
+
+                        // Step 3: verify signature server-side and apply top-up
+                        verifyTopUpPayment.mutate(
+                            {
+                                razorpayOrderId: paymentData.razorpay_order_id ?? orderData.razorpayOrderId,
+                                razorpayPaymentId: paymentData.razorpay_payment_id,
+                                razorpaySignature: paymentData.razorpay_signature,
+                                topUpId,
+                                userPlanId,
+                            },
+                            {
+                                onSuccess: () => {
+                                    queryClient.invalidateQueries({ queryKey: ['user-plans'] })
+                                    queryClient.invalidateQueries({ queryKey: ['bookings'] })
+                                    queryClient.invalidateQueries({ queryKey: ['transactions'] })
+                                    toast.success('Top-up successful!', {
+                                        description: `${topUp?.name} has been added to your plan.`,
+                                    })
+                                    router.replace({
+                                        pathname: '/customer/topup-success',
+                                        params: { topUpId, userPlanId },
+                                    })
+                                },
+                                onError: (error: any) => {
+                                    // If webhook beat us to it, payment still succeeded
+                                    if (error?.data?.code === 'PAYMENT_ALREADY_PROCESSED') {
+                                        queryClient.invalidateQueries({ queryKey: ['user-plans'] })
+                                        queryClient.invalidateQueries({ queryKey: ['transactions'] })
+                                        router.replace({
+                                            pathname: '/customer/topup-success',
+                                            params: { topUpId, userPlanId },
+                                        })
+                                    } else {
+                                        toast.error('Verification failed', {
+                                            description: error?.message ?? 'Something went wrong. Please try again.',
+                                        })
+                                    }
+                                },
+                            },
+                        )
+                    } catch (error) {
+                        isRazorpayOpen.current = false
+                        const razorpayError = error as PaymentErrorData
+                        if (razorpayError?.code === 2) {
+                            toast.error('Payment cancelled', {
+                                description: 'You cancelled the payment. Try again anytime.',
+                            })
+                        } else {
+                            toast.error('Payment failed', {
+                                description: razorpayError?.description ?? 'Something went wrong. Please try again.',
+                            })
+                        }
+                    }
                 },
             },
         )
-    }, [topUpId, selectedPlanId, activePlans, applyTopUp, queryClient, router])
+    }, [topUpId, resolvedPlanId, topUp, profile, initiateTopUpPurchase, verifyTopUpPayment, queryClient, router])
 
     const totalAmount = topUp ? toSafeNumber(topUp.price) + toSafeNumber(topUp.gst) : 0
 
@@ -269,24 +356,18 @@ export default function ConfirmTopUpScreen() {
 
             <View className='absolute bottom-0 left-0 right-0 border-t border-neutral-100 bg-white px-4 pb-8 pt-4'>
                 <Button
-                    label={isPending ? 'Applying...' : 'Confirm Top-Up'}
-                    onPress={handleConfirm}
-                    disabled={
-                        !(selectedPlanId ?? (activePlans.length === 1 ? activePlans[0].id : null)) ||
-                        activePlans.length === 0 ||
-                        isPending
+                    label={
+                        initiateTopUpPurchase.isPending
+                            ? 'Creating order...'
+                            : verifyTopUpPayment.isPending
+                              ? 'Verifying payment...'
+                              : 'Confirm Top-Up'
                     }
-                    className={`h-14 rounded-2xl ${
-                        (selectedPlanId ?? (activePlans.length === 1 ? activePlans[0].id : null)) &&
-                        activePlans.length > 0
-                            ? 'bg-primary-600'
-                            : 'bg-neutral-300'
-                    }`}
+                    onPress={handleConfirm}
+                    disabled={!canProceed || isPending || isRazorpayOpen.current}
+                    className={`h-14 rounded-2xl ${canProceed ? 'bg-primary-600' : 'bg-neutral-300'}`}
                     textClassName='text-base font-semibold text-white'
                 />
-                <Text className='mt-2 text-center text-xs text-neutral-400'>
-                    Payment integration coming soon. Top-up is free for now.
-                </Text>
             </View>
         </View>
     )

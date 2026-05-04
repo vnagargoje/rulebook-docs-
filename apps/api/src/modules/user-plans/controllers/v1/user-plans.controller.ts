@@ -5,23 +5,31 @@ import { type ContextUserType } from '@/types/context-user';
 import {
     Body,
     Controller,
+    ForbiddenException,
     Get,
+    Inject,
     NotFoundException,
     Param,
     Post,
+    Req,
     UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
+import { AccessService, Actions } from '@yugo/nestjs-casl';
+import { UserPlanSubject } from '@yugo/permissions';
 import { type Static } from '@sinclair/typebox';
 import {
     ApplyTopUpCommand,
     PurchasePlanCommand,
+    PurchaseTopUpCommand,
     VerifyPaymentCommand,
+    VerifyTopUpPaymentCommand,
 } from '@yugo/cqrs';
 import { GetUserPlanByQrQuery } from '@yugo/cqrs';
 import { UserPlanEntity } from '@yugo/nestjs-database/entities';
+import { type Request } from 'express';
 import {
     FilterOperator,
     Paginate,
@@ -33,10 +41,13 @@ import { DataSource } from 'typeorm';
 import {
     ApplyTopUpPayload,
     PurchasePlanPayload,
+    PurchaseTopUpPayload,
     VerifyPaymentPayload,
+    VerifyTopUpPaymentPayload,
 } from '../../dtos/payloads';
 import {
     PurchasePlanOrderResponse,
+    PurchaseTopUpOrderResponse,
     UserPlanQrScanResponse,
     UserPlanResponse,
 } from '../../dtos/responses';
@@ -60,6 +71,7 @@ export class V1UserPlansController {
         @InjectDataSource() private readonly datasource: DataSource,
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
+        @Inject(AccessService) private readonly accessService: AccessService,
     ) {}
 
     @ApiResource(UserPlanResponse, PAGINATE_CONFIG)
@@ -124,9 +136,45 @@ export class V1UserPlansController {
     async applyTopUp(
         @Body() body: Static<typeof ApplyTopUpPayload>,
         @AuthenticatedUser() user: ContextUserType,
+        @Req() req: Request,
     ) {
+        // Administrative endpoint – only system_admin may apply a top-up for free.
+        if (!this.accessService.hasAbility(req.user, Actions.manage, new UserPlanSubject())) {
+            throw new ForbiddenException('not allowed');
+        }
         return this.commandBus.execute(
             new ApplyTopUpCommand(user.id, body.topUpId, body.userPlanId),
+        );
+    }
+
+    @ApiBody({ schema: PurchaseTopUpPayload })
+    @ApiResource(PurchaseTopUpOrderResponse)
+    @Post('top-up/purchase')
+    async purchaseTopUp(
+        @Body() body: Static<typeof PurchaseTopUpPayload>,
+        @AuthenticatedUser() user: ContextUserType,
+    ) {
+        return this.commandBus.execute(
+            new PurchaseTopUpCommand(user.id, body.topUpId, body.userPlanId),
+        );
+    }
+
+    @ApiBody({ schema: VerifyTopUpPaymentPayload })
+    @ApiResource(UserPlanResponse)
+    @Post('top-up/verify-payment')
+    async verifyTopUpPayment(
+        @Body() body: Static<typeof VerifyTopUpPaymentPayload>,
+        @AuthenticatedUser() user: ContextUserType,
+    ) {
+        return this.commandBus.execute(
+            new VerifyTopUpPaymentCommand(
+                user.id,
+                body.razorpayOrderId,
+                body.razorpayPaymentId,
+                body.razorpaySignature,
+                body.topUpId,
+                body.userPlanId,
+            ),
         );
     }
 

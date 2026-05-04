@@ -1,4 +1,5 @@
 import { Type } from '@sinclair/typebox';
+import { VehicleStatus } from '@yugo/shared';
 
 export const VehiclePropertiesResponse = Type.Object({
     brand: Type.Optional(Type.String()),
@@ -22,6 +23,7 @@ export const VehicleResponse = Type.Object({
             type: Type.Optional(Type.String()),
         }),
     ),
+    status: Type.Enum(VehicleStatus),
     createdAt: Type.Optional(Type.String()),
     updatedAt: Type.Optional(Type.String()),
 });

@@ -1,49 +1,121 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner-native'
+import RazorpayCheckout from 'react-native-razorpay'
+import type { PaymentSuccessData, PaymentErrorData } from 'react-native-razorpay/src/types'
 
 import { SummaryRow } from '@/components/customer/confirm-booking'
 import { Button, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
 import { formatCurrencyIN, formatNumberIN } from '@/lib/formatters/customer'
 import { usePlanById } from '@/queries/customer'
-import { usePurchasePlan } from '@/queries/customer'
+import { useInitiatePlanPurchase, useVerifyPayment } from '@/queries/customer'
+import { useCustomerProfile } from '@/queries/customer'
 
 export default function ConfirmBookingScreen() {
     const { planId } = useLocalSearchParams<{ planId: string }>()
     const router = useRouter()
     const queryClient = useQueryClient()
+    const isRazorpayOpen = useRef(false)
 
     const { data: plan, isLoading } = usePlanById({ variables: { id: planId! } })
-    const purchaseMutation = usePurchasePlan()
+    const { data: profile } = useCustomerProfile()
+    const initiatePurchase = useInitiatePlanPurchase()
+    const verifyPayment = useVerifyPayment()
 
     const handleConfirm = useCallback(() => {
         if (!planId) return
 
-        purchaseMutation.mutate(
+        // Step 1: create a Razorpay order on the backend
+        initiatePurchase.mutate(
             { planId },
             {
-                onSuccess: (userPlan) => {
-                    queryClient.invalidateQueries({ queryKey: ['user-plans'] })
-                    toast.success('Booking confirmed!', {
-                        description: `${plan?.name} plan booked successfully.`,
-                    })
-                    router.replace({
-                        pathname: '/customer/booking-success',
-                        params: { userPlanId: userPlan.id },
-                    })
-                },
-                onError: () => {
-                    toast.error('Booking failed', {
-                        description: 'Something went wrong. Please try again.',
-                    })
+                onSuccess: async (orderData) => {
+                    const options = {
+                        description: `${plan?.name ?? 'Yugo'} Plan`,
+                        currency: orderData.currency,
+                        key: orderData.key, // public key returned by server – safe on client
+                        amount: orderData.amount,
+                        name: 'Yugo',
+                        order_id: orderData.razorpayOrderId,
+                        prefill: {
+                            name: [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || undefined,
+                            email: profile?.email ?? undefined,
+                            contact: profile?.mobilenumber ?? undefined,
+                        },
+                        theme: { color: '#22C55E' },
+                        modal: { confirm_close: true },
+                    }
+
+                    try {
+                        // Step 2: open Razorpay checkout UI
+                        isRazorpayOpen.current = true
+                        const paymentData: PaymentSuccessData = await RazorpayCheckout.open(options)
+                        isRazorpayOpen.current = false
+
+                        // Guard: empty/missing signature must never reach the server
+                        if (!paymentData.razorpay_signature) {
+                            toast.error('Payment error', { description: 'Signature missing from payment response. Please try again.' })
+                            return
+                        }
+
+                        // Step 3: verify signature server-side – never trust the client alone
+                        verifyPayment.mutate(
+                            {
+                                razorpayOrderId: paymentData.razorpay_order_id ?? orderData.razorpayOrderId,
+                                razorpayPaymentId: paymentData.razorpay_payment_id,
+                                razorpaySignature: paymentData.razorpay_signature,
+                            },
+                            {
+                                onSuccess: (userPlan) => {
+                                    queryClient.invalidateQueries({ queryKey: ['user-plans'] })
+                                    queryClient.invalidateQueries({ queryKey: ['bookings'] })
+                                    toast.success('Payment successful!', {
+                                        description: `${plan?.name} plan is now active.`,
+                                    })
+                                    router.replace({
+                                        pathname: '/customer/booking-success',
+                                        params: { userPlanId: userPlan.id },
+                                    })
+                                },
+                                onError: (error: any) => {
+                                    // If webhook beat us to it, payment still succeeded
+                                    if (error?.data?.code === 'PAYMENT_ALREADY_PROCESSED') {
+                                        queryClient.invalidateQueries({ queryKey: ['user-plans'] })
+                                        queryClient.invalidateQueries({ queryKey: ['bookings'] })
+                                        router.replace({
+                                            pathname: '/customer/booking-success',
+                                            params: { userPlanId: orderData.userPlanId },
+                                        })
+                                    } else {
+                                        toast.error('Verification failed', {
+                                            description: error?.message ?? 'Something went wrong. Please try again.',
+                                        })
+                                    }
+                                },
+                            },
+                        )
+                    } catch (error) {
+                        isRazorpayOpen.current = false
+                        // Razorpay errors: code 2 = user dismissed, others = payment failure
+                        const razorpayError = error as PaymentErrorData
+                        if (razorpayError?.code === 2) {
+                            toast.error('Payment cancelled', {
+                                description: 'You cancelled the payment. Your order is saved — try again anytime.',
+                            })
+                        } else {
+                            toast.error('Payment failed', {
+                                description: razorpayError?.description ?? 'Something went wrong. Please try again.',
+                            })
+                        }
+                    }
                 },
             },
         )
-    }, [planId, plan, purchaseMutation, queryClient, router])
+    }, [planId, plan, profile, initiatePurchase, verifyPayment, queryClient, router])
 
-    const isPending = purchaseMutation.isPending
+    const isPending = initiatePurchase.isPending || verifyPayment.isPending
 
     if (isLoading || !plan) {
         return <ScreenLoader />
@@ -162,15 +234,21 @@ export default function ConfirmBookingScreen() {
 
             <View className='absolute bottom-0 left-0 right-0 border-t border-neutral-100 bg-white px-4 pb-8 pt-4'>
                 <Button
-                    label={isPending ? 'Booking...' : 'Confirm Booking'}
+                    label={
+                        initiatePurchase.isPending
+                            ? 'Creating order...'
+                            : verifyPayment.isPending
+                              ? 'Verifying payment...'
+                              : 'Proceed to Payment'
+                    }
                     onPress={handleConfirm}
                     loading={isPending}
-                    disabled={isPending}
+                    disabled={isPending || isRazorpayOpen.current}
                     className='h-14 rounded-2xl bg-primary-600'
                     textClassName='text-base font-semibold text-white'
                 />
                 <Text className='mt-3 text-center text-xs text-neutral-400'>
-                    Payment integration coming soon. Booking is free for now.
+                    Secured by Razorpay · UPI, Cards, Net Banking &amp; Wallets accepted
                 </Text>
             </View>
         </View>

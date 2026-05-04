@@ -35,13 +35,13 @@ import { StationResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<StationEntity> = {
     sortableColumns: ['id', 'name', 'createdAt'],
-    relations: ['address', 'address.city', 'address.city.state', 'manager'],
+    relations: ['address', 'address.city', 'address.city.state', 'managers'],
     filterableColumns: {
         type: [FilterOperator.EQ],
         name: [FilterOperator.ILIKE],
-        'manager.firstName': [FilterOperator.ILIKE],
-        'manager.lastName': [FilterOperator.ILIKE],
-        managerId: [FilterOperator.EQ],
+        'managers.firstName': [FilterOperator.ILIKE],
+        'managers.lastName': [FilterOperator.ILIKE],
+        'managers.id': [FilterOperator.EQ],
     },
     defaultSortBy: [['createdAt', 'DESC']],
 };
@@ -79,7 +79,7 @@ export class V1StationsController {
                 'address',
                 'address.city',
                 'address.city.state',
-                'manager',
+                'managers',
             ],
         });
         if (!station) {

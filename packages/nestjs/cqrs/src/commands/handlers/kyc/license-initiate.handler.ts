@@ -25,14 +25,11 @@ export class LicenseInitiateHandler implements ICommandHandler<LicenseInitiateCo
 
         const response = await xior.post(
             `${config.baseUrl}/verification/post-driving-license`,
-            {
-                dl_number: payload.dlNumber,
-                dob: payload.dob,
-            },
+            {}, // empty body
             {
                 params: {
-                    consent: 'Y',
-                    purpose: 'For KYC Purpose',
+                    dl_number: payload.dlNumber,
+                    dob: payload.dob,
                 },
                 headers: {
                     'x-api-key': config.apiKey,
@@ -43,7 +40,7 @@ export class LicenseInitiateHandler implements ICommandHandler<LicenseInitiateCo
         )
 
         return {
-            requestId: response.data.data.request_id,
+            requestId: response.data.request_id,
         }
     }
 }

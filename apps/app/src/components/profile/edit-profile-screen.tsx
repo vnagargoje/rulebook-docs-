@@ -23,7 +23,11 @@ import { GenderPill } from './gender-pill'
 import { SectionCard } from './section-card'
 import { FieldWrapper } from './field-wrapper'
 
-export function EditProfileScreen() {
+interface EditProfileScreenProps {
+    onSuccess?: () => void
+}
+
+export function EditProfileScreen({ onSuccess }: EditProfileScreenProps = {}) {
     const router = useRouter()
     const queryClient = useQueryClient()
     const updateProfile = useUpdateMyProfile()
@@ -66,7 +70,11 @@ export function EditProfileScreen() {
         queryClient.setQueryData([...MY_PROFILE_QUERY_KEY], updatedProfile)
         await queryClient.invalidateQueries({ queryKey: [...MY_PROFILE_QUERY_KEY] })
         showSuccessMessage('Profile updated successfully')
-        router.back()
+        if (onSuccess) {
+            onSuccess()
+        } else {
+            router.back()
+        }
     })
 
     if (isLoading || !profile) {

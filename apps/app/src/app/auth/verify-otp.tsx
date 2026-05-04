@@ -11,7 +11,9 @@ import colors from '@/components/ui/colors'
 import { showErrorMessage } from '@/components/ui'
 import { isVerifiedOtpResponse } from '@/components/auth/auth.utils'
 import { useIsAuthenticated, useVerifyOtp } from '@/queries/auth.query'
+import { getFirstIncompleteKycRoute, isKycComplete } from '@/queries/customer/kyc.query'
 import { useAuthStore } from '@/stores/auth.store'
+import { client } from '@/lib/api/client'
 
 export default function VerifyOtpPage() {
     const router = useRouter()
@@ -65,6 +67,14 @@ export default function VerifyOtpPage() {
                     if (userRole && userRole !== 'customer') {
                         router.replace('/')
                         return
+                    }
+
+                    if (userRole === 'customer') {
+                        const kycResponse = await client.v1.kycGetStatus()
+                        if (!isKycComplete(kycResponse.data)) {
+                            router.replace(getFirstIncompleteKycRoute(kycResponse.data) as any)
+                            return
+                        }
                     }
 
                     if (redirect) {

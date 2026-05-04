@@ -3,7 +3,7 @@ import { IdTimestamppedEntity } from './id-timestampped.entity.js'
 
 @Entity({ name: 'plans' })
 export class PlanEntity extends IdTimestamppedEntity {
-    @Column('varchar', { length: 150 })
+    @Column('varchar', { length: 150, unique: true })
     name: string
 
     @Column('text', { nullable: true })

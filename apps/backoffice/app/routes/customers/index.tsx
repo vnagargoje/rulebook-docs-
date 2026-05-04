@@ -7,7 +7,7 @@ import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
 import { useUsers, type UserItem } from '~/queries/users'
 
-export default function UsersListRoute() {
+export default function UsersCustomerListRoute() {
     const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState('')
     const [page, setPage] = useState(1)
@@ -18,7 +18,7 @@ export default function UsersListRoute() {
             page,
             limit: 10,
             sortBy: ['createdAt:DESC'],
-            'filter.roles.name': ['$in:swap_manager,hub_manager,system_admin,system_user'],
+            'filter.roles.name': ['$eq:customer'],
         }
 
         if (deferredSearchQuery) {
@@ -52,36 +52,34 @@ export default function UsersListRoute() {
         {
             header: 'Actions',
             cell: (user: UserItem) => (
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/users/edit/${user.id}`)}>
-                        <IconEdit className="h-4 w-4" />
-                    </Button>
-                </div>
+                <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/edit/${user.id}`)}>
+                    <IconEdit className="h-4 w-4" />
+                </Button>
             ),
         },
     ], [navigate])
 
     if (isLoading) {
-        return <div className="p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase">Loading Users...</div>
+        return <div className="p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase">Loading Customers...</div>
     }
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <PageHeader
-                    title="Employees"
-                    description="Manage employee accounts across the platform."
+                    title="Customers"
+                    description="Manage customer accounts across the platform."
                 />
-                <Button onClick={() => navigate('/users/create')}>
+                <Button onClick={() => navigate('/customers/create')}>
                     <IconPlus className="mr-2 h-4 w-4" />
-                    Create New User
+                    Create New Customer
                 </Button>
             </div>
 
             <ResourceTable
                 data={users}
-                emptyMessage="No employees found."
-                searchPlaceholder="Search users by name, email, or mobile..."
+                emptyMessage="No customers found."
+                searchPlaceholder="Search customers by name, email, or mobile..."
                 searchValue={searchQuery}
                 onSearchChange={handleSearchChange}
                 currentPage={paginationMeta?.currentPage ?? page}

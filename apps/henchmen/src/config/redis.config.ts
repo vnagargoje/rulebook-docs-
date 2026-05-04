@@ -1,21 +1,16 @@
+import { RedisModuleOptions } from '@liaoliaots/nestjs-redis';
 import { registerAs } from '@nestjs/config';
-import { RedisModuleOptions } from '@nestjs-redis/kit';
 
 export const redisConfig = registerAs(
     'redis.config',
     (): RedisModuleOptions => {
         const env = process.env;
-        const tls: boolean = (env['REDIS_SSL'] as string) === 'true';
         return {
-            type: 'client',
-            options: {
-                username: 'default',
+            config: {
+                host: env['REDIS_HOST'] ?? '0.0.0.0',
+                port: +(env['REDIS_PORT'] ?? '6379'),
                 password: env['REDIS_PASSWORD'],
-                socket: {
-                    host: env['REDIS_HOST'],
-                    port: +(env['REDIS_PORT'] ?? '6379'),
-                    tls: tls as any,
-                },
+                tls: env['REDIS_SSL'] === 'true' ? {} : undefined,
             },
         };
     },

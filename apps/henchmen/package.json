@@ -9,6 +9,7 @@
         "clean": "rimraf dist"
     },
     "dependencies": {
+        "@liaoliaots/nestjs-redis": "^10.0.0",
         "@nestjs-redis/kit": "^0.13.4",
         "@nestjs/common": "^11.0.1",
         "@nestjs/config": "^4.0.4",

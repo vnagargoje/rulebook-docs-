@@ -130,7 +130,7 @@ export class DummyDataSeeder implements Seeder {
                     : SwapStationEntity,
                 {
                     where: { name: stationName },
-                    relations: { address: true, manager: true },
+                    relations: { address: true, managers: true },
                 },
             );
 
@@ -173,12 +173,14 @@ export class DummyDataSeeder implements Seeder {
                 }),
             );
             station.active = true;
-            station.manager = stationManager;
-            station.managerId = stationManager.id;
             station.address = savedAddress;
             station.addressId = savedAddress.id;
 
             const savedStation = await manager.save(station);
+
+            stationManager.stationId = savedStation.id;
+            await manager.save(stationManager);
+
             stationsByKey.set(
                 `${managerKey}-station-${stationNumber}`,
                 savedStation,

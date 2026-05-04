@@ -102,6 +102,7 @@ export default function CustomerLayout() {
                     headerShadowVisible: false,
                 }}
             />
+            <Stack.Screen name='kyc' options={{ headerShown: false }} />
         </Stack>
     )
 }

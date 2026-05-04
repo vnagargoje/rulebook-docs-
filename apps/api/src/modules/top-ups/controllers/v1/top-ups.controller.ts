@@ -43,9 +43,10 @@ export class V1TopUpsController {
     @ApiResource(TopUpResponse, PAGINATE_CONFIG)
     @Get()
     async getTopUps(@Paginate() query: PaginateQuery) {
-        const qb = this.datasource.manager
-            .createQueryBuilder(TopUpEntity, 'topUp')
-            .where('topUp.active = :active', { active: true });
+        const qb = this.datasource.manager.createQueryBuilder(
+            TopUpEntity,
+            'topUp',
+        );
         return paginate(query, qb, PAGINATE_CONFIG);
     }
 

@@ -68,4 +68,8 @@ export const {
     v1VehicleSurrenderGetAllSurrenders,
     v1VehicleSurrenderGetSurrenderDetails,
     v1VehicleSurrenderSurrenderVehicle,
+    v1UserPlansGetMyPlans,
+    v1UserPlansGetMyPlanById,
+    v1TransactionsGetTransactions,
+    v1TransactionsGetTransactionById,
 } = api.v1

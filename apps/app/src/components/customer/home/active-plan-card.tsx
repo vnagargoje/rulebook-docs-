@@ -12,12 +12,8 @@ type Props = {
 
 export function ActivePlanCard({ plan, onRecharge }: Props) {
     const planName = (plan.planSnapshot as any)?.name ?? 'Plan'
-    const topUpsKm = (plan.topUps as any[] ?? []).reduce(
-        (sum: number, tu: any) => sum + (Number((tu.topUpSnapshot as any)?.kmLimit) || 0),
-        0,
-    )
-    const planKm = Number((plan.planSnapshot as any)?.kmLimit) || 0
-    const kmLimit = planKm + topUpsKm || Number(plan.remainingKm) || 1
+    const appliedTopUps = (plan.topUps as any[] ?? []).filter((tu: any) => tu.status === 'applied')
+    const kmLimit = Number(plan.totalKm) || Number((plan.planSnapshot as any)?.kmLimit) || Number(plan.remainingKm) || 1
     const remainingKm = Number(plan.remainingKm)
     const progressPct = Math.min(100, (remainingKm / kmLimit) * 100)
     const validityDays = (plan.planSnapshot as any)?.validityDays ?? '—'
@@ -74,13 +70,13 @@ export function ActivePlanCard({ plan, onRecharge }: Props) {
                 </View>
             </Pressable>
 
-            {plan.topUps && plan.topUps.length > 0 && (
+            {plan.topUps && appliedTopUps.length > 0 && (
                 <View className='mt-4'>
                     <Text className='text-[10px] font-semibold uppercase tracking-[1px] text-neutral-400'>
-                        Applied Top-Ups ({plan.topUps.length})
+                        Applied Top-Ups ({appliedTopUps.length})
                     </Text>
                     <View className='mt-2 gap-2'>
-                        {(plan.topUps as any[]).map((tu: any) => {
+                        {appliedTopUps.map((tu: any) => {
                             const snap = tu.topUpSnapshot ?? {}
                             const km = snap.kmLimit ?? 0
                             const days = snap.validityDays ?? 0

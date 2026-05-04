@@ -8,6 +8,9 @@ export const PurchasePlanOrderResponse = Type.Object({
     userPlanId: Type.String(),
 });
 
+// Reused for top-up purchase orders – same shape as plan purchase
+export const PurchaseTopUpOrderResponse = PurchasePlanOrderResponse;
+
 export const UserPlanResponse = Type.Object({
     id: Type.String(),
     userId: Type.String(),
@@ -17,6 +20,7 @@ export const UserPlanResponse = Type.Object({
     startsAt: Type.Union([Type.String(), Type.Null()]),
     expiresAt: Type.Union([Type.String(), Type.Null()]),
     remainingKm: Type.Number(),
+    totalKm: Type.Number(),
     qrCodeId: Type.Union([Type.String(), Type.Null()]),
     qrCode: Type.Optional(
         Type.Object({
@@ -32,7 +36,8 @@ export const UserPlanResponse = Type.Object({
                 id: Type.String(),
                 topUpId: Type.String(),
                 topUpSnapshot: Type.Any(),
-                appliedAt: Type.String(),
+                status: Type.String(),
+                appliedAt: Type.Union([Type.String(), Type.Null()]),
             }),
         ),
     ),

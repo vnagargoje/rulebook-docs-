@@ -10,7 +10,7 @@ export default function TopUpSuccessScreen() {
     const insets = useSafeAreaInsets()
 
     const handleViewPlan = useCallback(() => {
-        router.replace('/customer/(tabs)/bookings')
+        router.replace('/customer/(tabs)/plans')
     }, [router])
 
     const handleGoHome = useCallback(() => {
@@ -87,7 +87,7 @@ export default function TopUpSuccessScreen() {
 
                 <View className='mt-10 gap-3'>
                     <Button
-                        label='View My Bookings'
+                        label='View My Plan'
                         onPress={handleViewPlan}
                         className='h-14 rounded-2xl bg-primary-600'
                         textClassName='text-base font-semibold text-white'

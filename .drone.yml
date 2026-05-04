@@ -32,7 +32,7 @@ steps:
 
   - name: build-backoffice
     commands:
-      - "docker buildx build --platform linux/amd64 -f apps/backoffice/Dockerfile . --build-arg VITE_API_URL=https://api.foamingo.com -t registry.digitalocean.com/yugo-builds/backoffice:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/backoffice:latest"
+      - "docker buildx build --platform linux/amd64 -f apps/backoffice/Dockerfile . --build-arg VITE_API_URL=https://api.evyugo.com -t registry.digitalocean.com/yugo-builds/backoffice:${DRONE_COMMIT_SHA:0:10} -t registry.digitalocean.com/yugo-builds/backoffice:latest"
     depends_on:
       - build-henchmen
 

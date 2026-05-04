@@ -1,5 +1,5 @@
 import { Gender } from '@yugo/shared'
-import { Column, Entity, Index, JoinTable, ManyToMany, OneToMany } from 'typeorm'
+import { Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm'
 import { AddressEntity } from './address.entity.js'
 import { IdTimestamppedEntity } from './id-timestampped.entity.js'
 import { RoleEntity } from './role.entity.js'
@@ -48,8 +48,15 @@ export class UserEntity extends IdTimestamppedEntity {
     @OneToMany(() => UserKycEntity, (k) => k.user, { cascade: true })
     kycs: UserKycEntity[]
 
-    @OneToMany(() => StationEntity, (s) => s.manager)
-    stations: StationEntity[]
+    @ManyToOne(() => StationEntity, (s) => s.managers, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    })
+    @JoinColumn()
+    station: StationEntity
+
+    @Column({ nullable: true })
+    stationId: string
 
     // CONSTANTS
     static PASSWORD_SALT_ROUNDS: number = 10

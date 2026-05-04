@@ -5,3 +5,4 @@ export * from './redis.config.js';
 export * from './deepvue.config.js';
 export * from './razorpay.config.js';
 export * from './s3.config.js';
+export * from './inngest.config.js';

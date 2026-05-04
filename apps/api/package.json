@@ -27,6 +27,7 @@
         "@yugo/nestjs-casl": "workspace:*",
         "@yugo/nestjs-database": "workspace:*",
         "@yugo/nestjs-framework": "workspace:*",
+        "@yugo/nestjs-inngest": "workspace:*",
         "@yugo/permissions": "workspace:*",
         "@yugo/shared": "workspace:*",
         "@yugo/utils": "workspace:*",

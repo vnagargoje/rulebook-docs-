@@ -10,6 +10,7 @@ import {
     Param,
     Patch,
     Post,
+    Put,
     Req,
     UseGuards,
 } from '@nestjs/common';
@@ -17,7 +18,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { type Static } from '@sinclair/typebox';
-import { CreateUserCommand, UpdateUserCommand } from '@yugo/cqrs';
+import { CreateUserCommand, UpdateUserCommand, UpdateUserAddressesCommand } from '@yugo/cqrs';
 import { AccessService } from '@yugo/nestjs-casl';
 import { UserEntity } from '@yugo/nestjs-database/entities';
 import { Actions, UserSubject } from '@yugo/permissions';
@@ -30,7 +31,7 @@ import {
     type PaginateQuery,
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
-import { CreateUserPayload, UpdateUserPayload } from '../../dtos/payloads';
+import { CreateUserPayload, UpdateUserPayload, UpdateUserAddressesPayload } from '../../dtos/payloads';
 import { UserResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
@@ -152,6 +153,31 @@ export class V1UsersController {
 
         return this.commandBus.execute(
             new UpdateUserCommand(userId, body, isSystemAdmin),
+        );
+    }
+
+    @ApiBody({ schema: UpdateUserAddressesPayload })
+    @ApiResource(UserResponse)
+    @Put(':id/addresses')
+    async updateAddresses(
+        @Param('id') id: string,
+        @Body() body: Static<typeof UpdateUserAddressesPayload>,
+        @Req() req: Request,
+    ) {
+        const canManageUsers = this.accessService.hasAbility(
+            req.user,
+            Actions.create,
+            new UserSubject(),
+        );
+
+        if (id !== 'me' && !canManageUsers) {
+            throw new ForbiddenException('not allowed');
+        }
+
+        const userId = id === 'me' ? req.user.id : id;
+
+        return this.commandBus.execute(
+            new UpdateUserAddressesCommand(userId, body),
         );
     }
 }

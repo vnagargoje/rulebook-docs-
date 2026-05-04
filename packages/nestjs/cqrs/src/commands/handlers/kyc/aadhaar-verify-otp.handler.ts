@@ -90,27 +90,7 @@ export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtp
 
                 await manager.save(user)
 
-                const addrData = data.address || {}
-                let address = user.addresses?.[0]
-                if (!address) {
-                    address = manager.create(AddressEntity, { userId })
-                }
-                address.lineOne =
-                    [addrData.house, addrData.street, addrData.locality].filter(Boolean).join(', ') ||
-                    addrData.vtc ||
-                    'Aadhaar Address'
-                address.lineTwo = [
-                    addrData.landmark,
-                    addrData.postOffice,
-                    addrData.subDistrict,
-                    addrData.district,
-                    addrData.state,
-                ]
-                    .filter(Boolean)
-                    .join(', ')
-                address.pincode = addrData.pin || '000000'
 
-                await manager.save(address)
             }
         })
 

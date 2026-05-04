@@ -16,6 +16,7 @@ import {
     razorpayConfig,
     s3ClientConfig,
     s3BucketConfig,
+    inngestConfig,
 } from './config';
 import { AppAuthGuard } from './guards/app.guard.js';
 import { TypeboxSerializerInterceptor } from './interceptors/typebox-serializer.interceptor.js';
@@ -37,6 +38,7 @@ import { BatteryTransportsModule } from './modules/battery-transports/battery-tr
 import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module';
 import { SurrendersModule } from './modules/surrenders/surrenders.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { NestjsInngestModule } from '@yugo/nestjs-inngest';
 
 @Module({
     imports: [
@@ -52,6 +54,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
                 razorpayConfig,
                 s3ClientConfig,
                 s3BucketConfig,
+                inngestConfig,
             ],
         }),
         LoggerModule.forRootAsync({
@@ -79,6 +82,13 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
             inject: [ConfigService],
             useFactory(configService: ConfigService) {
                 return configService.getOrThrow('jwt.config');
+            },
+        }),
+        NestjsInngestModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            async useFactory(configService: ConfigService) {
+                return configService.getOrThrow('inngest.config');
             },
         }),
         PassportModule.register({

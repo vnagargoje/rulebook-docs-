@@ -3,3 +3,8 @@ export enum Gender {
     FEMALE = 'female',
     OTHER = 'other',
 }
+
+export enum AddressType {
+    CURRENT = 'current',
+    PERMANENT = 'permanent',
+}

@@ -15,7 +15,15 @@ import {
 
 export const NAVIGATION_ITEMS = [
     { to: '/dashboard', label: 'Dashboard', description: 'Operations overview', icon: IconLayoutDashboard },
-    { to: '/users', label: 'Users', description: 'Employees and customers', icon: IconUsers },
+    {
+        label: 'Users',
+        description: 'Employees and customers',
+        icon: IconUsers,
+        children: [
+            { to: '/users', label: 'Employee', description: 'Admin and manager accounts' },
+            { to: '/customers', label: 'Customers', description: 'Customer accounts' },
+        ]
+    },
     { to: '/stations', label: 'Stations', description: 'Hubs and swap stations', icon: IconMapPin },
     { 
         label: 'Plans', 

@@ -18,6 +18,7 @@ export const CreateUserPayload = Type.Object({
     properties: Type.Optional(Type.Any()),
     dateOfBirth: Type.Optional(Type.String({ format: 'date' })),
     address: Type.Optional(AddressPayload),
+    stationId: Type.Optional(Type.String()),
 });
 
 export const UpdateUserPayload = Type.Partial(CreateUserPayload);

@@ -37,4 +37,5 @@ export const UserResponse = Type.Object({
     dateOfBirth: Type.Optional(Type.String({ format: 'date' })),
     roles: Type.Optional(Type.Array(RoleResponse)),
     addresses: Type.Optional(Type.Array(AddressResponse)),
+    stationId: Type.Optional(Type.String()),
 });

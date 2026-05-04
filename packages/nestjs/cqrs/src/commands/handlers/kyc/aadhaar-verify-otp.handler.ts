@@ -58,7 +58,7 @@ export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtp
                 })
             }
 
-            kyc.status = isSuccess ? KycStatus.APPROVED : KycStatus.REJECTED
+            kyc.status = isSuccess ? KycStatus.VERIFIED : KycStatus.REJECTED
             kyc.verifiedAt = isSuccess ? new Date() : kyc.verifiedAt
             kyc.notes = JSON.stringify(response.data)
             kyc.documentId = payload.aadhaarNumber || kyc.documentId || 'AADHAAR'
@@ -89,8 +89,6 @@ export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtp
                 }
 
                 await manager.save(user)
-
-
             }
         })
 

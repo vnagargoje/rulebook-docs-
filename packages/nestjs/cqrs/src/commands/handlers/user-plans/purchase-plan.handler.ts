@@ -2,8 +2,8 @@ import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
-import { PlanEntity, TransactionEntity, UserEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
-import { PaymentStatus, UserPlanStatus } from '@yugo/shared'
+import { PlanEntity, TransactionEntity, UserEntity, UserKycEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
+import { KycStatus, PaymentStatus, UserPlanStatus } from '@yugo/shared'
 import Razorpay from 'razorpay'
 import { RazorpayConfig } from 'src/types/index.js'
 import { DataSource, EntityManager, In } from 'typeorm'
@@ -27,11 +27,11 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
         }
 
         return manager.transaction(async (manager) => {
-            // const kycs = await manager.find(UserKycEntity, { where: { userId } })
-            // const hasApprovedKyc = kycs.some((k) => k.status === KycStatus.APPROVED || k.status === KycStatus.VERIFIED)
-            // if (!hasApprovedKyc) {
-            //     throw new BadRequestException('KYC verification is required before purchasing a plan')
-            // }
+            const kycs = await manager.find(UserKycEntity, { where: { userId } })
+            const hasApprovedKyc = kycs.some((k) => k.status === KycStatus.APPROVED || k.status === KycStatus.VERIFIED)
+            if (!hasApprovedKyc) {
+                throw new BadRequestException('KYC verification is required before purchasing a plan')
+            }
 
             const pendingPlan = await manager.findOne(UserPlanEntity, {
                 where: { userId, status: UserPlanStatus.PENDING },

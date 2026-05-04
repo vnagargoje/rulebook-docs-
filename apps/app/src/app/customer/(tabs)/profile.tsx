@@ -8,6 +8,7 @@ import { DetailRow } from '@/components/profile'
 import { Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 import { formatKmIN } from '@/lib/formatters/customer'
 import { useMyPlans } from '@/queries/customer'
+import { getFirstIncompleteKycRoute, isKycComplete, useKycStatus } from '@/queries/customer/kyc.query'
 import { useMyProfile } from '@/queries/profile'
 import { useAuthStore } from '@/stores/auth.store'
 
@@ -20,6 +21,8 @@ export default function CustomerProfileScreen() {
 
     const { data: plansData } = useMyPlans({ variables: { status: ['purchased', 'active'] }, enabled: isLoggedIn })
     const { data: profile } = useMyProfile()
+    const { data: kycStatus } = useKycStatus({ enabled: isLoggedIn })
+    const kycComplete = isKycComplete(kycStatus)
 
     const activePlan = plansData?.data?.[0]
     const fullName = useMemo(() => {
@@ -83,6 +86,14 @@ export default function CustomerProfileScreen() {
             description: 'This section will be available soon.',
         })
     }, [])
+
+    const handleKycPress = useCallback(() => {
+        if (kycComplete) {
+            toast.success('KYC Verified', { description: 'Your identity verification is complete.' })
+            return
+        }
+        router.push(getFirstIncompleteKycRoute(kycStatus) as any)
+    }, [kycComplete, kycStatus, router])
 
     if (!isLoggedIn) {
         return (
@@ -268,8 +279,8 @@ export default function CustomerProfileScreen() {
                             <ActionTile
                                 icon='shield-check-outline'
                                 title='KYC Status'
-                                subtitle='Identity verification'
-                                onPress={() => handleComingSoon('KYC Status')}
+                                subtitle={kycComplete ? 'Verified ✓' : 'Pending — tap to verify'}
+                                onPress={handleKycPress}
                                 color='#16A34A'
                             />
                         </View>
@@ -292,8 +303,8 @@ export default function CustomerProfileScreen() {
                                 label='KYC Verification'
                                 subtitle='Identity & address proof'
                                 color='#16A34A'
-                                value='Pending'
-                                onPress={() => handleComingSoon('KYC Verification')}
+                                value={kycComplete ? 'Verified' : 'Pending'}
+                                onPress={handleKycPress}
                             />
                             <View className='ml-14 border-b border-neutral-100' />
                             <ProfileMenuItem

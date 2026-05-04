@@ -580,6 +580,7 @@ export interface V1UserPlansGetMyPlansResponse {
     startsAt: string | null;
     expiresAt: string | null;
     remainingKm: number;
+    totalKm: number;
     qrCodeId: string | null;
     qrCode?: {
       id: string;
@@ -591,7 +592,8 @@ export interface V1UserPlansGetMyPlansResponse {
       id: string;
       topUpId: string;
       topUpSnapshot: any;
-      appliedAt: string;
+      status: string;
+      appliedAt: string | null;
     }[];
   }[];
   meta: {
@@ -622,6 +624,7 @@ export interface V1UserPlansGetMyPlanByIdResponse {
   startsAt: string | null;
   expiresAt: string | null;
   remainingKm: number;
+  totalKm: number;
   qrCodeId: string | null;
   qrCode?: {
     id: string;
@@ -633,11 +636,24 @@ export interface V1UserPlansGetMyPlanByIdResponse {
     id: string;
     topUpId: string;
     topUpSnapshot: any;
-    appliedAt: string;
+    status: string;
+    appliedAt: string | null;
   }[];
 }
 
 export interface V1UserPlansPurchasePlanResponse {
+  razorpayOrderId: string;
+  amount: number;
+  currency: string;
+  key: string;
+  userPlanId: string;
+}
+
+export interface V1UserPlansPurchasePlanBody {
+  planId: string;
+}
+
+export interface V1UserPlansVerifyPaymentResponse {
   id: string;
   userId: string;
   planId: string;
@@ -646,6 +662,7 @@ export interface V1UserPlansPurchasePlanResponse {
   startsAt: string | null;
   expiresAt: string | null;
   remainingKm: number;
+  totalKm: number;
   qrCodeId: string | null;
   qrCode?: {
     id: string;
@@ -657,12 +674,15 @@ export interface V1UserPlansPurchasePlanResponse {
     id: string;
     topUpId: string;
     topUpSnapshot: any;
-    appliedAt: string;
+    status: string;
+    appliedAt: string | null;
   }[];
 }
 
-export interface V1UserPlansPurchasePlanBody {
-  planId: string;
+export interface V1UserPlansVerifyPaymentBody {
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
 }
 
 export interface V1UserPlansApplyTopUpResponse {
@@ -674,6 +694,7 @@ export interface V1UserPlansApplyTopUpResponse {
   startsAt: string | null;
   expiresAt: string | null;
   remainingKm: number;
+  totalKm: number;
   qrCodeId: string | null;
   qrCode?: {
     id: string;
@@ -685,11 +706,59 @@ export interface V1UserPlansApplyTopUpResponse {
     id: string;
     topUpId: string;
     topUpSnapshot: any;
-    appliedAt: string;
+    status: string;
+    appliedAt: string | null;
   }[];
 }
 
 export interface V1UserPlansApplyTopUpBody {
+  topUpId: string;
+  userPlanId: string;
+}
+
+export interface V1UserPlansPurchaseTopUpResponse {
+  razorpayOrderId: string;
+  amount: number;
+  currency: string;
+  key: string;
+  userPlanId: string;
+}
+
+export interface V1UserPlansPurchaseTopUpBody {
+  topUpId: string;
+  userPlanId: string;
+}
+
+export interface V1UserPlansVerifyTopUpPaymentResponse {
+  id: string;
+  userId: string;
+  planId: string;
+  planSnapshot: any;
+  status: string;
+  startsAt: string | null;
+  expiresAt: string | null;
+  remainingKm: number;
+  totalKm: number;
+  qrCodeId: string | null;
+  qrCode?: {
+    id: string;
+    path: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  topUps?: {
+    id: string;
+    topUpId: string;
+    topUpSnapshot: any;
+    status: string;
+    appliedAt: string | null;
+  }[];
+}
+
+export interface V1UserPlansVerifyTopUpPaymentBody {
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
   topUpId: string;
   userPlanId: string;
 }
@@ -740,6 +809,7 @@ export interface V1BookingsGetAllBookingsResponse {
       startsAt: string | null;
       expiresAt: string | null;
       remainingKm: number;
+      totalKm: number;
       qrCodeId: string | null;
       createdAt: string;
       updatedAt: string;
@@ -765,7 +835,8 @@ export interface V1BookingsGetAllBookingsResponse {
         id: string;
         topUpId: string;
         topUpSnapshot: any;
-        appliedAt: string;
+        status: string;
+        appliedAt: string | null;
       }[];
     };
     stationId?: string;
@@ -825,6 +896,7 @@ export interface V1BookingsGetBookingByIdResponse {
     startsAt: string | null;
     expiresAt: string | null;
     remainingKm: number;
+    totalKm: number;
     qrCodeId: string | null;
     createdAt: string;
     updatedAt: string;
@@ -850,7 +922,8 @@ export interface V1BookingsGetBookingByIdResponse {
       id: string;
       topUpId: string;
       topUpSnapshot: any;
-      appliedAt: string;
+      status: string;
+      appliedAt: string | null;
     }[];
   };
   stationId?: string;
@@ -892,6 +965,7 @@ export interface V1BookingsAdminAssignVehicleResponse {
     startsAt: string | null;
     expiresAt: string | null;
     remainingKm: number;
+    totalKm: number;
     qrCodeId: string | null;
     createdAt: string;
     updatedAt: string;
@@ -917,7 +991,8 @@ export interface V1BookingsAdminAssignVehicleResponse {
       id: string;
       topUpId: string;
       topUpSnapshot: any;
-      appliedAt: string;
+      status: string;
+      appliedAt: string | null;
     }[];
   };
   stationId?: string;
@@ -1844,6 +1919,99 @@ export interface V1VehicleSurrenderSurrenderVehicleBody {
    */
   refundAmount: number;
   notes?: string | null;
+}
+
+export interface V1TransactionsGetTransactionsResponse {
+  data: {
+    id: string;
+    razorpayOrderId: string;
+    razorpayPaymentId: string | null;
+    amount: number;
+    currency: string;
+    status: string;
+    notes: string | null;
+    userPlanId: string;
+    userPlan?: {
+      id: string;
+      userId: string;
+      planId: string;
+      planSnapshot: any;
+      status: string;
+      startsAt: string | null;
+      expiresAt: string | null;
+      remainingKm: number;
+      user?: {
+        id: string;
+        firstName: string | null;
+        lastName: string | null;
+        email: string | null;
+        mobilenumber: string | null;
+      };
+    };
+    userTopUpId: string | null;
+    userTopUp?: {
+      id: string;
+      topUpId: string;
+      topUpSnapshot: any;
+      appliedAt: string | null;
+    };
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface V1TransactionsGetTransactionByIdResponse {
+  id: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string | null;
+  amount: number;
+  currency: string;
+  status: string;
+  notes: string | null;
+  userPlanId: string;
+  userPlan?: {
+    id: string;
+    userId: string;
+    planId: string;
+    planSnapshot: any;
+    status: string;
+    startsAt: string | null;
+    expiresAt: string | null;
+    remainingKm: number;
+    user?: {
+      id: string;
+      firstName: string | null;
+      lastName: string | null;
+      email: string | null;
+      mobilenumber: string | null;
+    };
+  };
+  userTopUpId: string | null;
+  userTopUp?: {
+    id: string;
+    topUpId: string;
+    topUpSnapshot: any;
+    appliedAt: string | null;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 import type {
@@ -3221,6 +3389,28 @@ export class Api<
      * No description
      *
      * @tags user-plans
+     * @name V1UserPlansVerifyPayment
+     * @request POST:/v1/user-plans/verify-payment
+     * @secure
+     */
+    v1UserPlansVerifyPayment: (
+      data: V1UserPlansVerifyPaymentBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1UserPlansVerifyPaymentResponse, any>({
+        path: `/v1/user-plans/verify-payment`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags user-plans
      * @name V1UserPlansApplyTopUp
      * @request POST:/v1/user-plans/top-up
      * @secure
@@ -3231,6 +3421,50 @@ export class Api<
     ) =>
       this.request<V1UserPlansApplyTopUpResponse, any>({
         path: `/v1/user-plans/top-up`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags user-plans
+     * @name V1UserPlansPurchaseTopUp
+     * @request POST:/v1/user-plans/top-up/purchase
+     * @secure
+     */
+    v1UserPlansPurchaseTopUp: (
+      data: V1UserPlansPurchaseTopUpBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1UserPlansPurchaseTopUpResponse, any>({
+        path: `/v1/user-plans/top-up/purchase`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags user-plans
+     * @name V1UserPlansVerifyTopUpPayment
+     * @request POST:/v1/user-plans/top-up/verify-payment
+     * @secure
+     */
+    v1UserPlansVerifyTopUpPayment: (
+      data: V1UserPlansVerifyTopUpPaymentBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1UserPlansVerifyTopUpPaymentResponse, any>({
+        path: `/v1/user-plans/top-up/verify-payment`,
         method: "POST",
         body: data,
         secure: true,
@@ -4625,6 +4859,126 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags transactions
+     * @name V1TransactionsGetTransactions
+     * @request GET:/v1/transactions
+     * @secure
+     */
+    v1TransactionsGetTransactions: (
+      query?: {
+        /**
+         * Page number to retrieve. If you provide invalid value the default page number will applied
+         *
+         * **Example:** 1
+         *
+         *
+         * **Default Value:** 1
+         *
+         */
+        page?: number;
+        /**
+         * Number of records per page.
+         *
+         *
+         * **Example:** 20
+         *
+         *
+         *
+         * **Default Value:** 20
+         *
+         *
+         *
+         * **Max Value:** 100
+         *
+         *
+         * If provided value is greater than max value, max value will be applied.
+         */
+        limit?: number;
+        /**
+         * Filter by status query param.
+         *
+         * **Format:** filter.status={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.status=$eq:John Doe&filter.status=$in:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $in
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.status"?: string[];
+        /**
+         * Parameter to sort by.
+         * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
+         *
+         * **Format:** {fieldName}:{DIRECTION}
+         *
+         *
+         * **Example:** sortBy=id:DESC&sortBy=status:DESC
+         *
+         *
+         * **Default Value:** createdAt:DESC
+         *
+         * **Available Fields**
+         * - id
+         *
+         * - status
+         *
+         * - amount
+         *
+         * - createdAt
+         */
+        sortBy?: (
+          | "id:ASC"
+          | "id:DESC"
+          | "status:ASC"
+          | "status:DESC"
+          | "amount:ASC"
+          | "amount:DESC"
+          | "createdAt:ASC"
+          | "createdAt:DESC"
+        )[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<V1TransactionsGetTransactionsResponse, any>({
+        path: `/v1/transactions`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags transactions
+     * @name V1TransactionsGetTransactionById
+     * @request GET:/v1/transactions/{id}
+     * @secure
+     */
+    v1TransactionsGetTransactionById: (
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1TransactionsGetTransactionByIdResponse, any>({
+        path: `/v1/transactions/${id}`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),

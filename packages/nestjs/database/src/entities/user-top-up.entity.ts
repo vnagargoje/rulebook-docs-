@@ -3,6 +3,7 @@ import { IdTimestamppedEntity } from './id-timestampped.entity.js'
 import { TopUpEntity } from './top-up.entity.js'
 import { UserPlanEntity } from './user-plan.entity.js'
 import { UserEntity } from './user.entity.js'
+import { UserTopUpStatus } from '@yugo/shared'
 
 @Entity({ name: 'user_top_ups' })
 export class UserTopUpEntity extends IdTimestamppedEntity {
@@ -27,9 +28,12 @@ export class UserTopUpEntity extends IdTimestamppedEntity {
     @JoinColumn()
     topUp: TopUpEntity
 
-    @Column('json')
-    topUpSnapshot: Record<string, any>
+    @Column('json', { nullable: true })
+    topUpSnapshot: Record<string, any> | null
 
-    @Column('datetime')
-    appliedAt: Date
+    @Column('enum', { enum: UserTopUpStatus, default: UserTopUpStatus.AWAITING })
+    status: UserTopUpStatus
+
+    @Column('datetime', { nullable: true })
+    appliedAt: Date | null
 }

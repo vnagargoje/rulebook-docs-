@@ -2,7 +2,7 @@ import { BadRequestException, Logger, NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { TopUpEntity, UserPlanEntity, UserTopUpEntity } from '@yugo/nestjs-database/entities'
-import { UserPlanStatus } from '@yugo/shared'
+import { UserPlanStatus, UserTopUpStatus } from '@yugo/shared'
 import { DataSource } from 'typeorm'
 import { ApplyTopUpCommand } from '../../impl/user-top-ups/apply-top-up.command.js'
 
@@ -45,6 +45,7 @@ export class ApplyTopUpHandler implements ICommandHandler<ApplyTopUpCommand> {
                 userPlanId,
                 topUpId,
                 topUpSnapshot,
+                status: UserTopUpStatus.APPLIED,
                 appliedAt: new Date(),
             })
             await manager.save(userTopUp)
@@ -52,6 +53,7 @@ export class ApplyTopUpHandler implements ICommandHandler<ApplyTopUpCommand> {
                 `[MOCK PAYMENT] User ${userId} top-up payment of ₹${topUpTotalAmount} processed for top-up "${topUp.name}"`,
             )
             userPlan.remainingKm = Number(userPlan.remainingKm) + Number(topUp.kmLimit)
+            userPlan.totalKm = Number(userPlan.totalKm) + Number(topUp.kmLimit)
 
             if (userPlan.expiresAt && topUp.validityDays > 0) {
                 const newExpiry = new Date(userPlan.expiresAt)

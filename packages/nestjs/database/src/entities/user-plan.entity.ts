@@ -25,7 +25,7 @@ export class UserPlanEntity extends IdTimestamppedEntity {
     @Column('json')
     planSnapshot: PlanSnapshotProperties
 
-    @Column('enum', { enum: UserPlanStatus, default: UserPlanStatus.ACTIVE })
+    @Column('enum', { enum: UserPlanStatus, default: UserPlanStatus.PENDING })
     status: UserPlanStatus
 
     @Column('datetime', { nullable: true })
@@ -36,6 +36,9 @@ export class UserPlanEntity extends IdTimestamppedEntity {
 
     @Column('decimal', { precision: 10, scale: 2 })
     remainingKm: number
+
+    @Column('decimal', { precision: 10, scale: 2 })
+    totalKm: number
 
     @Column('varchar', { nullable: true })
     qrCodeId: string

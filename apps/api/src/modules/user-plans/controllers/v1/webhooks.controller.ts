@@ -14,9 +14,12 @@ import { ApiExcludeController } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import {
     BookingEntity,
+    TopUpEntity,
     TransactionEntity,
+    UserPlanEntity,
+    UserTopUpEntity,
 } from '@yugo/nestjs-database/entities';
-import { BookingStatus, PaymentStatus, UserPlanStatus } from '@yugo/shared';
+import { BookingStatus, PaymentStatus, UserPlanStatus, UserTopUpStatus } from '@yugo/shared';
 import { createHmac, randomInt } from 'crypto';
 import { DataSource } from 'typeorm';
 
@@ -64,9 +67,11 @@ export class V1WebhooksController {
 
         if (event === 'payment.captured') {
             await manager.transaction(async (manager) => {
+                // Pessimistic lock prevents race with client /verify-payment
                 const transaction = await manager.findOne(TransactionEntity, {
                     where: { razorpayOrderId },
                     relations: ['userPlan'],
+                    lock: { mode: 'pessimistic_write' },
                 });
 
                 if (!transaction) {
@@ -88,31 +93,84 @@ export class V1WebhooksController {
                 transaction.notes = JSON.stringify(payment);
                 await manager.save(transaction);
 
-                transaction.userPlan.status = UserPlanStatus.PURCHASED;
-                await manager.save(transaction.userPlan);
+                // Only activate plan and create booking for plan purchases.
+                // Top-up payments are finalised here too — apply km/validity to the plan.
+                if (!transaction.userTopUpId) {
+                    transaction.userPlan.status = UserPlanStatus.PURCHASED;
+                    await manager.save(transaction.userPlan);
 
-                const pickupOtp = String(randomInt(1000, 10000));
-                const booking = manager.create(BookingEntity, {
-                    userPlanId: transaction.userPlan.id,
-                    stationId: null,
-                    vehicleId: null,
-                    batteryId: null,
-                    status: BookingStatus.CREATED,
-                    pickupOtp,
-                });
-                await manager.save(booking);
+                    const pickupOtp = String(randomInt(1000, 10000));
+                    const booking = manager.create(BookingEntity, {
+                        userPlanId: transaction.userPlan.id,
+                        stationId: null,
+                        vehicleId: null,
+                        batteryId: null,
+                        status: BookingStatus.CREATED,
+                        pickupOtp,
+                    });
+                    await manager.save(booking);
+                } else {
+                    // Apply the top-up: mirrors VerifyTopUpPaymentHandler.
+                    // This path executes when the webhook wins the race against the client.
+                    const userTopUp = await manager.findOne(UserTopUpEntity, {
+                        where: { id: transaction.userTopUpId },
+                    });
+
+                    if (userTopUp && !userTopUp.appliedAt) {
+                        const topUp = await manager.findOne(TopUpEntity, {
+                            where: { id: userTopUp.topUpId },
+                        });
+                        const userPlan = await manager.findOne(UserPlanEntity, {
+                            where: { id: userTopUp.userPlanId },
+                        });
+
+                        if (topUp && userPlan) {
+                            userTopUp.status = UserTopUpStatus.APPLIED;
+                            userTopUp.appliedAt = new Date();
+                            // Keep the snapshot already set at order-creation time;
+                            // only fill it in if it's missing (legacy rows).
+                            if (!userTopUp.topUpSnapshot) {
+                                userTopUp.topUpSnapshot = {
+                                    name: topUp.name,
+                                    description: topUp.description,
+                                    validityDays: topUp.validityDays,
+                                    kmLimit: topUp.kmLimit,
+                                    price: topUp.price,
+                                    gst: topUp.gst,
+                                    totalAmount: Number(topUp.price) + Number(topUp.gst),
+                                };
+                            }
+                            await manager.save(userTopUp);
+
+                            userPlan.remainingKm =
+                                Number(userPlan.remainingKm) + Number(topUp.kmLimit);
+                            userPlan.totalKm =
+                                Number(userPlan.totalKm) + Number(topUp.kmLimit);
+                            if (userPlan.expiresAt && topUp.validityDays > 0) {
+                                const newExpiry = new Date(userPlan.expiresAt);
+                                newExpiry.setDate(
+                                    newExpiry.getDate() + topUp.validityDays,
+                                );
+                                userPlan.expiresAt = newExpiry;
+                            }
+                            await manager.save(userPlan);
+                        }
+                    }
+                }
 
                 this.logger.log(
-                    `Webhook: Payment captured and plan activated for order ${razorpayOrderId}`,
+                    `Webhook: Payment captured for order ${razorpayOrderId} (topUp=${!!transaction.userTopUpId})`,
                 );
             });
         }
 
         if (event === 'payment.failed') {
             await manager.transaction(async (manager) => {
+                // Pessimistic lock prevents race with client /verify-payment
                 const transaction = await manager.findOne(TransactionEntity, {
                     where: { razorpayOrderId },
                     relations: ['userPlan'],
+                    lock: { mode: 'pessimistic_write' },
                 });
 
                 if (
@@ -127,8 +185,12 @@ export class V1WebhooksController {
                 transaction.notes = JSON.stringify(payment);
                 await manager.save(transaction);
 
-                transaction.userPlan.status = UserPlanStatus.FAILED;
-                await manager.save(transaction.userPlan);
+                // Only mark the user plan as FAILED for plan purchases.
+                // Top-up failures must NOT change the plan status.
+                if (!transaction.userTopUpId) {
+                    transaction.userPlan.status = UserPlanStatus.FAILED;
+                    await manager.save(transaction.userPlan);
+                }
 
                 this.logger.log(
                     `Webhook: Payment failed for order ${razorpayOrderId}`,

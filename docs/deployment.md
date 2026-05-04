@@ -4,7 +4,7 @@ This document covers the end-to-end process of setting up DigitalOcean infrastru
 
 ## Prerequisites
 - A DigitalOcean account
-- A Namecheap/GoDaddy account handling DNS for `foamingo.com`
+- A Namecheap/GoDaddy account handling DNS for `evyugo.com`
 - A 1Password/Bitwarden team vault for storing credentials
 
 ---
@@ -60,7 +60,7 @@ cd ~/yugo
 Fill in the credentials in the `.env` files matching your MySQL string and generated Traefik password.
 
 ## 5. DNS Setup
-Go to your DNS provider for `foamingo.com` and add `A` records pointing to your Droplet's public IP address:
+Go to your DNS provider for `evyugo.com` and add `A` records pointing to your Droplet's public IP address:
 
 | Type | Hostname / Subdomain | Value (IP) |
 |---|---|---|

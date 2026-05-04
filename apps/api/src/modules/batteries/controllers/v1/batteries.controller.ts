@@ -44,7 +44,8 @@ const PAGINATE_CONFIG: PaginateConfig<BatteryEntity> = {
         gpsId: [FilterOperator.ILIKE],
         stationId: [FilterOperator.EQ],
         'station.name': [FilterOperator.ILIKE],
-        'station.managerId': [FilterOperator.EQ],
+        'station.managers.id': [FilterOperator.EQ],
+        status: [FilterOperator.EQ],
     },
     defaultSortBy: [['createdAt', 'DESC']],
 };

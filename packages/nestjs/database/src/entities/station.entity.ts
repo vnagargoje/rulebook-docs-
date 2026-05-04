@@ -32,21 +32,14 @@ export abstract class StationEntity extends IdTimestamppedEntity {
     @JoinColumn()
     address: AddressEntity
 
-    @Column('varchar', { nullable: true })
-    managerId: string
-
-    @ManyToOne(() => UserEntity, (u) => u.stations, {
-        nullable: true,
-        onDelete: 'SET NULL',
-    })
-    @JoinColumn()
-    manager: UserEntity
-
     @OneToMany(() => VehicleEntity, (v) => v.station, { cascade: true })
     vehicles: VehicleEntity[]
 
     @OneToMany(() => BatteryEntity, (b) => b.station, { cascade: true })
     batteries: BatteryEntity[]
+
+    @OneToMany(() => UserEntity, (user) => user.station)
+    managers: UserEntity[]
 }
 
 @ChildEntity(StationType.SWAP_STATION)

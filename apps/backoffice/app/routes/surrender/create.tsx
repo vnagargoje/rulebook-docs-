@@ -20,6 +20,7 @@ export default function CreateSurrenderRoute() {
 
     const form = useForm({
         resolver: zodResolver(createSurrenderSchema),
+        mode: 'onChange',
         defaultValues: {
             vehicleNumber: '',
             penalty: 0,
@@ -98,6 +99,7 @@ export default function CreateSurrenderRoute() {
                                     name="vehicleNumber"
                                     label="Vehicle Number"
                                     placeholder="Enter vehicle number"
+                                    required
                                 />
                                 <Button
                                     type="button"

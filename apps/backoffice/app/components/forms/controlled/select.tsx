@@ -9,7 +9,8 @@ export function SelectField({
     placeholder,
     disabled,
     options,
-}: BaseFieldProps & { options: SelectOption[] }) {
+    required,
+}: BaseFieldProps & { options: SelectOption[]; required?: boolean }) {
     return (
         <FormField
             control={control}
@@ -19,7 +20,10 @@ export function SelectField({
 
                 return (
                 <FormItem>
-                    <FormLabel>{label}</FormLabel>
+                    <FormLabel>
+                        {label}
+                        {required && <span className="text-destructive ml-0.5">*</span>}
+                    </FormLabel>
                     <Select
                         key={`${name}-${selectValue ?? 'empty'}`}
                         value={selectValue}

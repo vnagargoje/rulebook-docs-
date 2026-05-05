@@ -8,6 +8,7 @@ export function TextAreaField({
     label,
     placeholder,
     disabled,
+    required,
 }: BaseFieldProps) {
     return (
         <FormField
@@ -15,7 +16,10 @@ export function TextAreaField({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel>{label}</FormLabel>
+                    <FormLabel>
+                        {label}
+                        {required && <span className="text-destructive ml-0.5">*</span>}
+                    </FormLabel>
                     <FormControl>
                         <Textarea
                             {...field}

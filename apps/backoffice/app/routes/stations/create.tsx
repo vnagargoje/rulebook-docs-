@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
-import { SearchSelectField, SelectField, TextInputField } from '~/components/forms/controlled-fields'
+import { SearchableSelectField, SelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
 import { useCreateStation, type CreateStationPayload } from '~/queries/stations'
@@ -25,6 +25,7 @@ export default function CreateStationRoute() {
 
     const form = useForm<CreateStationFormValues>({
         resolver: zodResolver(createStationSchema),
+        mode: 'onChange',
         defaultValues: {
             name: '',
             type: 'swap_station',
@@ -167,6 +168,7 @@ export default function CreateStationRoute() {
                                         name='type'
                                         label='Facility Type'
                                         options={[...stationTypeOptions]}
+                                        required
                                     />
                                 </div>
                                 <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
@@ -179,19 +181,17 @@ export default function CreateStationRoute() {
                                             { label: 'Inactive', value: 'false' },
                                         ]}
                                     />
-                                    <SearchSelectField
+                                    <SearchableSelectField
                                         control={form.control}
                                         name='managerId'
                                         label='Station Manager (Optional)'
                                         options={managerOptions}
                                         placeholder='Select a manager'
-                                        searchPlaceholder='Search station managers...'
                                         searchValue={managerSearchQuery}
                                         onSearchChange={handleManagerSearchChange}
                                         onLoadMore={handleLoadMoreManagers}
-                                        hasMore={Boolean(hasNextManagersPage)}
-                                        isLoadingOptions={isLoadingManagers}
-                                        isLoadingMore={isFetchingNextManagersPage}
+                                        hasNextPage={Boolean(hasNextManagersPage)}
+                                        isLoading={isLoadingManagers || isFetchingNextManagersPage}
                                     />
                                 </div>
                             </div>
@@ -242,13 +242,14 @@ export default function CreateStationRoute() {
                                         options={stateOptions}
                                         placeholder='Select state'
                                     />
-                                    <SelectField
+                                    <SearchableSelectField
                                         control={form.control}
                                         name='cityId'
                                         label='City'
                                         options={cityOptions}
                                         placeholder={selectedStateId ? 'Select city' : 'Select state first'}
                                         key={selectedStateId || 'no-state'}
+                                        disabled={!selectedStateId}
                                     />
                                     <TextInputField
                                         control={form.control}

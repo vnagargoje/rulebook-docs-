@@ -1,7 +1,7 @@
 import { Api } from './codegen/Api'
 import { getAuthFromStorage, removeAuthFromStorage } from '~/lib/token'
 
-const apiUrl = (import.meta.env.VITE_API_URL as string) || 'http://localhost:4500'
+const apiUrl = (import.meta.env.VITE_API_URL as string) || 'https://api.evyugo.com'
 
 export const api = new Api({
     baseURL: apiUrl,

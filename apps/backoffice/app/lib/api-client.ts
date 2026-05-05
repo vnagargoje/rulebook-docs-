@@ -2,7 +2,7 @@ import xior from 'xior'
 import { getAuthFromStorage, removeAuthFromStorage } from './token'
 
 const apiClient = xior.create({
-    baseURL: (import.meta.env.VITE_API_URL as string) || 'http://localhost:4500',
+    baseURL: (import.meta.env.VITE_API_URL as string) || 'https://api.evyugo.com',
 })
 
 apiClient.interceptors.request.use((config) => {

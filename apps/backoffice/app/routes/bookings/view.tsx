@@ -30,7 +30,7 @@ function getAssetUrl(path?: string | null) {
         return path
     }
 
-    const apiUrl = (import.meta.env.VITE_API_URL as string) || 'http://localhost:4500'
+    const apiUrl = (import.meta.env.VITE_API_URL as string) || 'https://api.evyugo.com'
     const normalizedBase = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl
     const normalizedPath = path.startsWith('/') ? path : `/${path}`
     return `${normalizedBase}${normalizedPath}`

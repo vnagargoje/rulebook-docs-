@@ -40,8 +40,6 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
         const response = await xior.get(`${config.baseUrl}/verification/get-driving-license`, {
             params: {
                 request_id: requestId,
-                consent: 'Y',
-                purpose: 'For KYC Purpose',
             },
             headers: {
                 'x-api-key': config.apiKey,
@@ -50,7 +48,10 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
             },
         })
 
-        const isSuccess = response.data.code === 200 || response.data.code === 201
+        const result = Array.isArray(response.data) ? response.data[0] : response.data
+        const sourceOutput = result?.result?.source_output
+        const isCompleted = result?.status === 'completed'
+        const isSuccess = isCompleted && sourceOutput?.status === 'id_found'
 
         if (isSuccess) {
             await manager.transaction(async (manager) => {
@@ -65,10 +66,10 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
                     })
                 }
 
-                kyc.documentId = response.data.data?.dl_number || kyc.documentId || 'LICENSE'
+                kyc.documentId = sourceOutput?.id_number || kyc.documentId || 'LICENSE'
                 kyc.status = KycStatus.VERIFIED
                 kyc.verifiedAt = new Date()
-                kyc.notes = JSON.stringify(response.data)
+                kyc.notes = JSON.stringify(result)
 
                 await manager.save(kyc)
             })
@@ -76,9 +77,9 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
 
         return {
             success: isSuccess,
-            message:
-                response.data.message ||
-                (isSuccess ? 'License verification successful' : 'License verification failed'),
+            message: isSuccess
+                ? 'License verification successful'
+                : `License verification failed: ${sourceOutput?.status ?? result?.status ?? 'unknown'}`,
         }
     }
 }

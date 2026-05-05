@@ -65,7 +65,7 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
             }
 
             kyc.documentId = pan
-            kyc.status = isSuccess ? KycStatus.APPROVED : KycStatus.REJECTED
+            kyc.status = isSuccess ? KycStatus.VERIFIED : KycStatus.REJECTED
             kyc.verifiedAt = isSuccess ? new Date() : kyc.verifiedAt
             kyc.notes = JSON.stringify(response.data)
 

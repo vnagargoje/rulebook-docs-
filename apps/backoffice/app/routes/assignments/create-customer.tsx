@@ -32,6 +32,7 @@ export default function CreateCustomerAssignmentRoute() {
 
     const form = useForm({
         resolver: zodResolver(customerAssignmentSchema) as any,
+        mode: 'onChange',
         defaultValues: { vehicleId: '', customerId: customerId || '' },
     })
 
@@ -72,6 +73,7 @@ export default function CreateCustomerAssignmentRoute() {
                                 label="Available Vehicle"
                                 placeholder="Select Vehicle"
                                 options={vehicleOptions}
+                                required
                             />
 
                             <SelectField
@@ -80,11 +82,12 @@ export default function CreateCustomerAssignmentRoute() {
                                 label="Customer"
                                 placeholder="Select Customer"
                                 options={customerOptions}
+                                required
                             />
 
                             <div className="flex justify-end gap-3 pt-6 border-t mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/assignments')}>Cancel</Button>
-                                <Button type="submit" className="min-w-[140px] uppercase text-xs font-bold tracking-widest">Assign Customer</Button>
+                                <Button type="submit" disabled={!form.formState.isValid} className="min-w-[140px] uppercase text-xs font-bold tracking-widest">Assign Customer</Button>
                             </div>
                         </form>
                     </Form>

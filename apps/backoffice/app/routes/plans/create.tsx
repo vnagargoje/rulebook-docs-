@@ -48,8 +48,8 @@ export default function CreatePlanRoute() {
                 toast.success('Plan created successfully')
                 navigate('/plans')
             },
-            onError: () => {
-                toast.error('Failed to create plan')
+            onError: (error: any) => {
+                toast.error(error?.response?.data?.message || 'Failed to create plan')
             },
         })
     }, [createPlan, navigate])

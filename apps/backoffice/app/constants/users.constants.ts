@@ -7,6 +7,10 @@ export const roleOptions = [
 ] as const
 
 export const employeeRoleOptions = roleOptions.filter((role) => role.value !== 'customer')
+export const ALLOWED_EMPLOYEE_ROLES = ['swap_manager', 'hub_manager'] as const
+export const filteredEmployeeRoles = employeeRoleOptions.filter((role) =>
+    ALLOWED_EMPLOYEE_ROLES.includes(role.value as (typeof ALLOWED_EMPLOYEE_ROLES)[number]),
+)
 export const customerRoleOptions = roleOptions.filter((role) => role.value === 'customer')
 
 export const genderOptions = [

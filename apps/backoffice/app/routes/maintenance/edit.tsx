@@ -22,6 +22,7 @@ export default function EditMaintenanceRoute() {
 
     const form = useForm<UpdateMaintenanceValues>({
         resolver: zodResolver(updateMaintenanceSchema) as any,
+        mode: 'onChange',
     })
 
     useEffect(() => {
@@ -88,17 +89,18 @@ export default function EditMaintenanceRoute() {
                                     label="Target Vehicle"
                                     placeholder="Select Vehicle from Fleet"
                                     options={vehicleOptions}
+                                    required
                                 />
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="reportedDate" label="Reported Date" type="date" />
+                                    <TextInputField control={form.control} name="reportedDate" label="Reported Date" type="date" required />
                                     <TextInputField control={form.control} name="expectedFixDate" label="Estimated Recovery" type="date" />
                                 </div>
                             </div>
 
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Technical Details</h4>
-                                <TextInputField control={form.control} name="technicianName" label="Assigned Technician" placeholder="Primary service engineer name" />
-                                <TextAreaField control={form.control} name="issueDescription" label="Diagnosis & Remarks" placeholder="Detailed description of reported faults..." />
+                                <TextInputField control={form.control} name="technicianName" label="Assigned Technician" placeholder="Primary service engineer name" required />
+                                <TextAreaField control={form.control} name="issueDescription" label="Diagnosis & Remarks" placeholder="Detailed description of reported faults..." required />
                                 <SelectField
                                     control={form.control}
                                     name="status"
@@ -109,7 +111,7 @@ export default function EditMaintenanceRoute() {
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/maintenance')}>Cancel</Button>
-                                <Button type="submit" className="min-w-[140px] uppercase text-xs font-bold tracking-widest">
+                                <Button type="submit" disabled={!form.formState.isDirty} className="min-w-[140px] uppercase text-xs font-bold tracking-widest">
                                     Update Log
                                 </Button>
                             </div>

@@ -59,7 +59,7 @@ const PAGINATE_CONFIG: PaginateConfig<UserPlanEntity> = {
         status: [FilterOperator.EQ, FilterOperator.IN],
     },
     defaultSortBy: [['createdAt', 'DESC']],
-    relations: ['qrCode'],
+    relations: ['qrCode', 'topUps'],
 };
 
 @ApiTags('user-plans')

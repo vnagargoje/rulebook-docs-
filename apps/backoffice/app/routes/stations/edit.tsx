@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
-import { SearchSelectField, SelectField, TextInputField } from '~/components/forms/controlled-fields'
+import { SearchableSelectField, SelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
 import { useGetStationById, useUpdateStation, type UpdateStationPayload } from '~/queries/stations'
@@ -27,6 +27,7 @@ export default function EditStationRoute() {
 
     const form = useForm<UpdateStationFormValues>({
         resolver: zodResolver(updateStationSchema),
+        mode: 'onChange',
         defaultValues: {
             name: '',
             type: 'swap_station',
@@ -185,12 +186,13 @@ export default function EditStationRoute() {
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Identity & Classification</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="name" label="Station Name" placeholder="e.g. Bandra West Hub" />
+                                    <TextInputField control={form.control} name="name" label="Station Name" placeholder="e.g. Bandra West Hub" required />
                                     <SelectField
                                         control={form.control}
                                         name="type"
                                         label="Facility Type"
                                         options={[...stationTypeOptions]}
+                                        required
                                     />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -199,20 +201,19 @@ export default function EditStationRoute() {
                                         name="active"
                                         label="Operational Status"
                                         options={[{ label: 'Active', value: 'true' }, { label: 'Inactive', value: 'false' }]}
+                                        required
                                     />
-                                    <SearchSelectField
+                                    <SearchableSelectField
                                         control={form.control}
                                         name="managerId"
                                         label="Station Manager (Optional)"
                                         options={managerOptions}
                                         placeholder="Select a manager"
-                                        searchPlaceholder="Search station managers..."
                                         searchValue={managerSearchQuery}
                                         onSearchChange={handleManagerSearchChange}
                                         onLoadMore={handleLoadMoreManagers}
-                                        hasMore={Boolean(hasNextManagersPage)}
-                                        isLoadingOptions={isLoadingManagers}
-                                        isLoadingMore={isFetchingNextManagersPage}
+                                        hasNextPage={Boolean(hasNextManagersPage)}
+                                        isLoading={isLoadingManagers || isFetchingNextManagersPage}
                                     />
                                 </div>
                             </div>
@@ -232,14 +233,14 @@ export default function EditStationRoute() {
                                     <TextInputField control={form.control} name="lineTwo" label="Address Line 2 (Optional)" placeholder="Additional details" />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                                    <SelectField
+                                    <SearchableSelectField
                                         control={form.control}
                                         name="stateId"
                                         label="State"
                                         options={stateOptions}
                                         placeholder="Select state"
                                     />
-                                    <SelectField
+                                    <SearchableSelectField
                                         control={form.control}
                                         name="cityId"
                                         label="City"
@@ -253,7 +254,7 @@ export default function EditStationRoute() {
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/stations')}>Cancel</Button>
-                                <Button type="submit" disabled={updateStation.isPending} className="min-w-35 uppercase text-xs font-bold tracking-widest">
+                                <Button type="submit" disabled={updateStation.isPending || !form.formState.isDirty} className="min-w-35 uppercase text-xs font-bold tracking-widest">
                                     {updateStation.isPending ? 'Updating...' : 'Update Station'}
                                 </Button>
                             </div>

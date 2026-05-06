@@ -22,6 +22,7 @@ export default function EditInactiveRoute() {
 
     const form = useForm<UpdateInactiveVehicleValues>({
         resolver: zodResolver(updateInactiveVehicleSchema) as any,
+        mode: 'onChange',
     })
 
     useEffect(() => {
@@ -88,13 +89,14 @@ export default function EditInactiveRoute() {
                                     label="Inactive Vehicle"
                                     placeholder="Select from fleet"
                                     options={vehicleOptions}
+                                    required
                                 />
-                                <TextInputField control={form.control} name="reportedDate" label="Incident Date" type="date" />
+                                <TextInputField control={form.control} name="reportedDate" label="Incident Date" type="date" required />
                             </div>
 
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Context & Status</h4>
-                                <TextAreaField control={form.control} name="description" label="Nature of Inactivity" placeholder="Reason for downtime (e.g. Total Loss, Stolen, Legal Issue)..." />
+                                <TextAreaField control={form.control} name="description" label="Nature of Inactivity" placeholder="Reason for downtime (e.g. Total Loss, Stolen, Legal Issue)..." required />
                                 <SelectField
                                     control={form.control}
                                     name="status"
@@ -105,7 +107,7 @@ export default function EditInactiveRoute() {
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/inactive-vehicles')}>Cancel</Button>
-                                <Button type="submit" className="min-w-[140px] uppercase text-xs font-bold tracking-widest">
+                                <Button type="submit" disabled={!form.formState.isDirty} className="min-w-[140px] uppercase text-xs font-bold tracking-widest">
                                     Apply Review
                                 </Button>
                             </div>

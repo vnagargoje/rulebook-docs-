@@ -44,7 +44,16 @@ export default function UsersListRoute() {
             cell: (user: UserItem) => [user.firstName, user.lastName].filter(Boolean).join(' ') || '—',
         },
         { header: 'Email', accessor: 'email' as const },
-        { header: 'Mobile', accessor: 'mobilenumber' as const },
+        {
+            header: 'Mobile',
+            cell: (user: UserItem) => {
+                let mobile = user.mobilenumber ?? '—'
+                if (mobile.startsWith('91')) {
+                    mobile = mobile.slice(2)
+                }
+                return mobile
+            },
+        },
         {
             header: 'Role',
             cell: (user: UserItem) => (user.properties as { roleName?: string })?.roleName ?? '—',

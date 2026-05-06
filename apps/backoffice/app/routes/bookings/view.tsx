@@ -1,11 +1,11 @@
 import { useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { IconArrowLeft, IconBolt, IconCalendarEvent, IconMapPin, IconMotorbike, IconQrcode, IconReceiptRupee, IconShieldCheck } from '@tabler/icons-react'
+import { IconArrowLeft, IconBolt, IconCalendarEvent, IconMapPin, IconMotorbike, IconPhone, IconQrcode, IconReceiptRupee, IconShieldCheck, IconUser } from '@tabler/icons-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { SelectField, TextInputField } from '~/components/forms/controlled-fields'
+import { SearchableSelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { PageHeader } from '~/components/ui/page-header'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
@@ -16,8 +16,8 @@ import { StatTile } from '~/components/ui/stat-tile'
 import { SectionLabel } from '~/components/ui/section-label'
 import { MetaPill } from '~/components/ui/meta-pill'
 import { useGetBookingById, useAssignVehicle } from '~/queries/bookings'
-import { useVehicles } from '~/queries/vehicles'
-import { useBatteries } from '~/queries/batteries'
+import { useInfiniteVehicles } from '~/queries/vehicles'
+import { useInfiniteBatteries } from '~/queries/batteries'
 import { formatCurrency, formatDate, formatKm } from '~/lib/formatter'
 import { assignVehicleSchema, type AssignVehicleValues } from '~/schemas'
 
@@ -40,16 +40,12 @@ export default function BookingViewRoute() {
     const { id } = useParams()
     const navigate = useNavigate()
     const { data: booking, isLoading } = useGetBookingById(id)
-    const { data: vehiclesData, isLoading: vehiclesLoading } = useVehicles({
-        page: 1,
-        limit: 100,
+    const { data: vehiclesData, isFetching: vehiclesLoading, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles({
         sortBy: ['createdAt:DESC'],
         'filter.status': ['$eq:AVAILABLE'],
         ...(booking?.stationId ? { 'filter.stationId': [`$eq:${booking.stationId}`] } : {}),
     })
-    const { data: batteriesData, isLoading: batteriesLoading } = useBatteries({
-        page: 1,
-        limit: 100,
+    const { data: batteriesData, isFetching: batteriesLoading, fetchNextPage: fetchNextBatteryPage, hasNextPage: hasNextBatteryPage } = useInfiniteBatteries({
         sortBy: ['createdAt:DESC'],
         'filter.status': ['$eq:AVAILABLE'],
         ...(booking?.stationId ? { 'filter.stationId': [`$eq:${booking.stationId}`] } : {}),
@@ -61,15 +57,15 @@ export default function BookingViewRoute() {
         defaultValues: { vehicleId: '', batteryId: '', otp: '' },
     })
 
-    const vehicleOptions = useMemo(() => (vehiclesData?.data ?? []).map((vehicle) => ({
+    const vehicleOptions = useMemo(() => (vehiclesData?.pages ?? []).flatMap((p) => p.data).map((vehicle) => ({
         value: vehicle.id,
         label: `${vehicle.vehicleNumber ?? 'Unnamed Vehicle'}${vehicle.station?.name ? ` • ${vehicle.station.name}` : ''}`,
-    })), [vehiclesData?.data])
+    })), [vehiclesData?.pages])
 
-    const batteryOptions = useMemo(() => (batteriesData?.data ?? []).map((battery) => ({
+    const batteryOptions = useMemo(() => (batteriesData?.pages ?? []).flatMap((p) => p.data).map((battery) => ({
         value: battery.id,
         label: `${battery.batteryQrId ?? 'Unnamed Battery'}${battery.station?.name ? ` • ${battery.station.name}` : ''}`,
-    })), [batteriesData?.data])
+    })), [batteriesData?.pages])
 
     const onAssignVehicle = useCallback((values: AssignVehicleValues) => {
         if (!id) {
@@ -103,6 +99,8 @@ export default function BookingViewRoute() {
     }
 
     const canAssignVehicle = booking.status === 'created'
+    const customer = (booking.userPlan as any).user as { id?: string; firstName?: string; lastName?: string; email?: string; mobilenumber?: string } | undefined
+    const customerName = [customer?.firstName, customer?.lastName].filter(Boolean).join(' ')
     const planSnapshot = booking.userPlan?.planSnapshot ?? {}
     const plan = booking.userPlan?.plan
     const planName = plan?.name ?? planSnapshot.name ?? 'Customer plan'
@@ -157,6 +155,51 @@ export default function BookingViewRoute() {
                         <StatTile label="KM Limit" value={formatKm(kmLimit)} icon={IconShieldCheck} />
                         <StatTile label="Validity" value={`${validityDays} days`} icon={IconCalendarEvent} />
                         <StatTile label="Top-Ups" value={appliedTopUps.length > 0 ? `${appliedTopUps.length} applied` : 'None'} icon={IconReceiptRupee} />
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
+                <CardHeader className="border-b border-border/40">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                            <IconUser size={20} />
+                        </div>
+                        <div>
+                            <CardTitle className="text-lg">Customer</CardTitle>
+                            <CardDescription>Account details of the customer who purchased this plan.</CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground text-xl font-bold uppercase">
+                            {customerName ? customerName[0] : (customer?.email?.[0] ?? customer?.mobilenumber?.[0] ?? '?')}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="text-base font-semibold text-foreground truncate">
+                                {customerName || customer?.mobilenumber || customer?.email || '—'}
+                            </p>
+                            {customerName && (
+                                <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                                    {customer?.mobilenumber && (
+                                        <span className="flex items-center gap-1">
+                                            <IconPhone size={13} />
+                                            {customer.mobilenumber}
+                                        </span>
+                                    )}
+                                    {customer?.email && (
+                                        <span className="truncate">{customer.email}</span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 border-t border-border/40 pt-4">
+                        <DetailRow label="User ID" value={customer?.id ?? booking.userPlan.userId ?? '—'} />
+                        <DetailRow label="Mobile" value={customer?.mobilenumber ?? '—'} />
+                        <DetailRow label="Email" value={customer?.email ?? '—'} />
+                        <DetailRow label="Name" value={customerName || '—'} />
                     </div>
                 </CardContent>
             </Card>
@@ -352,26 +395,32 @@ export default function BookingViewRoute() {
                         </CardHeader>
                         <CardContent className="space-y-5 p-6">
                             <div className="grid gap-3 sm:grid-cols-2">
-                                <StatTile label="Vehicles" value={vehicleOptions.length} icon={IconMotorbike} />
-                                <StatTile label="Batteries" value={batteryOptions.length} icon={IconBolt} />
+                                <StatTile label="Vehicles" value={vehiclesData?.pages[0]?.meta.totalItems ?? vehicleOptions.length} icon={IconMotorbike} />
+                                <StatTile label="Batteries" value={batteriesData?.pages[0]?.meta.totalItems ?? batteryOptions.length} icon={IconBolt} />
                             </div>
                             <Form {...form}>
                                 <form onSubmit={form.handleSubmit(onAssignVehicle)} className="space-y-4">
-                                    <SelectField
+                                    <SearchableSelectField
                                         control={form.control}
                                         name="vehicleId"
                                         label="Vehicle"
                                         placeholder={vehiclesLoading ? 'Loading vehicles...' : 'Select vehicle'}
                                         options={vehicleOptions}
-                                        disabled={vehiclesLoading || vehicleOptions.length === 0}
+                                        disabled={vehicleOptions.length === 0}
+                                        isLoading={vehiclesLoading}
+                                        onLoadMore={fetchNextVehiclePage}
+                                        hasNextPage={hasNextVehiclePage}
                                     />
-                                    <SelectField
+                                    <SearchableSelectField
                                         control={form.control}
                                         name="batteryId"
                                         label="Battery"
                                         placeholder={batteriesLoading ? 'Loading batteries...' : 'Select battery'}
                                         options={batteryOptions}
-                                        disabled={batteriesLoading || batteryOptions.length === 0}
+                                        disabled={batteryOptions.length === 0}
+                                        isLoading={batteriesLoading}
+                                        onLoadMore={fetchNextBatteryPage}
+                                        hasNextPage={hasNextBatteryPage}
                                     />
                                     <TextInputField
                                         control={form.control}

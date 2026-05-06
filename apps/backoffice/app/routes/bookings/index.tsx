@@ -1,13 +1,13 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { IconEye } from '@tabler/icons-react'
+import { IconEye, IconUser } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useBookings, type BookingItem, type BookingsListParams } from '~/queries/bookings'
-import { formatDate } from '~/lib/formatter'
+import { formatDate, formatCurrency } from '~/lib/formatter'
 
 export default function BookingsListRoute() {
     const navigate = useNavigate()
@@ -40,23 +40,59 @@ export default function BookingsListRoute() {
     }, [])
 
     const columns = useMemo(() => [
-        { header: 'Booking ID', accessor: 'id' as const },
         {
-            header: 'Station',
+            header: 'Booking ID',
             cell: (booking: BookingItem) => (
-                <span>{(booking as any).station?.name ?? booking.stationId ?? '—'}</span>
-            ),
-        },
-        { header: 'Status', cell: (booking: BookingItem) => <StatusBadge status={booking.status.toUpperCase()} /> },
-        {
-            header: 'Vehicle',
-            cell: (booking: BookingItem) => (
-                <span>{(booking as any).vehicle?.vehicleNumber ?? booking.vehicleId ?? '—'}</span>
+                <span className="font-mono text-xs">{booking.id}</span>
             ),
         },
         {
-            header: 'Created',
-            cell: (booking: BookingItem) => <span className="text-xs text-muted-foreground">{formatDate(booking.createdAt)}</span>,
+            header: 'Customer Name',
+            cell: (booking: BookingItem) => {
+                const u = (booking.userPlan as any).user
+                const name = [u?.firstName, u?.lastName].filter(Boolean).join(' ')
+                return (
+                    <div className='flex items-center gap-2'>
+                        <div className='flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground'>
+                            <IconUser size={13} />
+                        </div>
+                        <div>
+                            <p className='text-sm font-medium text-foreground'>{name || u?.mobilenumber || u?.email || '—'}</p>
+                            {name && (
+                                <p className='text-xs text-muted-foreground'>{u?.mobilenumber ?? u?.email ?? '—'}</p>
+                            )}
+                        </div>
+                    </div>
+                )
+            },
+        },
+        {
+            header: 'Date of Purchase',
+            cell: (booking: BookingItem) => (
+                <span className="text-xs text-muted-foreground">{formatDate(booking.userPlan.createdAt)}</span>
+            ),
+        },
+        {
+            header: 'Plan Name',
+            cell: (booking: BookingItem) => (
+                <span>{(booking.userPlan as any).plan?.name ?? '—'}</span>
+            ),
+        },
+        {
+            header: 'Status',
+            cell: (booking: BookingItem) => <StatusBadge status={booking.status.toUpperCase()} />,
+        },
+        {
+            header: 'Plan Amount',
+            cell: (booking: BookingItem) => (
+                <span>{formatCurrency((booking.userPlan as any).plan?.totalAmount)}</span>
+            ),
+        },
+        {
+            header: 'Vehicle Number',
+            cell: (booking: BookingItem) => (
+                <span>{(booking as any).vehicle?.vehicleNumber ?? '—'}</span>
+            ),
         },
         {
             header: 'Actions',

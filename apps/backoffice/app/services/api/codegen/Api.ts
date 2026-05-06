@@ -210,7 +210,9 @@ export interface V1UsersGetManyUsersResponse {
           code: string;
         };
       };
+      type?: "current" | "permanent";
     }[];
+    stationId?: string;
   }[];
   meta: {
     itemsPerPage: number;
@@ -259,7 +261,9 @@ export interface V1UsersCreateOneUserResponse {
         code: string;
       };
     };
+    type?: "current" | "permanent";
   }[];
+  stationId?: string;
 }
 
 export interface V1UsersCreateOneUserBody {
@@ -284,6 +288,7 @@ export interface V1UsersCreateOneUserBody {
     pincode: string;
     cityId?: string;
   };
+  stationId?: string;
 }
 
 export interface V1UsersGetOneUserResponse {
@@ -314,7 +319,9 @@ export interface V1UsersGetOneUserResponse {
         code: string;
       };
     };
+    type?: "current" | "permanent";
   }[];
+  stationId?: string;
 }
 
 export interface V1UsersPatchOneUserResponse {
@@ -345,7 +352,9 @@ export interface V1UsersPatchOneUserResponse {
         code: string;
       };
     };
+    type?: "current" | "permanent";
   }[];
+  stationId?: string;
 }
 
 export interface V1UsersPatchOneUserBody {
@@ -365,6 +374,55 @@ export interface V1UsersPatchOneUserBody {
   /** @format date */
   dateOfBirth?: string;
   address?: {
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    cityId?: string;
+  };
+  stationId?: string;
+}
+
+export interface V1UsersUpdateAddressesResponse {
+  id: string;
+  /** @format email */
+  email?: string;
+  mobilenumber?: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: "male" | "female" | "other";
+  properties?: any;
+  /** @format date */
+  dateOfBirth?: string;
+  roles?: {
+    name: string;
+  }[];
+  addresses?: {
+    id: string;
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    city?: {
+      id: string;
+      name: string;
+      state?: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+    type?: "current" | "permanent";
+  }[];
+  stationId?: string;
+}
+
+export interface V1UsersUpdateAddressesBody {
+  current?: {
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    cityId?: string;
+  };
+  permanent?: {
     lineOne: string;
     lineTwo?: string;
     pincode: string;
@@ -813,6 +871,13 @@ export interface V1BookingsGetAllBookingsResponse {
       qrCodeId: string | null;
       createdAt: string;
       updatedAt: string;
+      user?: {
+        id: string;
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        mobilenumber?: string;
+      };
       plan?: {
         id: string;
         name: string;
@@ -900,6 +965,13 @@ export interface V1BookingsGetBookingByIdResponse {
     qrCodeId: string | null;
     createdAt: string;
     updatedAt: string;
+    user?: {
+      id: string;
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      mobilenumber?: string;
+    };
     plan?: {
       id: string;
       name: string;
@@ -969,6 +1041,13 @@ export interface V1BookingsAdminAssignVehicleResponse {
     qrCodeId: string | null;
     createdAt: string;
     updatedAt: string;
+    user?: {
+      id: string;
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      mobilenumber?: string;
+    };
     plan?: {
       id: string;
       name: string;
@@ -1055,15 +1134,14 @@ export interface V1StationsGetManyStationsResponse {
         };
       };
     };
-    managerId?: string;
-    manager?: {
+    managers?: {
       id: string;
       /** @format email */
       email?: string;
       mobilenumber?: string;
       firstName?: string;
       lastName?: string;
-    };
+    }[];
   }[];
   meta: {
     itemsPerPage: number;
@@ -1106,15 +1184,14 @@ export interface V1StationsCreateOneStationResponse {
       };
     };
   };
-  managerId?: string;
-  manager?: {
+  managers?: {
     id: string;
     /** @format email */
     email?: string;
     mobilenumber?: string;
     firstName?: string;
     lastName?: string;
-  };
+  }[];
 }
 
 export interface V1StationsCreateOneStationBody {
@@ -1155,15 +1232,14 @@ export interface V1StationsGetOneStationResponse {
       };
     };
   };
-  managerId?: string;
-  manager?: {
+  managers?: {
     id: string;
     /** @format email */
     email?: string;
     mobilenumber?: string;
     firstName?: string;
     lastName?: string;
-  };
+  }[];
 }
 
 export interface V1StationsUpdateOneStationResponse {
@@ -1188,15 +1264,14 @@ export interface V1StationsUpdateOneStationResponse {
       };
     };
   };
-  managerId?: string;
-  manager?: {
+  managers?: {
     id: string;
     /** @format email */
     email?: string;
     mobilenumber?: string;
     firstName?: string;
     lastName?: string;
-  };
+  }[];
 }
 
 export interface V1StationsUpdateOneStationBody {
@@ -1234,6 +1309,7 @@ export interface V1VehiclesGetManyVehiclesResponse {
       name?: string;
       type?: string;
     };
+    status: "in_use" | "available" | "unavailable";
     createdAt?: string;
     updatedAt?: string;
   }[];
@@ -1274,6 +1350,7 @@ export interface V1VehiclesCreateOneVehicleResponse {
     name?: string;
     type?: string;
   };
+  status: "in_use" | "available" | "unavailable";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -1290,6 +1367,8 @@ export interface V1VehiclesCreateOneVehicleBody {
     insuranceExpiry?: string;
   };
   stationId?: string;
+  /** @default "available" */
+  status: "in_use" | "available" | "unavailable";
 }
 
 export interface V1VehiclesGetOneVehicleResponse {
@@ -1310,6 +1389,7 @@ export interface V1VehiclesGetOneVehicleResponse {
     name?: string;
     type?: string;
   };
+  status: "in_use" | "available" | "unavailable";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -1332,6 +1412,7 @@ export interface V1VehiclesUpdateOneVehicleResponse {
     name?: string;
     type?: string;
   };
+  status: "in_use" | "available" | "unavailable";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -1348,6 +1429,8 @@ export interface V1VehiclesUpdateOneVehicleBody {
     insuranceExpiry?: string;
   };
   stationId?: string;
+  /** @default "available" */
+  status?: "in_use" | "available" | "unavailable";
 }
 
 export interface V1BatteriesGetManyBatteriesResponse {
@@ -2847,6 +2930,29 @@ export class Api<
     /**
      * No description
      *
+     * @tags users
+     * @name V1UsersUpdateAddresses
+     * @request PUT:/v1/users/{id}/addresses
+     * @secure
+     */
+    v1UsersUpdateAddresses: (
+      id: string,
+      data: V1UsersUpdateAddressesBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1UsersUpdateAddressesResponse, any>({
+        path: `/v1/users/${id}/addresses`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags plans
      * @name V1PlansGetPlans
      * @request GET:/v1/plans
@@ -3699,30 +3805,13 @@ export class Api<
          */
         "filter.name"?: string[];
         /**
-         * Filter by manager.firstName query param.
+         * Filter by managers.firstName query param.
          *
-         * **Format:** filter.manager.firstName={$not}:OPERATION:VALUE
-         *
-         *
-         *
-         * **Example:** filter.manager.firstName=$ilike:John Doe
-         *
-         * **Available Operations**
-         * - $ilike
-         *
-         * - $and
-         *
-         * - $or
-         */
-        "filter.manager.firstName"?: string[];
-        /**
-         * Filter by manager.lastName query param.
-         *
-         * **Format:** filter.manager.lastName={$not}:OPERATION:VALUE
+         * **Format:** filter.managers.firstName={$not}:OPERATION:VALUE
          *
          *
          *
-         * **Example:** filter.manager.lastName=$ilike:John Doe
+         * **Example:** filter.managers.firstName=$ilike:John Doe
          *
          * **Available Operations**
          * - $ilike
@@ -3731,15 +3820,32 @@ export class Api<
          *
          * - $or
          */
-        "filter.manager.lastName"?: string[];
+        "filter.managers.firstName"?: string[];
         /**
-         * Filter by managerId query param.
+         * Filter by managers.lastName query param.
          *
-         * **Format:** filter.managerId={$not}:OPERATION:VALUE
+         * **Format:** filter.managers.lastName={$not}:OPERATION:VALUE
          *
          *
          *
-         * **Example:** filter.managerId=$eq:John Doe
+         * **Example:** filter.managers.lastName=$ilike:John Doe
+         *
+         * **Available Operations**
+         * - $ilike
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.managers.lastName"?: string[];
+        /**
+         * Filter by managers.id query param.
+         *
+         * **Format:** filter.managers.id={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.managers.id=$eq:John Doe
          *
          * **Available Operations**
          * - $eq
@@ -3748,7 +3854,7 @@ export class Api<
          *
          * - $or
          */
-        "filter.managerId"?: string[];
+        "filter.managers.id"?: string[];
         /**
          * Parameter to sort by.
          * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
@@ -3976,6 +4082,23 @@ export class Api<
          */
         "filter.station.name"?: string[];
         /**
+         * Filter by status query param.
+         *
+         * **Format:** filter.status={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.status=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.status"?: string[];
+        /**
          * Parameter to sort by.
          * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
          *
@@ -4183,13 +4306,13 @@ export class Api<
          */
         "filter.station.name"?: string[];
         /**
-         * Filter by station.managerId query param.
+         * Filter by station.managers.id query param.
          *
-         * **Format:** filter.station.managerId={$not}:OPERATION:VALUE
+         * **Format:** filter.station.managers.id={$not}:OPERATION:VALUE
          *
          *
          *
-         * **Example:** filter.station.managerId=$eq:John Doe
+         * **Example:** filter.station.managers.id=$eq:John Doe
          *
          * **Available Operations**
          * - $eq
@@ -4198,7 +4321,24 @@ export class Api<
          *
          * - $or
          */
-        "filter.station.managerId"?: string[];
+        "filter.station.managers.id"?: string[];
+        /**
+         * Filter by status query param.
+         *
+         * **Format:** filter.status={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.status=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.status"?: string[];
         /**
          * Parameter to sort by.
          * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting

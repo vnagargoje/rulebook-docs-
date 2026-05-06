@@ -3,11 +3,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
-import { MultiSelectField, SelectField } from '~/components/forms/controlled-fields'
+import { MultiSelectField, SearchableSelectField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
-import { useBatteries, useUpdateBattery } from '~/queries/batteries'
-import { useStations } from '~/queries/stations'
+import { useInfiniteBatteries, useUpdateBattery } from '~/queries/batteries'
+import { useInfiniteStations } from '~/queries/stations'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
@@ -16,8 +16,8 @@ import { batteryAssignmentSchema, type BatteryAssignmentValues } from '~/schemas
 
 export default function AssignBatteriesRoute() {
     const navigate = useNavigate()
-    const { data: batteriesData } = useBatteries({ limit: 200 })
-    const { data: stationsData } = useStations({ limit: 100 })
+    const { data: batteriesData, isFetching: isBatteriesFetching } = useInfiniteBatteries()
+    const { data: stationsData, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations()
     const updateBattery = useUpdateBattery()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -30,7 +30,7 @@ export default function AssignBatteriesRoute() {
         async (values: BatteryAssignmentValues) => {
             setIsSubmitting(true)
             try {
-                const allBatteries = batteriesData?.data ?? []
+                const allBatteries = (batteriesData?.pages ?? []).flatMap((p) => p.data)
                 await Promise.all(
                     values.batteryIds.map((id) => {
                         const bat = allBatteries.find((b) => b.id === id)
@@ -52,12 +52,12 @@ export default function AssignBatteriesRoute() {
     )
 
     const stationOptions = useMemo(
-        () => (stationsData?.data ?? []).map((s) => ({ label: s.name, value: s.id })),
-        [stationsData?.data],
+        () => (stationsData?.pages ?? []).flatMap((p) => p.data).map((s) => ({ label: s.name, value: s.id })),
+        [stationsData?.pages],
     )
     const unassignedBatteries = useMemo(
-        () => (batteriesData?.data ?? []).filter((b) => !b.stationId),
-        [batteriesData?.data],
+        () => (batteriesData?.pages ?? []).flatMap((p) => p.data).filter((b) => !b.stationId),
+        [batteriesData?.pages],
     )
     const batteryOptions = useMemo(
         () =>
@@ -90,12 +90,15 @@ export default function AssignBatteriesRoute() {
                         <form
                             onSubmit={form.handleSubmit(onSubmit)}
                             className='space-y-6'>
-                            <SelectField
+                            <SearchableSelectField
                                 control={form.control}
                                 name='stationId'
                                 label='Target Station'
                                 placeholder='Select Station'
                                 options={stationOptions}
+                                isLoading={isStationsFetching}
+                                onLoadMore={fetchNextStationPage}
+                                hasNextPage={hasNextStationPage}
                             />
 
                             <MultiSelectField

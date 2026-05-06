@@ -8,9 +8,8 @@ const topUpBaseSchema = z.object({
     description: z.string().max(500, 'Description must be at most 500 characters').optional(),
     validityDays: z.coerce
         .number({ invalid_type_error: 'Must be a number' })
-        .int('Must be a whole number')
-        .min(1, 'Must be at least 1 day')
-        .max(3650, 'Cannot exceed 10 years (3650 days)'),
+        .int('Must be a whole number'),
+        
     kmLimit: z.coerce
         .number({ invalid_type_error: 'Must be a number' })
         .min(0, 'Must be 0 or more'),

@@ -10,6 +10,10 @@ export const BatteryPropertiesResponse = Type.Object({
     weight: Type.Optional(Type.String()),
     warranty: Type.Optional(Type.String()),
     removableOption: Type.Optional(Type.Boolean()),
+    latitude: Type.Optional(Type.Number()),
+    longitude: Type.Optional(Type.Number()),
+    socPercent: Type.Optional(Type.Number()),
+    speed: Type.Optional(Type.Number()),
 });
 
 export const BatteryResponse = Type.Object({

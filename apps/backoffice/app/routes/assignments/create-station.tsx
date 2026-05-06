@@ -4,11 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
-import { SelectField, TextInputField } from '~/components/forms/controlled-fields'
+import { SearchableSelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
-import { useStations } from '~/queries/stations'
-import { useUpdateVehicle, useVehicles } from '~/queries/vehicles'
+import { useInfiniteStations } from '~/queries/stations'
+import { useUpdateVehicle, useInfiniteVehicles } from '~/queries/vehicles'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
@@ -17,21 +17,20 @@ import { stationAssignmentSchema, type StationAssignmentValues } from '~/schemas
 export default function CreateStationAssignmentRoute() {
     const navigate = useNavigate()
     const updateVehicle = useUpdateVehicle()
-    const { data: vehiclesData, isLoading: isVehiclesLoading } = useVehicles({ limit: 200, sortBy: ['createdAt:DESC'] })
-    const { data: stationsData, isLoading: isStationsLoading } = useStations({ limit: 200, sortBy: ['createdAt:DESC'] })
+    const { data: vehiclesData, isFetching: isVehiclesFetching, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles({
+        sortBy: ['createdAt:DESC'],
+        'filter.stationId': ['$null'],
+    })
+    const { data: stationsData, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations({ sortBy: ['createdAt:DESC'] })
 
     const form = useForm<StationAssignmentValues>({
         resolver: zodResolver(stationAssignmentSchema),
+        mode: 'onChange',
         defaultValues: { vehicleId: '', vehicleNumber: '', stationId: '' },
     })
 
-    const allVehicles = vehiclesData?.data ?? []
+    const allVehicles = (vehiclesData?.pages ?? []).flatMap((p) => p.data)
     const selectedVehicleId = form.watch('vehicleId')
-
-    const unassignedVehicles = useMemo(
-        () => allVehicles.filter((vehicle) => !vehicle.stationId),
-        [allVehicles],
-    )
 
     const selectedVehicle = useMemo(
         () => allVehicles.find((vehicle) => vehicle.id === selectedVehicleId),
@@ -43,19 +42,19 @@ export default function CreateStationAssignmentRoute() {
     }, [form, selectedVehicle?.vehicleNumber])
 
     const vehicleOptions = useMemo(
-        () => unassignedVehicles.map((vehicle) => ({
+        () => allVehicles.map((vehicle) => ({
             label: vehicle.vehicleNumber ?? vehicle.id,
             value: vehicle.id,
         })),
-        [unassignedVehicles],
+        [allVehicles],
     )
 
     const stationOptions = useMemo(
-        () => (stationsData?.data ?? []).map((station) => ({
+        () => (stationsData?.pages ?? []).flatMap((p) => p.data).map((station) => ({
             label: station.name ?? station.id,
             value: station.id,
         })),
-        [stationsData?.data],
+        [stationsData?.pages],
     )
 
     const onSubmit = useCallback((values: StationAssignmentValues) => {
@@ -92,10 +91,6 @@ export default function CreateStationAssignmentRoute() {
         })
     }, [allVehicles, navigate, updateVehicle])
 
-    if (isVehiclesLoading || isStationsLoading) {
-        return <div className="p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase">Loading Assignment Form...</div>
-    }
-
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
             <div className="flex items-center gap-4">
@@ -113,12 +108,16 @@ export default function CreateStationAssignmentRoute() {
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-                            <SelectField
+                            <SearchableSelectField
                                 control={form.control}
                                 name="vehicleId"
                                 label="Vehicle Selection"
                                 placeholder="Select Vehicle"
                                 options={vehicleOptions}
+                                isLoading={isVehiclesFetching}
+                                onLoadMore={fetchNextVehiclePage}
+                                hasNextPage={hasNextVehiclePage}
+                                required
                             />
 
                             <TextInputField
@@ -129,17 +128,21 @@ export default function CreateStationAssignmentRoute() {
                                 disabled
                             />
 
-                            <SelectField
+                            <SearchableSelectField
                                 control={form.control}
                                 name="stationId"
                                 label="Station Selection"
                                 placeholder="Select Station"
                                 options={stationOptions}
+                                isLoading={isStationsFetching}
+                                onLoadMore={fetchNextStationPage}
+                                hasNextPage={hasNextStationPage}
+                                required
                             />
 
                             <div className="flex justify-end gap-3 pt-6 border-t mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/assignments')}>Cancel</Button>
-                                <Button type="submit" disabled={updateVehicle.isPending} className="min-w-35 uppercase text-xs font-bold tracking-widest">
+                                <Button type="submit" disabled={updateVehicle.isPending || !form.formState.isValid} className="min-w-35 uppercase text-xs font-bold tracking-widest">
                                     {updateVehicle.isPending ? 'Assigning...' : 'Assign Vehicle'}
                                 </Button>
                             </div>

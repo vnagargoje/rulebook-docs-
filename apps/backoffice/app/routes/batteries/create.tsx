@@ -4,11 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
-import { CheckboxField, SelectField, TextInputField } from '~/components/forms/controlled-fields'
+import { CheckboxField, SearchableSelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
 import { useCreateBattery } from '~/queries/batteries'
-import { useStations } from '~/queries/stations'
+import { useInfiniteStations } from '~/queries/stations'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
@@ -17,10 +17,11 @@ import { createBatterySchema, type CreateBatteryFormValues } from '~/schemas'
 export default function CreateBatteryRoute() {
     const navigate = useNavigate()
     const createBattery = useCreateBattery()
-    const { data: stations } = useStations({ limit: 100 })
+    const { data: stations, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations()
 
     const form = useForm<CreateBatteryFormValues>({
         resolver: zodResolver(createBatterySchema),
+        mode: 'onChange',
         defaultValues: {
             batteryCode: '',
             gpsId: '',
@@ -38,11 +39,11 @@ export default function CreateBatteryRoute() {
 
     const stationOptions = useMemo(
         () =>
-            (stations?.data ?? []).map((s) => ({
+            (stations?.pages ?? []).flatMap((p) => p.data).map((s) => ({
                 label: s.name,
                 value: s.id,
             })),
-        [stations?.data],
+        [stations?.pages],
     )
 
     const onSubmit = useCallback(
@@ -105,6 +106,7 @@ export default function CreateBatteryRoute() {
                                     name='batteryCode'
                                     label='Battery Code'
                                     placeholder='BAT-XX-123'
+                                    required
                                 />
                                 <TextInputField
                                     control={form.control}
@@ -162,12 +164,15 @@ export default function CreateBatteryRoute() {
                                     label='Warranty Until'
                                     type='date'
                                 />
-                                <SelectField
+                                <SearchableSelectField
                                     control={form.control}
                                     name='stationId'
                                     label='Assigned Station (Optional)'
                                     options={stationOptions}
                                     placeholder='Select a station'
+                                    isLoading={isStationsFetching}
+                                    onLoadMore={fetchNextStationPage}
+                                    hasNextPage={hasNextStationPage}
                                 />
                             </div>
 
@@ -186,7 +191,7 @@ export default function CreateBatteryRoute() {
                                 </Button>
                                 <Button
                                     type='submit'
-                                    disabled={createBattery.isPending}
+                                    disabled={createBattery.isPending || !form.formState.isValid}
                                     className='min-w-35 uppercase text-xs font-bold tracking-widest'>
                                     {createBattery.isPending ? 'Registering...' : 'Register Battery'}
                                 </Button>

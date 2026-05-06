@@ -9,4 +9,5 @@ export interface BaseFieldProps {
     label: string
     placeholder?: string
     disabled?: boolean
+    required?: boolean
 }

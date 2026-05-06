@@ -37,9 +37,9 @@ export const NAVIGATION_ITEMS = [
     { to: '/vehicles', label: 'Vehicles', description: 'Fleet registration', icon: IconMotorbike },
     { to: '/bookings', label: 'Bookings', description: 'Customer bookings', icon: IconCalendarEvent },
     { to: '/transactions', label: 'Transactions', description: 'Plan purchases & payments', icon: IconCreditCard },
-    { to: '/maintenance', label: 'Maintenance', description: 'Service records', icon: IconTool },
-    { to: '/inactive-vehicles', label: 'Inactive Vehicles', description: 'Downtime tracking', icon: IconChecklist },
-    { to: '/assignments', label: 'Assignments', description: 'Vehicle allocation', icon: IconArrowsLeftRight },
+    // { to: '/maintenance', label: 'Maintenance', description: 'Service records', icon: IconTool },
+    // { to: '/inactive-vehicles', label: 'Inactive Vehicles', description: 'Downtime tracking', icon: IconChecklist },
+    // { to: '/assignments', label: 'Assignments', description: 'Vehicle allocation', icon: IconArrowsLeftRight },
     { to: '/batteries', label: 'Batteries', description: 'Inventory and stations', icon: IconBattery },
     { to: '/surrender', label: 'Surrender', description: 'Closure workflow', icon: IconClipboardCheck },
 ]

@@ -1,3 +1,4 @@
+export * from './validations'
 export * from './users.schema'
 export * from './stations.schema'
 export * from './plans.schema'

@@ -22,6 +22,7 @@
         "@yugo/shared": "workspace:*",
         "@yugo/utils": "workspace:*",
         "mysql2": "^3.21.0",
+        "nestjs-pino": "^4.6.1",
         "redis": "^5.12.1",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.1",

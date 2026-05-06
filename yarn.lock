@@ -11786,6 +11786,7 @@ __metadata:
     "@yugo/tsconfig": "workspace:*"
     "@yugo/utils": "workspace:*"
     mysql2: "npm:^3.21.0"
+    nestjs-pino: "npm:^4.6.1"
     redis: "npm:^5.12.1"
     reflect-metadata: "npm:^0.2.2"
     rimraf: "npm:^5.0.5"

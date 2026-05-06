@@ -8,8 +8,8 @@ import 'tsx/cjs'
 // eslint-disable-next-line perfectionist/sort-imports
 import Env from './env'
 
-const EXPO_ACCOUNT_OWNER = 'obytes'
-const EAS_PROJECT_ID = 'c3e1075b-6fe7-4686-aa49-35b46a229044'
+const EXPO_ACCOUNT_OWNER = 'evyugo'
+const EAS_PROJECT_ID = '8fec3d81-2fc5-4421-9e6a-476af4c8eb83'
 
 const appIconBadgeConfig: AppIconBadgeConfig = {
     enabled: Env.EXPO_PUBLIC_APP_ENV !== 'production',
@@ -33,14 +33,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     description: `${Env.EXPO_PUBLIC_NAME} Mobile App`,
     owner: EXPO_ACCOUNT_OWNER,
     scheme: Env.EXPO_PUBLIC_SCHEME,
-    slug: 'obytesapp',
+    slug: 'evyugo-stag',
     version: Env.EXPO_PUBLIC_VERSION.toString(),
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
+    runtimeVersion: {
+        policy: 'appVersion',
+    },
     updates: {
-        fallbackToCacheTimeout: 0,
+        url: "https://u.expo.dev/8fec3d81-2fc5-4421-9e6a-476af4c8eb83",
+        enabled: true,
+        checkAutomatically: "ON_LOAD",
+        fallbackToCacheTimeout: 30000,
     },
     assetBundlePatterns: ['**/*'],
     ios: {
@@ -123,13 +129,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         'expo-router',
         ['app-icon-badge', appIconBadgeConfig],
         ['react-native-edge-to-edge'],
-        [
-            'react-native-maps',
-            {
-                iosGoogleMapsApiKey: Env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
-                androidGoogleMapsApiKey: Env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
-            },
-        ],
     ],
     extra: {
         eas: {

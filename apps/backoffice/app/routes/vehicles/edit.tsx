@@ -4,11 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
-import { SelectField, TextInputField } from '~/components/forms/controlled-fields'
+import { SearchableSelectField, SelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
 import { useGetVehicleById, useUpdateVehicle, type UpdateVehiclePayload } from '~/queries/vehicles'
-import { useStations } from '~/queries/stations'
+import { useInfiniteStations } from '~/queries/stations'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
@@ -20,10 +20,11 @@ export default function EditVehicleRoute() {
     const navigate = useNavigate()
     const { data: vehicle, isLoading } = useGetVehicleById(id)
     const updateVehicle = useUpdateVehicle()
-    const { data: stations } = useStations({ limit: 100 })
+    const { data: stations, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations()
 
     const form = useForm<UpdateVehicleFormValues>({
         resolver: zodResolver(updateVehicleSchema),
+        mode: 'onChange',
         defaultValues: {
             type: undefined,
             vehicleNumber: '',
@@ -37,10 +38,10 @@ export default function EditVehicleRoute() {
         },
     })
 
-    const stationOptions = useMemo(() => (stations?.data ?? []).map((s) => ({
+    const stationOptions = useMemo(() => (stations?.pages ?? []).flatMap((p) => p.data).map((s) => ({
         label: s.name,
         value: s.id,
-    })), [stations?.data])
+    })), [stations?.pages])
 
     useEffect(() => {
         if (vehicle) {
@@ -116,21 +117,22 @@ export default function EditVehicleRoute() {
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Vehicle Profile</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="vehicleNumber" label="Registration No." placeholder="e.g. MH 01 AB 1234" />
+                                    <TextInputField control={form.control} name="vehicleNumber" label="Registration No." placeholder="e.g. MH 01 AB 1234" required />
                                     <SelectField
                                         control={form.control}
                                         name="type"
                                         label="Vehicle Type"
                                         options={vehicleTypeOptions}
                                         placeholder="Select type"
+                                        required
                                     />
-                                </div>
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="gpsId" label="GPS Tracker ID" placeholder="e.g. GPS-9902" />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <TextInputField control={form.control} name="brand" label="Manufacturer / Brand" placeholder="Ola / Ather" />
                                     <TextInputField control={form.control} name="model" label="Vehicle Model" placeholder="450X" />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <TextInputField control={form.control} name="gpsId" label="GPS Tracker ID" placeholder="e.g. GPS-9902" />
                                 </div>
                             </div>
 
@@ -142,19 +144,22 @@ export default function EditVehicleRoute() {
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <TextInputField control={form.control} name="insuranceExpiry" label="Insurance Expiry Date" type="date" />
-                                    <SelectField
+                                    <SearchableSelectField
                                         control={form.control}
                                         name="stationId"
                                         label="Assigned Station (Optional)"
                                         options={stationOptions}
                                         placeholder="Select a station"
+                                        isLoading={isStationsFetching}
+                                        onLoadMore={fetchNextStationPage}
+                                        hasNextPage={hasNextStationPage}
                                     />
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/vehicles')}>Cancel</Button>
-                                <Button type="submit" disabled={updateVehicle.isPending} className="min-w-[140px] uppercase text-xs font-bold tracking-widest">
+                                <Button type="submit" disabled={updateVehicle.isPending || !form.formState.isDirty} className="min-w-[140px] uppercase text-xs font-bold tracking-widest">
                                     {updateVehicle.isPending ? 'Updating...' : 'Update Asset'}
                                 </Button>
                             </div>

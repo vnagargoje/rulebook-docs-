@@ -16,6 +16,15 @@ export const BookingResponse = Type.Object({
         qrCodeId: Type.Union([Type.String(), Type.Null()]),
         createdAt: Type.String(),
         updatedAt: Type.String(),
+        user: Type.Optional(
+            Type.Object({
+                id: Type.String(),
+                firstName: Type.Optional(Type.String()),
+                lastName: Type.Optional(Type.String()),
+                email: Type.Optional(Type.String()),
+                mobilenumber: Type.Optional(Type.String()),
+            }),
+        ),
         plan: Type.Optional(
             Type.Object({
                 id: Type.String(),

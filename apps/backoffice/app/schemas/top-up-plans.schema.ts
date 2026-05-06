@@ -1,24 +1,29 @@
 import { z } from 'zod'
 
-export const createTopUpPlanSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    description: z.string().optional(),
-    validityDays: z.coerce.number().min(1, 'Must be at least 1 day'),
-    kmLimit: z.coerce.number().min(0, 'Must be 0 or more'),
-    price: z.coerce.number().min(0, 'Must be 0 or more'),
-    gst: z.coerce.number().min(0, 'Must be 0 or more'),
-    active: z.enum(['true', 'false']),
+const topUpBaseSchema = z.object({
+    name: z
+        .string()
+        .min(2, 'Plan name must be at least 2 characters')
+        .max(100, 'Plan name must be at most 100 characters'),
+    description: z.string().max(500, 'Description must be at most 500 characters').optional(),
+    validityDays: z.coerce
+        .number({ invalid_type_error: 'Must be a number' })
+        .int('Must be a whole number'),
+        
+    kmLimit: z.coerce
+        .number({ invalid_type_error: 'Must be a number' })
+        .min(0, 'Must be 0 or more'),
+    price: z.coerce
+        .number({ invalid_type_error: 'Must be a number' })
+        .min(1, 'Price must be greater than 0'),
+    gst: z.coerce
+        .number({ invalid_type_error: 'Must be a number' })
+        .min(0, 'Must be 0 or more'),
+    active: z.enum(['true', 'false'], { required_error: 'Status is required' }),
 })
 
-export const updateTopUpPlanSchema = z.object({
-    name: z.string().min(1, 'Name is required'),
-    description: z.string().optional(),
-    validityDays: z.coerce.number().min(1, 'Must be at least 1 day'),
-    kmLimit: z.coerce.number().min(0, 'Must be 0 or more'),
-    price: z.coerce.number().min(0, 'Must be 0 or more'),
-    gst: z.coerce.number().min(0, 'Must be 0 or more'),
-    active: z.enum(['true', 'false']),
-})
+export const createTopUpPlanSchema = topUpBaseSchema
+export const updateTopUpPlanSchema = topUpBaseSchema
 
 export type CreateTopUpPlanFormValues = z.infer<typeof createTopUpPlanSchema>
 export type CreateTopUpPlanFormInput = z.input<typeof createTopUpPlanSchema>

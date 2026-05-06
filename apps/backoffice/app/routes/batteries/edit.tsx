@@ -4,11 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
-import { CheckboxField, SelectField, TextInputField } from '~/components/forms/controlled-fields'
+import { CheckboxField, SearchableSelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
 import { useGetBatteryById, useUpdateBattery } from '~/queries/batteries'
-import { useStations } from '~/queries/stations'
+import { useInfiniteStations } from '~/queries/stations'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
@@ -19,10 +19,11 @@ export default function EditBatteryRoute() {
     const navigate = useNavigate()
     const { data: battery, isLoading } = useGetBatteryById(id)
     const updateBattery = useUpdateBattery()
-    const { data: stations } = useStations({ limit: 100 })
+    const { data: stations, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations()
 
     const form = useForm<UpdateBatteryFormValues>({
         resolver: zodResolver(updateBatterySchema),
+        mode: 'onChange',
         defaultValues: {
             batteryCode: '',
             gpsId: '',
@@ -58,11 +59,11 @@ export default function EditBatteryRoute() {
 
     const stationOptions = useMemo(
         () =>
-            (stations?.data ?? []).map((s) => ({
+            (stations?.pages ?? []).flatMap((p) => p.data).map((s) => ({
                 label: s.name,
                 value: s.id,
             })),
-        [stations?.data],
+        [stations?.pages],
     )
 
     const onSubmit = useCallback(
@@ -142,6 +143,7 @@ export default function EditBatteryRoute() {
                                     name='batteryCode'
                                     label='Battery Code'
                                     placeholder='BAT-XX-123'
+                                    required
                                 />
                                 <TextInputField
                                     control={form.control}
@@ -199,12 +201,15 @@ export default function EditBatteryRoute() {
                                     label='Warranty Until'
                                     type='date'
                                 />
-                                <SelectField
+                                <SearchableSelectField
                                     control={form.control}
                                     name='stationId'
                                     label='Assigned Station (Optional)'
                                     options={stationOptions}
                                     placeholder='Select a station'
+                                    isLoading={isStationsFetching}
+                                    onLoadMore={fetchNextStationPage}
+                                    hasNextPage={hasNextStationPage}
                                 />
                             </div>
 
@@ -223,7 +228,7 @@ export default function EditBatteryRoute() {
                                 </Button>
                                 <Button
                                     type='submit'
-                                    disabled={updateBattery.isPending}
+                                    disabled={updateBattery.isPending || !form.formState.isDirty}
                                     className='min-w-35 uppercase text-xs font-bold tracking-widest'>
                                     {updateBattery.isPending ? 'Saving...' : 'Save Changes'}
                                 </Button>

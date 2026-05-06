@@ -19,6 +19,7 @@ export default function CreatePlanRoute() {
 
     const form = useForm<CreatePlanFormInput, unknown, CreatePlanFormValues>({
         resolver: zodResolver(createPlanSchema),
+        mode: 'onChange',
         defaultValues: {
             name: '',
             description: '',
@@ -48,8 +49,8 @@ export default function CreatePlanRoute() {
                 toast.success('Plan created successfully')
                 navigate('/plans')
             },
-            onError: () => {
-                toast.error('Failed to create plan')
+            onError: (error: any) => {
+                toast.error(error?.response?.data?.message || 'Failed to create plan')
             },
         })
     }, [createPlan, navigate])
@@ -73,7 +74,7 @@ export default function CreatePlanRoute() {
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Core Offering</h4>
                                 <div className="space-y-6">
-                                    <TextInputField control={form.control} name="name" label="Plan Name" placeholder="e.g. Premium Rider Monthly" />
+                                    <TextInputField control={form.control} name="name" label="Plan Name" placeholder="e.g. Premium Rider Monthly" required />
                                     <TextAreaField control={form.control} name="description" label="Marketing Description" placeholder="Detailed explanation of the plan's benefits..." />
                                 </div>
                             </div>
@@ -81,15 +82,15 @@ export default function CreatePlanRoute() {
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Limits & Validity</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="validityDays" label="Validity Duration (Days)" type="number" />
-                                    <TextInputField control={form.control} name="kmLimit" label="Distance Allowance (KM)" type="number" />
+                                    <TextInputField control={form.control} name="validityDays" label="Validity Duration (Days)" type="number" required />
+                                    <TextInputField control={form.control} name="kmLimit" label="Distance Allowance (KM)" type="number" required />
                                 </div>
                             </div>
 
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Pricing & Financials</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="price" label="Base Price (₹)" type="number" />
+                                    <TextInputField control={form.control} name="price" label="Base Price (₹)" type="number" required />
                                     <TextInputField control={form.control} name="deposit" label="Security Deposit (₹)" type="number" />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -102,13 +103,14 @@ export default function CreatePlanRoute() {
                                         name="active"
                                         label="Plan Availability"
                                         options={[{ label: 'Currently Active', value: 'true' }, { label: 'Inactive / Hidden', value: 'false' }]}
+                                        required
                                     />
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
                                 <Button type="button" variant="ghost" onClick={() => navigate('/plans')}>Cancel</Button>
-                                <Button type="submit" disabled={createPlan.isPending} className="min-w-35 uppercase text-xs font-bold tracking-widest">
+                                <Button type="submit" disabled={createPlan.isPending || !form.formState.isValid} className="min-w-35 uppercase text-xs font-bold tracking-widest">
                                     {createPlan.isPending ? 'Creating...' : 'Publish Plan'}
                                 </Button>
                             </div>

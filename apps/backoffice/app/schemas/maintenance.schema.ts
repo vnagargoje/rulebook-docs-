@@ -1,23 +1,32 @@
 import { z } from 'zod'
 
-export const createMaintenanceSchema = z.object({
-    reportedDate: z.string().min(1, 'Reported date is required'),
+const maintenanceBaseSchema = z.object({
+    reportedDate: z
+        .string()
+        .min(1, 'Reported date is required')
+        .refine((val) => !isNaN(new Date(val).getTime()), 'Enter a valid date')
+        .refine((val) => new Date(val) <= new Date(), 'Reported date cannot be a future date'),
     vehicleId: z.string().min(1, 'Vehicle is required'),
-    issueDescription: z.string().min(1, 'Description is required'),
-    technicianName: z.string().min(1, 'Technician name is required'),
-    expectedFixDate: z.string().min(1, 'Expected fix date is required'),
-    status: z.enum(['REPORTED', 'IN_PROGRESS', 'RESOLVED']),
+    issueDescription: z
+        .string()
+        .min(10, 'Description must be at least 10 characters')
+        .max(1000, 'Description must be at most 1000 characters'),
+    technicianName: z
+        .string()
+        .min(2, 'Technician name must be at least 2 characters')
+        .max(100, 'Technician name must be at most 100 characters')
+        .regex(/^[a-zA-Z\s]+$/, 'Only letters and spaces allowed'),
+    expectedFixDate: z
+        .string()
+        .min(1, 'Expected fix date is required')
+        .refine((val) => !isNaN(new Date(val).getTime()), 'Enter a valid date'),
+    status: z.enum(['REPORTED', 'IN_PROGRESS', 'RESOLVED'], {
+        required_error: 'Status is required',
+    }),
 })
 
-export const updateMaintenanceSchema = z.object({
-    id: z.string(),
-    reportedDate: z.string().min(1, 'Reported date is required'),
-    vehicleId: z.string().min(1, 'Vehicle is required'),
-    issueDescription: z.string().min(1, 'Description is required'),
-    technicianName: z.string().min(1, 'Technician name is required'),
-    expectedFixDate: z.string().min(1, 'Expected fix date is required'),
-    status: z.enum(['REPORTED', 'IN_PROGRESS', 'RESOLVED']),
-})
+export const createMaintenanceSchema = maintenanceBaseSchema
+export const updateMaintenanceSchema = z.object({ id: z.string() }).merge(maintenanceBaseSchema)
 
 export type CreateMaintenanceValues = z.infer<typeof createMaintenanceSchema>
 export type UpdateMaintenanceValues = z.infer<typeof updateMaintenanceSchema>

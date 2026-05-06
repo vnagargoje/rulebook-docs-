@@ -49,6 +49,7 @@ export class V1BookingsController {
         const qb = this.datasource.manager
             .createQueryBuilder(BookingEntity, 'booking')
             .innerJoinAndSelect('booking.userPlan', 'userPlan')
+            .leftJoinAndSelect('userPlan.user', 'user')
             .leftJoinAndSelect('userPlan.plan', 'plan')
             .leftJoinAndSelect('userPlan.qrCode', 'qrCode')
             .leftJoinAndSelect('userPlan.topUps', 'topUps')
@@ -77,6 +78,7 @@ export class V1BookingsController {
         const qb = this.datasource.manager
             .createQueryBuilder(BookingEntity, 'booking')
             .innerJoinAndSelect('booking.userPlan', 'userPlan')
+            .leftJoinAndSelect('userPlan.user', 'user')
             .leftJoinAndSelect('userPlan.plan', 'plan')
             .leftJoinAndSelect('userPlan.qrCode', 'qrCode')
             .leftJoinAndSelect('userPlan.topUps', 'topUps')

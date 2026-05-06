@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 import { createUserSchema, type CreateUserFormValues } from '~/schemas'
-import { customerRoleOptions, employeeRoleOptions, genderOptions } from '~/constants'
+import { customerRoleOptions, filteredEmployeeRoles, genderOptions } from '~/constants'
 
 export default function CreateUserRoute() {
     const navigate = useNavigate()
@@ -21,7 +21,7 @@ export default function CreateUserRoute() {
     const createUser = useCreateUser()
     const { data: states } = useStates()
     const isCustomerRoute = location.pathname.startsWith('/customers')
-    const roleOptions = isCustomerRoute ? customerRoleOptions : employeeRoleOptions
+    const roleOptions = isCustomerRoute ? customerRoleOptions : filteredEmployeeRoles
     const defaultRole: CreateUserFormValues['role'] = isCustomerRoute ? 'customer' : 'swap_manager'
     const backPath = isCustomerRoute ? '/customers' : '/users'
 

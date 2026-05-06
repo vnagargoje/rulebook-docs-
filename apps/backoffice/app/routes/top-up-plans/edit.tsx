@@ -57,8 +57,8 @@ export default function EditTopUpPlanRoute() {
                 toast.success('Top-Up updated successfully')
                 navigate('/top-up-plans')
             },
-            onError: () => {
-                toast.error('Could not save Top-Up plan')
+            onError: (error: any) => {
+                toast.error(error?.response?.data?.message || 'Could not save Top-Up plan')
             },
         })
     }, [id, updateTopUp, navigate])

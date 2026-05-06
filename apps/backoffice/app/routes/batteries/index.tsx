@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
+import { IconPlus, IconEdit, IconEye, IconMapPin } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -60,6 +60,13 @@ export default function BatteriesListRoute() {
                             size='icon'
                             onClick={() => navigate(`/batteries/edit/${b.id}`)}>
                             <IconEdit className='h-4 w-4' />
+                        </Button>
+                        <Button
+                            variant='ghost'
+                            size='icon'
+                            title='Track Battery'
+                            onClick={() => navigate(`/batteries/track/${b.id}`)}>
+                            <IconMapPin className='h-4 w-4' />
                         </Button>
                     </div>
                 ),

@@ -44,12 +44,14 @@ export default function BookingViewRoute() {
         page: 1,
         limit: 100,
         sortBy: ['createdAt:DESC'],
+        'filter.status': ['$eq:AVAILABLE'],
         ...(booking?.stationId ? { 'filter.stationId': [`$eq:${booking.stationId}`] } : {}),
     })
     const { data: batteriesData, isLoading: batteriesLoading } = useBatteries({
         page: 1,
         limit: 100,
         sortBy: ['createdAt:DESC'],
+        'filter.status': ['$eq:AVAILABLE'],
         ...(booking?.stationId ? { 'filter.stationId': [`$eq:${booking.stationId}`] } : {}),
     })
     const assignVehicle = useAssignVehicle()

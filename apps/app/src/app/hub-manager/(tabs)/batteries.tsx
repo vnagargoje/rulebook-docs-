@@ -3,7 +3,7 @@ import { ActivityIndicator, FlatList, RefreshControl, View } from 'react-native'
 import { useCallback, useState } from 'react'
 import { useRouter } from 'expo-router'
 import { ScreenLoader, Text } from '@/components/ui'
-import { useBatteries } from '@/queries/swap-manager/batteries.query'
+import { useHubBatteries } from '@/queries/hub-manager'
 import { useIsAuthenticated } from '@/queries/auth.query'
 import { useDebounce } from '@/lib/hooks'
 import { BatteryListHeader } from '@/components/swap-manager/batteries/list-header'
@@ -12,12 +12,12 @@ import { EmptyState } from '@/components/ui/empty'
 import { BatteryCard } from '@/components/swap-manager/batteries/card'
 import { ErrorView } from '@/components/ui/error'
 
-export default function BatteriesScreen() {
+export default function HubBatteriesScreen() {
     const router = useRouter()
     const [search, setSearch] = useState('')
     const debouncedSearch = useDebounce(search)
     const { data: managerId } = useIsAuthenticated({
-        select: (data) => data?.userId ?? '',
+        select: (data) => data.userId,
     })
 
     const {
@@ -29,7 +29,7 @@ export default function BatteriesScreen() {
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
-    } = useBatteries({
+    } = useHubBatteries({
         variables: { managerId: managerId ?? '', search: debouncedSearch },
         enabled: !!managerId,
     })
@@ -43,7 +43,7 @@ export default function BatteriesScreen() {
 
     const handleBatteryPress = useCallback(
         (id: string) => {
-            router.push({ pathname: '/swap-manager/battery/[id]', params: { id } })
+            router.push({ pathname: '/hub-manager/battery/[id]', params: { id } })
         },
         [router],
     )
@@ -82,7 +82,7 @@ export default function BatteriesScreen() {
                     <EmptyState
                         icon='battery-off-outline'
                         title='No Batteries found'
-                        description='Batteries assigned to your station will appear here'
+                        description='Batteries assigned to your hub will appear here'
                     />
                 }
                 ListFooterComponent={

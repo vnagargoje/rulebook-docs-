@@ -1,9 +1,9 @@
-import { client } from '@/lib/api'
+import { client } from '@/lib/api/client'
 import { V1BatteriesGetManyBatteriesResponse, V1BatteriesGetOneBatteryResponse } from '@/services/api/codegen/Api'
 import { createInfiniteQuery, createQuery } from 'react-query-kit'
 
-export const useBatteries = createInfiniteQuery({
-    queryKey: ['swap-manager', 'batteries'],
+export const useHubBatteries = createInfiniteQuery({
+    queryKey: ['hub-manager', 'batteries'],
     fetcher: async (
         variables: { managerId: string; search?: string },
         { pageParam }: { pageParam: number },
@@ -27,8 +27,8 @@ export const useBatteries = createInfiniteQuery({
     initialPageParam: 1,
 })
 
-export const useGetSwapBatteryById = createQuery<V1BatteriesGetOneBatteryResponse, { id: string }>({
-    queryKey: ['swap-manager', 'battery'],
+export const useGetBatteryById = createQuery<V1BatteriesGetOneBatteryResponse, { id: string }>({
+    queryKey: ['hub-manager', 'battery'],
     fetcher: async ({ id }) => {
         const response = await client.v1.v1BatteriesGetOneBattery(id)
         return response.data

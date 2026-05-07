@@ -1,6 +1,7 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 import { Pressable, Text, View } from '@/components/ui'
+import { BatterySocWidget } from './battery-soc-widget'
 import type { Booking } from '@/queries/customer'
 
 type Props = {
@@ -47,6 +48,7 @@ export function ActiveBookingCard({ booking, onPress }: Props) {
                     )}
                 </View>
 
+                {!booking.vehicle && (
                 <View className='mt-4 rounded-2xl border border-white/10 bg-white/[0.04] py-4'>
                     <Text className='text-center text-[10px] font-semibold uppercase tracking-[2px] text-[#8EA0BE]'>
                         Pickup OTP
@@ -55,6 +57,7 @@ export function ActiveBookingCard({ booking, onPress }: Props) {
                         {booking.pickupOtp}
                     </Text>
                 </View>
+                )}
 
                 <View className='mt-3 flex-row gap-2'>
                     <View className='flex-1 rounded-2xl bg-white/[0.05] p-3'>
@@ -87,6 +90,10 @@ export function ActiveBookingCard({ booking, onPress }: Props) {
                         </View>
                     )}
                 </View>
+
+                {booking.battery?.id && (
+                    <BatterySocWidget batteryId={booking.battery.id} />
+                )}
             </View>
         </Pressable>
     )

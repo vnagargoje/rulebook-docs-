@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { toast } from 'sonner-native'
 
 import { ActionTile, ProfileMenuItem } from '@/components/customer/profile'
 import { DetailRow } from '@/components/profile'
-import { Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
+import { Button, ConfirmDialog, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 import { formatKmIN } from '@/lib/formatters/customer'
 import { useMyPlans } from '@/queries/customer'
 import { getFirstIncompleteKycRoute, isKycComplete, useKycStatus } from '@/queries/customer/kyc.query'
@@ -18,6 +18,7 @@ export default function CustomerProfileScreen() {
     const userId = useAuthStore.use.user().id
     const signOut = useAuthStore.use.signOut()
     const isLoggedIn = Boolean(token)
+    const [showSignOutDialog, setShowSignOutDialog] = useState(false)
 
     const { data: plansData } = useMyPlans({ variables: { status: ['purchased', 'active'] }, enabled: isLoggedIn })
     const { data: profile } = useMyProfile()
@@ -67,18 +68,16 @@ export default function CustomerProfileScreen() {
     }, [router])
 
     const handleSignOut = useCallback(() => {
-        toast('Sign out?', {
-            id: 'customer-signout-confirm',
-            description: 'You will be signed out of your account.',
-            action: {
-                label: 'Sign Out',
-                onClick: signOut,
-            },
-            cancel: {
-                label: 'Cancel',
-                onClick: () => {},
-            },
-        })
+        setShowSignOutDialog(true)
+    }, [])
+
+    const handleCancelSignOut = useCallback(() => {
+        setShowSignOutDialog(false)
+    }, [])
+
+    const handleConfirmSignOut = useCallback(() => {
+        setShowSignOutDialog(false)
+        signOut()
     }, [signOut])
 
     const handleComingSoon = useCallback((title: string) => {
@@ -379,6 +378,15 @@ export default function CustomerProfileScreen() {
                     <Text className='text-center text-xs text-neutral-400'>App version 1.0.0</Text>
                 </View>
             </ScrollView>
+            <ConfirmDialog
+                visible={showSignOutDialog}
+                title='Sign out?'
+                description='You will be signed out of your account.'
+                confirmLabel='Sign Out'
+                cancelLabel='Cancel'
+                onCancel={handleCancelSignOut}
+                onConfirm={handleConfirmSignOut}
+            />
         </SafeAreaView>
     )
 }

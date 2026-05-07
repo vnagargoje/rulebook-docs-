@@ -22,6 +22,7 @@ export class CreateTopUpHandler implements ICommandHandler<CreateTopUpCommand> {
             description: payload.description,
             validityDays: payload.validityDays,
             kmLimit: payload.kmLimit,
+            gstPercentage: payload.gstPercentage,
             price: payload.price,
             active: payload.active ?? true,
         })

@@ -8,7 +8,7 @@ export const PlanResponse = Type.Object({
     kmLimit: Type.Number(),
     price: Type.Number(),
     deposit: Type.Number(),
-    gst: Type.Number(),
+    gstPercentage: Type.Number(),
     registrationFee: Type.Number(),
     totalAmount: Type.Number(),
     active: Type.Boolean(),

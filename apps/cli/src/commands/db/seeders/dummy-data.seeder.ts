@@ -268,8 +268,7 @@ export class DummyDataSeeder implements Seeder {
                 kmLimit: 500,
                 price: 999,
                 deposit: 500,
-                gst: 180,
-                registrationFee: 100,
+                gstPercentage: 18,
             },
             {
                 name: 'Pro Commuter Plan',
@@ -277,8 +276,7 @@ export class DummyDataSeeder implements Seeder {
                 kmLimit: 1200,
                 price: 1999,
                 deposit: 500,
-                gst: 360,
-                registrationFee: 100,
+                gstPercentage: 18,
             },
             {
                 name: 'Weekend Explorer',
@@ -286,8 +284,7 @@ export class DummyDataSeeder implements Seeder {
                 kmLimit: 300,
                 price: 499,
                 deposit: 500,
-                gst: 90,
-                registrationFee: 100,
+                gstPercentage: 18,
             },
             {
                 name: 'Quarterly Saver',
@@ -295,8 +292,7 @@ export class DummyDataSeeder implements Seeder {
                 kmLimit: 4000,
                 price: 4999,
                 deposit: 500,
-                gst: 900,
-                registrationFee: 100,
+                gstPercentage: 18,
             },
         ];
 
@@ -312,8 +308,7 @@ export class DummyDataSeeder implements Seeder {
                     kmLimit: config.kmLimit,
                     price: config.price,
                     deposit: config.deposit,
-                    gst: config.gst,
-                    registrationFee: config.registrationFee,
+                    gstPercentage: config.gstPercentage,
                     active: true,
                 });
                 await manager.save(plan);
@@ -328,21 +323,21 @@ export class DummyDataSeeder implements Seeder {
                 validityDays: 7,
                 kmLimit: 100,
                 price: 199,
-                gst: 35,
+                gstPercentage: 18,
             },
             {
                 name: '250 KM Voyager',
                 validityDays: 14,
                 kmLimit: 250,
                 price: 399,
-                gst: 70,
+                gstPercentage: 18,
             },
             {
                 name: '500 KM Ultimate',
                 validityDays: 30,
                 kmLimit: 500,
                 price: 699,
-                gst: 125,
+                gstPercentage: 18,
             },
         ];
 
@@ -357,7 +352,7 @@ export class DummyDataSeeder implements Seeder {
                     validityDays: config.validityDays,
                     kmLimit: config.kmLimit,
                     price: config.price,
-                    gst: config.gst,
+                    gstPercentage: config.gstPercentage,
                     active: true,
                 });
                 await manager.save(topUp);

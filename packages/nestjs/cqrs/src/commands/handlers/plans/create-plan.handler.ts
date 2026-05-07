@@ -24,8 +24,7 @@ export class CreatePlanHandler implements ICommandHandler<CreatePlanCommand> {
             kmLimit: payload.kmLimit,
             price: payload.price,
             deposit: payload.deposit,
-            gst: payload.gst,
-            registrationFee: payload.registrationFee ?? 0,
+            gstPercentage: payload.gstPercentage,
             active: payload.active ?? true,
         })
 

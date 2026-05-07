@@ -29,15 +29,18 @@ export class ApplyTopUpHandler implements ICommandHandler<ApplyTopUpCommand> {
                 throw new BadRequestException('User plan not found or not active')
             }
 
-            const topUpTotalAmount = Number(topUp.price) + Number(topUp.gst)
+            const basePrice = Number(topUp.price)
+            const gstPercentage = Number(topUp.gstPercentage || 0)
+            const gstAmount = (basePrice * gstPercentage) / 100
+            const topUpTotalAmount = Math.ceil(basePrice + gstAmount)
             const topUpSnapshot = {
                 name: topUp.name,
                 description: topUp.description,
                 validityDays: topUp.validityDays,
                 kmLimit: topUp.kmLimit,
                 price: topUp.price,
-                gst: topUp.gst,
-                totalAmount: topUpTotalAmount,
+                gstPercentage,
+                gstAmount,
             }
 
             const userTopUp = manager.create(UserTopUpEntity, {

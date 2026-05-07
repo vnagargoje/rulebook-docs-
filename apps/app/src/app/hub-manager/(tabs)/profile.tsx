@@ -1,10 +1,9 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useRouter } from 'expo-router'
-import { useCallback, useMemo } from 'react'
-import { toast } from 'sonner-native'
+import { useCallback, useMemo, useState } from 'react'
 
 import { DetailRow } from '@/components/profile'
-import { Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
+import { Button, ConfirmDialog, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 import { useMyProfile } from '@/queries/profile'
 import { useAuthStore } from '@/stores/auth.store'
 
@@ -13,6 +12,7 @@ export default function HubManagerProfileScreen() {
     const token = useAuthStore.use.token()
     const signOut = useAuthStore.use.signOut()
     const { data: profile } = useMyProfile()
+    const [showSignOutDialog, setShowSignOutDialog] = useState(false)
 
     const fullName = useMemo(() => {
         const value = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ').trim()
@@ -27,21 +27,17 @@ export default function HubManagerProfileScreen() {
     const dob = profile?.dateOfBirth ? String(profile.dateOfBirth).slice(0, 10) : null
 
     const handleSignOut = useCallback(() => {
-        toast('Sign out?', {
-            id: 'hub-manager-signout-confirm',
-            description: 'You will be signed out of your account.',
-            action: {
-                label: 'Sign Out',
-                onClick: () => {
-                    signOut()
-                    router.replace('/')
-                },
-            },
-            cancel: {
-                label: 'Cancel',
-                onClick: () => {},
-            },
-        })
+        setShowSignOutDialog(true)
+    }, [])
+
+    const handleCancelSignOut = useCallback(() => {
+        setShowSignOutDialog(false)
+    }, [])
+
+    const handleConfirmSignOut = useCallback(() => {
+        setShowSignOutDialog(false)
+        signOut()
+        router.replace('/')
     }, [signOut, router])
 
     const handleEditProfile = useCallback(() => {
@@ -193,6 +189,15 @@ export default function HubManagerProfileScreen() {
                     <Text className='text-center text-xs text-neutral-400'>App version 1.0.0</Text>
                 </View>
             </ScrollView>
+            <ConfirmDialog
+                visible={showSignOutDialog}
+                title='Sign out?'
+                description='You will be signed out of your account.'
+                confirmLabel='Sign Out'
+                cancelLabel='Cancel'
+                onCancel={handleCancelSignOut}
+                onConfirm={handleConfirmSignOut}
+            />
         </SafeAreaView>
     )
 }

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { IconArrowLeft, IconBolt, IconCalendarEvent, IconMapPin, IconMotorbike, IconPhone, IconQrcode, IconReceiptRupee, IconShieldCheck, IconUser } from '@tabler/icons-react'
+import { IconArrowLeft, IconBolt, IconCalendarEvent, IconMapPin, IconMotorbike, IconPhone, IconQrcode, IconReceiptRupee, IconShieldCheck, IconUser, IconMail } from '@tabler/icons-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -159,50 +159,151 @@ export default function BookingViewRoute() {
                 </CardContent>
             </Card>
 
-            <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
-                <CardHeader className="border-b border-border/40">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                            <IconUser size={20} />
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
+                <Card className="flex h-full flex-col overflow-hidden border-border/40 bg-white shadow-sm">
+                    <CardHeader className="border-b border-border/40">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                <IconUser size={20} />
+                            </div>
+                            <div>
+                                <CardTitle className="text-lg">Customer</CardTitle>
+                                <CardDescription>Account details of the customer who purchased this plan.</CardDescription>
+                            </div>
                         </div>
-                        <div>
-                            <CardTitle className="text-lg">Customer</CardTitle>
-                            <CardDescription>Account details of the customer who purchased this plan.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-1 flex-col p-6">
+                        <div className="flex items-center gap-5">
+                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-bold uppercase">
+                                {customerName ? customerName[0] : (customer?.email?.[0] ?? customer?.mobilenumber?.[0] ?? '?')}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-lg font-bold text-foreground truncate">
+                                    {customerName || customer?.mobilenumber || customer?.email || '—'}
+                                </p>
+                                {(customer?.mobilenumber || customer?.email) && (
+                                    <div className="mt-1.5 flex flex-wrap items-center gap-4 text-sm font-medium text-muted-foreground">
+                                        {customer?.mobilenumber && (
+                                            <span className="flex items-center gap-1.5">
+                                                <IconPhone size={16} />
+                                                {customer.mobilenumber}
+                                            </span>
+                                        )}
+                                        {customer?.email && (
+                                            <span className="flex items-center gap-1.5 truncate">
+                                                <IconMail size={16} />
+                                                {customer.email}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground text-xl font-bold uppercase">
-                            {customerName ? customerName[0] : (customer?.email?.[0] ?? customer?.mobilenumber?.[0] ?? '?')}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <p className="text-base font-semibold text-foreground truncate">
-                                {customerName || customer?.mobilenumber || customer?.email || '—'}
-                            </p>
-                            {customerName && (
-                                <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                                    {customer?.mobilenumber && (
-                                        <span className="flex items-center gap-1">
-                                            <IconPhone size={13} />
-                                            {customer.mobilenumber}
-                                        </span>
-                                    )}
-                                    {customer?.email && (
-                                        <span className="truncate">{customer.email}</span>
-                                    )}
+                        
+                        <div className="mt-8 rounded-2xl border border-border/60 bg-muted/30 p-5">
+                            <h3 className="mb-4 text-sm font-semibold text-foreground">Contact Information</h3>
+                            <div className="grid gap-3 flex-1">
+                                <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-white p-3.5 shadow-sm">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <IconPhone size={20} />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-xs font-medium text-muted-foreground">Mobile</p>
+                                        <p className="truncate text-sm font-bold text-foreground mt-0.5">{customer?.mobilenumber || '—'}</p>
+                                    </div>
                                 </div>
-                            )}
+                                <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-white p-3.5 shadow-sm">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <IconMail size={20} />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-xs font-medium text-muted-foreground">Email</p>
+                                        <p className="truncate text-sm font-bold text-foreground mt-0.5">{customer?.email || '—'}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 border-t border-border/40 pt-4">
-                        <DetailRow label="User ID" value={customer?.id ?? booking.userPlan.userId ?? '—'} />
-                        <DetailRow label="Mobile" value={customer?.mobilenumber ?? '—'} />
-                        <DetailRow label="Email" value={customer?.email ?? '—'} />
-                        <DetailRow label="Name" value={customerName || '—'} />
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+
+                {canAssignVehicle && (
+                    <Card className="flex h-full flex-col overflow-hidden border-border/40 bg-white shadow-sm">
+                        <CardHeader className="border-b border-border/40">
+                            <CardTitle>Assign Vehicle</CardTitle>
+                            <CardDescription>
+                                Select an available vehicle and battery, then enter the 4-digit pickup OTP shared by the customer.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-1 flex-col space-y-5 p-6">
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <StatTile label="Vehicles" value={vehiclesData?.pages[0]?.meta.totalItems ?? vehicleOptions.length} icon={IconMotorbike} />
+                                <StatTile label="Batteries" value={batteriesData?.pages[0]?.meta.totalItems ?? batteryOptions.length} icon={IconBolt} />
+                            </div>
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onAssignVehicle)} className="flex flex-1 flex-col space-y-4">
+                                    <SearchableSelectField
+                                        control={form.control}
+                                        name="vehicleId"
+                                        label="Vehicle"
+                                        placeholder={vehiclesLoading ? 'Loading vehicles...' : 'Select vehicle'}
+                                        options={vehicleOptions}
+                                        disabled={vehicleOptions.length === 0}
+                                        isLoading={vehiclesLoading}
+                                        onLoadMore={fetchNextVehiclePage}
+                                        hasNextPage={hasNextVehiclePage}
+                                    />
+                                    <SearchableSelectField
+                                        control={form.control}
+                                        name="batteryId"
+                                        label="Battery"
+                                        placeholder={batteriesLoading ? 'Loading batteries...' : 'Select battery'}
+                                        options={batteryOptions}
+                                        disabled={batteryOptions.length === 0}
+                                        isLoading={batteriesLoading}
+                                        onLoadMore={fetchNextBatteryPage}
+                                        hasNextPage={hasNextBatteryPage}
+                                    />
+                                    <TextInputField
+                                        control={form.control}
+                                        name="otp"
+                                        label="Customer Pickup OTP"
+                                        placeholder="Enter 4-digit OTP"
+                                        onlyDigits={true}
+                                        maxLength={4}
+                                    />
+                                    <div className="flex-1" />
+                                    <Button
+                                        type="submit"
+                                        disabled={assignVehicle.isPending || vehicleOptions.length === 0 || batteryOptions.length === 0}
+                                        className="mt-auto w-full uppercase text-xs font-bold tracking-widest">
+                                        {assignVehicle.isPending ? 'Assigning...' : 'Assign Vehicle & Battery'}
+                                    </Button>
+                                </form>
+                            </Form>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {!canAssignVehicle && (
+                    <Card className="flex h-full flex-col overflow-hidden border-border/40 bg-white shadow-sm">
+                        <CardHeader className="border-b border-border/40">
+                            <CardTitle>Assignment Snapshot</CardTitle>
+                            <CardDescription>Vehicle assignment is locked once the booking moves beyond the created state.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-1 flex-col p-6">
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <StatTile label="Vehicle" value={booking.vehicle?.vehicleNumber ?? 'Unassigned'} icon={IconMotorbike} />
+                                <StatTile label="Battery" value={booking.battery?.batteryQrId ?? 'Unassigned'} icon={IconBolt} />
+                            </div>
+                            <div className="mt-auto pt-4">
+                                <div className="rounded-2xl border border-border/50 bg-muted/20 p-4 text-sm text-muted-foreground">
+                                    Current status: <span className="font-semibold text-foreground">{booking.status}</span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
 
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2fr)_380px]">
                 <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
@@ -217,8 +318,8 @@ export default function BookingViewRoute() {
                             <DetailRow label="Status" value={<StatusBadge status={booking.status.toUpperCase()} />} />
                             <DetailRow label="Pickup OTP" value={booking.pickupOtp ? <span className="font-mono text-base font-bold tracking-widest">{booking.pickupOtp}</span> : 'Hidden for admin'} />
                             <DetailRow label="Created" value={formatDate(booking.createdAt)} />
-                            <DetailRow label="Started At" value={booking.startedAt ? formatDate(booking.startedAt) : '—'} />
-                            <DetailRow label="Completed At" value={booking.completedAt ? formatDate(booking.completedAt) : '—'} />
+                            {/* <DetailRow label="Started At" value={booking.startedAt ? formatDate(booking.startedAt) : '—'} />
+                            <DetailRow label="Completed At" value={booking.completedAt ? formatDate(booking.completedAt) : '—'} /> */}
                             <DetailRow label="Updated" value={formatDate(booking.updatedAt)} />
                         </div>
 
@@ -227,9 +328,9 @@ export default function BookingViewRoute() {
                             <DetailRow label="Station" value={booking.station?.name ?? booking.stationId ?? '—'} />
                             <DetailRow label="Vehicle" value={booking.vehicle?.vehicleNumber ?? booking.vehicleId ?? 'Unassigned'} />
                             <DetailRow label="Battery" value={booking.battery?.batteryQrId ?? booking.batteryId ?? 'Unassigned'} />
-                            <DetailRow label="User ID" value={booking.userId ?? '—'} />
+                            {/* <DetailRow label="User ID" value={booking.userId ?? '—'} /> */}
                             <DetailRow label="User Plan ID" value={booking.userPlanId} />
-                            <DetailRow label="Cancellation Reason" value={booking.cancellationReason ?? '—'} />
+                            {/* <DetailRow label="Cancellation Reason" value={booking.cancellationReason ?? '—'} /> */}
                         </div>
                     </CardContent>
                 </Card>
@@ -318,14 +419,11 @@ export default function BookingViewRoute() {
                             <StatTile label="Plan value" value={formatCurrency(planSnapshot.totalAmount ?? plan?.totalAmount)} icon={IconReceiptRupee} />
                             <StatTile label="Purchased KM" value={formatKm(planSnapshot.kmLimit)} icon={IconBolt} />
                         </div>
-                        <pre className="max-h-[320px] overflow-auto rounded-2xl border border-border/50 bg-muted/20 p-4 text-xs leading-6 text-muted-foreground">
-                            {JSON.stringify(planSnapshot, null, 2)}
-                        </pre>
                     </CardContent>
                 </Card>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6">
                 <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
                     <CardHeader className="border-b border-border/40">
                         <CardTitle>Top-Up History</CardTitle>
@@ -384,79 +482,6 @@ export default function BookingViewRoute() {
                         )}
                     </CardContent>
                 </Card>
-
-                {canAssignVehicle && (
-                    <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
-                        <CardHeader className="border-b border-border/40">
-                            <CardTitle>Assign Vehicle</CardTitle>
-                            <CardDescription>
-                                Select an available vehicle and battery, then enter the 4-digit pickup OTP shared by the customer.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-5 p-6">
-                            <div className="grid gap-3 sm:grid-cols-2">
-                                <StatTile label="Vehicles" value={vehiclesData?.pages[0]?.meta.totalItems ?? vehicleOptions.length} icon={IconMotorbike} />
-                                <StatTile label="Batteries" value={batteriesData?.pages[0]?.meta.totalItems ?? batteryOptions.length} icon={IconBolt} />
-                            </div>
-                            <Form {...form}>
-                                <form onSubmit={form.handleSubmit(onAssignVehicle)} className="space-y-4">
-                                    <SearchableSelectField
-                                        control={form.control}
-                                        name="vehicleId"
-                                        label="Vehicle"
-                                        placeholder={vehiclesLoading ? 'Loading vehicles...' : 'Select vehicle'}
-                                        options={vehicleOptions}
-                                        disabled={vehicleOptions.length === 0}
-                                        isLoading={vehiclesLoading}
-                                        onLoadMore={fetchNextVehiclePage}
-                                        hasNextPage={hasNextVehiclePage}
-                                    />
-                                    <SearchableSelectField
-                                        control={form.control}
-                                        name="batteryId"
-                                        label="Battery"
-                                        placeholder={batteriesLoading ? 'Loading batteries...' : 'Select battery'}
-                                        options={batteryOptions}
-                                        disabled={batteryOptions.length === 0}
-                                        isLoading={batteriesLoading}
-                                        onLoadMore={fetchNextBatteryPage}
-                                        hasNextPage={hasNextBatteryPage}
-                                    />
-                                    <TextInputField
-                                        control={form.control}
-                                        name="otp"
-                                        label="Customer Pickup OTP"
-                                        placeholder="Enter 4-digit OTP"
-                                    />
-                                    <Button
-                                        type="submit"
-                                        disabled={assignVehicle.isPending || vehicleOptions.length === 0 || batteryOptions.length === 0}
-                                        className="w-full uppercase text-xs font-bold tracking-widest">
-                                        {assignVehicle.isPending ? 'Assigning...' : 'Assign Vehicle & Battery'}
-                                    </Button>
-                                </form>
-                            </Form>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {!canAssignVehicle && (
-                    <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
-                        <CardHeader className="border-b border-border/40">
-                            <CardTitle>Assignment Snapshot</CardTitle>
-                            <CardDescription>Vehicle assignment is locked once the booking moves beyond the created state.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="p-6">
-                            <div className="grid gap-3 sm:grid-cols-2">
-                                <StatTile label="Vehicle" value={booking.vehicle?.vehicleNumber ?? 'Unassigned'} icon={IconMotorbike} />
-                                <StatTile label="Battery" value={booking.battery?.batteryQrId ?? 'Unassigned'} icon={IconBolt} />
-                            </div>
-                            <div className="mt-4 rounded-2xl border border-border/50 bg-muted/20 p-4 text-sm text-muted-foreground">
-                                Current status: <span className="font-semibold text-foreground">{booking.status}</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
             </div>
         </div>
     )

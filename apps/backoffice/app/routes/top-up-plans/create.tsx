@@ -23,9 +23,9 @@ export default function CreateTopUpPlanRoute() {
         defaultValues: {
             name: '',
             description: '',
-            validityDays: 1,
-            kmLimit: 100,
-            price: 500,
+            validityDays: 0,
+            kmLimit: 0,
+            price: 0,
             gst: 0,
             active: 'true',
         },

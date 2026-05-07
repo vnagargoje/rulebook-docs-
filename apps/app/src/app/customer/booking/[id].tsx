@@ -6,10 +6,21 @@ import { InfoRow } from '@/components/customer/booking-detail'
 import { Image, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
 import { formatDateIN, formatNumberIN, formatTimeIN } from '@/lib/formatters/customer'
 import { useBookingById } from '@/queries/customer'
+import { useGetBatteryById } from '@/queries/hub-manager'
+import { CircularSoc } from '@/components/customer/home'
+import { STATUS_CONFIG } from '@/data/swap-manager/battery-status-config.data'
+import { BatteryPropertyRow } from '@/components/swap-manager/batteries/property-row'
+import type { V1BatteriesGetOneBatteryResponse } from '@/services/api/codegen/Api'
+
+type BatteryProperties = NonNullable<V1BatteriesGetOneBatteryResponse['properties']>
 
 export default function BookingDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>()
     const { data: booking, isLoading } = useBookingById({ variables: { id: id! } })
+    const { data: batteryDetail } = useGetBatteryById({
+        variables: { id: booking?.battery?.id ?? '' },
+        enabled: !!booking?.battery?.id,
+    })
 
     const meta = booking ? getBookingStatusMeta(booking.status) : null
 
@@ -22,6 +33,10 @@ export default function BookingDetailScreen() {
     const kmLimit = booking.userPlan?.plan?.kmLimit ?? Number((booking.userPlan?.planSnapshot as any)?.kmLimit ?? 0)
     const validityDays =
         booking.userPlan?.plan?.validityDays ?? (booking.userPlan?.planSnapshot as any)?.validityDays ?? null
+    const batteryProperties = (batteryDetail?.properties ?? {}) as BatteryProperties
+    const hasBatterySoc = batteryDetail != null
+    const hasBatteryIot = batteryDetail != null && (batteryProperties.socPercent != null || batteryProperties.latitude != null || batteryProperties.speed != null)
+    const hasBatterySpecs = batteryDetail != null && (batteryProperties.capacity || batteryProperties.range || batteryProperties.chargingTime || batteryProperties.lifecycle || batteryProperties.weight || batteryProperties.warranty)
 
     return (
         <View className='flex-1 bg-neutral-50'>
@@ -108,7 +123,7 @@ export default function BookingDetailScreen() {
                 </View>
 
                 <View className='gap-4 px-4 pt-4'>
-                    {['created', 'ongoing'].includes(booking.status) && (
+                    {['created', 'ongoing'].includes(booking.status) && !booking.vehicle && (
                         <View className='overflow-hidden rounded-[28px] bg-[#0F172A]'>
                             <View className='absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary-600/10' />
                             <View className='px-5 pb-6 pt-5'>
@@ -286,6 +301,118 @@ export default function BookingDetailScreen() {
                                     </View>
                                 </View>
                             )}
+                        </View>
+                    )}
+
+                    {/* Full battery health card */}
+                    {hasBatterySoc && batteryDetail && (
+                        <View className='overflow-hidden rounded-[28px] bg-[#080E1C]'>
+                            {/* Header */}
+                            <View className='flex-row items-center justify-between border-b border-white/[0.07] px-5 py-4'>
+                                <View className='flex-row items-center gap-2.5'>
+                                    <View className='h-9 w-9 items-center justify-center rounded-xl bg-white/[0.07]'>
+                                        <MaterialCommunityIcons name='battery-heart-variant' size={18} color='#34D399' />
+                                    </View>
+                                    <Text className='text-sm font-bold text-white'>Battery Health</Text>
+                                </View>
+                                {(() => {
+                                    const cfg = STATUS_CONFIG[batteryDetail.status]
+                                    return (
+                                        <View className={`flex-row items-center gap-1.5 rounded-full px-2.5 py-1 ${cfg.bg}`}>
+                                            <MaterialCommunityIcons name={cfg.icon as any} size={11} color={cfg.iconColor} />
+                                            <Text className={`text-[11px] font-bold ${cfg.text}`}>{cfg.label}</Text>
+                                        </View>
+                                    )
+                                })()}
+                            </View>
+
+                            <View className='px-5 py-5'>
+                                {/* SOC row */}
+                                <View className='flex-row items-center gap-5'>
+                                    {batteryProperties.socPercent != null ? (
+                                        <CircularSoc percent={batteryProperties.socPercent} size={84} strokeWidth={8} />
+                                    ) : (
+                                        <View className='h-[84px] w-[84px] items-center justify-center rounded-full border-[8px] border-[#1E293B]'>
+                                            <MaterialCommunityIcons name='battery-unknown' size={30} color='#475569' />
+                                        </View>
+                                    )}
+                                    <View className='flex-1 gap-2'>
+                                        <Text className='text-[10px] font-semibold uppercase tracking-[1.5px] text-[#8EA0BE]'>
+                                            Battery ID
+                                        </Text>
+                                        <Text className='text-sm font-bold tracking-wider text-white'>
+                                            {batteryDetail.batteryQrId}
+                                        </Text>
+                                        {batteryDetail.gpsId ? (
+                                            <View className='flex-row items-center gap-1.5'>
+                                                <MaterialCommunityIcons name='crosshairs-gps' size={12} color='#A78BFA' />
+                                                <Text className='text-xs text-[#8EA0BE]'>{batteryDetail.gpsId}</Text>
+                                            </View>
+                                        ) : null}
+                                    </View>
+                                </View>
+
+                                {/* Quick stats */}
+                                {(batteryProperties.capacity || batteryProperties.range || batteryProperties.speed != null) && (
+                                    <View className='mt-4 flex-row gap-2'>
+                                        {batteryProperties.capacity && (
+                                            <View className='flex-1 items-center rounded-2xl bg-white/[0.05] py-3'>
+                                                <MaterialCommunityIcons name='battery-high' size={16} color='#34D399' />
+                                                <Text className='mt-1 text-xs font-bold text-white'>{batteryProperties.capacity}</Text>
+                                                <Text className='text-[10px] text-[#8EA0BE]'>Capacity</Text>
+                                            </View>
+                                        )}
+                                        {batteryProperties.range && (
+                                            <View className='flex-1 items-center rounded-2xl bg-white/[0.05] py-3'>
+                                                <MaterialCommunityIcons name='map-marker-distance' size={16} color='#60A5FA' />
+                                                <Text className='mt-1 text-xs font-bold text-white'>{batteryProperties.range}</Text>
+                                                <Text className='text-[10px] text-[#8EA0BE]'>Range</Text>
+                                            </View>
+                                        )}
+                                        {batteryProperties.speed != null && (
+                                            <View className='flex-1 items-center rounded-2xl bg-white/[0.05] py-3'>
+                                                <MaterialCommunityIcons name='speedometer' size={16} color='#F59E0B' />
+                                                <Text className='mt-1 text-xs font-bold text-white'>{batteryProperties.speed}</Text>
+                                                <Text className='text-[10px] text-[#8EA0BE]'>km/h</Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                )}
+
+                                {/* Location */}
+                                {batteryProperties.latitude != null && batteryProperties.longitude != null && (
+                                    <View className='mt-3 flex-row items-center gap-2 rounded-2xl bg-white/[0.05] px-4 py-3'>
+                                        <MaterialCommunityIcons name='map-marker-outline' size={15} color='#A78BFA' />
+                                        <Text className='text-xs text-[#8EA0BE]'>
+                                            {Number(batteryProperties.latitude).toFixed(5)},{' '}
+                                            {Number(batteryProperties.longitude).toFixed(5)}
+                                        </Text>
+                                    </View>
+                                )}
+
+                                {/* Specs */}
+                                {hasBatterySpecs && (
+                                    <View className='mt-4 gap-2'>
+                                        <Text className='text-[10px] font-semibold uppercase tracking-[1.2px] text-[#8EA0BE]'>
+                                            Specifications
+                                        </Text>
+                                        <View className='gap-2'>
+                                            {batteryProperties.chargingTime ? (
+                                                <BatteryPropertyRow icon='lightning-bolt' iconColor='#D97706' iconBg='#FEF3C7' label='Charging Time' value={batteryProperties.chargingTime} />
+                                            ) : null}
+                                            {batteryProperties.lifecycle ? (
+                                                <BatteryPropertyRow icon='refresh' iconColor='#059669' iconBg='#D1FAE5' label='Lifecycle' value={batteryProperties.lifecycle} />
+                                            ) : null}
+                                            {batteryProperties.weight ? (
+                                                <BatteryPropertyRow icon='weight' iconColor='#6B7280' iconBg='#F3F4F6' label='Weight' value={batteryProperties.weight} />
+                                            ) : null}
+                                            {batteryProperties.warranty ? (
+                                                <BatteryPropertyRow icon='shield-check-outline' iconColor='#2563EB' iconBg='#EFF6FF' label='Warranty' value={batteryProperties.warranty} />
+                                            ) : null}
+                                        </View>
+                                    </View>
+                                )}
+                            </View>
                         </View>
                     )}
 

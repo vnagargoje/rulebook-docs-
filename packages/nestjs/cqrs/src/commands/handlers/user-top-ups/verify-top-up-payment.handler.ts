@@ -99,8 +99,8 @@ export class VerifyTopUpPaymentHandler implements ICommandHandler<VerifyTopUpPay
                 validityDays: topUp.validityDays,
                 kmLimit: topUp.kmLimit,
                 price: topUp.price,
-                gst: topUp.gst,
-                totalAmount: Number(topUp.price) + Number(topUp.gst),
+                gstPercentage: topUp.gstPercentage,
+                gstAmount: (Number(topUp.price) * Number(topUp.gstPercentage || 0)) / 100,
             }
 
             userTopUp.topUpSnapshot = topUpSnapshot

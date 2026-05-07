@@ -9,17 +9,26 @@ import { BatteryStatusBadge } from './status-badge'
 
 interface Props {
     battery: V1BatteriesGetOneBatteryResponse
+    onPress?: () => void
 }
 
-export function BatteryCard({ battery }: Props) {
+export function BatteryCard({ battery, onPress }: Props) {
     const [expanded, setExpanded] = useState(false)
     const { properties: p } = battery
     const hasProperties = p && Object.values(p).some((v) => v !== undefined && v !== null)
 
+    const handlePress = () => {
+        if (onPress) {
+            onPress()
+        } else {
+            setExpanded((prev) => !prev)
+        }
+    }
+
     return (
         <TouchableOpacity
             activeOpacity={0.85}
-            onPress={() => setExpanded((prev) => !prev)}
+            onPress={handlePress}
             className='mx-4 mb-3 overflow-hidden rounded-3xl border border-neutral-200 bg-white'>
             <View className='flex-row items-center gap-4 p-4'>
                 <BatteryQrImage
@@ -61,7 +70,7 @@ export function BatteryCard({ battery }: Props) {
                 </View>
 
                 <MaterialCommunityIcons
-                    name={expanded ? 'chevron-up' : 'chevron-down'}
+                    name={onPress ? 'chevron-right' : expanded ? 'chevron-up' : 'chevron-down'}
                     size={20}
                     color='#D1D5DB'
                 />

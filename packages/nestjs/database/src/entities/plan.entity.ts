@@ -1,4 +1,5 @@
-import { Column, Entity } from 'typeorm'
+import { REGITRATION_FEE } from '@yugo/shared'
+import { AfterLoad, Column, Entity } from 'typeorm'
 import { IdTimestamppedEntity } from './id-timestampped.entity.js'
 
 @Entity({ name: 'plans' })
@@ -22,20 +23,19 @@ export class PlanEntity extends IdTimestamppedEntity {
     deposit: number
 
     @Column('decimal', { precision: 10, scale: 2, default: 0 })
-    gst: number
-
-    @Column('decimal', { precision: 10, scale: 2, default: 0 })
-    registrationFee: number
-
-    @Column({
-        type: 'decimal',
-        precision: 10,
-        scale: 2,
-        generatedType: 'VIRTUAL',
-        asExpression: 'price + deposit + gst + registrationFee',
-    })
-    totalAmount: number
+    gstPercentage: number
 
     @Column('boolean', { default: true })
     active: boolean
+
+    totalAmount: number
+    registrationFee: number
+
+    @AfterLoad()
+    calculateTotalAmount() {
+        const basePrice = Number(this.price || 0)
+        const deposit = Number(this.deposit || 0)
+        this.totalAmount = basePrice + deposit
+        this.registrationFee = REGITRATION_FEE
+    }
 }

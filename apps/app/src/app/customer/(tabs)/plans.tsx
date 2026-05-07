@@ -22,13 +22,17 @@ export default function PlansScreen() {
         isLoading: plansLoading,
         refetch: refetchPlans,
         isRefetching: plansRefetching,
-    } = usePlans()
+    } = usePlans({
+        select: (data) => ({ ...data, data: data?.data?.filter((p) => p.active) }),
+    })
     const {
         data: topUpsData,
         isLoading: topUpsLoading,
         refetch: refetchTopUps,
         isRefetching: topUpsRefetching,
-    } = useTopUps()
+    } = useTopUps({
+        select: (data) => ({ ...data, data: data?.data?.filter((t) => t.active) }),
+    })
 
     const plans = plansData?.data ?? []
     const topUps = topUpsData?.data ?? []

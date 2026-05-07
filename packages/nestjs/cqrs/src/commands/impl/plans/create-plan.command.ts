@@ -5,8 +5,7 @@ export interface CreatePlanPayload {
     kmLimit: number
     price: number
     deposit: number
-    gst: number
-    registrationFee?: number
+    gstPercentage: number
     active?: boolean
 }
 

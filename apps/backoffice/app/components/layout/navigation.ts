@@ -24,7 +24,16 @@ export const NAVIGATION_ITEMS = [
             { to: '/customers', label: 'Customers', description: 'Customer accounts' },
         ]
     },
-    { to: '/stations', label: 'Stations', description: 'Hubs and swap stations', icon: IconMapPin },
+    {
+        to: '/stations',
+        label: 'Stations',
+        description: 'Hubs and swap stations',
+        icon: IconMapPin,
+        children: [
+            { to: '/stations', label: 'Swap Stations', description: 'Battery swapping points' },
+            { to: '/hub-stations', label: 'Hub Stations', description: 'Operational hubs' },
+        ]
+    },
     { 
         label: 'Plans', 
         description: 'Manage subscriptions', 

@@ -39,7 +39,10 @@ export class PurchaseTopUpHandler implements ICommandHandler<PurchaseTopUpComman
                 throw new BadRequestException('User plan not found or not active')
             }
 
-            const totalAmount = Number(topUp.price) + Number(topUp.gst)
+            const basePrice = Number(topUp.price)
+            const gstPercentage = Number(topUp.gstPercentage || 0)
+            const gstAmount = (basePrice * gstPercentage) / 100
+            const totalAmount = Math.ceil(basePrice + gstAmount)
 
             // Snapshot is built at order-creation time so details are visible even for
             // AWAITING / FAILED transactions (before payment completes).
@@ -49,8 +52,8 @@ export class PurchaseTopUpHandler implements ICommandHandler<PurchaseTopUpComman
                 validityDays: topUp.validityDays,
                 kmLimit: topUp.kmLimit,
                 price: topUp.price,
-                gst: topUp.gst,
-                totalAmount,
+                gstPercentage,
+                gstAmount,
             }
 
             // --- Idempotency (mirrors plan-purchase pattern) ---

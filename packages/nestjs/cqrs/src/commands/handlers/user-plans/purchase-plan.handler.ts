@@ -1,3 +1,4 @@
+import { REGITRATION_FEE } from '@yugo/shared'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
@@ -121,11 +122,15 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
     }
 
     private buildPlanSnapshot(plan: PlanEntity, userId: string, isFirstTime: boolean) {
-        const totalAmount =
-            Number(plan.price) +
-            Number(plan.deposit) +
-            Number(plan.gst) +
-            (isFirstTime ? Number(plan.registrationFee) : 0)
+        const basePrice = Number(plan.price)
+        const deposit = Number(plan.deposit || 0)
+        const registrationFee = isFirstTime ? REGITRATION_FEE : 0
+        const gstPercentage = Number(plan.gstPercentage || 0)
+
+        const taxableAmount = basePrice + registrationFee
+        const gstAmount = (taxableAmount * gstPercentage) / 100
+
+        const totalAmount = Math.ceil(basePrice + deposit + registrationFee + gstAmount)
 
         const planSnapshot = {
             name: plan.name,
@@ -134,9 +139,8 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
             kmLimit: plan.kmLimit,
             price: plan.price,
             deposit: plan.deposit,
-            gst: plan.gst,
-            registrationFee: isFirstTime ? plan.registrationFee : 0,
-            totalAmount,
+            gstPercentage,
+            gstAmount,
         }
 
         return { totalAmount, planSnapshot }

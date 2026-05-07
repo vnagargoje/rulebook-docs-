@@ -10,7 +10,7 @@ import { formatLabel } from '~/lib/formatter'
 import { useStations, type StationItem, type StationsListParams } from '~/queries/stations'
 import { getStationCreatePath, getStationEditPath, getStationViewPath } from '~/constants'
 
-export default function SwapStationsListRoute() {
+export default function HubStationsListRoute() {
     const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState('')
     const [page, setPage] = useState(1)
@@ -21,7 +21,7 @@ export default function SwapStationsListRoute() {
             page,
             limit: 10,
             sortBy: ['createdAt:DESC'],
-            'filter.type': ['$eq:swap_station'],
+            'filter.type': ['$eq:hub_station'],
         }
 
         if (deferredSearchQuery) {
@@ -52,10 +52,10 @@ export default function SwapStationsListRoute() {
             header: 'Actions',
             cell: (station: StationItem) => (
                 <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(getStationViewPath('swap_station', station.id))}>
+                    <Button variant="ghost" size="icon" onClick={() => navigate(getStationViewPath('hub_station', station.id))}>
                         <IconEye className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => navigate(getStationEditPath('swap_station', station.id))}>
+                    <Button variant="ghost" size="icon" onClick={() => navigate(getStationEditPath('hub_station', station.id))}>
                         <IconEdit className="h-4 w-4" />
                     </Button>
                 </div>
@@ -71,10 +71,10 @@ export default function SwapStationsListRoute() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <PageHeader
-                    title="Swap Stations"
-                    description="Manage battery swapping points across the network."
+                    title="Hub Stations"
+                    description="Manage operational hubs and supporting station infrastructure."
                 />
-                <Button onClick={() => navigate(getStationCreatePath('swap_station'))}>
+                <Button onClick={() => navigate(getStationCreatePath('hub_station'))}>
                     <IconPlus className="mr-2 h-4 w-4" />
                     Create New Station
                 </Button>
@@ -82,8 +82,8 @@ export default function SwapStationsListRoute() {
 
             <ResourceTable
                 data={stations}
-                emptyMessage="No swap stations found."
-                searchPlaceholder="Search swap stations by name..."
+                emptyMessage="No hub stations found."
+                searchPlaceholder="Search hub stations by name..."
                 searchValue={searchQuery}
                 onSearchChange={handleSearchChange}
                 currentPage={paginationMeta?.currentPage ?? page}

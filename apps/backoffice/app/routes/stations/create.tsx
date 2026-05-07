@@ -1,7 +1,7 @@
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from 'react-router'
+import { useForm } from 'react-hook-form'
+import { useLocation, useNavigate } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
 import { SearchableSelectField, SelectField, TextInputField } from '~/components/forms/controlled-fields'
@@ -9,26 +9,27 @@ import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
 import { useCreateStation, type CreateStationPayload } from '~/queries/stations'
 import { useInfiniteUsers } from '~/queries/users'
-import { useStates, useCities } from '~/hooks'
+import { useInfiniteCities, useStates } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 import { createStationSchema, type CreateStationFormValues } from '~/schemas'
-import { stationManagerRoleByType, stationTypeOptions } from '~/constants'
+import { stationListPathByType, stationManagerRoleByType } from '~/constants'
 
-export default function CreateStationRoute() {
+export default function SwapStationsCreateRoute() {
+    const location = useLocation()
     const navigate = useNavigate()
     const createStation = useCreateStation()
     const { data: states } = useStates()
-    const previousTypeRef = useRef<CreateStationFormValues['type'] | undefined>(undefined)
     const [managerSearchQuery, setManagerSearchQuery] = useState('')
-
+    const isHubStationRoute = location.pathname.startsWith('/hub-stations')
+    const stationType: CreateStationFormValues['type'] = isHubStationRoute ? 'hub_station' : 'swap_station'
     const form = useForm<CreateStationFormValues>({
         resolver: zodResolver(createStationSchema),
         mode: 'onChange',
         defaultValues: {
             name: '',
-            type: 'swap_station',
+            type: stationType,
             active: 'true',
             latitude: '',
             longitude: '',
@@ -45,6 +46,7 @@ export default function CreateStationRoute() {
     const selectedStateId = form.watch('stateId')
     const deferredManagerSearchQuery = useDeferredValue(managerSearchQuery.trim())
     const managerRole = stationManagerRoleByType[selectedType] ?? ''
+    const stationLabel = selectedType === 'hub_station' ? 'Hub' : 'Swap'
     const managerQueryParams = useMemo(
         () => ({
             limit: 25,
@@ -60,26 +62,24 @@ export default function CreateStationRoute() {
         isFetchingNextPage: isFetchingNextManagersPage,
         isLoading: isLoadingManagers,
     } = useInfiniteUsers(managerQueryParams)
-    const { data: cities } = useCities(selectedStateId || undefined)
+    const {
+        data: cities,
+        fetchNextPage: fetchNextCitiesPage,
+        hasNextPage: hasNextCitiesPage,
+        isFetchingNextPage: isFetchingNextCitiesPage,
+        isLoading: isLoadingCities,
+    } = useInfiniteCities(selectedStateId || undefined)
 
     useEffect(() => {
         form.setValue('cityId', '')
     }, [selectedStateId, form])
 
     useEffect(() => {
-        if (previousTypeRef.current !== undefined && previousTypeRef.current !== selectedType) {
-            form.setValue('managerId', '')
-        }
-
-        previousTypeRef.current = selectedType
-    }, [selectedType, form])
-
-    useEffect(() => {
         setManagerSearchQuery('')
     }, [managerRole])
 
     const managerOptions = useMemo(() => {
-        const allManagers = managers?.pages.flatMap((page) => page.data) ?? []
+        const allManagers = (managers?.pages.flatMap((page) => page.data) ?? []).filter((user) => !user.stationId)
 
         return allManagers.map((u) => ({
             label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email || u.mobilenumber || u.id,
@@ -87,7 +87,11 @@ export default function CreateStationRoute() {
         }))
     }, [managers])
     const stateOptions = useMemo(() => (states ?? []).map((s) => ({ label: s.name, value: s.id })), [states])
-    const cityOptions = useMemo(() => (cities ?? []).map((c) => ({ label: c.name, value: c.id })), [cities])
+    const cityOptions = useMemo(() => {
+        const allCities = cities?.pages.flatMap((page) => page.data) ?? []
+
+        return allCities.map((c) => ({ label: c.name, value: c.id }))
+    }, [cities])
     const handleManagerSearchChange = useCallback((value: string) => {
         setManagerSearchQuery(value)
     }, [])
@@ -96,86 +100,70 @@ export default function CreateStationRoute() {
             void fetchNextManagersPage()
         }
     }, [fetchNextManagersPage, hasNextManagersPage, isFetchingNextManagersPage])
+    const handleLoadMoreCities = useCallback(() => {
+        if (hasNextCitiesPage && !isFetchingNextCitiesPage) {
+            void fetchNextCitiesPage()
+        }
+    }, [fetchNextCitiesPage, hasNextCitiesPage, isFetchingNextCitiesPage])
 
-    const onSubmit = useCallback(
-        (values: CreateStationFormValues) => {
-            const payload: CreateStationPayload = {
-                name: values.name,
-                type: values.type,
-                active: values.active === 'true',
-                latitude: values.latitude ? parseFloat(values.latitude) : undefined,
-                longitude: values.longitude ? parseFloat(values.longitude) : undefined,
-                managerId: values.managerId || undefined,
+    const onSubmit = useCallback((values: CreateStationFormValues) => {
+        const payload: CreateStationPayload = {
+            name: values.name,
+            type: values.type,
+            active: values.active === 'true',
+            latitude: values.latitude ? parseFloat(values.latitude) : undefined,
+            longitude: values.longitude ? parseFloat(values.longitude) : undefined,
+            managerId: values.managerId || undefined,
+        }
+
+        if (values.lineOne) {
+            payload.address = {
+                lineOne: values.lineOne,
+                lineTwo: values.lineTwo || undefined,
+                pincode: values.pincode || '',
+                cityId: values.cityId || undefined,
             }
+        }
 
-            if (values.lineOne) {
-                payload.address = {
-                    lineOne: values.lineOne,
-                    lineTwo: values.lineTwo || undefined,
-                    pincode: values.pincode || '',
-                    cityId: values.cityId || undefined,
-                }
-            }
-
-            createStation.mutate(payload, {
-                onSuccess: () => {
-                    toast.success('Station created successfully')
-                    navigate('/stations')
-                },
-                onError: (error: any) => {
-                    toast.error(error?.response?.data?.message || 'Failed to create station')
-                },
-            })
-        },
-        [createStation, navigate],
-    )
+        createStation.mutate(payload, {
+            onSuccess: () => {
+                toast.success('Station created successfully')
+                navigate(stationListPathByType[values.type])
+            },
+            onError: (error: any) => {
+                toast.error(error?.response?.data?.message || 'Failed to create station')
+            },
+        })
+    }, [createStation, navigate])
 
     return (
-        <div className='space-y-6 max-w-4xl mx-auto pb-12'>
-            <div className='flex items-center gap-4'>
-                <Button
-                    variant='ghost'
-                    size='icon'
-                    onClick={() => navigate('/stations')}
-                    className='shrink-0'>
+        <div className="space-y-6 max-w-4xl mx-auto pb-12">
+            <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon" onClick={() => navigate(stationListPathByType[selectedType])} className="shrink-0">
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader
-                    title='Create New Station'
-                    description='Register a new hub or swap station in the network'
+                    title={`Create New ${stationLabel} Station`}
+                    description={`Register a new ${stationLabel.toLowerCase()} station in the network`}
                 />
             </div>
 
-            <Card className='border-border/40 shadow-sm bg-white overflow-hidden'>
-                <CardContent className='p-8'>
+            <Card className="border-border/40 shadow-sm bg-white overflow-hidden">
+                <CardContent className="p-8">
                     <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(onSubmit)}
-                            className='space-y-8'>
-                            <div className='space-y-6'>
-                                <h4 className='text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2'>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                            <div className="space-y-6">
+                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">
                                     Identity & Classification
                                 </h4>
-                                <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-                                    <TextInputField
-                                        control={form.control}
-                                        name='name'
-                                        label='Station Name'
-                                        placeholder='e.g. Bandra West Hub'
-                                    />
-                                    <SelectField
-                                        control={form.control}
-                                        name='type'
-                                        label='Facility Type'
-                                        options={[...stationTypeOptions]}
-                                        required
-                                    />
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <TextInputField control={form.control} name="name" label="Station Name" placeholder="e.g. Bandra West Hub" />
                                 </div>
-                                <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <SelectField
                                         control={form.control}
-                                        name='active'
-                                        label='Operational Status'
+                                        name="active"
+                                        label="Operational Status"
                                         options={[
                                             { label: 'Active', value: 'true' },
                                             { label: 'Inactive', value: 'false' },
@@ -183,10 +171,10 @@ export default function CreateStationRoute() {
                                     />
                                     <SearchableSelectField
                                         control={form.control}
-                                        name='managerId'
-                                        label='Station Manager (Optional)'
+                                        name="managerId"
+                                        label="Station Manager (Optional)"
                                         options={managerOptions}
-                                        placeholder='Select a manager'
+                                        placeholder="Select a manager"
                                         searchValue={managerSearchQuery}
                                         onSearchChange={handleManagerSearchChange}
                                         onLoadMore={handleLoadMoreManagers}
@@ -196,81 +184,53 @@ export default function CreateStationRoute() {
                                 </div>
                             </div>
 
-                            <div className='space-y-6'>
-                                <h4 className='text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2'>
+                            <div className="space-y-6">
+                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">
                                     Geospatial Info
                                 </h4>
-                                <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-                                    <TextInputField
-                                        control={form.control}
-                                        name='latitude'
-                                        label='Latitude Coordinate'
-                                        placeholder='19.0760'
-                                    />
-                                    <TextInputField
-                                        control={form.control}
-                                        name='longitude'
-                                        label='Longitude Coordinate'
-                                        placeholder='72.8777'
-                                    />
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <TextInputField control={form.control} name="latitude" label="Latitude Coordinate" placeholder="19.0760" />
+                                    <TextInputField control={form.control} name="longitude" label="Longitude Coordinate" placeholder="72.8777" />
                                 </div>
                             </div>
 
-                            <div className='space-y-6'>
-                                <h4 className='text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2'>
+                            <div className="space-y-6">
+                                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">
                                     Physical Location
                                 </h4>
-                                <div className='grid grid-cols-1 gap-6 sm:grid-cols-2'>
-                                    <TextInputField
-                                        control={form.control}
-                                        name='lineOne'
-                                        label='Address Line 1'
-                                        placeholder='Building, Street, Landmark'
-                                    />
-                                    <TextInputField
-                                        control={form.control}
-                                        name='lineTwo'
-                                        label='Address Line 2 (Optional)'
-                                        placeholder='Additional details'
-                                    />
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <TextInputField control={form.control} name="lineOne" label="Address Line 1" placeholder="Building, Street, Landmark" />
+                                    <TextInputField control={form.control} name="lineTwo" label="Address Line 2 (Optional)" placeholder="Additional details" />
                                 </div>
-                                <div className='grid grid-cols-1 gap-6 sm:grid-cols-3'>
-                                    <SelectField
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                                    <SearchableSelectField
                                         control={form.control}
-                                        name='stateId'
-                                        label='State'
+                                        name="stateId"
+                                        label="State"
                                         options={stateOptions}
-                                        placeholder='Select state'
+                                        placeholder="Select state"
                                     />
                                     <SearchableSelectField
                                         control={form.control}
-                                        name='cityId'
-                                        label='City'
+                                        name="cityId"
+                                        label="City"
                                         options={cityOptions}
                                         placeholder={selectedStateId ? 'Select city' : 'Select state first'}
                                         key={selectedStateId || 'no-state'}
                                         disabled={!selectedStateId}
+                                        onLoadMore={handleLoadMoreCities}
+                                        hasNextPage={Boolean(hasNextCitiesPage)}
+                                        isLoading={isLoadingCities || isFetchingNextCitiesPage}
                                     />
-                                    <TextInputField
-                                        control={form.control}
-                                        name='pincode'
-                                        label='PIN Code'
-                                        placeholder='400001'
-                                    />
+                                    <TextInputField control={form.control} name="pincode" label="PIN Code" placeholder="400001" />
                                 </div>
                             </div>
 
-                            <div className='flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4'>
-                                <Button
-                                    type='button'
-                                    variant='ghost'
-                                    onClick={() => navigate('/stations')}>
+                            <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
+                                <Button type="button" variant="ghost" onClick={() => navigate(stationListPathByType[selectedType])}>
                                     Cancel
                                 </Button>
-                                <Button
-                                    type='submit'
-                                    disabled={createStation.isPending}
-                                    className='min-w-35 uppercase text-xs font-bold tracking-widest'>
+                                <Button type="submit" disabled={createStation.isPending} className="min-w-35 uppercase text-xs font-bold tracking-widest">
                                     {createStation.isPending ? 'Creating...' : 'Register Station'}
                                 </Button>
                             </div>

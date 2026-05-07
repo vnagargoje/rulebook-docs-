@@ -65,6 +65,19 @@ export default function HubManagerTabsLayout() {
                 }}
             />
             <Tabs.Screen
+                name='batteries'
+                options={{
+                    title: 'Batteries',
+                    tabBarIcon: ({ color }) => (
+                        <MaterialCommunityIcons
+                            name='battery-heart-outline'
+                            size={22}
+                            color={color}
+                        />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name='profile'
                 options={{
                     title: 'Profile',

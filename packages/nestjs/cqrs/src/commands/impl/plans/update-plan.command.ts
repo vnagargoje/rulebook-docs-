@@ -5,6 +5,7 @@ export interface UpdatePlanPayload {
     kmLimit?: number
     price?: number
     deposit?: number
+    gstPercentage: number
     active?: boolean
 }
 

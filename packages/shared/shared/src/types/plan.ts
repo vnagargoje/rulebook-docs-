@@ -5,7 +5,7 @@ export interface PlanSnapshotProperties {
     kmLimit?: number
     price?: number
     deposit?: number
-    gst?: number
-    registrationFee?: number
+    gstPercentage?: number
+    gstAmount?: number
     [key: string]: any
 }

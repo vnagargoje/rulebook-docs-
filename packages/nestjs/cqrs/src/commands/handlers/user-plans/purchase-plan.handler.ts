@@ -51,15 +51,12 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
                 await manager.save(pendingPlan)
             }
 
-            const activePlan = await manager.findOne(UserPlanEntity, {
-                where: {
-                    userId,
-                    status: In([UserPlanStatus.PURCHASED, UserPlanStatus.ACTIVE]),
-                },
+            const purchasedPlan = await manager.findOne(UserPlanEntity, {
+                where: { userId, status: UserPlanStatus.PURCHASED },
             })
-            if (activePlan) {
+            if (purchasedPlan) {
                 throw new BadRequestException(
-                    'You already have an active plan. Complete or cancel it before purchasing a new one',
+                    'You already have a purchased plan waiting to be activated. If you already have vehicle then activate the plan. Else go to nearest station to collect your vehicle',
                 )
             }
 

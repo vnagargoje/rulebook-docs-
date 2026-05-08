@@ -1,18 +1,19 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit } from '@tabler/icons-react'
+import { IconEdit, IconEye, IconPlus } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
-import { useStations, type StationsListParams, type StationItem } from '~/queries/stations'
+import { formatLabel } from '~/lib/formatter'
+import { useStations, type StationItem, type StationsListParams } from '~/queries/stations'
+import { getStationCreatePath, getStationEditPath, getStationViewPath } from '~/constants'
 
-export default function StationsListRoute() {
+export default function SwapStationsListRoute() {
     const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState('')
     const [page, setPage] = useState(1)
-    const [typeFilter, setTypeFilter] = useState('all')
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -20,21 +21,17 @@ export default function StationsListRoute() {
             page,
             limit: 10,
             sortBy: ['createdAt:DESC'],
+            'filter.type': ['$eq:swap_station'],
         }
 
         if (deferredSearchQuery) {
             params['filter.name'] = [`$ilike:${deferredSearchQuery}`]
         }
 
-        if (typeFilter !== 'all') {
-            params['filter.type'] = [`$eq:${typeFilter}`]
-        }
-
         return params
-    }, [deferredSearchQuery, page, typeFilter])
+    }, [deferredSearchQuery, page])
 
     const { data, isLoading } = useStations(queryParams)
-
     const stations = data?.data ?? []
     const paginationMeta = data?.meta
 
@@ -43,22 +40,10 @@ export default function StationsListRoute() {
         setPage(1)
     }, [])
 
-    const handleFilterChange = useCallback((filters: Record<string, string>) => {
-        setTypeFilter(filters.type || 'all')
-        setPage(1)
-    }, [])
-
     const columns = useMemo(() => [
         { header: 'Name', accessor: 'name' as const },
-        { header: 'Type', cell: (station: StationItem) => station.type },
+        { header: 'Type', cell: (station: StationItem) => formatLabel(station.type) },
         { header: 'City', cell: (station: StationItem) => station.address?.city?.name ?? '—' },
-        {
-            header: 'Manager',
-            cell: (station: StationItem) => {
-                const m = station.manager
-                return m ? [m.firstName, m.lastName].filter(Boolean).join(' ') || '—' : '—'
-            },
-        },
         {
             header: 'Status',
             cell: (station: StationItem) => <StatusBadge status={station.active ? 'ACTIVE' : 'INACTIVE'} />,
@@ -66,9 +51,14 @@ export default function StationsListRoute() {
         {
             header: 'Actions',
             cell: (station: StationItem) => (
-                <Button variant="ghost" size="icon" onClick={() => navigate(`/stations/edit/${station.id}`)}>
-                    <IconEdit className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => navigate(getStationViewPath('swap_station', station.id))}>
+                        <IconEye className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => navigate(getStationEditPath('swap_station', station.id))}>
+                        <IconEdit className="h-4 w-4" />
+                    </Button>
+                </div>
             ),
         },
     ], [navigate])
@@ -81,10 +71,10 @@ export default function StationsListRoute() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <PageHeader
-                    title="Station Management"
-                    description="Manage physical stations for swapping, charging, and vehicle hubs."
+                    title="Swap Stations"
+                    description="Manage battery swapping points across the network."
                 />
-                <Button onClick={() => navigate('/stations/create')}>
+                <Button onClick={() => navigate(getStationCreatePath('swap_station'))}>
                     <IconPlus className="mr-2 h-4 w-4" />
                     Create New Station
                 </Button>
@@ -92,26 +82,14 @@ export default function StationsListRoute() {
 
             <ResourceTable
                 data={stations}
-                emptyMessage="No stations found."
-                searchPlaceholder="Search stations by name..."
+                emptyMessage="No swap stations found."
+                searchPlaceholder="Search swap stations by name..."
                 searchValue={searchQuery}
                 onSearchChange={handleSearchChange}
-                filterValues={{ type: typeFilter }}
-                onFilterChange={handleFilterChange}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? stations.length}
                 onPageChange={setPage}
-                filterConfigs={[
-                    {
-                        field: 'type',
-                        label: 'Type',
-                        options: [
-                            { label: 'Swap Station', value: 'swap_station' },
-                            { label: 'Hub Station', value: 'hub_station' },
-                        ],
-                    },
-                ]}
                 columns={columns}
             />
         </div>

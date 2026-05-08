@@ -1,6 +1,6 @@
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
@@ -9,20 +9,19 @@ import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
 import { useGetStationById, useUpdateStation, type UpdateStationPayload } from '~/queries/stations'
 import { useInfiniteUsers } from '~/queries/users'
-import { useStates, useCities } from '~/hooks'
+import { useInfiniteCities, useStates } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 import { updateStationSchema, type UpdateStationFormValues } from '~/schemas'
-import { stationManagerRoleByType, stationTypeOptions } from '~/constants'
+import { stationListPathByType, stationManagerRoleByType } from '~/constants'
 
-export default function EditStationRoute() {
+export default function SwapStationsEditRoute() {
     const { id } = useParams()
     const navigate = useNavigate()
     const { data: station, isLoading } = useGetStationById(id)
     const updateStation = useUpdateStation()
     const { data: states } = useStates()
-    const previousTypeRef = useRef<UpdateStationFormValues['type'] | undefined>(undefined)
     const [managerSearchQuery, setManagerSearchQuery] = useState('')
 
     const form = useForm<UpdateStationFormValues>({
@@ -60,40 +59,59 @@ export default function EditStationRoute() {
         isFetchingNextPage: isFetchingNextManagersPage,
         isLoading: isLoadingManagers,
     } = useInfiniteUsers(managerQueryParams)
-    const { data: cities } = useCities(selectedStateId || undefined)
+    const {
+        data: cities,
+        fetchNextPage: fetchNextCitiesPage,
+        hasNextPage: hasNextCitiesPage,
+        isFetchingNextPage: isFetchingNextCitiesPage,
+        isLoading: isLoadingCities,
+    } = useInfiniteCities(selectedStateId || undefined)
+    const selectedStationManager = station?.managers?.[0]
+    const selectedStationCity = station?.address?.city
 
     const managerOptions = useMemo(() => {
-        const allManagers = managers?.pages.flatMap((page) => page.data) ?? []
+        const allManagers = (managers?.pages.flatMap((page) => page.data) ?? []).filter((user) => !user.stationId)
         const mappedOptions = allManagers.map((u) => ({
             label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email || u.mobilenumber || u.id,
             value: u.id,
         }))
 
-        if (station?.manager && selectedManagerId === station.manager.id && !mappedOptions.some((option) => option.value === station.manager?.id)) {
+        if (selectedStationManager && selectedManagerId === selectedStationManager.id && !mappedOptions.some((option) => option.value === selectedStationManager.id)) {
             mappedOptions.unshift({
-                label: [station.manager.firstName, station.manager.lastName].filter(Boolean).join(' ')
-                    || station.manager.email
-                    || station.manager.mobilenumber
-                    || station.manager.id,
-                value: station.manager.id,
+                label: [selectedStationManager.firstName, selectedStationManager.lastName].filter(Boolean).join(' ')
+                    || selectedStationManager.email
+                    || selectedStationManager.mobilenumber
+                    || selectedStationManager.id,
+                value: selectedStationManager.id,
             })
         }
 
         return mappedOptions
-    }, [managers?.pages, selectedManagerId, station?.manager])
+    }, [managers?.pages, selectedManagerId, selectedStationManager])
     const stateOptions = useMemo(() => (states ?? []).map((s) => ({ label: s.name, value: s.id })), [states])
-    const cityOptions = useMemo(() => (cities ?? []).map((c) => ({ label: c.name, value: c.id })), [cities])
+    const cityOptions = useMemo(() => {
+        const allCities = cities?.pages.flatMap((page) => page.data) ?? []
+        const mappedOptions = allCities.map((c) => ({ label: c.name, value: c.id }))
+
+        if (selectedStationCity && !mappedOptions.some((option) => option.value === selectedStationCity.id)) {
+            mappedOptions.unshift({
+                label: selectedStationCity.name,
+                value: selectedStationCity.id,
+            })
+        }
+
+        return mappedOptions
+    }, [cities, selectedStationCity])
 
     useEffect(() => {
         if (station) {
-            previousTypeRef.current = station.type ?? 'swap_station'
             form.reset({
                 name: station.name ?? '',
                 type: station.type ?? 'swap_station',
                 active: station.active ? 'true' : 'false',
                 latitude: station.latitude?.toString() ?? '',
                 longitude: station.longitude?.toString() ?? '',
-                managerId: station.managerId ?? '',
+                managerId: selectedStationManager?.id ?? '',
                 stateId: station.address?.city?.state?.id ?? '',
                 cityId: station.address?.city?.id ?? '',
                 lineOne: station.address?.lineOne ?? '',
@@ -101,15 +119,7 @@ export default function EditStationRoute() {
                 pincode: station.address?.pincode ?? '',
             })
         }
-    }, [station, form])
-
-    useEffect(() => {
-        if (previousTypeRef.current !== undefined && previousTypeRef.current !== selectedType) {
-            form.setValue('managerId', '')
-        }
-
-        previousTypeRef.current = selectedType
-    }, [selectedType, form])
+    }, [station, form, selectedStationManager])
 
     useEffect(() => {
         setManagerSearchQuery('')
@@ -123,6 +133,11 @@ export default function EditStationRoute() {
             void fetchNextManagersPage()
         }
     }, [fetchNextManagersPage, hasNextManagersPage, isFetchingNextManagersPage])
+    const handleLoadMoreCities = useCallback(() => {
+        if (hasNextCitiesPage && !isFetchingNextCitiesPage) {
+            void fetchNextCitiesPage()
+        }
+    }, [fetchNextCitiesPage, hasNextCitiesPage, isFetchingNextCitiesPage])
 
     const onSubmit = useCallback((values: UpdateStationFormValues) => {
         if (!id) return
@@ -150,7 +165,7 @@ export default function EditStationRoute() {
             {
                 onSuccess: () => {
                     toast.success('Station updated successfully')
-                    navigate('/stations')
+                    navigate(stationListPathByType[values.type])
                 },
                 onError: (error: any) => {
                     toast.error(error?.response?.data?.message || 'Failed to update station')
@@ -170,13 +185,10 @@ export default function EditStationRoute() {
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate('/stations')} className="shrink-0">
+                <Button variant="ghost" size="icon" onClick={() => navigate(stationListPathByType[station.type])} className="shrink-0">
                     <IconArrowLeft size={20} />
                 </Button>
-                <PageHeader
-                    title="Edit Station Config"
-                    description="Update station operational data"
-                />
+                <PageHeader title="Edit Station Config" description="Update station operational data" />
             </div>
 
             <Card className="border-border/40 shadow-sm bg-white overflow-hidden">
@@ -187,13 +199,6 @@ export default function EditStationRoute() {
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Identity & Classification</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <TextInputField control={form.control} name="name" label="Station Name" placeholder="e.g. Bandra West Hub" required />
-                                    <SelectField
-                                        control={form.control}
-                                        name="type"
-                                        label="Facility Type"
-                                        options={[...stationTypeOptions]}
-                                        required
-                                    />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <SelectField
@@ -247,13 +252,16 @@ export default function EditStationRoute() {
                                         options={cityOptions}
                                         placeholder={selectedStateId ? 'Select city' : 'Select state first'}
                                         key={selectedStateId || 'no-state'}
+                                        onLoadMore={handleLoadMoreCities}
+                                        hasNextPage={Boolean(hasNextCitiesPage)}
+                                        isLoading={isLoadingCities || isFetchingNextCitiesPage}
                                     />
                                     <TextInputField control={form.control} name="pincode" label="PIN Code" placeholder="400001" />
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/40 mt-4">
-                                <Button type="button" variant="ghost" onClick={() => navigate('/stations')}>Cancel</Button>
+                                <Button type="button" variant="ghost" onClick={() => navigate(stationListPathByType[station.type])}>Cancel</Button>
                                 <Button type="submit" disabled={updateStation.isPending || !form.formState.isDirty} className="min-w-35 uppercase text-xs font-bold tracking-widest">
                                     {updateStation.isPending ? 'Updating...' : 'Update Station'}
                                 </Button>

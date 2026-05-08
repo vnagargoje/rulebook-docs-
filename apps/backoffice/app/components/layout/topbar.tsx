@@ -8,19 +8,26 @@ interface TopbarProps {
 
 export function Topbar({ session }: TopbarProps) {
     const location = useLocation()
-    
-    const currentItem =
-        NAVIGATION_ITEMS.find((item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)) ??
-        NAVIGATION_ITEMS[0]
+    const currentItem = NAVIGATION_ITEMS.find((item) => {
+        if (item.to) {
+            return location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)
+        }
+
+        return item.children?.some((child) => location.pathname === child.to || location.pathname.startsWith(`${child.to}/`))
+    }) ?? NAVIGATION_ITEMS[0]
+    const currentChild = currentItem.children?.find(
+        (child) => location.pathname === child.to || location.pathname.startsWith(`${child.to}/`),
+    )
+    const heading = currentChild?.label ?? currentItem.label
 
     return (
         <header className='flex h-[72px] shrink-0 items-center justify-between border-b border-border/60 bg-white/80 px-8 backdrop-blur-md z-40 relative isolate'>
             <div className='flex flex-col overflow-hidden'>
                 <span className='text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 truncate'>
-                    Operations
+                    {currentItem.label}
                 </span>
                 <h1 className='font-display text-xl font-bold tracking-tight text-foreground/90 truncate'>
-                    {currentItem.label}
+                    {heading}
                 </h1>
             </div>
             

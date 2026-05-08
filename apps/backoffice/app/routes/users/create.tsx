@@ -8,7 +8,7 @@ import { SearchableSelectField, SelectField, TextInputField } from '~/components
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
 import { useCreateUser, type CreateUserPayload } from '~/queries/users'
-import { useStates, useCities } from '~/hooks'
+import { useStates, useInfiniteCities } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
@@ -45,7 +45,12 @@ export default function CreateUserRoute() {
     })
 
     const selectedStateId = form.watch('stateId')
-    const { data: cities } = useCities(selectedStateId || undefined)
+    const {
+        data: citiesData,
+        isFetching: isCitiesFetching,
+        fetchNextPage: fetchNextCityPage,
+        hasNextPage: hasNextCityPage,
+    } = useInfiniteCities(selectedStateId || undefined)
 
     // Reset city when state changes
     useEffect(() => {
@@ -53,7 +58,10 @@ export default function CreateUserRoute() {
     }, [selectedStateId, form])
 
     const stateOptions = useMemo(() => (states ?? []).map((s) => ({ label: s.name, value: s.id })), [states])
-    const cityOptions = useMemo(() => (cities ?? []).map((c) => ({ label: c.name, value: c.id })), [cities])
+    const cityOptions = useMemo(
+        () => (citiesData?.pages ?? []).flatMap((p) => p.data).map((c) => ({ label: c.name, value: c.id })),
+        [citiesData?.pages],
+    )
 
     const onSubmit = (values: CreateUserFormValues) => {
         const mobile = values.mobilenumber.startsWith('91') ? values.mobilenumber : `91${values.mobilenumber}`
@@ -155,6 +163,9 @@ export default function CreateUserRoute() {
                                         placeholder={selectedStateId ? 'Select city' : 'Select state first'}
                                         disabled={!selectedStateId}
                                         key={selectedStateId || 'no-state'}
+                                        isLoading={isCitiesFetching}
+                                        onLoadMore={fetchNextCityPage}
+                                        hasNextPage={hasNextCityPage}
                                     />
                                     <TextInputField control={form.control} name="pincode" label="PIN Code" placeholder="400001" />
                                 </div>

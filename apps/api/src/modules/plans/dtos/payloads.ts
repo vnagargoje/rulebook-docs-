@@ -7,8 +7,7 @@ export const CreatePlanPayload = Type.Object({
     kmLimit: Type.Number(),
     price: Type.Number(),
     deposit: Type.Number(),
-    gst: Type.Number(),
-    registrationFee: Type.Optional(Type.Number()),
+    gstPercentage: Type.Number(),
     active: Type.Optional(Type.Boolean()),
 });
 

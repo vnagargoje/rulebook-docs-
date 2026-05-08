@@ -1,4 +1,4 @@
-import { Column, Entity } from 'typeorm'
+import { AfterLoad, Column, Entity } from 'typeorm'
 import { IdTimestamppedEntity } from './id-timestampped.entity.js'
 
 @Entity({ name: 'top_ups' })
@@ -19,8 +19,19 @@ export class TopUpEntity extends IdTimestamppedEntity {
     price: number
 
     @Column('decimal', { precision: 10, scale: 2, default: 0 })
-    gst: number
+    gstPercentage: number
 
     @Column('boolean', { default: true })
     active: boolean
+
+    totalAmount: number
+
+    @AfterLoad()
+    calculateTotalAmount() {
+        const basePrice = Number(this.price || 0)
+        const gstPercentage = Number(this.gstPercentage || 0)
+
+        const gstAmount = (basePrice * gstPercentage) / 100
+        this.totalAmount = Math.ceil(basePrice + gstAmount)
+    }
 }

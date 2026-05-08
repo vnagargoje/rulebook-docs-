@@ -6,7 +6,7 @@ export const CreateTopUpPayload = Type.Object({
     validityDays: Type.Number(),
     kmLimit: Type.Number(),
     price: Type.Number(),
-    gst: Type.Number(),
+    gstPercentage: Type.Number(),
     active: Type.Optional(Type.Boolean()),
 });
 

@@ -76,26 +76,26 @@ export default function UsersCustomerListRoute() {
     ], [navigate])
 
     if (isLoading) {
-        return <div className="p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase">Loading Customers...</div>
+        return (
+            <div className='p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase'>
+                Loading Customers...
+            </div>
+        )
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
+        <div className='space-y-6'>
+            <div className='flex items-center justify-between'>
                 <PageHeader
-                    title="Customers"
-                    description="Manage customer accounts across the platform."
+                    title='Customers'
+                    description='Manage customer accounts across the platform.'
                 />
-                <Button onClick={() => navigate('/customers/create')}>
-                    <IconPlus className="mr-2 h-4 w-4" />
-                    Create New Customer
-                </Button>
             </div>
 
             <ResourceTable
                 data={users}
-                emptyMessage="No customers found."
-                searchPlaceholder="Search customers by name, email, or mobile..."
+                emptyMessage='No customers found.'
+                searchPlaceholder='Search customers by name, email, or mobile...'
                 searchValue={searchQuery}
                 onSearchChange={handleSearchChange}
                 currentPage={paginationMeta?.currentPage ?? page}

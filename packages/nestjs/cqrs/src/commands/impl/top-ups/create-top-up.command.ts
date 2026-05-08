@@ -5,6 +5,7 @@ export interface CreateTopUpPayload {
     kmLimit: number
     price: number
     active?: boolean
+    gstPercentage?: number
 }
 
 export class CreateTopUpCommand {

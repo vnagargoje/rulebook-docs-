@@ -25,6 +25,14 @@ export default [
             index('routes/stations/index.tsx'),
             route('create', 'routes/stations/create.tsx'),
             route('edit/:id', 'routes/stations/edit.tsx'),
+            route(':id', 'routes/stations/view.tsx'),
+        ]),
+
+        ...prefix('hub-stations', [
+            index('routes/hub-stations/index.tsx'),
+            route('create', 'routes/hub-stations/create.tsx'),
+            route('edit/:id', 'routes/hub-stations/edit.tsx'),
+            route(':id', 'routes/hub-stations/view.tsx'),
         ]),
 
         ...prefix('plans', [

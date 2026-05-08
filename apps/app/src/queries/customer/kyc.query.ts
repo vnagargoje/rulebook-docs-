@@ -15,6 +15,8 @@ import type {
     LicenseInitiateResponse,
     PanVerifyBody,
     PanVerifyResponse,
+    V1UsersUpdateAddressesBody,
+    V1UsersUpdateAddressesResponse,
     V1UsersPatchOneUserResponse,
 } from '@/services/api/codegen/Api'
 
@@ -37,6 +39,58 @@ export function getFirstIncompleteKycRoute(status: KycGetStatusResponse | undefi
     if (!panOk) return '/customer/kyc/pan'
     if (!licenseOk) return '/customer/kyc/license'
     return '/customer/kyc/profile'
+}
+
+type ProfileForKyc = {
+    firstName?: string
+    lastName?: string
+    dateOfBirth?: string
+    gender?: string
+    addresses?: { type?: string }[]
+    properties?: any
+} | undefined
+
+export function isProfileStepDone(profile: ProfileForKyc): boolean {
+    return Boolean(
+        profile?.firstName && profile?.lastName && profile?.dateOfBirth && profile?.gender,
+    )
+}
+
+export function isAddressStepDone(profile: ProfileForKyc): boolean {
+    return Boolean(profile?.addresses?.some((a) => a.type === 'permanent'))
+}
+
+export function isEmergencyStepDone(profile: ProfileForKyc): boolean {
+    return Boolean(profile?.properties?.emergencyContact)
+}
+
+/**
+ * Returns the next incomplete step across all KYC stages including
+ * profile details, address, and emergency contact.
+ * Returns '/customer' when everything is complete.
+ */
+export function getFullKycRoute(
+    status: KycGetStatusResponse | undefined,
+    profile: ProfileForKyc,
+): string {
+    if (!status) return '/customer/kyc/aadhaar'
+    const aadhaarOk = status.aadhaar?.status === 'approved' || status.aadhaar?.status === 'verified'
+    const panOk = status.pan?.status === 'approved' || status.pan?.status === 'verified'
+    const licenseOk = status.license?.status === 'approved' || status.license?.status === 'verified'
+    if (!aadhaarOk) return '/customer/kyc/aadhaar'
+    if (!panOk) return '/customer/kyc/pan'
+    if (!licenseOk) return '/customer/kyc/license'
+    if (!isProfileStepDone(profile)) return '/customer/kyc/profile'
+    if (!isAddressStepDone(profile)) return '/customer/kyc/address'
+    if (!isEmergencyStepDone(profile)) return '/customer/kyc/emergency'
+    return '/customer'
+}
+
+export function isFullKycComplete(
+    status: KycGetStatusResponse | undefined,
+    profile: ProfileForKyc,
+): boolean {
+    return getFullKycRoute(status, profile) === '/customer'
 }
 
 export const useKycStatus = createQuery<KycGetStatusResponse>({
@@ -121,6 +175,18 @@ export const useUpdateMyAddress = createMutation<V1UsersPatchOneUserResponse, Up
     mutationKey: ['update-my-address'],
     mutationFn: async (address) => {
         const response = await client.v1.v1UsersPatchOneUser('me', { address })
+        return response.data
+    },
+    onError: showError,
+})
+
+export const useUpdateMyAddresses = createMutation<
+    V1UsersUpdateAddressesResponse,
+    V1UsersUpdateAddressesBody
+>({
+    mutationKey: ['update-my-addresses'],
+    mutationFn: async (data) => {
+        const response = await client.v1.v1UsersUpdateAddresses('me', data)
         return response.data
     },
     onError: showError,

@@ -9,8 +9,6 @@ import { formatKmIN } from '@/lib/formatters/customer'
 import { useMyPlans } from '@/queries/customer'
 import {
     getFirstIncompleteKycRoute,
-    getFullKycRoute,
-    isFullKycComplete,
     isKycComplete,
     useKycStatus,
 } from '@/queries/customer/kyc.query'
@@ -52,18 +50,6 @@ export default function CustomerProfileScreen() {
     const handleHelp = useCallback(() => {
         router.push('/customer/(tabs)/help')
     }, [router])
-
-    const handlePersonalDetails = useCallback(() => {
-        // If profile/address/emergency steps are incomplete, route to the first missing step
-        if (!isFullKycComplete(kycStatus, profile)) {
-            const route = getFullKycRoute(kycStatus, profile)
-            if (route !== '/customer') {
-                router.push(route as any)
-                return
-            }
-        }
-        router.push('/customer/profile')
-    }, [kycStatus, profile, router])
 
     const handleSignOut = useCallback(() => {
         setShowSignOutDialog(true)
@@ -213,7 +199,7 @@ export default function CustomerProfileScreen() {
                                 icon='account-circle-outline'
                                 label='Personal Details'
                                 subtitle='Name, email, phone number'
-                                onPress={handlePersonalDetails}
+                                onPress={() => router.push('/customer/profile')}
                             />
                             <View className='ml-14 border-b border-neutral-100' />
                             <ProfileMenuItem

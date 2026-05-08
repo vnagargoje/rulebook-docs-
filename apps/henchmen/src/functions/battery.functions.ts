@@ -10,6 +10,25 @@ import { type GetFunctionInput } from 'inngest';
 import { DataSource } from 'typeorm';
 import xior from 'xior';
 
+interface MoovingLoginResponse {
+    status: string;
+    message: string;
+    token: string;
+    expiry: number;
+}
+
+interface MoovingIotResponse {
+    status: string;
+    message: string;
+    data: {
+        socPercent: number;
+        lat: string;
+        long: string;
+        iotTimeStamp: string;
+        locationTimeStamp: string;
+    };
+}
+
 @Injectable()
 export class BatteryFunctions {
     private readonly logger = new Logger(BatteryFunctions.name);
@@ -107,11 +126,11 @@ export class BatteryFunctions {
             return cachedToken;
         }
         const config = this.configService.getOrThrow('mooving.config');
-        const { data } = await xior.post(
+        const { data } = await xior.post<MoovingLoginResponse>(
             `${config.baseUrl}/v1/external/login`,
             {
-                clientId: config.clientId,
-                clientSecret: config.clientSecret,
+                companyId: config.companyId,
+                secretKey: config.secretKey,
             },
         );
 
@@ -125,13 +144,12 @@ export class BatteryFunctions {
 
     private async fetchBatteryIotData(serialNumber: string, token: string) {
         const config = this.configService.getOrThrow('mooving.config');
-        const { data } = await xior.post(
+        const { data } = await xior.post<MoovingIotResponse>(
             `${config.baseUrl}/iot/getIotData/live`,
             { batterySerialNumber: serialNumber },
             {
                 headers: {
                     Authorization: token,
-                    'Content-Type': 'application/json',
                 },
             },
         );

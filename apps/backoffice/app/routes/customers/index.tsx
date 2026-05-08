@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit } from '@tabler/icons-react'
+import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -38,13 +38,24 @@ export default function UsersCustomerListRoute() {
         setPage(1)
     }, [])
 
+    const formatMobile = (mobile?: string) => {
+        if (!mobile) {
+            return '—'
+        }
+
+        return /^91\d{10}$/.test(mobile) ? mobile.slice(2) : mobile
+    }
+
     const columns = useMemo(() => [
         {
             header: 'Name',
             cell: (user: UserItem) => [user.firstName, user.lastName].filter(Boolean).join(' ') || '—',
         },
         { header: 'Email', accessor: 'email' as const },
-        { header: 'Mobile', accessor: 'mobilenumber' as const },
+        {
+            header: 'Mobile',
+            cell: (user: UserItem) => formatMobile(user.mobilenumber),
+        },
         {
             header: 'Role',
             cell: (user: UserItem) => (user.properties as { roleName?: string })?.roleName ?? '—',
@@ -52,9 +63,14 @@ export default function UsersCustomerListRoute() {
         {
             header: 'Actions',
             cell: (user: UserItem) => (
-                <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/edit/${user.id}`)}>
-                    <IconEdit className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/${user.id}`)}>
+                        <IconEye className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/edit/${user.id}`)}>
+                        <IconEdit className="h-4 w-4" />
+                    </Button>
+                </div>
             ),
         },
     ], [navigate])

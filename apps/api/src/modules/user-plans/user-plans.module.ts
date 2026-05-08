@@ -6,6 +6,7 @@ import {
     GetUserPlanByQrHandler,
     VerifyPaymentHandler,
     VerifyTopUpPaymentHandler,
+    ActivateQueuedPlanHandler,
 } from '@yugo/cqrs';
 import { V1UserPlansController } from './controllers/v1/user-plans.controller';
 import { V1WebhooksController } from './controllers/v1/webhooks.controller';
@@ -17,6 +18,7 @@ const Handlers = [
     GetUserPlanByQrHandler,
     VerifyPaymentHandler,
     VerifyTopUpPaymentHandler,
+    ActivateQueuedPlanHandler,
 ];
 
 @Module({

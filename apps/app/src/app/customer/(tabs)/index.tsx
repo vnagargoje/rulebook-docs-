@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FlatList, RefreshControl } from 'react-native'
 
 import { ActiveBookingCard, ActivePlanCard, GetStartedCard, QuickPlanCard } from '@/components/customer/home'
@@ -7,6 +7,8 @@ import { Pressable, SafeAreaView, ScrollView, Text, View } from '@/components/ui
 import { useBookings } from '@/queries/customer'
 import { usePlans } from '@/queries/customer'
 import { useMyPlans } from '@/queries/customer'
+import { getFullKycRoute, isFullKycComplete, useKycStatus } from '@/queries/customer/kyc.query'
+import { useMyProfile } from '@/queries/profile'
 import { useAuthStore } from '@/stores/auth.store'
 
 export default function CustomerHomeScreen() {
@@ -24,6 +26,20 @@ export default function CustomerHomeScreen() {
         variables: { status: 'active' },
         enabled: isLoggedIn,
     })
+
+    const { data: kycStatus, isFetched: kycFetched } = useKycStatus({ enabled: isLoggedIn })
+    const { data: profile, isFetched: profileFetched } = useMyProfile({ enabled: isLoggedIn })
+
+    // On reload: if KYC second-phase (profile/address/emergency) is incomplete, redirect
+    useEffect(() => {
+        if (!isLoggedIn || !kycFetched || !profileFetched) return
+        if (!isFullKycComplete(kycStatus, profile)) {
+            const route = getFullKycRoute(kycStatus, profile)
+            if (route !== '/customer') {
+                router.replace(route as any)
+            }
+        }
+    }, [isLoggedIn, kycFetched, profileFetched, kycStatus, profile, router])
 
     const plans = plansData?.data ?? []
     const activeBooking = bookingsData?.data?.[0]

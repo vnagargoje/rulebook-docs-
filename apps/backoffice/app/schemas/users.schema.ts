@@ -8,9 +8,7 @@ export const createUserSchema = z.object({
     email: emailField,
     gender: z.enum(['male', 'female', 'other'], { required_error: 'Gender is required' }),
     dateOfBirth: dobField(18),
-    role: z.enum(['customer', 'swap_manager', 'hub_manager', 'system_admin', 'system_user'], {
-        required_error: 'Role is required',
-    }),
+    role: z.enum(['customer', 'swap_manager', 'hub_manager', 'system_admin', 'system_user']).optional(),
     stateId: z.string().optional(),
     cityId: z.string().optional(),
     lineOne: addressLineOneField.optional().or(z.literal('')),
@@ -52,40 +50,52 @@ export const updateUserSchema = z.object({
     email: emailField.or(z.literal('')),
     gender: z.enum(['male', 'female', 'other']).optional(),
     dateOfBirth: dobField(18).or(z.literal('')),
-    role: z.enum(['customer', 'swap_manager', 'hub_manager', 'system_admin', 'system_user'], {
-        required_error: 'Role is required',
-    }),
-    stateId: z.string().optional(),
-    cityId: z.string().optional(),
-    lineOne: addressLineOneField.optional().or(z.literal('')),
-    lineTwo: z.string().max(100, 'Must be at most 100 characters').optional(),
-    pincode: z.string().optional().refine(
+    role: z.enum(['customer', 'swap_manager', 'hub_manager', 'system_admin', 'system_user']).optional(),
+    // Current address
+    currentStateId: z.string().optional(),
+    currentCityId: z.string().optional(),
+    currentLineOne: addressLineOneField.optional().or(z.literal('')),
+    currentLineTwo: z.string().max(100).optional(),
+    currentPincode: z.string().optional().refine(
+        (val) => !val || /^[1-9]\d{5}$/.test(val),
+        'Enter a valid 6-digit Indian PIN code',
+    ),
+    // Permanent address
+    sameAddress: z.boolean().optional(),
+    permanentStateId: z.string().optional(),
+    permanentCityId: z.string().optional(),
+    permanentLineOne: addressLineOneField.optional().or(z.literal('')),
+    permanentLineTwo: z.string().max(100).optional(),
+    permanentPincode: z.string().optional().refine(
         (val) => !val || /^[1-9]\d{5}$/.test(val),
         'Enter a valid 6-digit Indian PIN code',
     ),
 }).superRefine((values, ctx) => {
-    const hasAnyAddressField = Boolean(
-        values.lineOne?.trim() ||
-            values.lineTwo?.trim() ||
-            values.pincode?.trim(),
+    const hasCurrentAddress = Boolean(
+        values.currentLineOne?.trim() || values.currentPincode?.trim(),
     )
 
-    if (!hasAnyAddressField) return
-
-    if (!values.lineOne?.trim()) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['lineOne'],
-            message: 'Address Line 1 is required when address details are provided',
-        })
+    if (hasCurrentAddress) {
+        if (!values.currentLineOne?.trim()) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['currentLineOne'], message: 'Address Line 1 is required' })
+        }
+        if (!values.currentPincode?.trim()) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['currentPincode'], message: 'PIN Code is required' })
+        }
     }
 
-    if (!values.pincode?.trim()) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['pincode'],
-            message: 'PIN Code is required when address details are provided',
-        })
+    if (!values.sameAddress) {
+        const hasPermanentAddress = Boolean(
+            values.permanentLineOne?.trim() || values.permanentPincode?.trim(),
+        )
+        if (hasPermanentAddress) {
+            if (!values.permanentLineOne?.trim()) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['permanentLineOne'], message: 'Address Line 1 is required' })
+            }
+            if (!values.permanentPincode?.trim()) {
+                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['permanentPincode'], message: 'PIN Code is required' })
+            }
+        }
     }
 })
 

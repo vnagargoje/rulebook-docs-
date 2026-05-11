@@ -1,17 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, Switch, TextInput } from 'react-native'
 
 import { SearchablePickerModal, type PickerItem } from '@/components/shared/searchable-picker-modal'
-import { Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
+import { Button, SafeAreaView, ScreenLoader, ScrollView, Text, View, showSuccessMessage } from '@/components/ui'
 import colors from '@/components/ui/colors'
 import { FieldWrapper, SectionCard, SelectTrigger, inputStyle } from '@/components/profile'
 import { useDebounce } from '@/lib/hooks/use-debounce'
 import { useCitiesPicker, useStatesPicker } from '@/queries/customer/geographic.query'
 import { useUpdateMyAddresses } from '@/queries/customer/kyc.query'
+import { MY_PROFILE_QUERY_KEY, useMyProfile } from '@/queries/profile'
 import { addressSchema, type AddressFormValues } from '@/schema/kyc/kyc.schema'
 
 type PickerTarget =
@@ -21,9 +23,11 @@ type PickerTarget =
     | 'current.city'
     | null
 
-export default function AddressScreen() {
+export default function EditAddressScreen() {
     const router = useRouter()
+    const queryClient = useQueryClient()
     const updateAddresses = useUpdateMyAddresses()
+    const { data: profile, isLoading: profileLoading } = useMyProfile()
 
     const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null)
     const [stateSearch, setStateSearch] = useState('')
@@ -31,11 +35,15 @@ export default function AddressScreen() {
     const debouncedStateSearch = useDebounce(stateSearch, 400)
     const debouncedCitySearch = useDebounce(citySearch, 400)
 
+    const permanentSaved = profile?.addresses?.find((a) => a.type === 'permanent')
+    const currentSaved = profile?.addresses?.find((a) => a.type === 'current')
+
     const {
         control,
         handleSubmit,
         watch,
         setValue,
+        reset,
         formState: { errors },
     } = useForm<AddressFormValues>({
         resolver: zodResolver(addressSchema),
@@ -62,6 +70,35 @@ export default function AddressScreen() {
             },
         },
     })
+
+    useEffect(() => {
+        if (!profile) return
+        const perm = profile.addresses?.find((a) => a.type === 'permanent')
+        const curr = profile.addresses?.find((a) => a.type === 'current')
+        const same = !!curr && curr.id === perm?.id
+
+        reset({
+            permanent: {
+                lineOne: perm?.lineOne ?? '',
+                lineTwo: perm?.lineTwo ?? '',
+                pincode: perm?.pincode ?? '',
+                stateId: perm?.city?.state?.id ?? '',
+                cityId: perm?.city?.id ?? '',
+                stateName: perm?.city?.state?.name ?? '',
+                cityName: perm?.city?.name ?? '',
+            },
+            sameAsPermanent: same,
+            current: {
+                lineOne: curr?.lineOne ?? '',
+                lineTwo: curr?.lineTwo ?? '',
+                pincode: curr?.pincode ?? '',
+                stateId: curr?.city?.state?.id ?? '',
+                cityId: curr?.city?.id ?? '',
+                stateName: curr?.city?.state?.name ?? '',
+                cityName: curr?.city?.name ?? '',
+            },
+        })
+    }, [profile, reset])
 
     const sameAsPermanent = watch('sameAsPermanent')
     const permanentStateId = watch('permanent.stateId')
@@ -106,7 +143,6 @@ export default function AddressScreen() {
         () => statesData?.pages.flatMap((p) => p.data) ?? [],
         [statesData?.pages],
     )
-
     const allCities: PickerItem[] = useMemo(
         () => citiesData?.pages.flatMap((p) => p.data) ?? [],
         [citiesData?.pages],
@@ -170,26 +206,25 @@ export default function AddressScreen() {
             : buildAddr(values.current as typeof values.permanent)
 
         await updateAddresses.mutateAsync({ permanent: permanentAddr, current: currentAddr })
-        router.replace('/customer/kyc/emergency')
+        await queryClient.invalidateQueries({ queryKey: [...MY_PROFILE_QUERY_KEY] })
+        showSuccessMessage('Address updated successfully')
+        router.back()
     })
+
+    if (profileLoading) {
+        return <ScreenLoader label='Loading address…' />
+    }
 
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={80}>
-            <SafeAreaView edges={['bottom']} className='flex-1 bg-white'>
+            <SafeAreaView edges={['bottom']} className='flex-1 bg-neutral-50'>
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps='handled'
                     contentContainerStyle={{ paddingBottom: 40 }}>
-
-                    <View className='mx-4 mt-5 mb-2'>
-                        <Text className='text-lg font-bold text-neutral-900'>Address Details</Text>
-                        <Text className='mt-1 text-sm text-neutral-500'>
-                            Provide your permanent address first, then confirm your current address.
-                        </Text>
-                    </View>
 
                     <SectionCard title='Permanent Address'>
                         <Controller
@@ -277,7 +312,9 @@ export default function AddressScreen() {
                                         value={watch('permanent.cityName')}
                                         placeholder={permanentStateId ? 'Select city' : 'Select state first'}
                                         disabled={!permanentStateId}
-                                        onPress={() => permanentStateId ? openPicker('permanent.city') : undefined}
+                                        onPress={() =>
+                                            permanentStateId ? openPicker('permanent.city') : undefined
+                                        }
                                     />
                                 </FieldWrapper>
                             )}
@@ -384,7 +421,9 @@ export default function AddressScreen() {
                                             error={(errors as any).current?.pincode?.message}>
                                             <TextInput
                                                 value={value}
-                                                onChangeText={(t) => onChange(t.replace(/\D/g, '').slice(0, 6))}
+                                                onChangeText={(t) =>
+                                                    onChange(t.replace(/\D/g, '').slice(0, 6))
+                                                }
                                                 onBlur={onBlur}
                                                 placeholder='560001'
                                                 placeholderTextColor='#C4C9D4'
@@ -427,7 +466,9 @@ export default function AddressScreen() {
                                                 }
                                                 disabled={!currentStateId}
                                                 onPress={() =>
-                                                    currentStateId ? openPicker('current.city') : undefined
+                                                    currentStateId
+                                                        ? openPicker('current.city')
+                                                        : undefined
                                                 }
                                             />
                                         </FieldWrapper>
@@ -439,7 +480,7 @@ export default function AddressScreen() {
 
                     <View className='mx-4 mt-4'>
                         <Button
-                            label='Save & Continue'
+                            label='Save Address'
                             onPress={onSubmit}
                             loading={updateAddresses.isPending}
                             disabled={updateAddresses.isPending}

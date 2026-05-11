@@ -17,6 +17,7 @@ import {
     s3ClientConfig,
     s3BucketConfig,
     inngestConfig,
+    msg91Config,
 } from './config';
 import { AppAuthGuard } from './guards/app.guard.js';
 import { TypeboxSerializerInterceptor } from './interceptors/typebox-serializer.interceptor.js';
@@ -55,6 +56,7 @@ import { NestjsInngestModule } from '@yugo/nestjs-inngest';
                 s3ClientConfig,
                 s3BucketConfig,
                 inngestConfig,
+                msg91Config,
             ],
         }),
         LoggerModule.forRootAsync({

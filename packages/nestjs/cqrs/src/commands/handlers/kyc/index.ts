@@ -5,3 +5,5 @@ export * from './aadhaar-verify-otp.handler.js';
 export * from './license-get-result.handler.js';
 export * from './license-initiate.handler.js';
 export * from './pan-verify.handler.js';
+export * from './update-kyc-status.handler.js';
+export * from './apply-manual-kyc.handler.js';

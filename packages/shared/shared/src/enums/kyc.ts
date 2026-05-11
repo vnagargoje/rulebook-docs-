@@ -9,4 +9,5 @@ export enum KycStatus {
     APPROVED = 'approved',
     REJECTED = 'rejected',
     VERIFIED = 'verified',
+    MANUAL_VERIFICATION_REQUESTED = 'manual_verification_requested',
 }

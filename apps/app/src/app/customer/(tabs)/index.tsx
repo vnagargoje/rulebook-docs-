@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FlatList, RefreshControl } from 'react-native'
 
 import { ActiveBookingCard, ActivePlanCard, GetStartedCard, QuickPlanCard } from '@/components/customer/home'
@@ -24,6 +24,7 @@ export default function CustomerHomeScreen() {
         variables: { status: 'active' },
         enabled: isLoggedIn,
     })
+
 
     const plans = plansData?.data ?? []
     const activeBooking = bookingsData?.data?.[0]

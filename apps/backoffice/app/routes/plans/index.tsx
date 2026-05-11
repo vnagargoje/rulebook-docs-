@@ -43,7 +43,7 @@ export default function PlansListRoute() {
         { header: 'KM Limit', cell: (plan: (typeof plans)[number]) => `${plan.kmLimit} km` },
         { header: 'Price', cell: (plan: (typeof plans)[number]) => formatCurrency(plan.price) },
         { header: 'Deposit', cell: (plan: (typeof plans)[number]) => formatCurrency(plan.deposit) },
-        { header: 'GST', cell: (plan: (typeof plans)[number]) => formatCurrency(plan.gst) },
+        { header: 'GST', cell: (plan: (typeof plans)[number]) => `${plan.gstPercentage}%` },
         { header: 'Total', cell: (plan: (typeof plans)[number]) => formatCurrency(plan.totalAmount) },
         { header: 'Status', cell: (plan: (typeof plans)[number]) => <StatusBadge status={plan.active ? 'ACTIVE' : 'INACTIVE'} /> },
         {

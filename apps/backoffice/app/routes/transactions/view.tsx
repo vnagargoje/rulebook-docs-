@@ -118,7 +118,7 @@ export default function TransactionViewRoute() {
                 {isTopUp ? (
                     <>
                         <DetailRow label='Base Price' value={formatCurrency(topUpSnap?.price ?? 0)} />
-                        <DetailRow label='GST' value={formatCurrency(topUpSnap?.gst ?? 0)} />
+                        <DetailRow label='GST' value={`${topUpSnap?.gstPercentage ?? 0}%`} />
                                 <div className='mt-2 flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3'>
                                     <span className='text-sm font-bold text-foreground'>Total</span>
                                     <span className='text-base font-bold text-foreground'>{formatCurrency(totalAmount)}</span>
@@ -128,7 +128,7 @@ export default function TransactionViewRoute() {
                             <>
                                 <DetailRow label='Base Price' value={formatCurrency(planSnap?.price ?? 0)} />
                                 <DetailRow label='Security Deposit' value={formatCurrency(planSnap?.deposit ?? 0)} />
-                                <DetailRow label='GST' value={formatCurrency(planSnap?.gst ?? 0)} />
+                                <DetailRow label='GST' value={`${planSnap?.gstPercentage ?? 0}%`} />
                                 <DetailRow label='Registration Fee' value={formatCurrency(planSnap?.registrationFee ?? 0)} />
                                 <div className='mt-2 flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3'>
                                     <span className='text-sm font-bold text-foreground'>Total</span>

@@ -19,4 +19,10 @@ export class MockOtpService implements OtpService {
             status: VALID_OTPS.has(code) ? 'approved' : 'failed',
         } as VerifyOtpResult;
     }
+
+    async resendOtp(
+        mobilenumber: string,
+    ): Promise<{ type: string; message: string }> {
+        return { type: 'success', message: 'OTP resent successfully' };
+    }
 }

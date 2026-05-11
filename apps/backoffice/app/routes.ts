@@ -11,12 +11,14 @@ export default [
             index('routes/users/index.tsx'),
             route('create', 'routes/users/create.tsx'),
             route('edit/:id', 'routes/users/edit.tsx'),
+            route(':id', 'routes/users/view.tsx'),
         ]),
 
         ...prefix('customers', [
             index('routes/customers/index.tsx'),
             route('create', 'routes/customers/create.tsx'),
             route('edit/:id', 'routes/customers/edit.tsx'),
+            route(':id', 'routes/customers/view.tsx'),
         ]),
 
         ...prefix('stations', [

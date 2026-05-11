@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit } from '@tabler/icons-react'
+import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -62,6 +62,9 @@ export default function UsersListRoute() {
             header: 'Actions',
             cell: (user: UserItem) => (
                 <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => navigate(`/users/${user.id}`)}>
+                        <IconEye className="h-4 w-4" />
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => navigate(`/users/edit/${user.id}`)}>
                         <IconEdit className="h-4 w-4" />
                     </Button>

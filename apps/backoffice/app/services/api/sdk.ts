@@ -42,6 +42,7 @@ export const {
     v1UsersGetOneUser,
     v1UsersCreateOneUser,
     v1UsersPatchOneUser,
+    v1UsersUpdateAddresses,
     v1PlansGetPlans,
     v1PlansGetPlanById,
     v1PlansAdminCreatePlan,

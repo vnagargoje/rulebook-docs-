@@ -23,9 +23,12 @@ export class LicenseController {
     @ApiBody({ schema: LicenseInitiatePayload })
     @ApiResource(LicenseInitiateResponse)
     @Post('initiate')
-    async initiate(@Body() body: Static<typeof LicenseInitiatePayload>) {
+    async initiate(
+        @AuthenticatedUser() user: ContextUserType,
+        @Body() body: Static<typeof LicenseInitiatePayload>
+    ) {
         return this.commandBus.execute(
-            new LicenseInitiateCommand({ ...body, dob: body.dateOfBirth }),
+            new LicenseInitiateCommand(user.id, { ...body, dob: body.dateOfBirth }),
         );
     }
 

@@ -32,3 +32,17 @@ export const GenericKycResponse = Type.Object({
 export const LicenseInitiateResponse = Type.Object({
     requestId: Type.String(),
 });
+
+export const KycDetailsResponse = Type.Object({
+    id: Type.String(),
+    documentId: Type.String(),
+    type: Type.String(),
+    status: Type.String(),
+    verifiedAt: Type.Union([Type.String(), Type.Null()]),
+    notes: Type.Union([Type.String(), Type.Null()]),
+    userId: Type.String(),
+    createdAt: Type.String(),
+    updatedAt: Type.String(),
+});
+
+export const AllKycResponse = Type.Array(KycDetailsResponse);

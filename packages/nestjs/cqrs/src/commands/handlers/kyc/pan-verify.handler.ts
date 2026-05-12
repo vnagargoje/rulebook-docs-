@@ -26,6 +26,25 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
             throw new NotFoundException('User not found')
         }
 
+        await manager.transaction(async (manager) => {
+            let kyc = await manager.findOne(UserKycEntity, {
+                where: { userId, type: KycDocumentType.PAN },
+            })
+
+            if (!kyc) {
+                kyc = manager.create(UserKycEntity, {
+                    userId,
+                    type: KycDocumentType.PAN,
+                })
+            }
+
+            kyc.documentId = pan
+            kyc.status = KycStatus.PENDING
+            kyc.notes = 'Initiated'
+
+            await manager.save(kyc)
+        })
+
         const authParams = new URLSearchParams()
         authParams.append('client_id', config.clientId)
         authParams.append('client_secret', config.clientSecret)

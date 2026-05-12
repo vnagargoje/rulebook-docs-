@@ -65,3 +65,9 @@ export class VehicleSurrenderSubject {
         return Subjects.VehicleSurrender
     }
 }
+
+export class KycSubject {
+    static get modelName() {
+        return Subjects.Kyc
+    }
+}

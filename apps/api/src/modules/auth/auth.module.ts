@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { MockOtpService } from './services/mock-otp.service.js';
+import { Msg91OtpService } from './services/msg91-otp.service.js';
 import { TokenService } from './services/token.service.js';
 import { OTP_SERVICE } from './constants.js';
 import { V1AuthController } from './controllers/v1/auth.controller.js';
@@ -22,9 +23,22 @@ import { ConfigService } from '@nestjs/config';
     controllers: [V1AuthController],
     providers: [
         TokenService,
+        Msg91OtpService,
+        MockOtpService,
         {
             provide: OTP_SERVICE,
-            useClass: MockOtpService,
+            useFactory: (
+                configService: ConfigService,
+                msg91: Msg91OtpService,
+                mock: MockOtpService,
+            ) => {
+                if (configService.get('MOCK_OTP_SERVICE') === 'true') {
+                    return mock;
+                } else {
+                    return msg91;
+                }
+            },
+            inject: [ConfigService, Msg91OtpService, MockOtpService],
         },
     ],
 })

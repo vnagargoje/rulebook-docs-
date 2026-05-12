@@ -1,33 +1,35 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useRouter } from 'expo-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import {
-    ActivityIndicator,
-    FlatList,
-    Keyboard,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
-    TextInput,
-} from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, Switch, TextInput } from 'react-native'
 
+import { SearchablePickerModal, type PickerItem } from '@/components/shared/searchable-picker-modal'
 import { Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
-import { FieldWrapper } from '@/components/profile/field-wrapper'
-import { SectionCard } from '@/components/profile/section-card'
-import { client } from '@/lib/api/client'
-import { useUpdateMyAddress } from '@/queries/customer/kyc.query'
-import { addressSchema, type AddressFormValues } from '@/schema/kyc/kyc.schema'
 import colors from '@/components/ui/colors'
+import { FieldWrapper, SectionCard, SelectTrigger, inputStyle } from '@/components/profile'
+import { useDebounce } from '@/lib/hooks/use-debounce'
+import { useCitiesPicker, useStatesPicker } from '@/queries/customer/geographic.query'
+import { useUpdateMyAddresses } from '@/queries/customer/kyc.query'
+import { addressSchema, type AddressFormValues } from '@/schema/kyc/kyc.schema'
 
-type StateItem = { id: string; name: string }
-type CityItem = { id: string; name: string }
+type PickerTarget =
+    | 'permanent.state'
+    | 'permanent.city'
+    | 'current.state'
+    | 'current.city'
+    | null
 
 export default function AddressScreen() {
     const router = useRouter()
-    const updateAddress = useUpdateMyAddress()
+    const updateAddresses = useUpdateMyAddresses()
+
+    const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null)
+    const [stateSearch, setStateSearch] = useState('')
+    const [citySearch, setCitySearch] = useState('')
+    const debouncedStateSearch = useDebounce(stateSearch, 400)
+    const debouncedCitySearch = useDebounce(citySearch, 400)
 
     const {
         control,
@@ -39,71 +41,135 @@ export default function AddressScreen() {
         resolver: zodResolver(addressSchema),
         mode: 'onChange',
         defaultValues: {
-            lineOne: '',
-            pincode: '',
-            stateId: '',
-            cityId: '',
-            stateName: '',
-            cityName: '',
+            permanent: {
+                lineOne: '',
+                lineTwo: '',
+                pincode: '',
+                stateId: '',
+                cityId: '',
+                stateName: '',
+                cityName: '',
+            },
+            sameAsPermanent: false,
+            current: {
+                lineOne: '',
+                lineTwo: '',
+                pincode: '',
+                stateId: '',
+                cityId: '',
+                stateName: '',
+                cityName: '',
+            },
         },
     })
 
-    const stateId = watch('stateId')
+    const sameAsPermanent = watch('sameAsPermanent')
+    const permanentStateId = watch('permanent.stateId')
+    const currentStateId = watch('current.stateId')
 
-    const { data: statesData, isLoading: statesLoading } = useQuery({
-        queryKey: ['states'],
-        queryFn: async () => {
-            const res = await client.v1.v1StatesListManyStates({ sortBy: ['name:ASC'], limit: 100 })
-            return res.data.data
+    const activeCityStateId = useMemo(() => {
+        if (pickerTarget === 'permanent.city') return permanentStateId
+        if (pickerTarget === 'current.city') return currentStateId
+        return ''
+    }, [pickerTarget, permanentStateId, currentStateId])
+
+    const {
+        data: statesData,
+        isLoading: statesLoading,
+        isFetchingNextPage: statesFetchingMore,
+        hasNextPage: statesHasNext,
+        fetchNextPage: statesFetchNext,
+    } = useStatesPicker({
+        variables: {
+            search: debouncedStateSearch,
         },
+        enabled: pickerTarget === 'permanent.state' || pickerTarget === 'current.state',
     })
 
-    const { data: citiesData, isLoading: citiesLoading } = useQuery({
-        queryKey: ['cities', stateId],
-        queryFn: async () => {
-            const res = await client.v1.v1CitiesListManyCities({
-                'filter.state.id': [`$eq:${stateId}`],
-                sortBy: ['name:ASC'],
-                limit: 200,
-            })
-            return res.data.data
+    const {
+        data: citiesData,
+        isLoading: citiesLoading,
+        isFetchingNextPage: citiesFetchingMore,
+        hasNextPage: citiesHasNext,
+        fetchNextPage: citiesFetchNext,
+    } = useCitiesPicker({
+        variables: {
+            stateId: activeCityStateId ?? '',
+            search: debouncedCitySearch,
         },
-        enabled: !!stateId,
+        enabled:
+            !!activeCityStateId &&
+            (pickerTarget === 'permanent.city' || pickerTarget === 'current.city'),
     })
 
-    const [pickerType, setPickerType] = useState<'state' | 'city' | null>(null)
+    const allStates: PickerItem[] = useMemo(
+        () => statesData?.pages.flatMap((p) => p.data) ?? [],
+        [statesData?.pages],
+    )
 
-    const openPicker = (type: 'state' | 'city') => {
+    const allCities: PickerItem[] = useMemo(
+        () => citiesData?.pages.flatMap((p) => p.data) ?? [],
+        [citiesData?.pages],
+    )
+
+    const openPicker = useCallback((target: PickerTarget) => {
         Keyboard.dismiss()
-        setPickerType(type)
-    }
+        setStateSearch('')
+        setCitySearch('')
+        setPickerTarget(target)
+    }, [])
+
+    const closePicker = useCallback(() => setPickerTarget(null), [])
 
     const handleSelectState = useCallback(
-        (item: StateItem) => {
-            setValue('stateId', item.id)
-            setValue('stateName', item.name)
-            setValue('cityId', '')
-            setValue('cityName', '')
-            setPickerType(null)
+        (item: PickerItem) => {
+            if (pickerTarget === 'permanent.state') {
+                setValue('permanent.stateId', item.id)
+                setValue('permanent.stateName', item.name)
+                setValue('permanent.cityId', '')
+                setValue('permanent.cityName', '')
+            } else if (pickerTarget === 'current.state') {
+                setValue('current.stateId', item.id)
+                setValue('current.stateName', item.name)
+                setValue('current.cityId', '')
+                setValue('current.cityName', '')
+            }
+            closePicker()
         },
-        [setValue],
+        [pickerTarget, setValue, closePicker],
     )
 
     const handleSelectCity = useCallback(
-        (item: CityItem) => {
-            setValue('cityId', item.id)
-            setValue('cityName', item.name)
-            setPickerType(null)
+        (item: PickerItem) => {
+            if (pickerTarget === 'permanent.city') {
+                setValue('permanent.cityId', item.id)
+                setValue('permanent.cityName', item.name)
+            } else if (pickerTarget === 'current.city') {
+                setValue('current.cityId', item.id)
+                setValue('current.cityName', item.name)
+            }
+            closePicker()
         },
-        [setValue],
+        [pickerTarget, setValue, closePicker],
     )
 
+    const isStatePicker = pickerTarget === 'permanent.state' || pickerTarget === 'current.state'
+    const isCityPicker = pickerTarget === 'permanent.city' || pickerTarget === 'current.city'
+
     const onSubmit = handleSubmit(async (values) => {
-        await updateAddress.mutateAsync({
-            lineOne: values.lineOne,
-            pincode: values.pincode,
-            cityId: values.cityId,
+        const buildAddr = (addr: typeof values.permanent) => ({
+            lineOne: addr.lineOne,
+            lineTwo: addr.lineTwo || undefined,
+            pincode: addr.pincode,
+            cityId: addr.cityId || undefined,
         })
+
+        const permanentAddr = buildAddr(values.permanent)
+        const currentAddr = values.sameAsPermanent
+            ? permanentAddr
+            : buildAddr(values.current as typeof values.permanent)
+
+        await updateAddresses.mutateAsync({ permanent: permanentAddr, current: currentAddr })
         router.replace('/customer/kyc/emergency')
     })
 
@@ -117,36 +183,58 @@ export default function AddressScreen() {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps='handled'
                     contentContainerStyle={{ paddingBottom: 40 }}>
+
                     <View className='mx-4 mt-5 mb-2'>
                         <Text className='text-lg font-bold text-neutral-900'>Address Details</Text>
                         <Text className='mt-1 text-sm text-neutral-500'>
-                            Provide your residential address.
+                            Provide your permanent address first, then confirm your current address.
                         </Text>
                     </View>
 
-                    <SectionCard title='Address'>
+                    <SectionCard title='Permanent Address'>
                         <Controller
                             control={control}
-                            name='lineOne'
+                            name='permanent.lineOne'
                             render={({ field: { onChange, onBlur, value } }) => (
-                                <FieldWrapper label='Address Line 1' required error={errors.lineOne?.message}>
+                                <FieldWrapper
+                                    label='Address Line 1'
+                                    required
+                                    error={errors.permanent?.lineOne?.message}>
                                     <TextInput
                                         value={value}
                                         onChangeText={onChange}
                                         onBlur={onBlur}
-                                        placeholder='Flat, Building, Street'
+                                        placeholder='Flat, Building, Street, Landmark'
                                         placeholderTextColor='#C4C9D4'
                                         style={inputStyle}
                                     />
                                 </FieldWrapper>
                             )}
                         />
-
                         <Controller
                             control={control}
-                            name='pincode'
+                            name='permanent.lineTwo'
                             render={({ field: { onChange, onBlur, value } }) => (
-                                <FieldWrapper label='Pincode' required error={errors.pincode?.message}>
+                                <FieldWrapper label='Address Line 2 (Optional)'>
+                                    <TextInput
+                                        value={value}
+                                        onChangeText={onChange}
+                                        onBlur={onBlur}
+                                        placeholder='Area, Colony (optional)'
+                                        placeholderTextColor='#C4C9D4'
+                                        style={inputStyle}
+                                    />
+                                </FieldWrapper>
+                            )}
+                        />
+                        <Controller
+                            control={control}
+                            name='permanent.pincode'
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <FieldWrapper
+                                    label='Pincode'
+                                    required
+                                    error={errors.permanent?.pincode?.message}>
                                     <TextInput
                                         value={value}
                                         onChangeText={(t) => onChange(t.replace(/\D/g, '').slice(0, 6))}
@@ -160,54 +248,201 @@ export default function AddressScreen() {
                                 </FieldWrapper>
                             )}
                         />
-
                         <Controller
                             control={control}
-                            name='stateId'
+                            name='permanent.stateId'
                             render={() => (
-                                <FieldWrapper label='State' required error={errors.stateId?.message}>
-                                    <Pressable onPress={() => openPicker('state')} style={inputStyle}>
-                                        <Text
-                                            style={{
-                                                color: watch('stateName') ? '#111827' : '#C4C9D4',
-                                                fontSize: 15,
-                                                lineHeight: 52,
-                                            }}>
-                                            {watch('stateName') || 'Select state'}
-                                        </Text>
-                                    </Pressable>
+                                <FieldWrapper
+                                    label='State'
+                                    required
+                                    error={errors.permanent?.stateId?.message}>
+                                    <SelectTrigger
+                                        value={watch('permanent.stateName')}
+                                        placeholder='Select state'
+                                        onPress={() => openPicker('permanent.state')}
+                                    />
                                 </FieldWrapper>
                             )}
                         />
-
                         <Controller
                             control={control}
-                            name='cityId'
+                            name='permanent.cityId'
                             render={() => (
-                                <FieldWrapper label='City' required error={errors.cityId?.message} last>
-                                    <Pressable
-                                        onPress={() => stateId && openPicker('city')}
-                                        style={[inputStyle, !stateId && { opacity: 0.5 }]}>
-                                        <Text
-                                            style={{
-                                                color: watch('cityName') ? '#111827' : '#C4C9D4',
-                                                fontSize: 15,
-                                                lineHeight: 52,
-                                            }}>
-                                            {watch('cityName') || 'Select city'}
-                                        </Text>
-                                    </Pressable>
+                                <FieldWrapper
+                                    label='City'
+                                    required
+                                    error={errors.permanent?.cityId?.message}
+                                    last>
+                                    <SelectTrigger
+                                        value={watch('permanent.cityName')}
+                                        placeholder={permanentStateId ? 'Select city' : 'Select state first'}
+                                        disabled={!permanentStateId}
+                                        onPress={() => permanentStateId ? openPicker('permanent.city') : undefined}
+                                    />
                                 </FieldWrapper>
                             )}
                         />
+                    </SectionCard>
+
+                    <SectionCard title='Current Address'>
+                        <Controller
+                            control={control}
+                            name='sameAsPermanent'
+                            render={({ field: { value, onChange } }) => (
+                                <Pressable
+                                    onPress={() => onChange(!value)}
+                                    className='mb-4 flex-row items-center justify-between rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3.5'>
+                                    <View className='flex-1 pr-3'>
+                                        <Text className='text-[14px] font-semibold text-neutral-900'>
+                                            Same as permanent address
+                                        </Text>
+                                        <Text className='mt-0.5 text-xs text-neutral-400'>
+                                            My current address matches permanent address
+                                        </Text>
+                                    </View>
+                                    <Switch
+                                        value={value}
+                                        onValueChange={onChange}
+                                        trackColor={{ false: '#E5E7EB', true: colors.primary[200] }}
+                                        thumbColor={value ? colors.primary[600] : '#9CA3AF'}
+                                    />
+                                </Pressable>
+                            )}
+                        />
+
+                        {sameAsPermanent ? (
+                            <View className='flex-row items-start gap-3 rounded-2xl bg-primary-50 px-4 py-3.5'>
+                                <MaterialCommunityIcons
+                                    name='check-circle-outline'
+                                    size={18}
+                                    color={colors.primary[600]}
+                                    style={{ marginTop: 1 }}
+                                />
+                                <View className='flex-1'>
+                                    <Text className='text-[13px] font-semibold text-primary-700'>
+                                        Using permanent address
+                                    </Text>
+                                    {watch('permanent.lineOne') ? (
+                                        <Text
+                                            className='mt-0.5 text-xs text-primary-500'
+                                            numberOfLines={2}>
+                                            {[
+                                                watch('permanent.lineOne'),
+                                                watch('permanent.cityName'),
+                                                watch('permanent.stateName'),
+                                            ]
+                                                .filter(Boolean)
+                                                .join(', ')}
+                                        </Text>
+                                    ) : null}
+                                </View>
+                            </View>
+                        ) : (
+                            <>
+                                <Controller
+                                    control={control}
+                                    name='current.lineOne'
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <FieldWrapper
+                                            label='Address Line 1'
+                                            required
+                                            error={(errors as any).current?.lineOne?.message}>
+                                            <TextInput
+                                                value={value}
+                                                onChangeText={onChange}
+                                                onBlur={onBlur}
+                                                placeholder='Flat, Building, Street, Landmark'
+                                                placeholderTextColor='#C4C9D4'
+                                                style={inputStyle}
+                                            />
+                                        </FieldWrapper>
+                                    )}
+                                />
+                                <Controller
+                                    control={control}
+                                    name='current.lineTwo'
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <FieldWrapper label='Address Line 2 (Optional)'>
+                                            <TextInput
+                                                value={value}
+                                                onChangeText={onChange}
+                                                onBlur={onBlur}
+                                                placeholder='Area, Colony (optional)'
+                                                placeholderTextColor='#C4C9D4'
+                                                style={inputStyle}
+                                            />
+                                        </FieldWrapper>
+                                    )}
+                                />
+                                <Controller
+                                    control={control}
+                                    name='current.pincode'
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <FieldWrapper
+                                            label='Pincode'
+                                            required
+                                            error={(errors as any).current?.pincode?.message}>
+                                            <TextInput
+                                                value={value}
+                                                onChangeText={(t) => onChange(t.replace(/\D/g, '').slice(0, 6))}
+                                                onBlur={onBlur}
+                                                placeholder='560001'
+                                                placeholderTextColor='#C4C9D4'
+                                                keyboardType='number-pad'
+                                                maxLength={6}
+                                                style={inputStyle}
+                                            />
+                                        </FieldWrapper>
+                                    )}
+                                />
+                                <Controller
+                                    control={control}
+                                    name='current.stateId'
+                                    render={() => (
+                                        <FieldWrapper
+                                            label='State'
+                                            required
+                                            error={(errors as any).current?.stateId?.message}>
+                                            <SelectTrigger
+                                                value={watch('current.stateName')}
+                                                placeholder='Select state'
+                                                onPress={() => openPicker('current.state')}
+                                            />
+                                        </FieldWrapper>
+                                    )}
+                                />
+                                <Controller
+                                    control={control}
+                                    name='current.cityId'
+                                    render={() => (
+                                        <FieldWrapper
+                                            label='City'
+                                            required
+                                            error={(errors as any).current?.cityId?.message}
+                                            last>
+                                            <SelectTrigger
+                                                value={watch('current.cityName')}
+                                                placeholder={
+                                                    currentStateId ? 'Select city' : 'Select state first'
+                                                }
+                                                disabled={!currentStateId}
+                                                onPress={() =>
+                                                    currentStateId ? openPicker('current.city') : undefined
+                                                }
+                                            />
+                                        </FieldWrapper>
+                                    )}
+                                />
+                            </>
+                        )}
                     </SectionCard>
 
                     <View className='mx-4 mt-4'>
                         <Button
                             label='Save & Continue'
                             onPress={onSubmit}
-                            loading={updateAddress.isPending}
-                            disabled={updateAddress.isPending}
+                            loading={updateAddresses.isPending}
+                            disabled={updateAddresses.isPending}
                             className='h-13 rounded-2xl bg-primary-600'
                             textClassName='text-base font-semibold text-white'
                         />
@@ -215,55 +450,57 @@ export default function AddressScreen() {
                 </ScrollView>
             </SafeAreaView>
 
-            <Modal
-                visible={!!pickerType}
-                animationType='slide'
-                presentationStyle='pageSheet'
-                onRequestClose={() => setPickerType(null)}>
-                <SafeAreaView edges={['top', 'bottom']} className='flex-1 bg-white'>
-                    <View className='flex-row items-center justify-between border-b border-neutral-100 px-4 py-3'>
-                        <Text className='text-base font-bold text-neutral-900'>
-                            {pickerType === 'state' ? 'Select State' : 'Select City'}
-                        </Text>
-                        <Pressable onPress={() => setPickerType(null)} className='px-2 py-1'>
-                            <Text className='text-sm font-medium text-primary-600'>Cancel</Text>
-                        </Pressable>
-                    </View>
-                    {(pickerType === 'state' ? statesLoading : citiesLoading) ? (
-                        <View className='flex-1 items-center justify-center'>
-                            <ActivityIndicator size='large' color={colors.primary[600]} />
-                        </View>
-                    ) : (
-                        <FlatList
-                            data={pickerType === 'state' ? statesData : citiesData}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <Pressable
-                                    onPress={() =>
-                                        pickerType === 'state'
-                                            ? handleSelectState(item as StateItem)
-                                            : handleSelectCity(item as CityItem)
-                                    }
-                                    className='border-b border-neutral-50 px-4 py-3.5'>
-                                    <Text className='text-sm text-neutral-900'>{item.name}</Text>
-                                </Pressable>
-                            )}
-                        />
-                    )}
-                </SafeAreaView>
-            </Modal>
+            <SearchablePickerModal
+                visible={isStatePicker}
+                title={
+                    pickerTarget === 'permanent.state'
+                        ? 'Permanent — Select State'
+                        : 'Current — Select State'
+                }
+                items={allStates}
+                isLoading={statesLoading}
+                isFetchingMore={statesFetchingMore}
+                hasNextPage={statesHasNext}
+                onEndReached={() => {
+                    if (statesHasNext && !statesFetchingMore) statesFetchNext()
+                }}
+                onClose={closePicker}
+                onSelect={handleSelectState}
+                onSearch={setStateSearch}
+                searchValue={stateSearch}
+                selectedId={
+                    pickerTarget === 'permanent.state'
+                        ? watch('permanent.stateId')
+                        : watch('current.stateId')
+                }
+                placeholder='Search state…'
+            />
+
+            <SearchablePickerModal
+                visible={isCityPicker}
+                title={
+                    pickerTarget === 'permanent.city'
+                        ? 'Permanent — Select City'
+                        : 'Current — Select City'
+                }
+                items={allCities}
+                isLoading={citiesLoading}
+                isFetchingMore={citiesFetchingMore}
+                hasNextPage={citiesHasNext}
+                onEndReached={() => {
+                    if (citiesHasNext && !citiesFetchingMore) citiesFetchNext()
+                }}
+                onClose={closePicker}
+                onSelect={handleSelectCity}
+                onSearch={setCitySearch}
+                searchValue={citySearch}
+                selectedId={
+                    pickerTarget === 'permanent.city'
+                        ? watch('permanent.cityId')
+                        : watch('current.cityId')
+                }
+                placeholder='Search city…'
+            />
         </KeyboardAvoidingView>
     )
-}
-
-const inputStyle = {
-    height: 52,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#F9FAFB',
-    paddingHorizontal: 14,
-    fontSize: 15,
-    color: '#111827',
-    justifyContent: 'center' as const,
 }

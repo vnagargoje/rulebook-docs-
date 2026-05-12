@@ -26,7 +26,7 @@ export default function CreateTopUpPlanRoute() {
             validityDays: 0,
             kmLimit: 0,
             price: 0,
-            gst: 0,
+            gstPercentage: 0,
             active: 'true',
         },
     })
@@ -38,7 +38,7 @@ export default function CreateTopUpPlanRoute() {
             validityDays: values.validityDays,
             kmLimit: values.kmLimit,
             price: values.price,
-            gst: values.gst,
+            gstPercentage: values.gstPercentage,
             active: values.active === 'true',
         }, {
             onSuccess: () => {
@@ -85,14 +85,14 @@ export default function CreateTopUpPlanRoute() {
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Financial Configuration</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <TextInputField control={form.control} name="price" label="Purchase Price (₹)" type="number" required />
-                                    <TextInputField control={form.control} name="gst" label="GST (₹)" type="number" />
+                                    <TextInputField control={form.control} name="gstPercentage" label="GST (%)" type="number" maxLength={2} onlyDigits />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <SelectField
                                         control={form.control}
                                         name="active"
                                         label="Visibility Status"
-                                        options={[{ label: 'Active & Available', value: 'true' }, { label: 'Inactive / Archived', value: 'false' }]}
+                                        options={[{ label: 'Active', value: 'true' }, { label: 'Inactive', value: 'false' }]}
                                         required
                                     />
                                 </div>

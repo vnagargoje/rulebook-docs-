@@ -16,6 +16,8 @@ import type {
     PanVerifyBody,
     PanVerifyResponse,
     V1UsersPatchOneUserResponse,
+    V1UsersUpdateAddressesBody,
+    V1UsersUpdateAddressesResponse,
 } from '@/services/api/codegen/Api'
 
 export const KYC_STATUS_QUERY_KEY = ['kyc-status'] as const
@@ -121,6 +123,18 @@ export const useUpdateMyAddress = createMutation<V1UsersPatchOneUserResponse, Up
     mutationKey: ['update-my-address'],
     mutationFn: async (address) => {
         const response = await client.v1.v1UsersPatchOneUser('me', { address })
+        return response.data
+    },
+    onError: showError,
+})
+
+export const useUpdateMyAddresses = createMutation<
+    V1UsersUpdateAddressesResponse,
+    V1UsersUpdateAddressesBody
+>({
+    mutationKey: ['update-my-addresses'],
+    mutationFn: async (data) => {
+        const response = await client.v1.v1UsersUpdateAddresses('me', data)
         return response.data
     },
     onError: showError,

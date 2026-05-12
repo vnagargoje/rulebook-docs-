@@ -16,9 +16,10 @@ const topUpBaseSchema = z.object({
     price: z.coerce
         .number({ invalid_type_error: 'Must be a number' })
         .min(1, 'Price must be greater than 0'),
-    gst: z.coerce
+    gstPercentage: z.coerce
         .number({ invalid_type_error: 'Must be a number' })
-        .min(0, 'Must be 0 or more'),
+        .min(0, 'Must be 0 or more')
+        .max(100, 'Cannot exceed 100'),
     active: z.enum(['true', 'false'], { required_error: 'Status is required' }),
 })
 

@@ -10,4 +10,5 @@ export enum Subjects {
     BatteryTransport = 'BatteryTransport',
     BatterySwap = 'BatterySwap',
     VehicleSurrender = 'VehicleSurrender',
+    Kyc = 'Kyc',
 }

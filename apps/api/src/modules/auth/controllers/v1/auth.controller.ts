@@ -94,6 +94,27 @@ export class V1AuthController {
         };
     }
 
+    @ApiBody({ schema: OtpSendPayload })
+    @ApiResource(OtpSendResponse)
+    @Post('otp/resend')
+    async resendOtp(@Body() body: Static<typeof OtpSendPayload>) {
+        const manager = this.datasource.manager;
+        const user = await manager.findOne(UserEntity, {
+            where: { mobilenumber: body.mobilenumber },
+        });
+        if (!user) {
+            throw new NotFoundException(
+                'User not found. Please send OTP first.',
+            );
+        }
+        await this.otpService.resendOtp(body.mobilenumber);
+        return {
+            mobilenumber: body.mobilenumber,
+            method: 'sms' as const,
+            otpSent: true,
+        };
+    }
+
     @ApiBody({ schema: OtpVerifyPayload })
     @ApiResource(OtpVerifyResponse)
     @Post('otp/verify')

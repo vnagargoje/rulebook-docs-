@@ -1,4 +1,5 @@
 export * from './bookings.query'
+export * from './geographic.query'
 export * from './plans.query'
 export * from './profile.query'
 export * from './stations.query'

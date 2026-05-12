@@ -49,3 +49,19 @@ export const useGetInTransitMovementsToStation = createQuery<
         return response.data
     },
 })
+
+export const useGetDeliveredMovementsToStation = createQuery<
+    V1BatteryTransportsGetManyMovementsResponse,
+    { toStationId: string }
+>({
+    queryKey: ['swap-manager', 'movements-delivered'],
+    fetcher: async ({ toStationId }) => {
+        const response = await client.v1.v1BatteryTransportsGetManyMovements({
+            'filter.status': ['$eq:delivered'],
+            'filter.toStationId': [`$eq:${toStationId}`],
+            limit: 5,
+            page: 1,
+        })
+        return response.data
+    },
+})

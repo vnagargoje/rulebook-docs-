@@ -14,4 +14,5 @@ export type VerifyOtpResult = {
 export interface OtpService {
     sendOtp(params: SendOtpParams): Promise<void>;
     verifyOtp(params: VerifyOtpParams): Promise<VerifyOtpResult>;
+    resendOtp(mobilenumber: string): Promise<{ type: string; message: string }>;
 }

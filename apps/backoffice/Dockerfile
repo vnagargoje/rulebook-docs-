@@ -4,6 +4,7 @@ RUN corepack enable
 FROM base AS build
 WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml turbo.json ./
+COPY .yarn ./.yarn
 COPY packages ./packages
 COPY apps ./apps
 
@@ -15,6 +16,7 @@ RUN yarn turbo run build --filter=@yugo/backoffice
 FROM base AS deps
 WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn ./.yarn
 COPY packages ./packages
 COPY apps ./apps
 RUN yarn workspaces focus @yugo/backoffice --production

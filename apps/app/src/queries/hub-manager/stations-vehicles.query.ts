@@ -31,9 +31,9 @@ export const useGetHubStation = createQuery<StationsResponse | null, { managerId
 
         const response = await client.v1.v1StationsGetManyStations({
             page: 1,
-            limit: 10,
+            limit: 1,
             'filter.type': ['$eq:hub_station'],
-            'filter.managerId': [`$eq:${managerId}`],
+            'filter.managers.id': [`$eq:${managerId}`],
         })
         return response.data
     },

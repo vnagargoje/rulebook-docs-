@@ -37,3 +37,19 @@ export function formatTimeIN(
 export function formatKmIN(value: number | string | null | undefined) {
     return `${formatNumberIN(value)} km`
 }
+
+export function formatGender(g?: string | null): string | null {
+    if (!g) return null
+    return g.charAt(0).toUpperCase() + g.slice(1)
+}
+
+export function buildAddressLine(addr: {
+    lineOne: string
+    lineTwo?: string | null
+    pincode: string
+    city?: { name: string; state?: { name: string } }
+}): string {
+    return [addr.lineOne, addr.lineTwo, addr.city?.name, addr.city?.state?.name, addr.pincode]
+        .filter(Boolean)
+        .join(', ')
+}

@@ -1454,6 +1454,10 @@ export interface V1BatteriesGetManyBatteriesResponse {
       weight?: string;
       warranty?: string;
       removableOption?: boolean;
+      latitude?: number;
+      longitude?: number;
+      socPercent?: number;
+      speed?: number;
     };
     stationId?: string;
     station?: {
@@ -1507,6 +1511,10 @@ export interface V1BatteriesCreateOneBatteryResponse {
     weight?: string;
     warranty?: string;
     removableOption?: boolean;
+    latitude?: number;
+    longitude?: number;
+    socPercent?: number;
+    speed?: number;
   };
   stationId?: string;
   station?: {
@@ -1558,6 +1566,10 @@ export interface V1BatteriesGetOneBatteryResponse {
     weight?: string;
     warranty?: string;
     removableOption?: boolean;
+    latitude?: number;
+    longitude?: number;
+    socPercent?: number;
+    speed?: number;
   };
   stationId?: string;
   station?: {
@@ -1593,6 +1605,10 @@ export interface V1BatteriesUpdateOneBatteryResponse {
     weight?: string;
     warranty?: string;
     removableOption?: boolean;
+    latitude?: number;
+    longitude?: number;
+    socPercent?: number;
+    speed?: number;
   };
   stationId?: string;
   station?: {

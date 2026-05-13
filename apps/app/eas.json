@@ -19,6 +19,22 @@
                 "EXPO_PUBLIC_APP_ENV": "production"
             }
         },
+        "staging": {
+            "channel": "staging",
+            "autoIncrement": true,
+            "distribution": "store",
+            "ios": {
+                "image": "latest"
+            },
+            "android": {
+                "buildType": "apk",
+                "image": "latest"
+            },
+            "environment": "staging",
+            "env": {
+                "EXPO_PUBLIC_APP_ENV": "staging"
+            }
+        },
         "preview": {
             "channel": "preview",
             "autoIncrement": true,

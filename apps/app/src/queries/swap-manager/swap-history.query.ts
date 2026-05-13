@@ -1,6 +1,6 @@
 import { client } from '@/lib/api'
 import { V1BatterySwapsGetSwapHistoryResponse } from '@/services/api/codegen/Api'
-import { createInfiniteQuery } from 'react-query-kit'
+import { createInfiniteQuery, createQuery } from 'react-query-kit'
 
 export const useSwapHistory = createInfiniteQuery({
     queryKey: ['batteries', 'swap-history', 'manager'],
@@ -22,4 +22,17 @@ export const useSwapHistory = createInfiniteQuery({
         return currentPage < totalPages ? currentPage + 1 : undefined
     },
     initialPageParam: 1,
+})
+
+export const useRecentSwapHistory = createQuery<V1BatterySwapsGetSwapHistoryResponse, { managerId: string }>({
+    queryKey: ['batteries', 'recent-swap-history'],
+    fetcher: async ({ managerId }) => {
+        const response = await client.v1.v1BatterySwapsGetSwapHistory({
+            page: 1,
+            limit: 5,
+            sortBy: ['createdAt:DESC'],
+            'filter.swappedById': [`$eq:${managerId}`],
+        })
+        return response.data
+    },
 })

@@ -2,11 +2,17 @@ import { registerAs } from '@nestjs/config';
 import { Params } from 'nestjs-pino';
 
 export const loggerConfig = registerAs('logger.config', (): Params => {
+    const shouldUsePretty = process.env['PINO_PRETTY'] === '1';
+
     return {
         pinoHttp: {
-            transport: {
-                target: 'pino-pretty',
-            },
+            ...(shouldUsePretty
+                ? {
+                      transport: {
+                          target: 'pino-pretty',
+                      },
+                  }
+                : {}),
         },
     };
 });

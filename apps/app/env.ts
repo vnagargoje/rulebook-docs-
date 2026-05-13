@@ -4,7 +4,7 @@ import packageJSON from './package.json'
 
 // Single unified environment schema
 const envSchema = z.object({
-    EXPO_PUBLIC_APP_ENV: z.enum(['development', 'preview', 'production']),
+    EXPO_PUBLIC_APP_ENV: z.enum(['development', 'preview', 'staging', 'production']),
     EXPO_PUBLIC_NAME: z.string(),
     EXPO_PUBLIC_SCHEME: z.string(),
     EXPO_PUBLIC_BUNDLE_ID: z.string(),
@@ -29,18 +29,21 @@ const EXPO_PUBLIC_APP_ENV = (process.env.EXPO_PUBLIC_APP_ENV ?? 'development') a
 const BUNDLE_IDS = {
     development: 'com.app.development',
     preview: 'com.app.preview',
+    staging: 'com.app.staging',
     production: 'com.app',
 } as const
 
 const PACKAGES = {
     development: 'com.app.development',
     preview: 'com.app.preview',
+    staging: 'com.app.staging',
     production: 'com.app',
 } as const
 
 const SCHEMES = {
     development: 'app',
     preview: 'app.preview',
+    staging: 'app.staging',
     production: 'app',
 } as const
 

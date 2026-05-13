@@ -1,7 +1,6 @@
 {
     "name": "yugo",
     "private": true,
-    "packageManager": "yarn@4.6.0",
     "workspaces": [
         "apps/*",
         "packages/nestjs/*",
@@ -35,5 +34,6 @@
         "rimraf": "^5.0.5",
         "turbo": "^2.0.0",
         "typescript": "^5.4.5"
-    }
+    },
+    "packageManager": "yarn@4.6.0"
 }

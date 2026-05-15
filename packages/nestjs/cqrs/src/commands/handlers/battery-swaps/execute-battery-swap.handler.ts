@@ -94,9 +94,9 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
 
             const kmLimit = plan.planSnapshot?.kmLimit || 0
             if (kmLimit > 0) {
-                const rangeStr = oldBattery.properties?.range || '0'
-                const range = parseFloat(rangeStr) || 0
-                plan.remainingKm = Number(plan.remainingKm) - range
+                const oldSoc = Number(oldBattery.properties?.socPercent ?? 0)
+                const kmUsed = ((100 - oldSoc) / 100) * 80
+                plan.remainingKm = Number(plan.remainingKm) - kmUsed
             }
             await manager.save(plan)
 

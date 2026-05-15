@@ -12,10 +12,13 @@ import { FieldWrapper } from '@/components/profile/field-wrapper'
 import { SectionCard } from '@/components/profile/section-card'
 import {
     KYC_STATUS_QUERY_KEY,
+    fetchKycStatus,
+    getFirstIncompleteKycRoute,
     useAadhaarConnect,
     useAadhaarGenerateOtp,
     useAadhaarReloadCaptcha,
     useAadhaarVerifyOtp,
+    useKycStatus,
 } from '@/queries/customer/kyc.query'
 import { MY_PROFILE_QUERY_KEY } from '@/queries/profile'
 import { aadhaarFormSchema, type AadhaarFormValues } from '@/schema/kyc/kyc.schema'
@@ -26,6 +29,7 @@ type Phase = 'form' | 'otp'
 export default function AadhaarScreen() {
     const router = useRouter()
     const queryClient = useQueryClient()
+    const { data: kycStatus } = useKycStatus()
 
     const [phase, setPhase] = useState<Phase>('form')
     const [sessionId, setSessionId] = useState<string | null>(null)
@@ -85,6 +89,12 @@ export default function AadhaarScreen() {
             setOtp('')
             setPhase('otp')
         } else {
+            const nextStatus = await queryClient.fetchQuery({ queryKey: [...KYC_STATUS_QUERY_KEY], queryFn: fetchKycStatus })
+            const nextRoute = getFirstIncompleteKycRoute(nextStatus)
+            if (nextRoute !== '/customer/kyc/aadhaar') {
+                router.replace(nextRoute as never)
+                return
+            }
             showErrorMessage(result.message || 'Failed to send OTP. Please try again.')
             await handleReloadCaptcha()
         }
@@ -109,6 +119,12 @@ export default function AadhaarScreen() {
             await queryClient.invalidateQueries({ queryKey: [...MY_PROFILE_QUERY_KEY] })
             router.replace('/customer/kyc/pan')
         } else {
+            const nextStatus = await queryClient.fetchQuery({ queryKey: [...KYC_STATUS_QUERY_KEY], queryFn: fetchKycStatus })
+            const nextRoute = getFirstIncompleteKycRoute(nextStatus)
+            if (nextRoute !== '/customer/kyc/aadhaar') {
+                router.replace(nextRoute as never)
+                return
+            }
             showErrorMessage(result.message || 'OTP verification failed. Please try again.')
             setOtp('')
             otpInputRef.current?.clear()
@@ -118,6 +134,35 @@ export default function AadhaarScreen() {
     }, [sessionId, otp, aadhaarNumber, verifyOtp, queryClient, router, handleReloadCaptcha])
 
     const isConnecting = connect.isPending && !sessionId
+
+    const isAadhaarVerified = kycStatus?.aadhaar?.status === 'verified' || kycStatus?.aadhaar?.status === 'approved'
+    const isFailedMax = getFirstIncompleteKycRoute(kycStatus) !== '/customer/kyc/aadhaar' && !isAadhaarVerified
+
+    if (isFailedMax) {
+        return (
+            <SafeAreaView className='flex-1 bg-white'>
+                <View className='mx-4 mt-4 flex-row items-center gap-2'>
+                    <StepDot active step={1} />
+                    <StepLine />
+                    <StepDot step={2} />
+                    <StepLine />
+                    <StepDot step={3} />
+                </View>
+                <View className='flex-1 items-center justify-center px-6'>
+                    <Text className='text-center text-xl font-bold text-neutral-900'>Verification Failed</Text>
+                    <Text className='mt-2 text-center text-sm text-neutral-500'>
+                        Aadhaar verification has failed after {kycStatus?.aadhaar?.attemptCount ?? 0} attempts. You can continue with the remaining KYC steps.
+                    </Text>
+                    <Button
+                        label='Continue to PAN'
+                        onPress={() => router.replace('/customer/kyc/pan')}
+                        className='mt-8 h-13 w-full rounded-2xl bg-primary-600'
+                        textClassName='text-base font-semibold text-white'
+                    />
+                </View>
+            </SafeAreaView>
+        )
+    }
 
     if (isConnecting) {
         return (

@@ -70,12 +70,12 @@ export default function CustomerProfileScreen() {
         })
     }, [])
 
-    const handleKycPress = useCallback(() => {
+    const handleKycPress = useCallback(async () => {
         if (kycComplete) {
             toast.success('KYC Verified', { description: 'Your identity verification is complete.' })
             return
         }
-        router.push(getFirstIncompleteKycRoute(kycStatus) as any)
+        router.push(getFirstIncompleteKycRoute(kycStatus) as never)
     }, [kycComplete, kycStatus, router])
 
     if (!isLoggedIn) {

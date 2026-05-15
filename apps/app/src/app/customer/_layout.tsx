@@ -91,10 +91,46 @@ export default function CustomerLayout() {
                 }}
             />
             <Stack.Screen
+                name='profile/index'
+                options={{
+                    headerShown: true,
+                    title: 'My Profile',
+                    headerBackTitle: 'Back',
+                    headerTintColor: colors.primary[600],
+                    headerTitleStyle: { color: colors.neutral[900], fontWeight: '600' },
+                    headerStyle: { backgroundColor: colors.white },
+                    headerShadowVisible: false,
+                }}
+            />
+            <Stack.Screen
                 name='profile/edit'
                 options={{
                     headerShown: true,
                     title: 'Edit Profile',
+                    headerBackTitle: 'Back',
+                    headerTintColor: colors.primary[600],
+                    headerTitleStyle: { color: colors.neutral[900], fontWeight: '600' },
+                    headerStyle: { backgroundColor: colors.white },
+                    headerShadowVisible: false,
+                }}
+            />
+            <Stack.Screen
+                name='profile/address'
+                options={{
+                    headerShown: true,
+                    title: 'Edit Address',
+                    headerBackTitle: 'Back',
+                    headerTintColor: colors.primary[600],
+                    headerTitleStyle: { color: colors.neutral[900], fontWeight: '600' },
+                    headerStyle: { backgroundColor: colors.white },
+                    headerShadowVisible: false,
+                }}
+            />
+            <Stack.Screen
+                name='profile/emergency'
+                options={{
+                    headerShown: true,
+                    title: 'Emergency Contact',
                     headerBackTitle: 'Back',
                     headerTintColor: colors.primary[600],
                     headerTitleStyle: { color: colors.neutral[900], fontWeight: '600' },

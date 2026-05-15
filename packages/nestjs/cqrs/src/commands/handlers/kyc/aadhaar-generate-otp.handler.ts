@@ -2,7 +2,8 @@ import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { UserKycEntity } from '@yugo/nestjs-database/entities'
-import { KycDocumentType, KycStatus } from '@yugo/shared'
+import { KycDocumentType, KycStatus, MAX_KYC_ATTEMPTS } from '@yugo/shared'
+import { BadRequestException } from '@nestjs/common'
 import { DeepvueConfig } from 'src/types/index.js'
 import { DataSource } from 'typeorm'
 import xior from 'xior'
@@ -19,6 +20,30 @@ export class AadhaarGenerateOtpHandler implements ICommandHandler<AadhaarGenerat
         const { userId, payload } = command
         const manager = this.datasource.manager
         const config = this.configService.getOrThrow<DeepvueConfig>('deepvue.config')
+
+        await manager.transaction(async (manager) => {
+            let kyc = await manager.findOne(UserKycEntity, {
+                where: { userId, type: KycDocumentType.AADHAR },
+            })
+
+            if (!kyc) {
+                kyc = manager.create(UserKycEntity, {
+                    userId,
+                    type: KycDocumentType.AADHAR,
+                })
+            }
+
+            if ((kyc.attemptCount ?? 0) >= MAX_KYC_ATTEMPTS) {
+                throw new BadRequestException('Aadhaar verification attempt limit reached')
+            }
+
+            kyc.documentId = payload.aadhaarNumber
+            kyc.status = KycStatus.PENDING
+            kyc.notes = 'Initiated'
+            kyc.attemptCount = (kyc.attemptCount ?? 0) + 1
+
+            await manager.save(kyc)
+        })
 
         const response = await xior.post(
             `${config.baseUrl}/ekyc/aadhaar/generate-otp`,

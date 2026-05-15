@@ -5,3 +5,5 @@ export * from './aadhaar-verify-otp.command.js';
 export * from './license-get-result.command.js';
 export * from './license-initiate.command.js';
 export * from './pan-verify.command.js';
+export * from './update-kyc-status.command.js';
+export * from './apply-manual-kyc.command.js';

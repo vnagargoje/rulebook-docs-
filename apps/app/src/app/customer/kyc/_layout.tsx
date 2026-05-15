@@ -21,7 +21,7 @@ export default function KycLayout() {
             <Stack.Screen name='license' options={{ title: 'Driving License' }} />
             <Stack.Screen name='profile' options={{ title: 'Confirm Your Profile' }} />
             <Stack.Screen name='address' options={{ title: 'Address Details' }} />
-            <Stack.Screen name='emergency' options={{ title: 'Emergency Contact' }} />
+            <Stack.Screen name='manual-verification' options={{ title: 'Manual Verification', gestureEnabled: false, headerBackVisible: false }} />
         </Stack>
     )
 }

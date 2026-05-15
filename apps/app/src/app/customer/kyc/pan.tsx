@@ -7,12 +7,19 @@ import { Keyboard, KeyboardAvoidingView, Platform, TextInput } from 'react-nativ
 import { Button, SafeAreaView, ScrollView, Text, View, showErrorMessage } from '@/components/ui'
 import { FieldWrapper } from '@/components/profile/field-wrapper'
 import { SectionCard } from '@/components/profile/section-card'
-import { KYC_STATUS_QUERY_KEY, usePanVerify } from '@/queries/customer/kyc.query'
+import {
+    KYC_STATUS_QUERY_KEY,
+    fetchKycStatus,
+    getFirstIncompleteKycRoute,
+    useKycStatus,
+    usePanVerify,
+} from '@/queries/customer/kyc.query'
 import { panSchema, type PanFormValues } from '@/schema/kyc/kyc.schema'
 
 export default function PanScreen() {
     const router = useRouter()
     const queryClient = useQueryClient()
+    const { data: kycStatus } = useKycStatus()
     const panVerify = usePanVerify()
 
     const {
@@ -33,9 +40,44 @@ export default function PanScreen() {
             await queryClient.invalidateQueries({ queryKey: [...KYC_STATUS_QUERY_KEY] })
             router.replace('/customer/kyc/license')
         } else {
+            const nextStatus = await queryClient.fetchQuery({ queryKey: [...KYC_STATUS_QUERY_KEY], queryFn: fetchKycStatus })
+            const nextRoute = getFirstIncompleteKycRoute(nextStatus)
+            if (nextRoute !== '/customer/kyc/pan') {
+                router.replace(nextRoute as never)
+                return
+            }
             showErrorMessage(result.message || 'PAN verification failed. Please check the number and try again.')
         }
     })
+
+    const isPanVerified = kycStatus?.pan?.status === 'verified' || kycStatus?.pan?.status === 'approved'
+    const isFailedMax = getFirstIncompleteKycRoute(kycStatus) !== '/customer/kyc/pan' && !isPanVerified
+
+    if (isFailedMax) {
+        return (
+            <SafeAreaView className='flex-1 bg-white'>
+                <View className='mx-4 mt-4 flex-row items-center gap-2'>
+                    <StepDot done step={1} />
+                    <StepLine done />
+                    <StepDot active step={2} />
+                    <StepLine />
+                    <StepDot step={3} />
+                </View>
+                <View className='flex-1 items-center justify-center px-6'>
+                    <Text className='text-center text-xl font-bold text-neutral-900'>Verification Failed</Text>
+                    <Text className='mt-2 text-center text-sm text-neutral-500'>
+                        PAN verification has failed after {kycStatus?.pan?.attemptCount ?? 0} attempts. You can continue with the remaining KYC steps.
+                    </Text>
+                    <Button
+                        label='Continue to Driving License'
+                        onPress={() => router.replace('/customer/kyc/license')}
+                        className='mt-8 h-13 w-full rounded-2xl bg-primary-600'
+                        textClassName='text-base font-semibold text-white'
+                    />
+                </View>
+            </SafeAreaView>
+        )
+    }
 
     return (
         <KeyboardAvoidingView
@@ -107,9 +149,8 @@ export default function PanScreen() {
 function StepDot({ step, active, done }: { step: number; active?: boolean; done?: boolean }) {
     return (
         <View
-            className={`h-7 w-7 items-center justify-center rounded-full ${
-                done ? 'bg-emerald-500' : active ? 'bg-primary-600' : 'bg-neutral-200'
-            }`}>
+            className={`h-7 w-7 items-center justify-center rounded-full ${done ? 'bg-emerald-500' : active ? 'bg-primary-600' : 'bg-neutral-200'
+                }`}>
             {done ? (
                 <Text className='text-xs font-bold text-white'>✓</Text>
             ) : (

@@ -27,8 +27,8 @@ export default function CreatePlanRoute() {
             kmLimit: 0,
             price: 0,
             deposit: 0,
-            gst: 0,
-            registrationFee: 0,
+            gstPercentage: 0,
+            registrationFee: 499,
             active: 'true',
         },
     })
@@ -41,8 +41,7 @@ export default function CreatePlanRoute() {
             kmLimit: values.kmLimit,
             price: values.price,
             deposit: values.deposit,
-            gst: values.gst,
-            registrationFee: values.registrationFee,
+            gstPercentage: values.gstPercentage,
             active: values.active === 'true',
         }, {
             onSuccess: () => {
@@ -94,15 +93,15 @@ export default function CreatePlanRoute() {
                                     <TextInputField control={form.control} name="deposit" label="Security Deposit (₹)" type="number" />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="gst" label="GST (₹)" type="number" />
-                                    <TextInputField control={form.control} name="registrationFee" label="Registration Fee (₹)" type="number" />
+                                    <TextInputField control={form.control} name="gstPercentage" label="GST (%)" type="number" maxLength={2} onlyDigits />
+                                    <TextInputField control={form.control} name="registrationFee" label="Registration Fee (₹)" type="number" disabled />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <SelectField
                                         control={form.control}
                                         name="active"
                                         label="Plan Availability"
-                                        options={[{ label: 'Currently Active', value: 'true' }, { label: 'Inactive / Hidden', value: 'false' }]}
+                                        options={[{ label: 'Active', value: 'true' }, { label: 'Inactive', value: 'false' }]}
                                         required
                                     />
                                 </div>

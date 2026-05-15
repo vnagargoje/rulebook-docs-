@@ -24,3 +24,12 @@ export const LicenseInitiatePayload = Type.Object({
 });
 
 export const LicenseGetResultPayload = Type.Object({});
+
+export const UpdateKycStatusPayload = Type.Object({
+    status: Type.String(),
+    notes: Type.Optional(Type.String()),
+});
+
+export const ApplyManualKycPayload = Type.Object({
+    notes: Type.Optional(Type.String()),
+});

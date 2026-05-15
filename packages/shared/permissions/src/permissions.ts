@@ -11,6 +11,8 @@ export const permissions: Permissions<Roles[keyof Roles], Subjects, Actions> = {
         can(Actions.read, Subjects.UserPlan)
         can(Actions.create, Subjects.Booking)
         can(Actions.read, Subjects.Booking)
+        can(Actions.read, Subjects.Kyc)
+        can(Actions.create, Subjects.Kyc)
     },
     hub_manager({ can }) {
         can(Actions.create, Subjects.BatteryTransport)
@@ -40,5 +42,6 @@ export const permissions: Permissions<Roles[keyof Roles], Subjects, Actions> = {
         can(Actions.manage, Subjects.BatteryTransport)
         can(Actions.manage, Subjects.BatterySwap)
         can(Actions.manage, Subjects.VehicleSurrender)
+        can(Actions.manage, Subjects.Kyc)
     },
 }

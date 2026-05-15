@@ -72,7 +72,7 @@ export default function VerifyOtpPage() {
                     if (userRole === 'customer') {
                         const kycResponse = await client.v1.kycGetStatus()
                         if (!isKycComplete(kycResponse.data)) {
-                            router.replace(getFirstIncompleteKycRoute(kycResponse.data) as any)
+                            router.replace(getFirstIncompleteKycRoute(kycResponse.data) as never)
                             return
                         }
                     }

@@ -23,7 +23,6 @@ export default function CreateTopUpPlanRoute() {
         defaultValues: {
             name: '',
             description: '',
-            validityDays: 0,
             kmLimit: 0,
             price: 0,
             gstPercentage: 0,
@@ -35,7 +34,6 @@ export default function CreateTopUpPlanRoute() {
         createTopUp.mutate({
             name: values.name,
             description: values.description,
-            validityDays: values.validityDays,
             kmLimit: values.kmLimit,
             price: values.price,
             gstPercentage: values.gstPercentage,
@@ -59,7 +57,7 @@ export default function CreateTopUpPlanRoute() {
                 </Button>
                 <PageHeader
                     title="Create New Top-Up Plan"
-                    description="Offer an additional mileage or duration addon for current subscribers"
+                    description="Offer an additional mileage addon for current subscribers"
                 />
             </div>
 
@@ -76,7 +74,6 @@ export default function CreateTopUpPlanRoute() {
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Allowances & Logic</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="validityDays" label="Validity Extension (Days)" type="number" required />
                                     <TextInputField control={form.control} name="kmLimit" label="Distance Add-on (KM)" type="number" required />
                                 </div>
                             </div>

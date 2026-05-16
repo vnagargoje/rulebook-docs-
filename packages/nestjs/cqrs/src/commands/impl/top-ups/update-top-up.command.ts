@@ -1,7 +1,6 @@
 export interface UpdateTopUpPayload {
     name?: string
     description?: string
-    validityDays?: number
     kmLimit?: number
     price?: number
     active?: boolean

@@ -44,7 +44,6 @@ export interface PlanSnapshot {
 export interface TopUpSnapshot {
     name?: string
     description?: string
-    validityDays?: number
     kmLimit?: number
     price?: number
     gstPercentage?: number

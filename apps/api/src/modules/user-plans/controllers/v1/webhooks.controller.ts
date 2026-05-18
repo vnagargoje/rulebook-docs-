@@ -151,7 +151,6 @@ export class V1WebhooksController {
                                 userTopUp.topUpSnapshot = {
                                     name: topUp.name,
                                     description: topUp.description,
-                                    validityDays: topUp.validityDays,
                                     kmLimit: topUp.kmLimit,
                                     price: topUp.price,
                                     gstPercentage: topUp.gstPercentage,
@@ -164,13 +163,7 @@ export class V1WebhooksController {
                                 Number(userPlan.remainingKm) + Number(topUp.kmLimit);
                             userPlan.totalKm =
                                 Number(userPlan.totalKm) + Number(topUp.kmLimit);
-                            if (userPlan.expiresAt && topUp.validityDays > 0) {
-                                const newExpiry = new Date(userPlan.expiresAt);
-                                newExpiry.setDate(
-                                    newExpiry.getDate() + topUp.validityDays,
-                                );
-                                userPlan.expiresAt = newExpiry;
-                            }
+
                             await manager.save(userPlan);
                         }
                     }

@@ -33,21 +33,18 @@ export class ApplyTopUpHandler implements ICommandHandler<ApplyTopUpCommand> {
             const gstPercentage = Number(topUp.gstPercentage || 0)
             const gstAmount = (basePrice * gstPercentage) / 100
             const topUpTotalAmount = Math.ceil(basePrice + gstAmount)
-            const topUpSnapshot = {
-                name: topUp.name,
-                description: topUp.description,
-                validityDays: topUp.validityDays,
-                kmLimit: topUp.kmLimit,
-                price: topUp.price,
-                gstPercentage,
-                gstAmount,
-            }
-
             const userTopUp = manager.create(UserTopUpEntity, {
                 userId,
                 userPlanId,
                 topUpId,
-                topUpSnapshot,
+                topUpSnapshot: {
+                    name: topUp.name,
+                    description: topUp.description,
+                    kmLimit: topUp.kmLimit,
+                    price: topUp.price,
+                    gstPercentage,
+                    gstAmount,
+                },
                 status: UserTopUpStatus.APPLIED,
                 appliedAt: new Date(),
             })
@@ -57,12 +54,6 @@ export class ApplyTopUpHandler implements ICommandHandler<ApplyTopUpCommand> {
             )
             userPlan.remainingKm = Number(userPlan.remainingKm) + Number(topUp.kmLimit)
             userPlan.totalKm = Number(userPlan.totalKm) + Number(topUp.kmLimit)
-
-            if (userPlan.expiresAt && topUp.validityDays > 0) {
-                const newExpiry = new Date(userPlan.expiresAt)
-                newExpiry.setDate(newExpiry.getDate() + topUp.validityDays)
-                userPlan.expiresAt = newExpiry
-            }
 
             await manager.save(userPlan)
             this.logger.log(`Top-up ${topUpId} applied to user plan ${userPlanId}`)

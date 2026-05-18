@@ -16,6 +16,7 @@ import { StateResponse } from '../../dtos/responses.js';
 
 const PAGINATE_CONFIG: PaginateConfig<StateEntity> = {
     sortableColumns: ['id', 'name'],
+    searchableColumns: ['name'],
     filterableColumns: {
         'country.code': [FilterOperator.IN, FilterOperator.EQ],
     },

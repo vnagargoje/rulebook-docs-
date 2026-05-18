@@ -16,6 +16,7 @@ import { CityResponse } from '../../dtos/responses.js';
 
 const PAGINATE_CONFIG: PaginateConfig<CityEntity> = {
     sortableColumns: ['id', 'name'],
+    searchableColumns: ['name'],
     filterableColumns: {
         'state.id': [FilterOperator.IN, FilterOperator.EQ],
     },

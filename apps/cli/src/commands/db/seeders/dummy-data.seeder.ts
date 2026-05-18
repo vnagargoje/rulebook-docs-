@@ -320,21 +320,18 @@ export class DummyDataSeeder implements Seeder {
         const topUpConfigs = [
             {
                 name: '100 KM Boost',
-                validityDays: 7,
                 kmLimit: 100,
                 price: 199,
                 gstPercentage: 18,
             },
             {
                 name: '250 KM Voyager',
-                validityDays: 14,
                 kmLimit: 250,
                 price: 399,
                 gstPercentage: 18,
             },
             {
                 name: '500 KM Ultimate',
-                validityDays: 30,
                 kmLimit: 500,
                 price: 699,
                 gstPercentage: 18,
@@ -349,7 +346,6 @@ export class DummyDataSeeder implements Seeder {
                 topUp = manager.create(TopUpEntity, {
                     name: config.name,
                     description: faker.lorem.sentence(),
-                    validityDays: config.validityDays,
                     kmLimit: config.kmLimit,
                     price: config.price,
                     gstPercentage: config.gstPercentage,

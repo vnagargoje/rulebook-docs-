@@ -20,7 +20,6 @@ export class CreateTopUpHandler implements ICommandHandler<CreateTopUpCommand> {
         const topUp = manager.create(TopUpEntity, {
             name: payload.name,
             description: payload.description,
-            validityDays: payload.validityDays,
             kmLimit: payload.kmLimit,
             gstPercentage: payload.gstPercentage,
             price: payload.price,

@@ -9,9 +9,6 @@ export class TopUpEntity extends IdTimestamppedEntity {
     @Column('text', { nullable: true })
     description: string
 
-    @Column('int')
-    validityDays: number
-
     @Column('decimal', { precision: 10, scale: 2 })
     kmLimit: number
 

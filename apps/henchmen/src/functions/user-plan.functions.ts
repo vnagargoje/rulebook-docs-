@@ -17,7 +17,7 @@ export class UserPlanFunctions {
     constructor(private readonly commandBus: CommandBus) {}
 
     @NestjsInngestFunction<HenchmenInngestClient>(
-        { id: 'activate-queued-plan' },
+        { id: 'activateQueuedPlan' },
         { event: 'plan/userPlan.activate' },
     )
     async activateQueuedPlan({

@@ -8,7 +8,7 @@ import type { PaymentSuccessData, PaymentErrorData } from 'react-native-razorpay
 
 import { SummaryRow } from '@/components/customer/confirm-booking'
 import { Button, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
-import { formatCurrencyIN, formatNumberIN } from '@/lib/formatters/customer'
+import { formatCurrencyIN, formatNumberIN, formatPercentage, getAmountDifference } from '@/lib/formatters/customer'
 import { usePlanById } from '@/queries/customer'
 import { useInitiatePlanPurchase, useVerifyPayment } from '@/queries/customer'
 import { useCustomerProfile } from '@/queries/customer'
@@ -23,6 +23,7 @@ export default function ConfirmBookingScreen() {
     const { data: profile } = useCustomerProfile()
     const initiatePurchase = useInitiatePlanPurchase()
     const verifyPayment = useVerifyPayment()
+    const gstAmount = plan ? getAmountDifference(plan.totalAmount, plan.price, plan.deposit, plan.registrationFee) : 0
 
     const handleConfirm = useCallback(() => {
         if (!planId) return
@@ -35,7 +36,7 @@ export default function ConfirmBookingScreen() {
                     const options = {
                         description: `${plan?.name ?? 'Yugo'} Plan`,
                         currency: orderData.currency,
-                        key: orderData.key, // public key returned by server – safe on client
+                        key: orderData.key, // public key returned by server - safe on client
                         amount: orderData.amount,
                         name: 'Yugo',
                         order_id: orderData.razorpayOrderId,
@@ -60,7 +61,7 @@ export default function ConfirmBookingScreen() {
                             return
                         }
 
-                        // Step 3: verify signature server-side – never trust the client alone
+                        // Step 3: verify signature server-side - never trust the client alone
                         verifyPayment.mutate(
                             {
                                 razorpayOrderId: paymentData.razorpay_order_id ?? orderData.razorpayOrderId,
@@ -102,7 +103,7 @@ export default function ConfirmBookingScreen() {
                         const razorpayError = error as PaymentErrorData
                         if (razorpayError?.code === 2) {
                             toast.error('Payment cancelled', {
-                                description: 'You cancelled the payment. Your order is saved — try again anytime.',
+                                description: 'You cancelled the payment. Your order is saved - try again anytime.',
                             })
                         } else {
                             toast.error('Payment failed', {
@@ -188,8 +189,8 @@ export default function ConfirmBookingScreen() {
                             />
                             <View className='border-b border-neutral-100' />
                             <SummaryRow
-                                label='GST'
-                                value={formatCurrencyIN(plan.gst)}
+                                label={`GST (${formatPercentage(plan.gstPercentage)})`}
+                                value={formatCurrencyIN(gstAmount)}
                             />
                             <View className='border-b border-neutral-100' />
                             <SummaryRow
@@ -248,7 +249,7 @@ export default function ConfirmBookingScreen() {
                     textClassName='text-base font-semibold text-white'
                 />
                 <Text className='mt-3 text-center text-xs text-neutral-400'>
-                    Secured by Razorpay · UPI, Cards, Net Banking &amp; Wallets accepted
+                    Secured by Razorpay - UPI, Cards, Net Banking &amp; Wallets accepted
                 </Text>
             </View>
         </View>

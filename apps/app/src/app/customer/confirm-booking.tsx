@@ -8,7 +8,7 @@ import type { PaymentSuccessData, PaymentErrorData } from 'react-native-razorpay
 
 import { SummaryRow } from '@/components/customer/confirm-booking'
 import { Button, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
-import { formatCurrencyIN, formatNumberIN, formatPercentage, getAmountDifference } from '@/lib/formatters/customer'
+import { formatCurrencyIN, formatNumberIN, formatPercentage, getAmountDifference, toSafeNumber } from '@/lib/formatters/customer'
 import { usePlanById } from '@/queries/customer'
 import { useInitiatePlanPurchase, useVerifyPayment } from '@/queries/customer'
 import { useCustomerProfile } from '@/queries/customer'
@@ -23,7 +23,16 @@ export default function ConfirmBookingScreen() {
     const { data: profile } = useCustomerProfile()
     const initiatePurchase = useInitiatePlanPurchase()
     const verifyPayment = useVerifyPayment()
-    const gstAmount = plan ? getAmountDifference(plan.totalAmount, plan.price, plan.deposit, plan.registrationFee) : 0
+    const registrationFee = toSafeNumber(plan?.registrationFee)
+    const shouldShowRegistrationFee = registrationFee > 0
+    const gstAmount = plan
+        ? getAmountDifference(
+            plan.totalAmount,
+            plan.price,
+            plan.deposit,
+            shouldShowRegistrationFee ? registrationFee : 0,
+        )
+        : 0
 
     const handleConfirm = useCallback(() => {
         if (!planId) return
@@ -192,11 +201,15 @@ export default function ConfirmBookingScreen() {
                                 label={`GST (${formatPercentage(plan.gstPercentage)})`}
                                 value={formatCurrencyIN(gstAmount)}
                             />
-                            <View className='border-b border-neutral-100' />
-                            <SummaryRow
-                                label='Registration fee'
-                                value={formatCurrencyIN(plan.registrationFee)}
-                            />
+                            {shouldShowRegistrationFee ? (
+                                <>
+                                    <View className='border-b border-neutral-100' />
+                                    <SummaryRow
+                                        label='Registration fee'
+                                        value={formatCurrencyIN(registrationFee)}
+                                    />
+                                </>
+                            ) : null}
                             <View className='my-1 border-b border-dashed border-neutral-200' />
                             <SummaryRow
                                 label='Total'

@@ -9,7 +9,7 @@ import type { PaymentSuccessData, PaymentErrorData } from 'react-native-razorpay
 import { StatTile } from '@/components/customer/shared'
 
 import { Button, Pressable, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
-import { formatCurrencyIN, formatKmIN, formatNumberIN, toSafeNumber } from '@/lib/formatters/customer'
+import { formatCurrencyIN, formatKmIN, formatNumberIN, formatPercentage, getAmountDifference } from '@/lib/formatters/customer'
 import { useInitiateTopUpPurchase, useVerifyTopUpPayment, useTopUpById } from '@/queries/customer'
 import { useMyPlans } from '@/queries/customer'
 import { useCustomerProfile } from '@/queries/customer'
@@ -36,6 +36,7 @@ export default function ConfirmTopUpScreen() {
     const canProceed = Boolean(topUpId) && Boolean(resolvedPlanId)
     const isPending = initiateTopUpPurchase.isPending || verifyTopUpPayment.isPending
     const isRazorpayOpen = useRef(false)
+    const gstAmount = topUp ? getAmountDifference(topUp.totalAmount, topUp.price) : 0
 
     const handleConfirm = useCallback(() => {
         const userPlanId = resolvedPlanId
@@ -50,7 +51,7 @@ export default function ConfirmTopUpScreen() {
             {
                 onSuccess: async (orderData) => {
                     const options = {
-                        description: `${topUp?.name ?? 'Top-Up'} – Yugo`,
+                        description: `${topUp?.name ?? 'Top-Up'} - Yugo`,
                         currency: orderData.currency,
                         key: orderData.key,
                         amount: orderData.amount,
@@ -134,8 +135,6 @@ export default function ConfirmTopUpScreen() {
         )
     }, [topUpId, resolvedPlanId, topUp, profile, initiateTopUpPurchase, verifyTopUpPayment, queryClient, router])
 
-    const totalAmount = topUp ? toSafeNumber(topUp.price) + toSafeNumber(topUp.gst) : 0
-
     if (topUpLoading || plansLoading) {
         return <ScreenLoader />
     }
@@ -185,7 +184,7 @@ export default function ConfirmTopUpScreen() {
                             </View>
                             <View className='items-end'>
                                 <Text className='text-xl font-bold text-primary-600'>
-                                    {formatCurrencyIN(totalAmount)}
+                                    {formatCurrencyIN(topUp.totalAmount)}
                                 </Text>
                                 <Text className='text-[10px] text-neutral-400'>incl. GST</Text>
                             </View>
@@ -197,16 +196,14 @@ export default function ConfirmTopUpScreen() {
                                 value={`+${formatNumberIN(topUp.kmLimit)} km`}
                                 tint='success'
                             />
-                            {topUp.validityDays > 0 ? (
-                                <StatTile
-                                    label='Days Extended'
-                                    value={`+${topUp.validityDays} days`}
-                                    tint='primary'
-                                />
-                            ) : null}
                             <StatTile
                                 label='Base Price'
                                 value={formatCurrencyIN(topUp.price)}
+                            />
+                            <StatTile
+                                label={`GST (${formatPercentage(topUp.gstPercentage)})`}
+                                value={formatCurrencyIN(gstAmount)}
+                                tint='primary'
                             />
                         </View>
                     </View>
@@ -293,16 +290,16 @@ export default function ConfirmTopUpScreen() {
                             </View>
                             <View className='border-b border-neutral-100' />
                             <View className='flex-row items-center justify-between py-3'>
-                                <Text className='text-sm text-neutral-500'>GST</Text>
+                                <Text className='text-sm text-neutral-500'>GST ({formatPercentage(topUp.gstPercentage)})</Text>
                                 <Text className='text-sm font-medium text-neutral-900'>
-                                    {formatCurrencyIN(topUp.gst)}
+                                    {formatCurrencyIN(gstAmount)}
                                 </Text>
                             </View>
                             <View className='border-b border-neutral-100' />
                             <View className='flex-row items-center justify-between pt-3'>
                                 <Text className='text-base font-bold text-neutral-900'>Total</Text>
                                 <Text className='text-base font-bold text-primary-600'>
-                                    {formatCurrencyIN(totalAmount)}
+                                    {formatCurrencyIN(topUp.totalAmount)}
                                 </Text>
                             </View>
                         </View>
@@ -325,20 +322,6 @@ export default function ConfirmTopUpScreen() {
                                     +{formatKmIN(topUp.kmLimit).replace(' km', '')} km added instantly
                                 </Text>
                             </View>
-                            {topUp.validityDays > 0 ? (
-                                <View className='flex-row items-center gap-3'>
-                                    <View className='h-7 w-7 items-center justify-center rounded-xl bg-primary-50'>
-                                        <MaterialCommunityIcons
-                                            name='check'
-                                            size={14}
-                                            color='#2563EB'
-                                        />
-                                    </View>
-                                    <Text className='text-sm text-neutral-700'>
-                                        Plan extended by {topUp.validityDays} days
-                                    </Text>
-                                </View>
-                            ) : null}
                             <View className='flex-row items-center gap-3'>
                                 <View className='h-7 w-7 items-center justify-center rounded-xl bg-success-50'>
                                     <MaterialCommunityIcons

@@ -2,23 +2,28 @@ import { useLocation, useNavigate, useParams } from 'react-router'
 import {
     IconArrowLeft,
     IconCalendarEvent,
+    IconCheck,
     IconEdit,
+    IconId,
     IconMail,
     IconMapPin,
     IconPhone,
     IconUser,
+    IconX,
 } from '@tabler/icons-react'
+import { KycStatus } from '@yugo/shared'
 
-import { PageHeader } from '~/components/ui/page-header'
-import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { DetailRow } from '~/components/ui/detail-row'
+import { MetaPill } from '~/components/ui/meta-pill'
+import { PageHeader } from '~/components/ui/page-header'
 import { SectionLabel } from '~/components/ui/section-label'
 import { StatTile } from '~/components/ui/stat-tile'
-import { MetaPill } from '~/components/ui/meta-pill'
-import { useGetUserById } from '~/queries/users'
+import { StatusBadge } from '~/components/ui/status-badge'
 import { formatDate, formatLabel } from '~/lib/formatter'
+import { useCustomerKyc, useUpdateKycStatus } from '~/queries/kyc'
+import { useGetUserById } from '~/queries/users'
 
 function getUserProperties(properties: unknown) {
     if (!properties) return {}
@@ -55,6 +60,7 @@ function formatAddress(address?: {
         .join(', ')
 }
 
+
 export default function UserViewRoute() {
     const { id } = useParams()
     const navigate = useNavigate()
@@ -65,9 +71,17 @@ export default function UserViewRoute() {
     const backPath = isCustomerRoute ? '/customers' : '/users'
     const editPath = isCustomerRoute ? `/customers/edit/${id}` : `/users/edit/${id}`
 
+    const { data: kycData } = useCustomerKyc(id)
+    const manualReviewKycs =
+        kycData?.data?.filter(
+            (kyc) => kyc.status === KycStatus.MANUAL_VERIFICATION_REQUESTED,
+        ) ?? []
+    const manualKyc = manualReviewKycs[0]
+    const { mutate: updateKycStatus, isPending: isUpdatingKyc } = useUpdateKycStatus()
+
     if (isLoading) {
         return (
-            <div className="p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase">
+            <div className="animate-pulse p-8 text-center text-sm font-bold uppercase tracking-widest text-muted-foreground">
                 Loading User...
             </div>
         )
@@ -75,7 +89,7 @@ export default function UserViewRoute() {
 
     if (!user) {
         return (
-            <div className="p-8 text-center text-muted-foreground font-bold tracking-widest text-sm uppercase">
+            <div className="p-8 text-center text-sm font-bold uppercase tracking-widest text-muted-foreground">
                 User not found
             </div>
         )
@@ -133,6 +147,87 @@ export default function UserViewRoute() {
                 </CardContent>
             </Card>
 
+            {manualKyc && (
+                <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
+                    <CardHeader className="border-b border-border/40">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                            <div className="space-y-2">
+                                <CardTitle className="flex items-center gap-3 text-xl">
+                                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                        <IconId size={18} />
+                                    </span>
+                                    Manual KYC Verification
+                                </CardTitle>
+                                <CardDescription className="max-w-2xl">
+                                    {isCustomerRoute
+                                        ? 'Customer submitted a document for manual review. Verify the request and take the next action from this panel.'
+                                        : 'Employee submitted a document for manual review. Verify the request and take the next action from this panel.'}
+                                </CardDescription>
+                            </div>
+                            <StatusBadge status={manualKyc.status.toUpperCase()} />
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(280px,0.9fr)]">
+                            <div className="rounded-2xl border border-border/50 bg-slate-50/70 p-5">
+                                <SectionLabel>Document Information</SectionLabel>
+                                <div className="mt-4 grid gap-x-6 gap-y-3 md:grid-cols-2">
+                                    <DetailRow label="Document ID" value={manualKyc.documentId || '—'} />
+                                    <DetailRow label="Document Type" value={formatLabel(manualKyc.type)} />
+                                    <DetailRow
+                                        label="Submitted At"
+                                        value={manualKyc.createdAt ? formatDate(manualKyc.createdAt as string) : '—'}
+                                    />
+                                    <DetailRow label="Current Status" value={formatLabel(manualKyc.status)} />
+                                </div>
+                                <div className="mt-4 border-t border-border/40 pt-4">
+                                    <DetailRow label="Notes" value={manualKyc.notes || '—'} />
+                                </div>
+                            </div>
+
+                            <div className="flex h-full flex-col rounded-2xl border border-border/50 bg-white p-5 shadow-sm">
+                                <SectionLabel>Verification Actions</SectionLabel>
+                                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                                    Approve if the submitted details are valid, or reject and add a reason for the review outcome.
+                                </p>
+                                <div className="mt-6 flex flex-1 flex-col justify-end gap-3">
+                                    {manualKyc.status !== KycStatus.APPROVED && (
+                                        <Button
+                                            onClick={() => updateKycStatus({ id: manualKyc.id, status: KycStatus.APPROVED })}
+                                            disabled={isUpdatingKyc}
+                                            className="h-11 w-full bg-emerald-600 hover:bg-emerald-700"
+                                        >
+                                            <IconCheck size={16} className="mr-2" />
+                                            Approve Verification
+                                        </Button>
+                                    )}
+                                    {manualKyc.status !== KycStatus.REJECTED && (
+                                        <Button
+                                            variant="destructive"
+                                            onClick={() => {
+                                                const reason = window.prompt('Enter rejection reason:')
+                                                if (reason !== null) {
+                                                    updateKycStatus({
+                                                        id: manualKyc.id,
+                                                        status: KycStatus.REJECTED,
+                                                        notes: reason,
+                                                    })
+                                                }
+                                            }}
+                                            disabled={isUpdatingKyc}
+                                            className="h-11 w-full"
+                                        >
+                                            <IconX size={16} className="mr-2" />
+                                            Reject Verification
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
                     <CardHeader className="border-b border-border/40">
@@ -184,6 +279,8 @@ export default function UserViewRoute() {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Customer history sections removed*/}
         </div>
     )
 }

@@ -52,13 +52,6 @@ export default function TopUpSuccessScreen() {
                             subtitle: 'Your remaining kilometers have been increased',
                         },
                         {
-                            icon: 'calendar-check' as const,
-                            color: '#2563EB',
-                            bg: '#EFF6FF',
-                            title: 'Validity updated',
-                            subtitle: 'If the top-up includes extra days, they\'ve been added',
-                        },
-                        {
                             icon: 'motorbike-electric' as const,
                             color: '#D97706',
                             bg: '#FFFBEB',
@@ -74,7 +67,7 @@ export default function TopUpSuccessScreen() {
                                 >
                                     <MaterialCommunityIcons name={step.icon} size={22} color={step.color} />
                                 </View>
-                                {index < 2 && <View className='my-1 h-6 w-0.5 bg-neutral-200' />}
+                                {index < 1 && <View className='my-1 h-6 w-0.5 bg-neutral-200' />}
                             </View>
                             <View className='flex-1 justify-center pb-4'>
                                 <Text className='text-base font-semibold text-neutral-900'>{step.title}</Text>

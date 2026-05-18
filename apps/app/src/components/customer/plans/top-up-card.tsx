@@ -2,7 +2,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 import { StatTile } from '@/components/customer/shared'
 import { Pressable, Text, View } from '@/components/ui'
-import { formatCurrencyIN, formatNumberIN, toSafeNumber } from '@/lib/formatters/customer'
+import { formatCurrencyIN, formatNumberIN, formatPercentage, getAmountDifference } from '@/lib/formatters/customer'
 import type { TopUp } from '@/queries/customer'
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
 }
 
 export function TopUpCard({ topUp, onPress }: Props) {
-    const totalAmount = toSafeNumber(topUp.price) + toSafeNumber(topUp.gst)
+    const gstAmount = getAmountDifference(topUp.totalAmount, topUp.price)
 
     return (
         <Pressable onPress={onPress}>
@@ -22,7 +22,7 @@ export function TopUpCard({ topUp, onPress }: Props) {
                     </View>
                     <View className='items-end'>
                         <Text className='text-xl font-bold text-primary-600'>
-                            {formatCurrencyIN(totalAmount)}
+                            {formatCurrencyIN(topUp.totalAmount)}
                         </Text>
                         <Text className='text-[10px] text-neutral-400'>incl. GST</Text>
                     </View>
@@ -30,10 +30,8 @@ export function TopUpCard({ topUp, onPress }: Props) {
 
                 <View className='mt-4 flex-row gap-3'>
                     <StatTile label='KM Added' value={`+${formatNumberIN(topUp.kmLimit)} km`} tint='success' />
-                    {topUp.validityDays > 0 && (
-                        <StatTile label='Days Added' value={`+${topUp.validityDays} days`} tint='primary' />
-                    )}
                     <StatTile label='Base Price' value={formatCurrencyIN(topUp.price)} />
+                    <StatTile label={`GST (${formatPercentage(topUp.gstPercentage)})`} value={formatCurrencyIN(gstAmount)} tint='primary' />
                 </View>
 
                 <View className='mt-3 flex-row items-center justify-end gap-1'>

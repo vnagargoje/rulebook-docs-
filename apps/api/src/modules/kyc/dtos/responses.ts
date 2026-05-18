@@ -7,6 +7,7 @@ export const KycDocumentResponse = Type.Object({
     status: Type.String(),
     verifiedAt: Type.Union([Type.String(), Type.Null()]),
     notes: Type.Union([Type.String(), Type.Null()]),
+    attemptCount: Type.Number(),
 });
 
 export const KycStatusResponse = Type.Object({
@@ -32,3 +33,18 @@ export const GenericKycResponse = Type.Object({
 export const LicenseInitiateResponse = Type.Object({
     requestId: Type.String(),
 });
+
+export const KycDetailsResponse = Type.Object({
+    id: Type.String(),
+    documentId: Type.String(),
+    type: Type.String(),
+    status: Type.String(),
+    verifiedAt: Type.Union([Type.String(), Type.Null()]),
+    notes: Type.Union([Type.String(), Type.Null()]),
+    attemptCount: Type.Number(),
+    userId: Type.String(),
+    createdAt: Type.String(),
+    updatedAt: Type.String(),
+});
+
+export const AllKycResponse = Type.Array(KycDetailsResponse);

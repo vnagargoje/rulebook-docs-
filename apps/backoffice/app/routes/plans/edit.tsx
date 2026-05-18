@@ -33,8 +33,8 @@ export default function EditPlanRoute() {
                 kmLimit: plan.kmLimit,
                 price: plan.price,
                 deposit: plan.deposit,
-                gst: plan.gst,
-                registrationFee: plan.registrationFee,
+                gstPercentage: plan.gstPercentage,
+                registrationFee: plan.registrationFee ?? 499,
                 active: plan.active ? 'true' : 'false',
             })
         }
@@ -52,8 +52,8 @@ export default function EditPlanRoute() {
                 kmLimit: values.kmLimit,
                 price: values.price,
                 deposit: values.deposit,
-                gst: values.gst,
-                registrationFee: values.registrationFee,
+                gstPercentage: values.gstPercentage,
+               
                 active: values.active === 'true',
             },
         }, {
@@ -110,15 +110,15 @@ export default function EditPlanRoute() {
                                     <TextInputField control={form.control} name="deposit" label="Security Deposit (₹)" type="number" />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="gst" label="GST (₹)" type="number" />
-                                    <TextInputField control={form.control} name="registrationFee" label="Registration Fee (₹)" type="number" />
+                                    <TextInputField control={form.control} name="gstPercentage" label="GST (%)" type="number" maxLength={2} onlyDigits />
+                                    <TextInputField control={form.control} name="registrationFee" label="Registration Fee (₹)" type="number" disabled />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <SelectField
                                         control={form.control}
                                         name="active"
                                         label="Plan Availability"
-                                        options={[{ label: 'Currently Active', value: 'true' }, { label: 'Inactive / Hidden', value: 'false' }]}
+                                        options={[{ label: 'Active', value: 'true' }, { label: 'Inactive', value: 'false' }]}
                                         required
                                     />
                                 </div>

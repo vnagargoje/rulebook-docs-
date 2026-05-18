@@ -24,14 +24,66 @@ export const licenseSchema = z.object({
         .trim(),
 })
 
-export const addressSchema = z.object({
+const singleAddressSchema = z.object({
     lineOne: z.string().min(5, 'Enter at least 5 characters').trim(),
+    lineTwo: z.string().optional(),
     pincode: z.string().regex(/^\d{6}$/, 'Enter a valid 6-digit pincode'),
     stateId: z.string().min(1, 'Select a state'),
     cityId: z.string().min(1, 'Select a city'),
     stateName: z.string().optional(),
     cityName: z.string().optional(),
 })
+
+// All fields optional with no base constraints — superRefine handles conditional validation
+const currentAddressSchema = z.object({
+    lineOne: z.string().optional(),
+    lineTwo: z.string().optional(),
+    pincode: z.string().optional(),
+    stateId: z.string().optional(),
+    cityId: z.string().optional(),
+    stateName: z.string().optional(),
+    cityName: z.string().optional(),
+})
+
+export const addressSchema = z
+    .object({
+        permanent: singleAddressSchema,
+        sameAsPermanent: z.boolean(),
+        current: currentAddressSchema.optional(),
+    })
+    .superRefine((data, ctx) => {
+        if (!data.sameAsPermanent) {
+            const current = data.current
+            if (!current?.lineOne || current.lineOne.trim().length < 5) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Enter at least 5 characters',
+                    path: ['current', 'lineOne'],
+                })
+            }
+            if (!current?.pincode || !/^\d{6}$/.test(current.pincode)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Enter a valid 6-digit pincode',
+                    path: ['current', 'pincode'],
+                })
+            }
+            if (!current?.stateId) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Select a state',
+                    path: ['current', 'stateId'],
+                })
+            }
+            if (!current?.cityId) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Select a city',
+                    path: ['current', 'cityId'],
+                })
+            }
+        }
+    })
 
 export const emergencyContactSchema = z.object({
     contactName: z.string().min(2, 'Name is required').trim(),

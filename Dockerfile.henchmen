@@ -3,16 +3,20 @@ RUN corepack enable
 
 FROM base AS build
 WORKDIR /app
+RUN mkdir -p /app/dist
 COPY package.json yarn.lock .yarnrc.yml turbo.json ./
+COPY .yarn ./.yarn
 COPY packages ./packages
 COPY apps ./apps
 
 RUN yarn install --immutable
-RUN yarn turbo run build --filter=@yugo/henchmen
+RUN yarn turbo run build --filter=@yugo/henchmen...
+RUN sh -c "test -f /app/apps/henchmen/dist/main.js -o -f /app/dist/apps/henchmen/main.js"
 
 FROM base AS deps
 WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn ./.yarn
 COPY packages ./packages
 COPY apps ./apps
 RUN yarn workspaces focus @yugo/henchmen --production
@@ -24,8 +28,9 @@ ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/apps/henchmen/dist ./apps/henchmen/dist
+COPY --from=build /app/dist ./dist
 COPY --from=build /app/apps/henchmen/package.json ./apps/henchmen/package.json
 COPY migrations ./migrations
 
 EXPOSE 4502
-CMD ["node", "apps/henchmen/dist/main.js"]
+CMD ["sh", "-c", "if [ -f apps/henchmen/dist/main.js ]; then node apps/henchmen/dist/main.js; elif [ -f dist/apps/henchmen/main.js ]; then node dist/apps/henchmen/main.js; else echo 'Henchmen entrypoint not found. Checked apps/henchmen/dist/main.js and dist/apps/henchmen/main.js' >&2; exit 1; fi"]

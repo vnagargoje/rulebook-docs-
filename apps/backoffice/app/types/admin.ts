@@ -33,7 +33,7 @@ export interface PlanSnapshot {
     name?: string
     price?: number
     deposit?: number
-    gst?: number
+    gstPercentage?: number
     registrationFee?: number
     totalAmount?: number
     validityDays?: number
@@ -47,7 +47,7 @@ export interface TopUpSnapshot {
     validityDays?: number
     kmLimit?: number
     price?: number
-    gst?: number
+    gstPercentage?: number
     totalAmount?: number
 }
 

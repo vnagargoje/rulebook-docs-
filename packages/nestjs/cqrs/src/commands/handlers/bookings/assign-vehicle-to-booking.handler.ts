@@ -3,8 +3,15 @@ import { BadRequestException, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
-import { BatteryEntity, BookingEntity, FileEntity, UserPlanEntity, VehicleEntity } from '@yugo/nestjs-database/entities'
-import { BookingStatus, BatteryStatus, UserPlanStatus, VehicleStatus } from '@yugo/shared'
+import {
+    BatteryEntity,
+    BookingEntity,
+    FileEntity,
+    UserKycEntity,
+    UserPlanEntity,
+    VehicleEntity,
+} from '@yugo/nestjs-database/entities'
+import { BookingStatus, BatteryStatus, KycDocumentType, KycStatus, UserPlanStatus, VehicleStatus } from '@yugo/shared'
 import { addDays } from 'date-fns'
 import { toBuffer } from 'qrcode'
 import { DataSource, EntityManager } from 'typeorm'
@@ -77,10 +84,28 @@ export class AssignVehicleToBookingHandler implements ICommandHandler<AssignVehi
             }
 
             const userPlan = await manager.findOne(UserPlanEntity, {
-                where: { id: booking.userPlanId, status: UserPlanStatus.PURCHASED },
+                where: { id: booking.userPlanId },
             })
             if (!userPlan) {
                 throw new NotFoundException('User plan not found for this booking')
+            }
+            if (userPlan.status !== UserPlanStatus.PURCHASED) {
+                throw new BadRequestException('The purchase for the plan is not complete yet')
+            }
+
+            const kycs = await manager.find(UserKycEntity, { where: { userId: userPlan.userId } })
+
+            const requiredTypes = [KycDocumentType.AADHAR, KycDocumentType.PAN, KycDocumentType.DRIVING_LICENSE]
+            const approvedTypes = kycs
+                .filter((k) => k.status === KycStatus.APPROVED || k.status === KycStatus.VERIFIED)
+                .map((k) => k.type)
+
+            const hasAllKyc = requiredTypes.every((type) => approvedTypes.includes(type))
+
+            if (!hasAllKyc) {
+                throw new BadRequestException(
+                    'All three KYC verifications (Aadhaar, PAN, and Driving License) are required before collecting vehicle',
+                )
             }
 
             booking.vehicleId = vehicleId

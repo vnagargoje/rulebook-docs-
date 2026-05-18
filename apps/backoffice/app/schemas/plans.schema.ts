@@ -20,9 +20,10 @@ const planBaseSchema = z.object({
     deposit: z.coerce
         .number({ invalid_type_error: 'Must be a number' })
         .min(0, 'Must be 0 or more'),
-    gst: z.coerce
+    gstPercentage: z.coerce
         .number({ invalid_type_error: 'Must be a number' })
-        .min(0, 'Must be 0 or more'),
+        .min(0, 'Must be 0 or more')
+        .max(100, 'Cannot exceed 100'),
        
     registrationFee: z.coerce
         .number({ invalid_type_error: 'Must be a number' })

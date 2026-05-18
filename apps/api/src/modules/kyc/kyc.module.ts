@@ -7,7 +7,9 @@ import {
     LicenseGetResultHandler, 
     LicenseInitiateHandler, 
     PanVerifyHandler,
-    GetKycStatusHandler
+    GetKycStatusHandler,
+    UpdateKycStatusHandler,
+    ApplyManualKycHandler
 } from '@yugo/cqrs';
 import { AadhaarController } from './controllers/v1/aadhaar.controller.js';
 import { PanController } from './controllers/v1/pan.controller.js';
@@ -23,6 +25,8 @@ const Handlers = [
     LicenseInitiateHandler,
     PanVerifyHandler,
     GetKycStatusHandler,
+    UpdateKycStatusHandler,
+    ApplyManualKycHandler,
 ];
 
 @Module({

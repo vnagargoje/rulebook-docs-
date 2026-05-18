@@ -14,7 +14,7 @@ export const useManagerSwapStation = createQuery<V1StationsGetManyStationsRespon
             page: 1,
             limit: 1,
             'filter.type': ['$eq:swap_station'],
-            'filter.managerId': [`$eq:${managerId}`],
+            'filter.managers.id': [`$eq:${managerId}`],
         })
         
         // Return the station if found, otherwise return null

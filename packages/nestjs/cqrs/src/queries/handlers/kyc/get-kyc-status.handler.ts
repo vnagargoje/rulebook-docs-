@@ -32,6 +32,7 @@ export class GetKycStatusHandler implements IQueryHandler<GetKycStatusQuery> {
                 status: kyc.status,
                 verifiedAt: kyc.verifiedAt ? kyc.verifiedAt.toISOString() : null,
                 notes: kyc.notes || null,
+                attemptCount: kyc.attemptCount ?? 0,
             }
         }
         const response = {

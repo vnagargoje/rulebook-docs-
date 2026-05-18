@@ -6,10 +6,6 @@ const topUpBaseSchema = z.object({
         .min(2, 'Plan name must be at least 2 characters')
         .max(100, 'Plan name must be at most 100 characters'),
     description: z.string().max(500, 'Description must be at most 500 characters').optional(),
-    validityDays: z.coerce
-        .number({ invalid_type_error: 'Must be a number' })
-        .int('Must be a whole number'),
-        
     kmLimit: z.coerce
         .number({ invalid_type_error: 'Must be a number' })
         .min(0, 'Must be 0 or more'),

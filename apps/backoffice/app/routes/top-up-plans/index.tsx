@@ -39,7 +39,6 @@ export default function TopUpPlansListRoute() {
 
     const columns = useMemo(() => [
         { header: 'Plan Name', accessor: 'name' as const },
-        // { header: 'Validity (Days)', accessor: 'validityDays' as const },
         { header: 'KM Limit', cell: (topUp: (typeof topUps)[number]) => `${topUp.kmLimit} km` },
         { header: 'Price', cell: (topUp: (typeof topUps)[number]) => formatCurrency(topUp.price) },
         { header: 'GST', cell: (topUp: (typeof topUps)[number]) => `${topUp.gstPercentage}%` },

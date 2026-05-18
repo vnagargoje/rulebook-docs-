@@ -1,9 +1,9 @@
-import { NotFoundException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { UserEntity, UserKycEntity } from '@yugo/nestjs-database/entities'
-import { KycDocumentType, KycStatus } from '@yugo/shared'
+import { KycDocumentType, KycStatus, MAX_KYC_ATTEMPTS } from '@yugo/shared'
 import { DeepvueConfig } from 'src/types/index.js'
 import { DataSource } from 'typeorm'
 import xior from 'xior'
@@ -38,9 +38,14 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
                 })
             }
 
+            if ((kyc.attemptCount ?? 0) >= MAX_KYC_ATTEMPTS) {
+                throw new BadRequestException('PAN verification attempt limit reached')
+            }
+
             kyc.documentId = pan
             kyc.status = KycStatus.PENDING
             kyc.notes = 'Initiated'
+            kyc.attemptCount = (kyc.attemptCount ?? 0) + 1
 
             await manager.save(kyc)
         })

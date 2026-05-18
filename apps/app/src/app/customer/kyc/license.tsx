@@ -11,10 +11,14 @@ import { FieldWrapper } from '@/components/profile/field-wrapper'
 import { SectionCard } from '@/components/profile/section-card'
 import {
     KYC_STATUS_QUERY_KEY,
+    fetchKycStatus,
     useLicenseGetResult,
     useLicenseInitiate,
+    useKycStatus,
+    getFirstIncompleteKycRoute,
 } from '@/queries/customer/kyc.query'
 import { licenseSchema, type LicenseFormValues } from '@/schema/kyc/kyc.schema'
+import type { LicenseInitiateResponse } from '@/services/api/codegen/Api'
 import colors from '@/components/ui/colors'
 
 type Phase = 'form' | 'polling'
@@ -22,9 +26,9 @@ type Phase = 'form' | 'polling'
 export default function LicenseScreen() {
     const router = useRouter()
     const queryClient = useQueryClient()
+    const { data: kycStatus } = useKycStatus()
 
     const [phase, setPhase] = useState<Phase>('form')
-    const [requestId, setRequestId] = useState<string | null>(null)
     const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
     const licenseInitiate = useLicenseInitiate()
@@ -49,18 +53,30 @@ export default function LicenseScreen() {
                     if (result.success) {
                         clearInterval(pollingRef.current!)
                         pollingRef.current = null
-                        await queryClient.invalidateQueries({ queryKey: [...KYC_STATUS_QUERY_KEY] })
-                        router.replace('/customer/kyc/profile')
+                        const newStatus = await queryClient.fetchQuery({
+                            queryKey: [...KYC_STATUS_QUERY_KEY],
+                            queryFn: fetchKycStatus,
+                        })
+                        router.replace(getFirstIncompleteKycRoute(newStatus) as never)
                     } else if (result.message) {
                         clearInterval(pollingRef.current!)
                         pollingRef.current = null
                         setPhase('form')
+                        const nextStatus = await queryClient.fetchQuery({
+                            queryKey: [...KYC_STATUS_QUERY_KEY],
+                            queryFn: fetchKycStatus,
+                        })
+                        if (getFirstIncompleteKycRoute(nextStatus) !== '/customer/kyc/license') {
+                            router.replace(getFirstIncompleteKycRoute(nextStatus) as never)
+                            return
+                        }
                         showErrorMessage(result.message || 'License verification failed. Please try again.')
                     }
                 } catch {
                     clearInterval(pollingRef.current!)
                     pollingRef.current = null
                     setPhase('form')
+                    await queryClient.invalidateQueries({ queryKey: [...KYC_STATUS_QUERY_KEY] })
                     showErrorMessage('Verification failed. Please try again.')
                 }
             }, 2000)
@@ -75,13 +91,48 @@ export default function LicenseScreen() {
             dateOfBirth: values.dateOfBirth,
         })
         if (!result.requestId) {
-            showErrorMessage((result as any).message || 'Failed to initiate DL verification. Check your DL number and date of birth.')
+            const nextStatus = await queryClient.fetchQuery({ queryKey: [...KYC_STATUS_QUERY_KEY], queryFn: fetchKycStatus })
+            if (getFirstIncompleteKycRoute(nextStatus) !== '/customer/kyc/license') {
+                router.replace(getFirstIncompleteKycRoute(nextStatus) as never)
+                return
+            }
+            const failureMessage = (result as Partial<LicenseInitiateResponse & { message: string }>).message
+            showErrorMessage(failureMessage || 'Failed to initiate DL verification. Check your DL number and date of birth.')
             return
         }
 
-        setRequestId(result.requestId)
+        await queryClient.invalidateQueries({ queryKey: [...KYC_STATUS_QUERY_KEY] })
         startPolling(result.requestId)
     })
+
+    const isLicenseVerified = kycStatus?.license?.status === 'verified' || kycStatus?.license?.status === 'approved'
+    const isFailedMax = getFirstIncompleteKycRoute(kycStatus) !== '/customer/kyc/license' && !isLicenseVerified
+
+    if (isFailedMax) {
+        return (
+            <SafeAreaView className='flex-1 bg-white'>
+                <View className='mx-4 mt-4 flex-row items-center gap-2'>
+                    <StepDot done step={1} />
+                    <StepLine done />
+                    <StepDot done step={2} />
+                    <StepLine done />
+                    <StepDot active step={3} />
+                </View>
+                <View className='flex-1 items-center justify-center px-6'>
+                    <Text className='text-center text-xl font-bold text-neutral-900'>Verification Failed</Text>
+                    <Text className='mt-2 text-center text-sm text-neutral-500'>
+                        Driving License verification has failed after {kycStatus?.license?.attemptCount ?? 0} attempts. You can continue.
+                    </Text>
+                    <Button
+                        label='Continue'
+                        onPress={() => router.replace(getFirstIncompleteKycRoute(kycStatus) as never)}
+                        className='mt-8 h-13 w-full rounded-2xl bg-primary-600'
+                        textClassName='text-base font-semibold text-white'
+                    />
+                </View>
+            </SafeAreaView>
+        )
+    }
 
     return (
         <KeyboardAvoidingView

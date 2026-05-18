@@ -29,7 +29,6 @@ export default function EditTopUpPlanRoute() {
             form.reset({
                 name: topUp.name,
                 description: topUp.description ?? '',
-                validityDays: topUp.validityDays,
                 kmLimit: topUp.kmLimit,
                 price: topUp.price,
                 gstPercentage: topUp.gstPercentage,
@@ -46,7 +45,6 @@ export default function EditTopUpPlanRoute() {
             data: {
                 name: values.name,
                 description: values.description,
-                validityDays: values.validityDays,
                 kmLimit: values.kmLimit,
                 price: values.price,
                 gstPercentage: values.gstPercentage,
@@ -92,7 +90,6 @@ export default function EditTopUpPlanRoute() {
                             <div className="space-y-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Allowances & Logic</h4>
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    <TextInputField control={form.control} name="validityDays" label="Validity Extension (Days)" type="number" required />
                                     <TextInputField control={form.control} name="kmLimit" label="Distance Add-on (KM)" type="number" required />
                                 </div>
                             </div>

@@ -3,13 +3,15 @@ RUN corepack enable
 
 FROM base AS build
 WORKDIR /app
+RUN mkdir -p /app/dist
 COPY package.json yarn.lock .yarnrc.yml turbo.json ./
 COPY .yarn ./.yarn
 COPY packages ./packages
 COPY apps ./apps
 
 RUN yarn install --immutable
-RUN yarn turbo run build --filter=@yugo/api
+RUN yarn turbo run build --filter=@yugo/api...
+RUN sh -c "test -f /app/apps/api/dist/src/main.js -o -f /app/apps/api/dist/main.js -o -f /app/dist/apps/api/main.js"
 
 FROM base AS deps
 WORKDIR /app
@@ -26,8 +28,9 @@ ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY --from=build /app/dist ./dist
 COPY --from=build /app/apps/api/package.json ./apps/api/package.json
 COPY migrations ./migrations
 
 EXPOSE 4500
-CMD ["node", "apps/api/dist/src/main.js"]
+CMD ["sh", "-c", "if [ -f apps/api/dist/src/main.js ]; then node apps/api/dist/src/main.js; elif [ -f apps/api/dist/main.js ]; then node apps/api/dist/main.js; elif [ -f dist/apps/api/main.js ]; then node dist/apps/api/main.js; else echo 'API entrypoint not found. Checked apps/api/dist/src/main.js, apps/api/dist/main.js and dist/apps/api/main.js' >&2; exit 1; fi"]

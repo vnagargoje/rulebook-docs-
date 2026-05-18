@@ -49,7 +49,6 @@ export class PurchaseTopUpHandler implements ICommandHandler<PurchaseTopUpComman
             const topUpSnapshot = {
                 name: topUp.name,
                 description: topUp.description,
-                validityDays: topUp.validityDays,
                 kmLimit: topUp.kmLimit,
                 price: topUp.price,
                 gstPercentage,

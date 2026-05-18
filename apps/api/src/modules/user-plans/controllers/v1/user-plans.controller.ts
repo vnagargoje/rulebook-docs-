@@ -26,6 +26,7 @@ import {
     PurchaseTopUpCommand,
     VerifyPaymentCommand,
     VerifyTopUpPaymentCommand,
+    ActivateQueuedPlanCommand,
 } from '@yugo/cqrs';
 import { GetUserPlanByQrQuery } from '@yugo/cqrs';
 import { UserPlanEntity } from '@yugo/nestjs-database/entities';
@@ -127,6 +128,17 @@ export class V1UserPlansController {
                 body.razorpayPaymentId,
                 body.razorpaySignature,
             ),
+        );
+    }
+
+    @ApiResource(UserPlanResponse)
+    @Post(':id/activate')
+    async activateQueuedPlan(
+        @Param('id') id: string,
+        @AuthenticatedUser() user: ContextUserType,
+    ) {
+        return this.commandBus.execute(
+            new ActivateQueuedPlanCommand(user.id, id),
         );
     }
 

@@ -7,6 +7,7 @@ export const KycDocumentResponse = Type.Object({
     status: Type.String(),
     verifiedAt: Type.Union([Type.String(), Type.Null()]),
     notes: Type.Union([Type.String(), Type.Null()]),
+    attemptCount: Type.Number(),
 });
 
 export const KycStatusResponse = Type.Object({
@@ -40,6 +41,7 @@ export const KycDetailsResponse = Type.Object({
     status: Type.String(),
     verifiedAt: Type.Union([Type.String(), Type.Null()]),
     notes: Type.Union([Type.String(), Type.Null()]),
+    attemptCount: Type.Number(),
     userId: Type.String(),
     createdAt: Type.String(),
     updatedAt: Type.String(),

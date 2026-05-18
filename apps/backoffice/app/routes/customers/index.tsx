@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
+import { IconEye } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -67,9 +67,9 @@ export default function UsersCustomerListRoute() {
                     <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/${user.id}`)}>
                         <IconEye className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/edit/${user.id}`)}>
+                    {/* <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/edit/${user.id}`)}>
                         <IconEdit className="h-4 w-4" />
-                    </Button>
+                    </Button> */}
                 </div>
             ),
         },

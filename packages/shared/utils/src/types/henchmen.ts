@@ -8,7 +8,13 @@ const inngest = new Inngest( {
                 channel: 'sms' | 'email' | 'whatsapp' | 'call' | 'sna';
                 to: string;
             };
-        },
+        };
+        'plan/userPlan.activate': {
+            data: {
+                userId: string;
+                userPlanId: string;
+            };
+        };
     }>(),
 } );
 

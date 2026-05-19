@@ -1,8 +1,8 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
-import { BatteryEntity, BatteryTransportEntity } from '@yugo/nestjs-database/entities'
-import { BatteryStatus, BatteryTransportStatus, StationType } from '@yugo/shared'
+import { BatteryEntity, BatteryTransportEntity, VehicleEntity } from '@yugo/nestjs-database/entities'
+import { BatteryStatus, BatteryTransportStatus, StationType, VehicleStatus } from '@yugo/shared'
 import { ReceiveBatteriesCommand } from 'src/commands/impl'
 import { DataSource, In } from 'typeorm'
 
@@ -70,6 +70,12 @@ export class ReceiveBatteriesHandler implements ICommandHandler<ReceiveBatteries
             transport.receivedById = receivedById
             transport.receivedAt = new Date()
             await manager.save(transport)
+
+            const vehicle = await manager.findOne(VehicleEntity, { where: { id: transport.vehicleId } })
+            if (vehicle) {
+                vehicle.status = VehicleStatus.AVAILABLE
+                await manager.save(vehicle)
+            }
 
             return manager.findOne(BatteryTransportEntity, {
                 where: { id: transport.id },

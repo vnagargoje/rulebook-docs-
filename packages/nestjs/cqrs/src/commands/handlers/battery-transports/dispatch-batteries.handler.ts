@@ -2,7 +2,7 @@ import { BadRequestException, Logger, NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { BatteryEntity, BatteryTransportEntity, StationEntity, VehicleEntity } from '@yugo/nestjs-database/entities'
-import { BatteryTransportStatus, BatteryStatus, StationType, VehicleType } from '@yugo/shared'
+import { BatteryTransportStatus, BatteryStatus, StationType, VehicleStatus, VehicleType } from '@yugo/shared'
 import { DispatchBatteriesCommand } from 'src/commands/impl'
 import { DataSource, In } from 'typeorm'
 
@@ -47,6 +47,9 @@ export class DispatchBatteriesHandler implements ICommandHandler<DispatchBatteri
             }
             if (vehicle.type !== VehicleType.TRANSPORT) {
                 throw new BadRequestException('Only transport vehicles can be used for battery transports')
+            }
+            if (vehicle.status === VehicleStatus.IN_USE) {
+                throw new BadRequestException('Vehicle is currently in transit and cannot be assigned to another transport')
             }
 
             const batteries = await manager.find(BatteryEntity, {
@@ -97,6 +100,10 @@ export class DispatchBatteriesHandler implements ICommandHandler<DispatchBatteri
                 battery.stationId = null as any
             }
             await manager.save(batteries)
+
+            vehicle.status = VehicleStatus.IN_USE
+            await manager.save(vehicle)
+
             return manager.findOne(BatteryTransportEntity, {
                 where: { id: movement.id },
                 relations: ['fromStation', 'toStation', 'vehicle'],

@@ -83,6 +83,13 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
                 throw new NotFoundException('User dont have a valid plan for battery swapping')
             }
 
+            const kmLimit = plan.planSnapshot?.kmLimit || 0
+            if (kmLimit > 0 && Number(plan.remainingKm) <= 0) {
+                throw new BadRequestException(
+                    'KM balance is exhausted. User must purchase a top-up or surrender the vehicle before another swap can be performed.',
+                )
+            }
+
             const fromStationId = newBattery.stationId
 
             booking.batteryId = newBattery.id
@@ -96,7 +103,6 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
             newBattery.status = BatteryStatus.IN_USE
             await manager.save(newBattery)
 
-            const kmLimit = plan.planSnapshot?.kmLimit || 0
             if (kmLimit > 0) {
                 const oldSoc = Number(oldBattery.properties?.socPercent ?? 0)
                 const kmUsed = ((100 - oldSoc) / 100) * 80

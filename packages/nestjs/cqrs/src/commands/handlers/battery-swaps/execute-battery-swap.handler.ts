@@ -84,7 +84,7 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
             }
 
             const kmLimit = plan.planSnapshot?.kmLimit || 0
-            if (kmLimit > 0 && Number(plan.remainingKm) <= 0) {
+            if (Number(plan.remainingKm) <= 0) {
                 throw new BadRequestException(
                     'KM balance is exhausted. User must purchase a top-up or surrender the vehicle before another swap can be performed.',
                 )

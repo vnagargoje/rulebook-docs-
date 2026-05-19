@@ -21,6 +21,9 @@ export class UserKycEntity extends IdTimestamppedEntity {
     @Column('text', { nullable: true })
     notes: string
 
+    @Column('varchar', { nullable: true })
+    verifiedName: string | null
+
     @Column('int', { default: 0, unsigned: true })
     attemptCount: number
 

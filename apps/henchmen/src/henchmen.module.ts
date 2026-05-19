@@ -2,7 +2,6 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BatteryEntity } from '@yugo/nestjs-database/entities';
 import { NestjsInngestModule } from '@yugo/nestjs-inngest';
 import { LoggerModule } from 'nestjs-pino';
 import {
@@ -11,12 +10,20 @@ import {
     loggerConfig,
     moovingConfig,
     redisConfig,
+    s3BucketConfig,
+    s3ClientConfig,
 } from './config';
 import { AuthFunctions } from './functions/auth.functions.js';
 import { BatteryFunctions } from './functions/battery.functions';
+import { UserPlanFunctions } from './functions/user-plan.functions';
+import { QueuedPlansSyncService } from './services/queued-plans-sync.service';
+
+import { CqrsModule } from '@nestjs/cqrs';
+import { ActivateQueuedPlanHandler } from '@yugo/cqrs';
 
 @Module({
     imports: [
+        CqrsModule.forRoot({}),
         ConfigModule.forRoot({
             isGlobal: true,
             load: [
@@ -25,6 +32,8 @@ import { BatteryFunctions } from './functions/battery.functions';
                 redisConfig,
                 inngestConfig,
                 moovingConfig,
+                s3BucketConfig,
+                s3ClientConfig,
             ],
         }),
         TypeOrmModule.forRootAsync({
@@ -56,6 +65,12 @@ import { BatteryFunctions } from './functions/battery.functions';
             },
         }),
     ],
-    providers: [AuthFunctions, BatteryFunctions],
+    providers: [
+        AuthFunctions,
+        BatteryFunctions,
+        UserPlanFunctions,
+        QueuedPlansSyncService,
+        ActivateQueuedPlanHandler,
+    ],
 })
 export class HenchmenModule {}

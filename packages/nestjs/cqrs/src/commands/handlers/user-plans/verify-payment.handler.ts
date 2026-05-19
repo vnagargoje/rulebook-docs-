@@ -2,18 +2,21 @@ import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
-import { BookingEntity, TransactionEntity } from '@yugo/nestjs-database/entities'
+import { BookingEntity, TransactionEntity, UserPlanEntity } from '@yugo/nestjs-database/entities'
 import { BookingStatus, PaymentStatus, UserPlanStatus } from '@yugo/shared'
 import { createHmac, randomInt } from 'crypto'
 import { RazorpayConfig } from 'src/types/index.js'
 import { DataSource } from 'typeorm'
 import { VerifyPaymentCommand } from '../../impl/user-plans/verify-payment.command.js'
+import { InjectInngestService } from '@yugo/nestjs-inngest'
+import { type HenchmenInngestClient } from '@yugo/utils'
 
 @CommandHandler(VerifyPaymentCommand)
 export class VerifyPaymentHandler implements ICommandHandler<VerifyPaymentCommand> {
     constructor(
         @InjectDataSource() private readonly datasource: DataSource,
         private readonly configService: ConfigService,
+        @InjectInngestService() private readonly inngest: HenchmenInngestClient,
     ) {}
 
     async execute(command: VerifyPaymentCommand) {
@@ -58,6 +61,21 @@ export class VerifyPaymentHandler implements ICommandHandler<VerifyPaymentComman
 
             transaction.userPlan.status = UserPlanStatus.PURCHASED
             await manager.save(transaction.userPlan)
+
+            const activePlan = await manager.findOne(UserPlanEntity, {
+                where: { userId, status: UserPlanStatus.ACTIVE },
+            })
+
+            if (activePlan && activePlan.expiresAt) {
+                await this.inngest.send({
+                    name: 'plan/userPlan.activate',
+                    data: {
+                        userId,
+                        userPlanId: transaction.userPlan.id,
+                    },
+                    ts: activePlan.expiresAt.getTime(),
+                })
+            }
 
             const pickupOtp = String(randomInt(1000, 10000))
             const booking = manager.create(BookingEntity, {

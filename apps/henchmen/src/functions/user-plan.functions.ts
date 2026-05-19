@@ -1,9 +1,4 @@
-import {
-    Injectable,
-    Logger,
-    NotFoundException,
-    BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { NestjsInngestFunction } from '@yugo/nestjs-inngest';
 import { HenchmenInngestClient } from '@yugo/utils';
@@ -22,35 +17,23 @@ export class UserPlanFunctions {
     )
     async activateQueuedPlan({
         event,
-    }: GetFunctionInput<
-        HenchmenInngestClient,
-        'plan/userPlan.activate'
-    >) {
+    }: GetFunctionInput<HenchmenInngestClient, 'plan/userPlan.activate'>) {
         this.logger.log(
             `Received activate-queued-plan event for userPlanId: ${event.data.userPlanId}`,
         );
-        try {
-            await this.commandBus.execute(
+        await this.commandBus
+            .execute(
                 new ActivateQueuedPlanCommand(
                     event.data.userId,
                     event.data.userPlanId,
                 ),
-            );
-            this.logger.log(
-                `Successfully activated queued plan for userPlanId: ${event.data.userPlanId}`,
-            );
-        } catch (error) {
-            if (
-                error instanceof NotFoundException ||
-                error instanceof BadRequestException
-            ) {
-                this.logger.warn(
-                    `Skipping activation for ${event.data.userPlanId}: ${error.message}`,
+            )
+            .then(() => {
+                this.logger.log(
+                    `Successfully activated queued plan for userPlanId: ${event.data.userPlanId}`,
                 );
-                return null;
-            }
-            throw error;
-        }
+            });
+
         return null;
     }
 }

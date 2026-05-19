@@ -1,7 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import { showError, showSuccessMessage } from '@/components/ui'
+import { useIsAuthenticated } from '@/queries/auth.query'
 import { useExecuteSwap, useScanUserPlan, useVerifyInwardBattery } from '@/queries/swap-manager/battery-swaps.query'
+import { useManagerSwapStation } from '@/queries/swap-manager/swap-station.query'
 import type { V1UserPlansScanQrResponse } from '@/services/api/codegen/Api'
 
 export type Step = 1 | 2 | 3 | 'success' | 'error'
@@ -38,6 +40,13 @@ export const useExecuteSwapFlow = () => {
     const [scannedData, setScannedData] = useState<V1UserPlansScanQrResponse | null>(null)
     const [inwardBatteryQrId, setInwardBatteryQrId] = useState<string | null>(null)
     const [scannerActive, setScannerActive] = useState(true)
+
+    const { data: auth } = useIsAuthenticated()
+    const managerId = auth?.userId ?? ''
+    const { data: managerStation } = useManagerSwapStation({
+        variables: { managerId },
+        enabled: !!managerId,
+    })
 
     const { mutate: scanPlan, isPending: isScanningPlan } = useScanUserPlan()
     const { mutate: verifyInward, isPending: isVerifyingInward } = useVerifyInwardBattery()
@@ -139,7 +148,13 @@ export const useExecuteSwapFlow = () => {
 
     const handleScanOutward = useCallback(
         (qrData: string) => {
-            if (isExecutingSwap || !scannedData?.booking?.id || !scannedData?.booking?.stationId) return
+            if (isExecutingSwap || !scannedData?.booking?.id) return
+
+            if (!managerStation?.id) {
+                setStep('error')
+                setErrorMessage('Could not determine your swap station. Please try again.')
+                return
+            }
 
             const newBatteryQrId = extractBatteryQrId(qrData)
             if (!newBatteryQrId) {
@@ -152,7 +167,7 @@ export const useExecuteSwapFlow = () => {
                 {
                     bookingId: scannedData.booking.id,
                     newBatteryQrId,
-                    stationId: scannedData.booking.stationId,
+                    stationId: managerStation.id,
                 },
                 {
                     onSuccess: () => {
@@ -167,7 +182,7 @@ export const useExecuteSwapFlow = () => {
                 },
             )
         },
-        [executeSwap, scannedData, isExecutingSwap],
+        [executeSwap, scannedData, managerStation, isExecutingSwap],
     )
 
     const resetFlow = useCallback(() => {

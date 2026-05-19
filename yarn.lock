@@ -11780,6 +11780,7 @@ __metadata:
     "@nestjs/testing": "npm:^11.0.1"
     "@nestjs/typeorm": "npm:^11.0.1"
     "@types/node": "npm:^22.10.7"
+    "@yugo/cqrs": "workspace:*"
     "@yugo/eslint": "workspace:*"
     "@yugo/nestjs-database": "workspace:*"
     "@yugo/nestjs-framework": "workspace:*"

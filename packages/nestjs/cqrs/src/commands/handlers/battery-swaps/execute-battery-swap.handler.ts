@@ -59,6 +59,10 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
                 throw new NotFoundException('New battery not found')
             }
 
+            if (newBattery.stationId !== stationId) {
+                throw new BadRequestException('Battery is not assigned to this swap station')
+            }
+
             const existingBatteryBooking = await manager
                 .createQueryBuilder(BookingEntity, 'b')
                 .where('b.batteryId = :batteryId', { batteryId: newBattery.id })

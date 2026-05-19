@@ -17,37 +17,44 @@ export class QueuedPlansSyncService implements OnApplicationBootstrap {
     async onApplicationBootstrap() {
         this.logger.log('Syncing queued user plans to Inngest...');
 
-        try {
-            const purchasedPlans = await this.dataSource.manager.find(UserPlanEntity, {
+        const purchasedPlans = await this.dataSource.manager.find(
+            UserPlanEntity,
+            {
                 where: { status: UserPlanStatus.PURCHASED },
-            });
+            },
+        );
 
-            if (purchasedPlans.length === 0) {
-                this.logger.log('No queued purchased plans found to sync.');
-                return;
-            }
-
-            for (const plan of purchasedPlans) {
-                const activePlan = await this.dataSource.manager.findOne(UserPlanEntity, {
-                    where: { userId: plan.userId, status: UserPlanStatus.ACTIVE },
-                });
-
-                if (activePlan && activePlan.expiresAt) {
-                    await this.inngest.send({
-                        name: 'plan/userPlan.activate',
-                        data: {
-                            userId: plan.userId,
-                            userPlanId: plan.id,
-                        },
-                        ts: activePlan.expiresAt.getTime(),
-                    });
-                    this.logger.log(`Scheduled queued plan activation for userPlanId: ${plan.id}`);
-                }
-            }
-
-            this.logger.log(`Successfully synced queued plans.`);
-        } catch (error) {
-            this.logger.error('Failed to sync queued plans to Inngest', error);
+        if (purchasedPlans.length === 0) {
+            this.logger.log('No queued purchased plans found to sync.');
+            return;
         }
+
+        for (const plan of purchasedPlans) {
+            const activePlan = await this.dataSource.manager.findOne(
+                UserPlanEntity,
+                {
+                    where: {
+                        userId: plan.userId,
+                        status: UserPlanStatus.ACTIVE,
+                    },
+                },
+            );
+
+            if (activePlan && activePlan.expiresAt) {
+                await this.inngest.send({
+                    name: 'plan/userPlan.activate',
+                    data: {
+                        userId: plan.userId,
+                        userPlanId: plan.id,
+                    },
+                    ts: activePlan.expiresAt.getTime(),
+                });
+                this.logger.log(
+                    `Scheduled queued plan activation for userPlanId: ${plan.id}`,
+                );
+            }
+        }
+
+        this.logger.log(`Successfully synced queued plans.`);
     }
 }

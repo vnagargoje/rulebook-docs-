@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common'
+import { ConflictException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
@@ -64,6 +64,16 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
                         userId,
                         type: KycDocumentType.DRIVING_LICENSE,
                     })
+                }
+
+                const finalDocId = sourceOutput?.id_number || kyc.documentId
+                if (finalDocId) {
+                    const duplicate = await manager.findOne(UserKycEntity, {
+                        where: { documentId: finalDocId, type: KycDocumentType.DRIVING_LICENSE, status: KycStatus.VERIFIED },
+                    })
+                    if (duplicate && duplicate.userId !== userId) {
+                        throw new ConflictException('This driving licence number is already registered with another account')
+                    }
                 }
 
                 kyc.documentId = sourceOutput?.id_number || kyc.documentId || 'LICENSE'

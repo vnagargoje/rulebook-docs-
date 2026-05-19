@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common'
+import { ConflictException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
@@ -62,6 +62,15 @@ export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtp
             kyc.verifiedAt = isSuccess ? new Date() : kyc.verifiedAt
             kyc.notes = JSON.stringify(response.data)
             kyc.documentId = payload.aadhaarNumber || kyc.documentId || 'AADHAAR'
+
+            if (isSuccess && payload.aadhaarNumber) {
+                const duplicate = await manager.findOne(UserKycEntity, {
+                    where: { documentId: payload.aadhaarNumber, type: KycDocumentType.AADHAR, status: KycStatus.VERIFIED },
+                })
+                if (duplicate && duplicate.userId !== userId) {
+                    throw new ConflictException('This Aadhaar number is already registered with another account')
+                }
+            }
 
             await manager.save(kyc)
 

@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
@@ -40,6 +40,13 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
 
             if ((kyc.attemptCount ?? 0) >= MAX_KYC_ATTEMPTS) {
                 throw new BadRequestException('PAN verification attempt limit reached')
+            }
+
+            const panDuplicate = await manager.findOne(UserKycEntity, {
+                where: { documentId: pan, type: KycDocumentType.PAN, status: KycStatus.VERIFIED },
+            })
+            if (panDuplicate && panDuplicate.userId !== userId) {
+                throw new ConflictException('This PAN number is already registered with another account')
             }
 
             kyc.documentId = pan

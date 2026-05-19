@@ -8,7 +8,11 @@ export function formatNumberIN(value: number | string | null | undefined) {
 }
 
 export function formatCurrencyIN(value: number | string | null | undefined) {
-    return `₹${formatNumberIN(value)}`
+    return `\u20B9${formatNumberIN(value)}`
+}
+
+export function formatPercentage(value: number | string | null | undefined) {
+    return `${formatNumberIN(value)}%`
 }
 
 export function formatDateIN(
@@ -36,6 +40,16 @@ export function formatTimeIN(
 
 export function formatKmIN(value: number | string | null | undefined) {
     return `${formatNumberIN(value)} km`
+}
+
+export function getAmountDifference(
+    totalAmount: number | string | null | undefined,
+    ...baseAmounts: Array<number | string | null | undefined>
+) {
+    const resolvedTotalAmount = toSafeNumber(totalAmount)
+    const resolvedBaseAmount = baseAmounts.reduce<number>((sum, value) => sum + toSafeNumber(value), 0)
+
+    return Math.max(resolvedTotalAmount - resolvedBaseAmount, 0)
 }
 
 export function formatGender(g?: string | null): string | null {

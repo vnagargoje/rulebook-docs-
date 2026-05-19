@@ -4,7 +4,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 import { PriceRow, StatTile } from '@/components/customer/plan-detail'
 import { Button, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
-import { formatCurrencyIN, formatKmIN } from '@/lib/formatters/customer'
+import { formatCurrencyIN, formatKmIN, formatPercentage, getAmountDifference, toSafeNumber } from '@/lib/formatters/customer'
 import { usePlanById } from '@/queries/customer'
 import { useAuthStore } from '@/stores/auth.store'
 
@@ -13,6 +13,16 @@ export default function PlanDetailScreen() {
     const router = useRouter()
     const token = useAuthStore.use.token()
     const { data: plan, isLoading } = usePlanById({ variables: { id: id! } })
+    const registrationFee = toSafeNumber(plan?.registrationFee)
+    const shouldShowRegistrationFee = registrationFee > 0
+    const gstAmount = plan
+        ? getAmountDifference(
+            plan.totalAmount,
+            plan.price,
+            plan.deposit,
+            shouldShowRegistrationFee ? registrationFee : 0,
+        )
+        : 0
 
     const handleSelectPlan = useCallback(() => {
         if (!id) return
@@ -109,9 +119,13 @@ export default function PlanDetailScreen() {
                                 <View className='border-b border-neutral-100' />
                                 <PriceRow label='Security deposit (refundable)' amount={plan.deposit} />
                                 <View className='border-b border-neutral-100' />
-                                <PriceRow label='GST (18%)' amount={plan.gst} />
-                                <View className='border-b border-neutral-100' />
-                                <PriceRow label='Registration fee' amount={plan.registrationFee} />
+                                <PriceRow label={`GST (${formatPercentage(plan.gstPercentage)})`} amount={gstAmount} />
+                                {shouldShowRegistrationFee ? (
+                                    <>
+                                        <View className='border-b border-neutral-100' />
+                                        <PriceRow label='Registration fee' amount={registrationFee} />
+                                    </>
+                                ) : null}
                                 <View className='my-1 border-b border-dashed border-neutral-200' />
                                 <PriceRow label='Total payable' amount={plan.totalAmount} highlight />
                             </View>

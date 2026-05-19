@@ -30,7 +30,10 @@ export default function BookingDetailScreen() {
 
     const createdDate = formatDateIN(booking.createdAt)
     const createdTime = formatTimeIN(booking.createdAt)
-    const kmLimit = booking.userPlan?.plan?.kmLimit ?? Number((booking.userPlan?.planSnapshot as any)?.kmLimit ?? 0)
+    const kmLimit =
+        Number(booking.userPlan?.totalKm) ||
+        booking.userPlan?.plan?.kmLimit ||
+        Number((booking.userPlan?.planSnapshot as any)?.kmLimit ?? 0)
     const validityDays =
         booking.userPlan?.plan?.validityDays ?? (booking.userPlan?.planSnapshot as any)?.validityDays ?? null
     const batteryProperties = (batteryDetail?.properties ?? {}) as BatteryProperties

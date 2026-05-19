@@ -1,4 +1,4 @@
-import { ConflictException, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
@@ -8,6 +8,7 @@ import { DeepvueConfig } from 'src/types/index.js'
 import { DataSource } from 'typeorm'
 import xior from 'xior'
 import { AadhaarVerifyOtpCommand } from '../../impl/kyc/aadhaar-verify-otp.command.js'
+import { namesMatch } from 'src/utils/kyc-name-match.js'
 
 @CommandHandler(AadhaarVerifyOtpCommand)
 export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtpCommand> {
@@ -63,12 +64,28 @@ export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtp
             kyc.notes = JSON.stringify(response.data)
             kyc.documentId = payload.aadhaarNumber || kyc.documentId || 'AADHAAR'
 
-            if (isSuccess && payload.aadhaarNumber) {
-                const duplicate = await manager.findOne(UserKycEntity, {
-                    where: { documentId: payload.aadhaarNumber, type: KycDocumentType.AADHAR, status: KycStatus.VERIFIED },
-                })
-                if (duplicate && duplicate.userId !== userId) {
-                    throw new ConflictException('This Aadhaar number is already registered with another account')
+            if (isSuccess) {
+                const aadhaarName: string = response.data?.data?.name || ''
+                kyc.verifiedName = aadhaarName || null
+
+                if (payload.aadhaarNumber) {
+                    const duplicate = await manager.findOne(UserKycEntity, {
+                        where: { documentId: payload.aadhaarNumber, type: KycDocumentType.AADHAR, status: KycStatus.VERIFIED },
+                    })
+                    if (duplicate && duplicate.userId !== userId) {
+                        throw new ConflictException('This Aadhaar number is already registered with another account')
+                    }
+                }
+
+                if (aadhaarName) {
+                    const otherVerified = await manager.find(UserKycEntity, {
+                        where: { userId, status: KycStatus.VERIFIED },
+                    })
+                    for (const other of otherVerified) {
+                        if (other.verifiedName && !namesMatch(aadhaarName, other.verifiedName)) {
+                            throw new BadRequestException('Aadhaar and other KYC document details do not belong to the same person')
+                        }
+                    }
                 }
             }
 

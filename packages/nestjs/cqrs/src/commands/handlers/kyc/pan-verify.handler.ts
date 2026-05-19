@@ -8,6 +8,7 @@ import { DeepvueConfig } from 'src/types/index.js'
 import { DataSource } from 'typeorm'
 import xior from 'xior'
 import { PanVerifyCommand } from '../../impl/kyc/pan-verify.command.js'
+import { namesMatch } from 'src/utils/kyc-name-match.js'
 
 @CommandHandler(PanVerifyCommand)
 export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
@@ -99,6 +100,27 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
             kyc.status = isSuccess ? KycStatus.VERIFIED : KycStatus.REJECTED
             kyc.verifiedAt = isSuccess ? new Date() : kyc.verifiedAt
             kyc.notes = JSON.stringify(response.data)
+
+            if (isSuccess) {
+                const panName: string =
+                    response.data?.data?.full_name ||
+                    response.data?.data?.name_information?.pan_name_cleaned ||
+                    response.data?.result?.name ||
+                    response.data?.data?.name ||
+                    ''
+                kyc.verifiedName = panName || null
+
+                if (panName) {
+                    const otherVerified = await manager.find(UserKycEntity, {
+                        where: { userId, status: KycStatus.VERIFIED },
+                    })
+                    for (const other of otherVerified) {
+                        if (other.verifiedName && !namesMatch(panName, other.verifiedName)) {
+                            throw new BadRequestException('Aadhaar and PAN details do not belong to the same person')
+                        }
+                    }
+                }
+            }
 
             await manager.save(kyc)
         })

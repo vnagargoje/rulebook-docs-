@@ -5,12 +5,10 @@ export const redisConfig = registerAs(
     'redis.config',
     (): RedisModuleOptions => {
         const env = process.env;
+        const protocol = env['NODE_ENV'] === 'production' ? 'rediss' : 'redis';
         return {
             config: {
-                host: env['REDIS_HOST'] ?? '0.0.0.0',
-                port: +(env['REDIS_PORT'] ?? '6379'),
-                password: env['REDIS_PASSWORD'],
-                tls: env['REDIS_SSL'] === 'true' ? {} : undefined,
+                url: `${protocol}://:${env['REDIS_PASSWORD']}@${env['REDIS_HOST'] ?? '0.0.0.0'}:${env['REDIS_PORT'] ?? '6379'}`,
             },
         };
     },

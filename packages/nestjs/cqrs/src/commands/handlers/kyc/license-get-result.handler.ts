@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
@@ -8,6 +8,7 @@ import { DeepvueConfig } from 'src/types/index.js'
 import { DataSource } from 'typeorm'
 import xior from 'xior'
 import { LicenseGetResultCommand } from '../../impl/kyc/license-get-result.command.js'
+import { namesMatch } from 'src/utils/kyc-name-match.js'
 
 @CommandHandler(LicenseGetResultCommand)
 export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResultCommand> {
@@ -37,18 +38,28 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
         })
         const token = authResponse.data.access_token
 
-        const response = await xior.get(`${config.baseUrl}/verification/get-driving-license`, {
-            params: {
-                request_id: requestId,
-            },
-            headers: {
-                'x-api-key': config.apiKey,
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-        })
+        const MAX_POLL_ATTEMPTS = 5
+        const POLL_INTERVAL_MS = 2000
 
-        const result = Array.isArray(response.data) ? response.data[0] : response.data
+        let rawResult: unknown
+        for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+            const response = await xior.get(`${config.baseUrl}/verification/get-driving-license`, {
+                params: { request_id: requestId },
+                headers: {
+                    'x-api-key': config.apiKey,
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            })
+            rawResult = Array.isArray(response.data) ? response.data[0] : response.data
+            const status = (rawResult as any)?.status
+            if (status === 'completed') break
+            if (attempt < MAX_POLL_ATTEMPTS - 1) {
+                await new Promise<void>((resolve) => setTimeout(resolve, POLL_INTERVAL_MS))
+            }
+        }
+
+        const result = rawResult as any
         const sourceOutput = result?.result?.source_output
         const isCompleted = result?.status === 'completed'
         const isSuccess = isCompleted && sourceOutput?.status === 'id_found'
@@ -66,10 +77,33 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
                     })
                 }
 
+                const finalDocId = sourceOutput?.id_number || kyc.documentId
+                if (finalDocId) {
+                    const duplicate = await manager.findOne(UserKycEntity, {
+                        where: { documentId: finalDocId, type: KycDocumentType.DRIVING_LICENSE, status: KycStatus.VERIFIED },
+                    })
+                    if (duplicate && duplicate.userId !== userId) {
+                        throw new ConflictException('This driving licence number is already registered with another account')
+                    }
+                }
+
+                const dlName: string = sourceOutput?.name || sourceOutput?.name_on_card || ''
                 kyc.documentId = sourceOutput?.id_number || kyc.documentId || 'LICENSE'
                 kyc.status = KycStatus.VERIFIED
                 kyc.verifiedAt = new Date()
                 kyc.notes = JSON.stringify(result)
+                kyc.verifiedName = dlName || null
+
+                if (dlName) {
+                    const otherVerified = await manager.find(UserKycEntity, {
+                        where: { userId, status: KycStatus.VERIFIED },
+                    })
+                    for (const other of otherVerified) {
+                        if (other.verifiedName && !namesMatch(dlName, other.verifiedName)) {
+                            throw new BadRequestException('Driving licence details do not belong to the same person as other KYC documents')
+                        }
+                    }
+                }
 
                 await manager.save(kyc)
             })

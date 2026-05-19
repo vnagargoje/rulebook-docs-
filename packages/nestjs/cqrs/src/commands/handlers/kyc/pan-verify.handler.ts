@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
@@ -8,6 +8,7 @@ import { DeepvueConfig } from 'src/types/index.js'
 import { DataSource } from 'typeorm'
 import xior from 'xior'
 import { PanVerifyCommand } from '../../impl/kyc/pan-verify.command.js'
+import { namesMatch } from 'src/utils/kyc-name-match.js'
 
 @CommandHandler(PanVerifyCommand)
 export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
@@ -40,6 +41,13 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
 
             if ((kyc.attemptCount ?? 0) >= MAX_KYC_ATTEMPTS) {
                 throw new BadRequestException('PAN verification attempt limit reached')
+            }
+
+            const panDuplicate = await manager.findOne(UserKycEntity, {
+                where: { documentId: pan, type: KycDocumentType.PAN, status: KycStatus.VERIFIED },
+            })
+            if (panDuplicate && panDuplicate.userId !== userId) {
+                throw new ConflictException('This PAN number is already registered with another account')
             }
 
             kyc.documentId = pan
@@ -92,6 +100,27 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
             kyc.status = isSuccess ? KycStatus.VERIFIED : KycStatus.REJECTED
             kyc.verifiedAt = isSuccess ? new Date() : kyc.verifiedAt
             kyc.notes = JSON.stringify(response.data)
+
+            if (isSuccess) {
+                const panName: string =
+                    response.data?.data?.full_name ||
+                    response.data?.data?.name_information?.pan_name_cleaned ||
+                    response.data?.result?.name ||
+                    response.data?.data?.name ||
+                    ''
+                kyc.verifiedName = panName || null
+
+                if (panName) {
+                    const otherVerified = await manager.find(UserKycEntity, {
+                        where: { userId, status: KycStatus.VERIFIED },
+                    })
+                    for (const other of otherVerified) {
+                        if (other.verifiedName && !namesMatch(panName, other.verifiedName)) {
+                            throw new BadRequestException('Aadhaar and PAN details do not belong to the same person')
+                        }
+                    }
+                }
+            }
 
             await manager.save(kyc)
         })

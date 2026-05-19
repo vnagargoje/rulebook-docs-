@@ -22,6 +22,8 @@ import {
 import { BookingStatus, PaymentStatus, UserPlanStatus, UserTopUpStatus } from '@yugo/shared';
 import { createHmac, randomInt } from 'crypto';
 import { DataSource } from 'typeorm';
+import { InjectInngestService } from '@yugo/nestjs-inngest';
+import { type HenchmenInngestClient } from '@yugo/utils';
 
 @ApiExcludeController()
 @Controller({ path: 'webhooks', version: '1' })
@@ -31,6 +33,7 @@ export class V1WebhooksController {
     constructor(
         @InjectDataSource() private readonly datasource: DataSource,
         private readonly configService: ConfigService,
+        @InjectInngestService() private readonly inngest: HenchmenInngestClient,
     ) {}
 
     @Public()
@@ -98,6 +101,21 @@ export class V1WebhooksController {
                 if (!transaction.userTopUpId) {
                     transaction.userPlan.status = UserPlanStatus.PURCHASED;
                     await manager.save(transaction.userPlan);
+
+                    const activePlan = await manager.findOne(UserPlanEntity, {
+                        where: { userId: transaction.userPlan.userId, status: UserPlanStatus.ACTIVE },
+                    });
+
+                    if (activePlan && activePlan.expiresAt) {
+                        await this.inngest.send({
+                            name: 'plan/userPlan.activate',
+                            data: {
+                                userId: transaction.userPlan.userId,
+                                userPlanId: transaction.userPlan.id,
+                            },
+                            ts: activePlan.expiresAt.getTime(),
+                        });
+                    }
 
                     const pickupOtp = String(randomInt(1000, 10000));
                     const booking = manager.create(BookingEntity, {

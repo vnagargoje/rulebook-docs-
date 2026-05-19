@@ -4,7 +4,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { getBookingStatusMeta } from '@/data/customer/booking-status.data'
 import { InfoRow } from '@/components/customer/booking-detail'
 import { Image, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
-import { formatDateIN, formatNumberIN, formatTimeIN } from '@/lib/formatters/customer'
+import { formatCurrencyIN, formatDateIN, formatNumberIN, formatTimeIN } from '@/lib/formatters/customer'
 import { useBookingById } from '@/queries/customer'
 import { useGetBatteryById } from '@/queries/hub-manager'
 import { CircularSoc } from '@/components/customer/home'
@@ -36,6 +36,19 @@ export default function BookingDetailScreen() {
         Number((booking.userPlan?.planSnapshot as any)?.kmLimit ?? 0)
     const validityDays =
         booking.userPlan?.plan?.validityDays ?? (booking.userPlan?.planSnapshot as any)?.validityDays ?? null
+    const planSnapshot = (booking.userPlan?.planSnapshot as any) ?? {}
+    const topUps = (booking.userPlan?.topUps ?? []) as Array<{
+        id: string
+        status: string
+        appliedAt: string | null
+        topUpSnapshot: Record<string, any> | null
+    }>
+    const totalAmount = planSnapshot.totalAmount ?? (booking.userPlan?.plan as any)?.totalAmount ?? null
+    const planPrice = planSnapshot.price ?? (booking.userPlan?.plan as any)?.price ?? null
+    const registrationFee = planSnapshot.registrationFee ?? null
+    const gstPercentage = planSnapshot.gstPercentage ?? (booking.userPlan?.plan as any)?.gstPercentage ?? null
+    const hasFinancials = totalAmount != null || planPrice != null
+
     const batteryProperties = (batteryDetail?.properties ?? {}) as BatteryProperties
     const hasBatterySoc = batteryDetail != null
     const hasBatteryIot = batteryDetail != null && (batteryProperties.socPercent != null || batteryProperties.latitude != null || batteryProperties.speed != null)
@@ -415,6 +428,115 @@ export default function BookingDetailScreen() {
                                         </View>
                                     </View>
                                 )}
+                            </View>
+                        </View>
+                    )}
+
+                    {hasFinancials && (
+                        <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
+                            <View className='border-b border-neutral-100 px-5 py-4'>
+                                <View className='flex-row items-center gap-3'>
+                                    <View className='h-10 w-10 items-center justify-center rounded-xl bg-success-50'>
+                                        <MaterialCommunityIcons name='receipt' size={20} color='#16A34A' />
+                                    </View>
+                                    <Text className='text-sm font-bold text-neutral-900'>Payment Summary</Text>
+                                </View>
+                            </View>
+                            <View className='px-5 py-4 gap-3'>
+                                {planPrice != null && (
+                                    <View className='flex-row items-center justify-between'>
+                                        <Text className='text-sm text-neutral-500'>Plan Price</Text>
+                                        <Text className='text-sm font-semibold text-neutral-900'>{formatCurrencyIN(planPrice)}</Text>
+                                    </View>
+                                )}
+                                {registrationFee != null && Number(registrationFee) > 0 && (
+                                    <View className='flex-row items-center justify-between'>
+                                        <Text className='text-sm text-neutral-500'>Registration Fee</Text>
+                                        <Text className='text-sm font-semibold text-neutral-900'>{formatCurrencyIN(registrationFee)}</Text>
+                                    </View>
+                                )}
+                                {gstPercentage != null && (
+                                    <View className='flex-row items-center justify-between'>
+                                        <Text className='text-sm text-neutral-500'>GST</Text>
+                                        <Text className='text-sm font-semibold text-neutral-900'>{gstPercentage}%</Text>
+                                    </View>
+                                )}
+                                {totalAmount != null && (
+                                    <>
+                                        <View className='border-t border-neutral-100' />
+                                        <View className='flex-row items-center justify-between'>
+                                            <Text className='text-sm font-bold text-neutral-900'>Total Paid</Text>
+                                            <Text className='text-base font-bold text-success-700'>{formatCurrencyIN(totalAmount)}</Text>
+                                        </View>
+                                    </>
+                                )}
+                            </View>
+                        </View>
+                    )}
+
+                    {topUps.length > 0 && (
+                        <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
+                            <View className='border-b border-neutral-100 px-5 py-4'>
+                                <View className='flex-row items-center justify-between'>
+                                    <View className='flex-row items-center gap-3'>
+                                        <View className='h-10 w-10 items-center justify-center rounded-xl bg-primary-50'>
+                                            <MaterialCommunityIcons name='lightning-bolt' size={20} color='#2563EB' />
+                                        </View>
+                                        <Text className='text-sm font-bold text-neutral-900'>Top-up History</Text>
+                                    </View>
+                                    <View className='rounded-full bg-primary-50 px-2.5 py-1'>
+                                        <Text className='text-xs font-bold text-primary-700'>{topUps.length}</Text>
+                                    </View>
+                                </View>
+                            </View>
+                            <View className='gap-3 px-5 py-4'>
+                                {topUps.map((topUp) => {
+                                    const snap = topUp.topUpSnapshot ?? {}
+                                    const extraKm = Number(snap.extraKm ?? snap.kmLimit ?? 0)
+                                    const isApplied = topUp.status === 'applied'
+                                    return (
+                                        <View
+                                            key={topUp.id}
+                                            className={`rounded-2xl border px-4 py-4 ${
+                                                isApplied
+                                                    ? 'border-success-100 bg-success-50'
+                                                    : topUp.status === 'awaiting'
+                                                    ? 'border-warning-100 bg-warning-50'
+                                                    : 'border-red-100 bg-red-50'
+                                            }`}>
+                                            <View className='flex-row items-start justify-between gap-3'>
+                                                <View className='flex-1'>
+                                                    <Text className='text-sm font-bold text-neutral-900'>
+                                                        {snap.name ?? 'Top-up'}
+                                                    </Text>
+                                                    {isApplied && topUp.appliedAt ? (
+                                                        <Text className='mt-0.5 text-xs text-neutral-500'>
+                                                            Applied {formatDateIN(topUp.appliedAt)}
+                                                        </Text>
+                                                    ) : (
+                                                        <Text className='mt-0.5 text-xs text-neutral-500 capitalize'>
+                                                            {topUp.status}
+                                                        </Text>
+                                                    )}
+                                                </View>
+                                                <View className='items-end gap-1'>
+                                                    {snap.price != null && (
+                                                        <Text className='text-sm font-bold text-neutral-900'>
+                                                            {formatCurrencyIN(snap.price)}
+                                                        </Text>
+                                                    )}
+                                                    {isApplied && extraKm > 0 && (
+                                                        <View className='rounded-full bg-success-100 px-2.5 py-0.5'>
+                                                            <Text className='text-[11px] font-bold text-success-700'>
+                                                                +{formatNumberIN(extraKm)} km
+                                                            </Text>
+                                                        </View>
+                                                    )}
+                                                </View>
+                                            </View>
+                                        </View>
+                                    )
+                                })}
                             </View>
                         </View>
                     )}

@@ -66,27 +66,37 @@ export class VerifyPaymentHandler implements ICommandHandler<VerifyPaymentComman
                 where: { userId, status: UserPlanStatus.ACTIVE },
             })
 
-            if (activePlan && activePlan.expiresAt) {
-                await this.inngest.send({
-                    name: 'plan/userPlan.activate',
-                    data: {
-                        userId,
-                        userPlanId: transaction.userPlan.id,
-                    },
-                    ts: activePlan.expiresAt.getTime(),
+            let hasOngoingBooking = false
+            if (activePlan) {
+                const activeBooking = await manager.findOne(BookingEntity, {
+                    where: { userPlanId: activePlan.id, status: BookingStatus.ONGOING },
                 })
+                hasOngoingBooking = !!activeBooking
+
+                if (activePlan.expiresAt) {
+                    await this.inngest.send({
+                        name: 'plan/userPlan.activate',
+                        data: {
+                            userId,
+                            userPlanId: transaction.userPlan.id,
+                        },
+                        ts: activePlan.expiresAt.getTime(),
+                    })
+                }
             }
 
-            const pickupOtp = String(randomInt(1000, 10000))
-            const booking = manager.create(BookingEntity, {
-                userPlanId: transaction.userPlan.id,
-                stationId: null,
-                vehicleId: null,
-                batteryId: null,
-                status: BookingStatus.CREATED,
-                pickupOtp,
-            })
-            await manager.save(booking)
+            if (!hasOngoingBooking) {
+                const pickupOtp = String(randomInt(1000, 10000))
+                const booking = manager.create(BookingEntity, {
+                    userPlanId: transaction.userPlan.id,
+                    stationId: null,
+                    vehicleId: null,
+                    batteryId: null,
+                    status: BookingStatus.CREATED,
+                    pickupOtp,
+                })
+                await manager.save(booking)
+            }
             return transaction.userPlan
         })
     }

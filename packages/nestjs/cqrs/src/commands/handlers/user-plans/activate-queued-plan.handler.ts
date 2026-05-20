@@ -75,19 +75,8 @@ export class ActivateQueuedPlanHandler implements ICommandHandler<ActivateQueued
                 throw new InternalServerErrorException('batteryId missing in previously active plan')
             }
 
-            const newBooking = await manager.findOne(BookingEntity, {
-                where: { userPlanId: planToActivate.id, status: BookingStatus.CREATED },
-            })
-
-            if (!newBooking) {
-                throw new NotFoundException('Booking for the new plan not found')
-            }
-
             activePlan.status = UserPlanStatus.EXPIRED
             await manager.save(activePlan)
-
-            activeBooking.status = BookingStatus.COMPLETED
-            await manager.save(activeBooking)
 
             planToActivate.status = UserPlanStatus.ACTIVE
             planToActivate.startsAt = new Date()
@@ -99,11 +88,8 @@ export class ActivateQueuedPlanHandler implements ICommandHandler<ActivateQueued
             planToActivate.totalKm = Number(planToActivate.totalKm) + carryForwardKm
             await manager.save(planToActivate)
 
-            newBooking.vehicleId = activeBooking.vehicleId
-            newBooking.batteryId = activeBooking.batteryId
-            newBooking.stationId = activeBooking.stationId
-            newBooking.status = BookingStatus.ONGOING
-            await manager.save(newBooking)
+            activeBooking.userPlanId = planToActivate.id
+            await manager.save(activeBooking)
 
             await this.generateAndUploadQrCode(
                 manager,

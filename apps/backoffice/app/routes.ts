@@ -96,5 +96,14 @@ export default [
             index('routes/transactions/index.tsx'),
             route(':id', 'routes/transactions/view.tsx'),
         ]),
+
+        ...prefix('battery-swap-history', [
+            index('routes/battery-swap-history/index.tsx'),
+        ]),
+
+        ...prefix('battery-transports', [
+            index('routes/battery-transports/index.tsx'),
+            route(':id', 'routes/battery-transports/view.tsx'),
+        ]),
     ]),
 ] satisfies RouteConfig

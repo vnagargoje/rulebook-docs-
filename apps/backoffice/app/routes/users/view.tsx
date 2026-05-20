@@ -4,6 +4,7 @@ import {
     IconCalendarEvent,
     IconCheck,
     IconEdit,
+    IconHistory,
     IconId,
     IconMail,
     IconMapPin,
@@ -16,6 +17,7 @@ import { KycStatus } from '@yugo/shared'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { DetailRow } from '~/components/ui/detail-row'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
 import { MetaPill } from '~/components/ui/meta-pill'
 import { PageHeader } from '~/components/ui/page-header'
 import { SectionLabel } from '~/components/ui/section-label'
@@ -270,6 +272,56 @@ export default function UserViewRoute() {
                 </Card>
             </div>
 
+            {kycData?.data && kycData.data.length > 0 && (
+                <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
+                    <CardHeader className="border-b border-border/40">
+                        <CardTitle className="flex items-center gap-3 text-xl">
+                            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                <IconHistory size={18} />
+                            </span>
+                            KYC History
+                        </CardTitle>
+                        <CardDescription>All KYC submissions for this user.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Type</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Document ID</TableHead>
+                                    <TableHead>Attempts</TableHead>
+                                    <TableHead>Verified At</TableHead>
+                                    <TableHead>Submitted At</TableHead>
+                                    <TableHead>Notes</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {kycData.data.map((kyc) => (
+                                    <TableRow key={kyc.id}>
+                                        <TableCell className="font-medium">{formatLabel(kyc.type)}</TableCell>
+                                        <TableCell>
+                                            <StatusBadge status={kyc.status.toUpperCase()} />
+                                        </TableCell>
+                                        <TableCell className="font-mono text-xs">{kyc.documentId || '—'}</TableCell>
+                                        <TableCell className="text-center">{kyc.attemptCount ?? '—'}</TableCell>
+                                        <TableCell className="text-xs text-muted-foreground">
+                                            {kyc.verifiedAt ? formatDate(kyc.verifiedAt) : '—'}
+                                        </TableCell>
+                                        <TableCell className="text-xs text-muted-foreground">
+                                            {kyc.createdAt ? formatDate(kyc.createdAt) : '—'}
+                                        </TableCell>
+                                        <TableCell className="max-w-50 truncate text-xs text-muted-foreground">
+                                            {kyc.notes || '—'}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            )}
+
             <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
                 <CardHeader className="border-b border-border/40">
                     <CardTitle>Audit</CardTitle>
@@ -281,8 +333,6 @@ export default function UserViewRoute() {
                     </div>
                 </CardContent>
             </Card>
-
-            {/* Customer history sections removed*/}
         </div>
     )
 }

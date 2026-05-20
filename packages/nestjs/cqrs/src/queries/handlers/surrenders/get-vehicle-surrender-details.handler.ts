@@ -40,7 +40,7 @@ export class GetVehicleSurrenderDetailsHandler implements IQueryHandler<GetVehic
         const depositAmount: number = planSnapshot?.deposit ?? 0
 
         const accessToken = await this.getAccessToken(config)
-        const rtoPenalty = await this.fetchRtoPenalty(vehicle.rcNumber, accessToken, config)
+        const rtoPenalty = await this.fetchRtoPenalty(vehicle.vehicleNumber, accessToken, config)
         const refundAmount = Math.max(0, depositAmount - rtoPenalty)
 
         return {
@@ -61,7 +61,7 @@ export class GetVehicleSurrenderDetailsHandler implements IQueryHandler<GetVehic
         return data.access_token
     }
 
-    async fetchRtoPenalty(rcNumber: string, accessToken: string, config: DeepvueConfig): Promise<number> {
+    async fetchRtoPenalty(vehicleNumber: string, accessToken: string, config: DeepvueConfig): Promise<number> {
         const client = xior.create({
             baseURL: config.baseUrl,
             headers: {
@@ -72,7 +72,7 @@ export class GetVehicleSurrenderDetailsHandler implements IQueryHandler<GetVehic
 
         try {
             const { data } = await client.get('/verification/rc-challan-details', {
-                params: { rc_number: rcNumber },
+                params: { rc_number: vehicleNumber },
             })
 
             this.logger.debug('RTO penalty details response from Deepvue:', data)

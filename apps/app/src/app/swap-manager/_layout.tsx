@@ -13,6 +13,7 @@ export default function () {
             <Stack.Screen name='execute-swap' />
             <Stack.Screen name='battery-outward' />
             <Stack.Screen name='battery-inward' />
+            <Stack.Screen name='movement-history' />
             <Stack.Screen
                 name='battery/[id]'
                 options={{

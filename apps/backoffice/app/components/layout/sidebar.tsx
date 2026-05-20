@@ -11,6 +11,14 @@ import { NavLink, useLocation } from 'react-router'
 import { cn } from '~/lib/utils'
 
 import { Button } from '~/components/ui/button'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '~/components/ui/dialog'
 import { useAuth } from '~/lib/auth-context'
 import type { AdminSession } from '~/types/admin'
 import { NAVIGATION_ITEMS } from './navigation'
@@ -29,6 +37,7 @@ export function Sidebar({ session, isCollapsed, onToggleCollapse }: SidebarProps
     const location = useLocation()
     const { logout } = useAuth()
     const [openMenus, setOpenMenus] = useState<string[]>([])
+    const [showLogoutDialog, setShowLogoutDialog] = useState(false)
 
     useEffect(() => {
         NAVIGATION_ITEMS.forEach(item => {
@@ -49,10 +58,16 @@ export function Sidebar({ session, isCollapsed, onToggleCollapse }: SidebarProps
     }
 
     const handleLogout = () => {
+        setShowLogoutDialog(true)
+    }
+
+    const confirmLogout = () => {
+        setShowLogoutDialog(false)
         logout()
     }
 
     return (
+        <>
         <aside className={cn(
             'relative flex h-full flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-300 z-50 shadow-sm shrink-0 overscroll-none',
             isCollapsed ? 'w-20' : 'w-[280px]'
@@ -233,5 +248,25 @@ export function Sidebar({ session, isCollapsed, onToggleCollapse }: SidebarProps
                 )}
             </div>
         </aside>
+
+        <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+            <DialogContent showCloseButton={false} className="max-w-sm">
+                <DialogHeader>
+                    <DialogTitle>Confirm Logout</DialogTitle>
+                    <DialogDescription>
+                        Are you sure you want to log out? Your current session will be terminated.
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="destructive" onClick={confirmLogout}>
+                        Yes, Logout
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+        </>
     )
 }

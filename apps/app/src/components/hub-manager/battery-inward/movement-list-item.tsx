@@ -2,6 +2,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { Pressable, ScrollView } from 'react-native'
 
 import { Text, View } from '@/components/ui'
+import { BatteryQrChip } from '@/components/shared/battery-qr-chip'
 import type { Movement } from '@/queries/hub-manager/movements.query'
 
 interface MovementListItemProps {
@@ -53,23 +54,14 @@ export function MovementListItem({ movement, onSelect }: MovementListItemProps) 
             {movement.batteryIds.length > 0 && (
                 <View className='mt-3 border-t border-neutral-100 pt-3'>
                     <Text className='text-[10px] font-semibold uppercase tracking-[1px] text-neutral-400 mb-2'>
-                        Battery IDs
+                        Battery QR IDs
                     </Text>
                     <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={{ gap: 6 }}>
                         {movement.batteryIds.map((id) => (
-                            <View
-                                key={id}
-                                className='flex-row items-center gap-1 rounded-full bg-primary-50 border border-primary-100 px-2.5 py-1'>
-                                <MaterialCommunityIcons
-                                    name='battery-charging'
-                                    size={11}
-                                    color='#2563EB'
-                                />
-                                <Text className='text-[11px] font-semibold text-primary-700'>{id}</Text>
-                            </View>
+                            <BatteryQrChip key={id} batteryId={id} />
                         ))}
                     </ScrollView>
                 </View>

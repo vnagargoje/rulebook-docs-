@@ -5,6 +5,7 @@ import { IconPlus, IconEdit, IconEye, IconMapPin } from '@tabler/icons-react'
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
+import { StatusBadge } from '~/components/ui/status-badge'
 import { useBatteries, type BatteriesListParams, type BatteryItem } from '~/queries/batteries'
 
 export default function BatteriesListRoute() {
@@ -43,7 +44,7 @@ export default function BatteriesListRoute() {
             { header: 'GPS ID', accessor: 'gpsId' as const },
             { header: 'Capacity', cell: (b: BatteryItem) => b.properties?.capacity ?? '—' },
             { header: 'Range', cell: (b: BatteryItem) => b.properties?.range ?? '—' },
-            { header: 'Station', cell: (b: BatteryItem) => b.station?.name ?? 'Unassigned' },
+            { header: 'Station', cell: (b: BatteryItem) => b.station?.name ?? <StatusBadge status={(b.status ?? '').toUpperCase()} /> },
             { header: 'Removable', cell: (b: BatteryItem) => (b.properties?.removableOption ? 'Yes' : 'No') },
             {
                 header: 'Actions',

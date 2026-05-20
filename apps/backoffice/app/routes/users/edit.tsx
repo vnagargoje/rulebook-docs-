@@ -4,11 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
-import { CheckboxField, SelectField, TextInputField } from '~/components/forms/controlled-fields'
+import { CheckboxField, SearchableSelectField, SelectField, TextInputField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
 import { useGetUserById, useUpdateUser, useUpdateUserAddresses, type UpdateUserPayload } from '~/queries/users'
-import { useStates, useCities } from '~/hooks'
+import { useStates, useInfiniteCities } from '~/hooks'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
@@ -93,12 +93,22 @@ export default function EditUserRoute() {
     const permanentStateId = form.watch('permanentStateId')
     const sameAddress = form.watch('sameAddress')
 
-    const { data: currentCities } = useCities(currentStateId || undefined)
-    const { data: permanentCities } = useCities(permanentStateId || undefined)
+    const {
+        data: currentCitiesData,
+        isFetching: isCurrentCitiesFetching,
+        fetchNextPage: fetchNextCurrentCityPage,
+        hasNextPage: hasNextCurrentCityPage,
+    } = useInfiniteCities(currentStateId || undefined)
+    const {
+        data: permanentCitiesData,
+        isFetching: isPermanentCitiesFetching,
+        fetchNextPage: fetchNextPermanentCityPage,
+        hasNextPage: hasNextPermanentCityPage,
+    } = useInfiniteCities(permanentStateId || undefined)
 
     const stateOptions = (states ?? []).map((s) => ({ label: s.name, value: s.id }))
-    const currentCityOptions = (currentCities ?? []).map((c) => ({ label: c.name, value: c.id }))
-    const permanentCityOptions = (permanentCities ?? []).map((c) => ({ label: c.name, value: c.id }))
+    const currentCityOptions = (currentCitiesData?.pages ?? []).flatMap((p) => p.data).map((c) => ({ label: c.name, value: c.id }))
+    const permanentCityOptions = (permanentCitiesData?.pages ?? []).flatMap((p) => p.data).map((c) => ({ label: c.name, value: c.id }))
 
     useEffect(() => {
         if (user) {
@@ -267,13 +277,16 @@ export default function EditUserRoute() {
                                         options={stateOptions}
                                         placeholder="Select state"
                                     />
-                                    <SelectField
+                                    <SearchableSelectField
                                         control={form.control}
                                         name="permanentCityId"
                                         label="City"
                                         options={permanentCityOptions}
                                         placeholder={permanentStateId ? 'Select city' : 'Select state first'}
                                         key={permanentStateId || 'no-perm-state'}
+                                        isLoading={isPermanentCitiesFetching}
+                                        onLoadMore={fetchNextPermanentCityPage}
+                                        hasNextPage={hasNextPermanentCityPage}
                                     />
                                     <TextInputField control={form.control} name="permanentPincode" label="PIN Code" placeholder="400001" />
                                 </div>
@@ -301,13 +314,16 @@ export default function EditUserRoute() {
                                                 options={stateOptions}
                                                 placeholder="Select state"
                                             />
-                                            <SelectField
+                                            <SearchableSelectField
                                                 control={form.control}
                                                 name="currentCityId"
                                                 label="City"
                                                 options={currentCityOptions}
                                                 placeholder={currentStateId ? 'Select city' : 'Select state first'}
                                                 key={currentStateId || 'no-state'}
+                                                isLoading={isCurrentCitiesFetching}
+                                                onLoadMore={fetchNextCurrentCityPage}
+                                                hasNextPage={hasNextCurrentCityPage}
                                             />
                                             <TextInputField control={form.control} name="currentPincode" label="PIN Code" placeholder="400001" />
                                         </div>

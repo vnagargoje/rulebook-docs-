@@ -112,12 +112,12 @@ export default function DashboardRoute() {
             </div>
 
             <div className='grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6'>
-                <StatCard title='Users' value={totalUsers} helper='Total user accounts' icon={<IconUsers size={24} />} />
-                <StatCard title='Bookings' value={totalBookings} helper='Total bookings created' icon={<IconClipboardList size={24} />} />
-                <StatCard title='Vehicles' value={totalVehicles} helper='Total fleet vehicles' icon={<IconMotorbike size={24} />} />
-                <StatCard title='Batteries' value={totalBatteries} helper='Total battery inventory' icon={<IconBatteryCharging size={24} />} />
-                <StatCard title='Surrenders' value={totalSurrenders} helper='Total surrender requests' icon={<IconRouteSquare size={24} />} />
-                <StatCard title='Stations' value={totalStations} helper='Total network stations' icon={<IconMapPin size={24} />} />
+                <StatCard title='Users' value={totalUsers} helper='Total user accounts' icon={<IconUsers size={24} />} onClick={() => navigate('/users')} />
+                <StatCard title='Bookings' value={totalBookings} helper='Total bookings created' icon={<IconClipboardList size={24} />} onClick={() => navigate('/bookings')} />
+                <StatCard title='Vehicles' value={totalVehicles} helper='Total fleet vehicles' icon={<IconMotorbike size={24} />} onClick={() => navigate('/vehicles')} />
+                <StatCard title='Batteries' value={totalBatteries} helper='Total battery inventory' icon={<IconBatteryCharging size={24} />} onClick={() => navigate('/batteries')} />
+                <StatCard title='Surrenders' value={totalSurrenders} helper='Total surrender requests' icon={<IconRouteSquare size={24} />} onClick={() => navigate('/surrender')} />
+                <StatCard title='Stations' value={totalStations} helper='Total network stations' icon={<IconMapPin size={24} />} onClick={() => navigate('/stations')} />
             </div>
 
             <Card className='overflow-hidden border-border/40 bg-white shadow-sm'>

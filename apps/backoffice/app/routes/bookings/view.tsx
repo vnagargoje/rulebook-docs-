@@ -83,8 +83,9 @@ export default function BookingViewRoute() {
                 toast.success('Vehicle assigned successfully')
                 form.reset()
             },
-            onError: () => {
-                toast.error('Failed to assign vehicle')
+            onError: (error: any) => {
+                const message = error?.response?.data?.message
+                toast.error(Array.isArray(message) ? message.join(', ') : (message || 'Failed to assign vehicle'))
             },
         })
     }, [assignVehicle, form, id])

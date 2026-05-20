@@ -20,7 +20,9 @@ export default function EditVehicleRoute() {
     const navigate = useNavigate()
     const { data: vehicle, isLoading } = useGetVehicleById(id)
     const updateVehicle = useUpdateVehicle()
-    const { data: stations, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations()
+    const { data: stations, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations({
+        'filter.type': ['$eq:vehicle_station'],
+    })
 
     const form = useForm<UpdateVehicleFormValues>({
         resolver: zodResolver(updateVehicleSchema),

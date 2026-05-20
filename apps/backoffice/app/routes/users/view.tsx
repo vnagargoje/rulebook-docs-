@@ -116,10 +116,12 @@ export default function UserViewRoute() {
                     title={name}
                     description={isCustomerRoute ? 'Full customer profile details.' : 'Full employee profile details.'}
                 />
-                <Button variant="outline" className="ml-auto shrink-0" onClick={() => navigate(editPath)}>
-                    <IconEdit size={16} className="mr-2" />
-                    Edit
-                </Button>
+                {!isCustomerRoute && (
+                    <Button variant="outline" className="ml-auto shrink-0" onClick={() => navigate(editPath)}>
+                        <IconEdit size={16} className="mr-2" />
+                        Edit
+                    </Button>
+                )}
             </div>
 
             <Card className="overflow-hidden border-border/40 bg-gradient-to-br from-primary/[0.06] via-white to-white shadow-sm">

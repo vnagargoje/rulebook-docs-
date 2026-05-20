@@ -3,9 +3,10 @@ import { useRouter } from 'expo-router'
 import { useCallback, useMemo, useState } from 'react'
 
 import { DetailRow } from '@/components/profile'
-import { Button, ConfirmDialog, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
+import { ActivityIndicator, Button, ConfirmDialog, Pressable, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 import { useMyProfile } from '@/queries/profile'
 import { useAuthStore } from '@/stores/auth.store'
+import { useAppUpdate } from '@/hooks/use-app-update'
 
 export default function HubManagerProfileScreen() {
     const router = useRouter()
@@ -13,6 +14,7 @@ export default function HubManagerProfileScreen() {
     const signOut = useAuthStore.use.signOut()
     const { data: profile } = useMyProfile()
     const [showSignOutDialog, setShowSignOutDialog] = useState(false)
+    const { checkForUpdate, isChecking: isCheckingUpdate } = useAppUpdate()
 
     const fullName = useMemo(() => {
         const value = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ').trim()
@@ -176,6 +178,34 @@ export default function HubManagerProfileScreen() {
                                     color='#D1D5DB'
                                 />
                             </View>
+                            <View className='ml-14 border-b border-neutral-100' />
+                            <Pressable
+                                onPress={checkForUpdate}
+                                disabled={isCheckingUpdate}
+                                className='flex-row items-center py-3.5 px-1'>
+                                <View className='h-10 w-10 rounded-xl bg-primary-50 items-center justify-center'>
+                                    <MaterialCommunityIcons
+                                        name='update'
+                                        size={20}
+                                        color='#2563EB'
+                                    />
+                                </View>
+                                <View className='ml-3 flex-1'>
+                                    <Text className='text-sm font-semibold text-neutral-900'>Check for Updates</Text>
+                                    <Text className='text-xs text-neutral-500 mt-0.5'>
+                                        {isCheckingUpdate ? 'Checking…' : 'Get the latest OTA version'}
+                                    </Text>
+                                </View>
+                                {isCheckingUpdate ? (
+                                    <ActivityIndicator size='small' color='#2563EB' />
+                                ) : (
+                                    <MaterialCommunityIcons
+                                        name='chevron-right'
+                                        size={20}
+                                        color='#D1D5DB'
+                                    />
+                                )}
+                            </Pressable>
                         </View>
                     </View>
 

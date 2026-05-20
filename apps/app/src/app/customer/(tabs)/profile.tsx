@@ -4,6 +4,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { toast } from 'sonner-native'
 
 import { ProfileMenuItem } from '@/components/customer/profile'
+import { useAppUpdate } from '@/hooks/use-app-update'
 import { Button, ConfirmDialog, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 import { formatKmIN } from '@/lib/formatters/customer'
 import { useMyPlans } from '@/queries/customer'
@@ -63,6 +64,8 @@ export default function CustomerProfileScreen() {
         setShowSignOutDialog(false)
         signOut()
     }, [signOut])
+
+    const { checkForUpdate, isChecking: isCheckingUpdate } = useAppUpdate()
 
     const handleComingSoon = useCallback((title: string) => {
         toast.info(title, {
@@ -269,6 +272,14 @@ export default function CustomerProfileScreen() {
                                 label='Privacy Policy'
                                 color='#6B7280'
                                 onPress={() => handleComingSoon('Privacy Policy')}
+                            />
+                            <View className='ml-14 border-b border-neutral-100' />
+                            <ProfileMenuItem
+                                icon='update'
+                                label='Check for Updates'
+                                subtitle={isCheckingUpdate ? 'Checking…' : 'Get the latest OTA version'}
+                                color='#2563EB'
+                                onPress={checkForUpdate}
                             />
                         </View>
                     </View>

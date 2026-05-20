@@ -18,7 +18,9 @@ import { vehicleTypeOptions } from '~/constants'
 export default function CreateVehicleRoute() {
     const navigate = useNavigate()
     const createVehicle = useCreateVehicle()
-    const { data: stations, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations()
+    const { data: stations, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations({
+        'filter.type': ['$eq:vehicle_station'],
+    })
 
     const form = useForm<CreateVehicleFormValues>({
         resolver: zodResolver(createVehicleSchema),

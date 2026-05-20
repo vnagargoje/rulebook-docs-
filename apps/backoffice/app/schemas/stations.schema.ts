@@ -6,7 +6,7 @@ const stationBaseSchema = z.object({
         .string()
         .min(2, 'Station name must be at least 2 characters')
         .max(100, 'Station name must be at most 100 characters'),
-    type: z.enum(['swap_station', 'hub_station'], { required_error: 'Station type is required' }),
+    type: z.enum(['swap_station', 'hub_station', 'vehicle_station'], { required_error: 'Station type is required' }),
     active: z.enum(['true', 'false'], { required_error: 'Status is required' }),
     latitude: z
         .string()

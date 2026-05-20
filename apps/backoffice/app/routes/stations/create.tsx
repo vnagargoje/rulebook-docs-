@@ -23,7 +23,8 @@ export default function SwapStationsCreateRoute() {
     const { data: states } = useStates()
     const [managerSearchQuery, setManagerSearchQuery] = useState('')
     const isHubStationRoute = location.pathname.startsWith('/hub-stations')
-    const stationType: CreateStationFormValues['type'] = isHubStationRoute ? 'hub_station' : 'swap_station'
+    const isVehicleStationRoute = location.pathname.startsWith('/vehicle-stations')
+    const stationType: CreateStationFormValues['type'] = isHubStationRoute ? 'hub_station' : isVehicleStationRoute ? 'vehicle_station' : 'swap_station'
     const form = useForm<CreateStationFormValues>({
         resolver: zodResolver(createStationSchema),
         mode: 'onChange',
@@ -46,7 +47,7 @@ export default function SwapStationsCreateRoute() {
     const selectedStateId = form.watch('stateId')
     const deferredManagerSearchQuery = useDeferredValue(managerSearchQuery.trim())
     const managerRole = stationManagerRoleByType[selectedType] ?? ''
-    const stationLabel = selectedType === 'hub_station' ? 'Hub' : 'Swap'
+    const stationLabel = selectedType === 'hub_station' ? 'Hub' : selectedType === 'vehicle_station' ? 'Vehicle' : 'Swap'
     const managerQueryParams = useMemo(
         () => ({
             limit: 25,
@@ -79,7 +80,7 @@ export default function SwapStationsCreateRoute() {
     }, [managerRole])
 
     const managerOptions = useMemo(() => {
-        const allManagers = (managers?.pages.flatMap((page) => page.data) ?? []).filter((user) => !user.stationId)
+        const allManagers = managers?.pages.flatMap((page) => page.data) ?? []
 
         return allManagers.map((u) => ({
             label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email || u.mobilenumber || u.id,
@@ -109,11 +110,11 @@ export default function SwapStationsCreateRoute() {
     const onSubmit = useCallback((values: CreateStationFormValues) => {
         const payload: CreateStationPayload = {
             name: values.name,
-            type: values.type,
+            type: stationType,
             active: values.active === 'true',
             latitude: values.latitude ? parseFloat(values.latitude) : undefined,
             longitude: values.longitude ? parseFloat(values.longitude) : undefined,
-            managerId: values.managerId || undefined,
+            managerId: stationType !== 'vehicle_station' ? (values.managerId || undefined) : undefined,
         }
 
         if (values.lineOne) {
@@ -128,13 +129,13 @@ export default function SwapStationsCreateRoute() {
         createStation.mutate(payload, {
             onSuccess: () => {
                 toast.success('Station created successfully')
-                navigate(stationListPathByType[values.type])
+                navigate(stationListPathByType[stationType])
             },
             onError: (error: any) => {
                 toast.error(error?.response?.data?.message || 'Failed to create station')
             },
         })
-    }, [createStation, navigate])
+    }, [createStation, navigate, stationType])
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
@@ -169,18 +170,20 @@ export default function SwapStationsCreateRoute() {
                                             { label: 'Inactive', value: 'false' },
                                         ]}
                                     />
-                                    <SearchableSelectField
-                                        control={form.control}
-                                        name="managerId"
-                                        label="Station Manager (Optional)"
-                                        options={managerOptions}
-                                        placeholder="Select a manager"
-                                        searchValue={managerSearchQuery}
-                                        onSearchChange={handleManagerSearchChange}
-                                        onLoadMore={handleLoadMoreManagers}
-                                        hasNextPage={Boolean(hasNextManagersPage)}
-                                        isLoading={isLoadingManagers || isFetchingNextManagersPage}
-                                    />
+                                    {stationType !== 'vehicle_station' && (
+                                        <SearchableSelectField
+                                            control={form.control}
+                                            name="managerId"
+                                            label="Station Manager"
+                                            options={managerOptions}
+                                            placeholder="Select a manager"
+                                            searchValue={managerSearchQuery}
+                                            onSearchChange={handleManagerSearchChange}
+                                            onLoadMore={handleLoadMoreManagers}
+                                            hasNextPage={Boolean(hasNextManagersPage)}
+                                            isLoading={isLoadingManagers || isFetchingNextManagersPage}
+                                        />
+                                    )}
                                 </div>
                             </div>
 

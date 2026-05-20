@@ -70,7 +70,7 @@ export default function SwapStationsEditRoute() {
     const selectedStationCity = station?.address?.city
 
     const managerOptions = useMemo(() => {
-        const allManagers = (managers?.pages.flatMap((page) => page.data) ?? []).filter((user) => !user.stationId)
+        const allManagers = managers?.pages.flatMap((page) => page.data) ?? []
         const mappedOptions = allManagers.map((u) => ({
             label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email || u.mobilenumber || u.id,
             value: u.id,
@@ -208,18 +208,20 @@ export default function SwapStationsEditRoute() {
                                         options={[{ label: 'Active', value: 'true' }, { label: 'Inactive', value: 'false' }]}
                                         required
                                     />
-                                    <SearchableSelectField
-                                        control={form.control}
-                                        name="managerId"
-                                        label="Station Manager (Optional)"
-                                        options={managerOptions}
-                                        placeholder="Select a manager"
-                                        searchValue={managerSearchQuery}
-                                        onSearchChange={handleManagerSearchChange}
-                                        onLoadMore={handleLoadMoreManagers}
-                                        hasNextPage={Boolean(hasNextManagersPage)}
-                                        isLoading={isLoadingManagers || isFetchingNextManagersPage}
-                                    />
+                                    {selectedType !== 'vehicle_station' && (
+                                        <SearchableSelectField
+                                            control={form.control}
+                                            name="managerId"
+                                            label="Station Manager"
+                                            options={managerOptions}
+                                            placeholder="Select a manager"
+                                            searchValue={managerSearchQuery}
+                                            onSearchChange={handleManagerSearchChange}
+                                            onLoadMore={handleLoadMoreManagers}
+                                            hasNextPage={Boolean(hasNextManagersPage)}
+                                            isLoading={isLoadingManagers || isFetchingNextManagersPage}
+                                        />
+                                    )}
                                 </div>
                             </div>
 

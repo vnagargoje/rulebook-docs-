@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
 import { SearchableSelectField, TextInputField } from '~/components/forms/controlled-fields'
@@ -16,17 +16,22 @@ import { stationAssignmentSchema, type StationAssignmentValues } from '~/schemas
 
 export default function CreateStationAssignmentRoute() {
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const preselectedStationId = searchParams.get('stationId') ?? ''
     const updateVehicle = useUpdateVehicle()
     const { data: vehiclesData, isFetching: isVehiclesFetching, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles({
         sortBy: ['createdAt:DESC'],
         'filter.stationId': ['$null'],
     })
-    const { data: stationsData, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations({ sortBy: ['createdAt:DESC'] })
+    const { data: stationsData, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations({
+        sortBy: ['createdAt:DESC'],
+        'filter.type': ['$eq:vehicle_station'],
+    })
 
     const form = useForm<StationAssignmentValues>({
         resolver: zodResolver(stationAssignmentSchema),
         mode: 'onChange',
-        defaultValues: { vehicleId: '', vehicleNumber: '', stationId: '' },
+        defaultValues: { vehicleId: '', vehicleNumber: '', stationId: preselectedStationId },
     })
 
     const allVehicles = (vehiclesData?.pages ?? []).flatMap((p) => p.data)

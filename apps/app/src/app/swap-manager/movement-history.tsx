@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable } from 'react-native'
 
 import { SafeAreaView, Text, View } from '@/components/ui'
+import { BatteryQrChip } from '@/components/shared/battery-qr-chip'
 import { useIsAuthenticated } from '@/queries/auth.query'
 import {
     useGetFromStationMovements,
@@ -30,19 +31,9 @@ function MovementCard({ movement }: { movement: SMMovement }) {
 
     return (
         <View className='mx-4 rounded-3xl border border-neutral-100 bg-white p-4'>
-            <View className='flex-row items-start justify-between'>
-                <View className='flex-1'>
-                    <Text className='text-[10px] font-semibold uppercase tracking-[1px] text-neutral-400'>
-                        Movement ID
-                    </Text>
-                    <Text
-                        className='mt-0.5 text-sm font-bold text-neutral-900'
-                        numberOfLines={1}>
-                        {movement.id}
-                    </Text>
-                </View>
+            <View className='flex-row items-center justify-end'>
                 <View
-                    className='ml-3 flex-row items-center gap-1.5 rounded-full px-3 py-1'
+                    className='flex-row items-center gap-1.5 rounded-full px-3 py-1'
                     style={{ backgroundColor: colors.bg }}>
                     <View
                         className='h-1.5 w-1.5 rounded-full'
@@ -96,14 +87,25 @@ function MovementCard({ movement }: { movement: SMMovement }) {
                 </View>
             </View>
 
+            {movement.createdAt && (
+                <View className='mt-2 flex-row items-center gap-1.5'>
+                    <MaterialCommunityIcons name='clock-outline' size={12} color='#9CA3AF' />
+                    <Text className='text-[10px] text-neutral-400'>
+                        {new Date(movement.createdAt).toLocaleString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })}
+                    </Text>
+                </View>
+            )}
+
             {movement.batteryIds.length > 0 && (
                 <View className='mt-3 flex-row flex-wrap gap-1.5'>
                     {movement.batteryIds.map((id) => (
-                        <View
-                            key={id}
-                            className='rounded-lg bg-neutral-100 px-2 py-1'>
-                            <Text className='text-[10px] font-medium text-neutral-600'>{id}</Text>
-                        </View>
+                        <BatteryQrChip key={id} batteryId={id} />
                     ))}
                 </View>
             )}

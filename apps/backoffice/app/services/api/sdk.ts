@@ -73,4 +73,7 @@ export const {
     v1UserPlansGetMyPlanById,
     v1TransactionsGetTransactions,
     v1TransactionsGetTransactionById,
+    v1BatterySwapsGetSwapHistory,
+    v1BatteryTransportsGetManyMovements,
+    v1BatteryTransportsGetOneMovement,
 } = api.v1

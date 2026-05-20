@@ -51,3 +51,8 @@ export class SwapStationEntity extends StationEntity {
 export class HubStationEntity extends StationEntity {
     // Specific fields for Hubs can be added here
 }
+
+@ChildEntity(StationType.VEHICLE_STATION)
+export class VehicleStationEntity extends StationEntity {
+    // Specific fields for Vehicle Stations can be added here
+}

@@ -1114,7 +1114,7 @@ export interface V1BookingsAdminAssignVehicleBody {
 export interface V1StationsGetManyStationsResponse {
   data: {
     id: string;
-    type: "swap_station" | "hub_station";
+    type: "swap_station" | "hub_station" | "vehicle_station";
     name: string;
     longitude?: number;
     latitude?: number;
@@ -1164,7 +1164,7 @@ export interface V1StationsGetManyStationsResponse {
 
 export interface V1StationsCreateOneStationResponse {
   id: string;
-  type: "swap_station" | "hub_station";
+  type: "swap_station" | "hub_station" | "vehicle_station";
   name: string;
   longitude?: number;
   latitude?: number;
@@ -1195,7 +1195,7 @@ export interface V1StationsCreateOneStationResponse {
 }
 
 export interface V1StationsCreateOneStationBody {
-  type: "swap_station" | "hub_station";
+  type: "swap_station" | "hub_station" | "vehicle_station";
   name: string;
   longitude?: number;
   latitude?: number;
@@ -1212,7 +1212,7 @@ export interface V1StationsCreateOneStationBody {
 
 export interface V1StationsGetOneStationResponse {
   id: string;
-  type: "swap_station" | "hub_station";
+  type: "swap_station" | "hub_station" | "vehicle_station";
   name: string;
   longitude?: number;
   latitude?: number;
@@ -1244,7 +1244,7 @@ export interface V1StationsGetOneStationResponse {
 
 export interface V1StationsUpdateOneStationResponse {
   id: string;
-  type: "swap_station" | "hub_station";
+  type: "swap_station" | "hub_station" | "vehicle_station";
   name: string;
   longitude?: number;
   latitude?: number;
@@ -1275,7 +1275,7 @@ export interface V1StationsUpdateOneStationResponse {
 }
 
 export interface V1StationsUpdateOneStationBody {
-  type: "swap_station" | "hub_station";
+  type: "swap_station" | "hub_station" | "vehicle_station";
   name: string;
   longitude?: number;
   latitude?: number;

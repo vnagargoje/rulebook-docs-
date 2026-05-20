@@ -42,13 +42,12 @@ export default function BookingViewRoute() {
     const { data: booking, isLoading } = useGetBookingById(id)
     const { data: vehiclesData, isFetching: vehiclesLoading, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles({
         sortBy: ['createdAt:DESC'],
-        'filter.status': ['$eq:AVAILABLE'],
-        ...(booking?.stationId ? { 'filter.stationId': [`$eq:${booking.stationId}`] } : {}),
+        'filter.status': ['$eq:available'],
     })
     const { data: batteriesData, isFetching: batteriesLoading, fetchNextPage: fetchNextBatteryPage, hasNextPage: hasNextBatteryPage } = useInfiniteBatteries({
         sortBy: ['createdAt:DESC'],
-        'filter.status': ['$eq:AVAILABLE'],
-        ...(booking?.stationId ? { 'filter.stationId': [`$eq:${booking.stationId}`] } : {}),
+        'filter.status': ['$eq:available'],
+        'filter.station.type': ['$eq:vehicle_station'],
     })
     const assignVehicle = useAssignVehicle()
 

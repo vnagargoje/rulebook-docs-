@@ -6,12 +6,24 @@ import { SafeAreaView, Text, View } from '@/components/ui'
 import { ConfirmStep, ScanStep, SelectMovementStep } from '@/components/hub-manager/battery-inward'
 import { ErrorState, StepIndicator, SuccessState } from '@/components/hub-manager/shared'
 import { useBatteryInwardFlow } from '@/hooks/hub-manager/use-battery-inward-flow'
-import { useGetInTransitMovements } from '@/queries/hub-manager'
+import { useGetMovements, useGetHubStation } from '@/queries/hub-manager'
+import { useIsAuthenticated } from '@/queries/auth.query'
 
 import { INWARD_STEP_INDEX, INWARD_STEP_LABELS } from '@/constants/hub-manager.constants'
 
 export default function BatteryInwardScreen() {
     const router = useRouter()
+
+    const { data: auth } = useIsAuthenticated()
+    const managerId = auth?.userId ?? ''
+
+    const { data: stationData } = useGetHubStation({
+        variables: { managerId },
+        enabled: !!managerId,
+    })
+
+    const stationId = stationData?.data?.[0]?.id ?? ''
+
     const {
         step,
         selectedMovement,
@@ -27,7 +39,13 @@ export default function BatteryInwardScreen() {
         reset,
     } = useBatteryInwardFlow()
 
-    const { data: movementsData, isLoading: isLoadingMovements } = useGetInTransitMovements()
+    const { data: movementsData, isLoading: isLoadingMovements } = useGetMovements({
+        variables: {
+            'filter.status': ['$eq:in_transit'],
+            'filter.toStationId': stationId ? [`$eq:${stationId}`] : undefined,
+        },
+        enabled: !!stationId && step === 'select-movement',
+    })
     const movements = movementsData?.data ?? []
 
     if (step === 'success') {

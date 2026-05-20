@@ -32,6 +32,18 @@ export const useStationById = createQuery<StationDetail, { id: string }>({
     },
 })
 
+export const useVehicleStations = createQuery<StationsResponse>({
+    queryKey: ['vehicle-stations'],
+    fetcher: async () => {
+        const response = await client.v1.v1StationsGetManyStations({
+            page: 1,
+            limit: 50,
+            'filter.type': ['$eq:vehicle_station'],
+        })
+        return response.data
+    },
+})
+
 export const useSwapStations = createInfiniteQuery<StationsResponse, void>({
     queryKey: ['swap-stations'],
     fetcher: async (_variables, { pageParam }) => {

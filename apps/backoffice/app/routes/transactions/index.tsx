@@ -102,29 +102,12 @@ export default function TransactionsListRoute() {
             ),
         },
         {
-            header: 'Details',
-            cell: (item) => {
-                const isTopUp = !!item.userTopUp
-                if (isTopUp) {
-                    const snap = item.userTopUp?.topUpSnapshot as unknown as TopUpSnapshot
-                    return (
-                        <div className='text-xs text-muted-foreground'>
-                            <p>{snap?.kmLimit ? `${snap.kmLimit} km` : '—'}</p>
-                            <p>{snap?.validityDays ? `+${snap.validityDays} days` : ''}</p>
-                        </div>
-                    )
-                }
-                const plan = item.userPlan
-                if (plan?.startsAt && plan?.expiresAt) {
-                    return (
-                        <div className='text-xs text-muted-foreground'>
-                            <p>{formatDate(plan.startsAt)}</p>
-                            <p>→ {formatDate(plan.expiresAt)}</p>
-                        </div>
-                    )
-                }
-                return <span className='text-xs text-muted-foreground'>—</span>
-            },
+            header: 'Time',
+            cell: (item) => (
+                <span className='text-xs text-muted-foreground'>
+                    {new Date(item.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                </span>
+            ),
         },
         {
             header: 'Date',

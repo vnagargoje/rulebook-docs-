@@ -98,7 +98,7 @@ export default function InventoryScreen() {
                         </View>
                     </View>
 
-                    {/* Transport */}
+                    {/* Battery Transport */}
                     <View className='gap-2 px-4'>
                         <Text className='text-[10px] font-semibold uppercase tracking-[1px] text-neutral-400'>
                             Battery Transport
@@ -112,13 +112,29 @@ export default function InventoryScreen() {
                                 badge={inboundCount}
                                 onPress={() => router.push('/swap-manager/battery-inward')}
                             />
-                            <View className='h-[1px] bg-neutral-50 mx-4' />
+                            <View className='mx-4 h-px bg-neutral-50' />
                             <TransportCard
                                 title='Send to Hub'
                                 subtitle='Dispatch drained batteries for charging'
                                 iconName='battery-arrow-up-outline'
                                 iconColor='#D97706'
                                 onPress={() => router.push('/swap-manager/battery-outward')}
+                            />
+                        </View>
+                    </View>
+
+                    {/* Transport History */}
+                    <View className='gap-2 px-4'>
+                        <Text className='text-[10px] font-semibold uppercase tracking-[1px] text-neutral-400'>
+                            Transport History
+                        </Text>
+                        <View className='overflow-hidden rounded-2xl border border-neutral-100 bg-white'>
+                            <TransportCard
+                                title='Battery Transport History'
+                                subtitle='View in transit & delivered battery movements'
+                                iconName='history'
+                                iconColor='#6366F1'
+                                onPress={() => router.push('/swap-manager/movement-history')}
                             />
                         </View>
                     </View>

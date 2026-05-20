@@ -46,6 +46,7 @@ export const useGetTransportVehicles = createQuery<VehiclesResponse>({
             page: 1,
             limit: 100,
             'filter.type': ['$eq:transport'],
+            'filter.status': ['$eq:available'],
         })
         return response.data
     },

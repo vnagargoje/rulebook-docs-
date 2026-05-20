@@ -32,6 +32,7 @@ export const NAVIGATION_ITEMS = [
         children: [
             { to: '/stations', label: 'Swap Stations', description: 'Battery swapping points' },
             { to: '/hub-stations', label: 'Hub Stations', description: 'Operational hubs' },
+            { to: '/vehicle-stations', label: 'Vehicle Stations', description: 'Vehicle parking points' },
         ]
     },
     { 

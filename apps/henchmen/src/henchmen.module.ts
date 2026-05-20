@@ -67,7 +67,7 @@ import { ActivateQueuedPlanHandler } from '@yugo/cqrs';
     ],
     providers: [
         AuthFunctions,
-        BatteryFunctions,
+        // BatteryFunctions,
         UserPlanFunctions,
         QueuedPlansSyncService,
         ActivateQueuedPlanHandler,

@@ -1,16 +1,17 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
 import {
     AddressEntity,
-    StationEntity,
     HubStationEntity,
+    StationEntity,
     SwapStationEntity,
     UserEntity,
+    VehicleStationEntity,
 } from '@yugo/nestjs-database/entities'
+import { StationType } from '@yugo/shared'
 import { CreateStationCommand } from 'src/commands/impl/stations/create-station.command.js'
 import { DataSource } from 'typeorm'
-import { StationType } from '@yugo/shared'
 
 @CommandHandler(CreateStationCommand)
 export class CreateStationHandler implements ICommandHandler<CreateStationCommand> {
@@ -21,7 +22,12 @@ export class CreateStationHandler implements ICommandHandler<CreateStationComman
         const manager = this.datasource.manager
 
         return manager.transaction(async (manager) => {
-            const entityClass = payload.type === StationType.HUB_STATION ? HubStationEntity : SwapStationEntity
+            const entityClass =
+                payload.type === StationType.HUB_STATION
+                    ? HubStationEntity
+                    : payload.type === StationType.VEHICLE_STATION
+                        ? VehicleStationEntity
+                        : SwapStationEntity
             const station = manager.create(entityClass, {
                 name: payload.name,
                 type: payload.type,

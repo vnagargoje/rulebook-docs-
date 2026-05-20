@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router'
@@ -31,8 +31,17 @@ export default function CreateSurrenderRoute() {
     })
 
     const vehicleNumber = form.watch('vehicleNumber')?.trim()
+    const penaltyValue = form.watch('penalty')
+    const miscChargesValue = form.watch('miscCharges')
 
     const detailsQuery = useSurrenderDetails(vehicleNumber, false)
+
+    useEffect(() => {
+        if (!detailsQuery.data) return
+        const depositAmount = Number(detailsQuery.data.depositAmount ?? 0)
+        const net = depositAmount - Number(penaltyValue ?? 0) - Number(miscChargesValue ?? 0)
+        form.setValue('refundAmount', Math.max(0, net), { shouldValidate: false })
+    }, [penaltyValue, miscChargesValue, detailsQuery.data])
 
     const fetchSurrenderDetails = useCallback(async () => {
         if (!vehicleNumber) {
@@ -49,7 +58,6 @@ export default function CreateSurrenderRoute() {
 
         if (result.data) {
             form.setValue('penalty', result.data.rtoPenalty ?? 0)
-            form.setValue('refundAmount', result.data.refundAmount ?? 0)
             toast.success('Surrender details loaded')
         }
     }, [detailsQuery, form, vehicleNumber])
@@ -128,7 +136,7 @@ export default function CreateSurrenderRoute() {
                                 <TextInputField control={form.control} name="miscCharges" label="Misc Charges (₹)" type="number" />
                             </div>
 
-                            <TextInputField control={form.control} name="refundAmount" label="Refund Amount (₹)" type="number" />
+                            <TextInputField control={form.control} name="refundAmount" label="Refund Amount (₹)" type="number" disabled />
 
                             <TextAreaField control={form.control} name="notes" label="Notes" placeholder="Optional notes for surrender processing." />
 

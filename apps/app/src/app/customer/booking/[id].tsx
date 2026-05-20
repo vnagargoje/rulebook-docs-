@@ -11,6 +11,7 @@ import { CircularSoc } from '@/components/customer/home'
 import { STATUS_CONFIG } from '@/data/swap-manager/battery-status-config.data'
 import { BatteryPropertyRow } from '@/components/swap-manager/batteries/property-row'
 import type { V1BatteriesGetOneBatteryResponse } from '@/services/api/codegen/Api'
+import { VehiclePickupLocations } from '@/components/customer/bookings/vehicle-pickup-locations'
 
 type BatteryProperties = NonNullable<V1BatteriesGetOneBatteryResponse['properties']>
 
@@ -212,6 +213,27 @@ export default function BookingDetailScreen() {
                                     The admin will assign your station, vehicle and battery shortly. You will see the
                                     details here once confirmed.
                                 </Text>
+                            </View>
+                        </View>
+                    )}
+
+                    {(!booking.vehicleId || !booking.batteryId) && (
+                        <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
+                            <View className='flex-row items-center gap-3 border-b border-neutral-100 px-5 py-4'>
+                                <View className='h-10 w-10 items-center justify-center rounded-xl bg-primary-50'>
+                                    <MaterialCommunityIcons
+                                        name='map-marker-multiple-outline'
+                                        size={20}
+                                        color='#2563EB'
+                                    />
+                                </View>
+                                <View className='flex-1'>
+                                    <Text className='text-sm font-bold text-neutral-900'>Vehicle Pickup Location(s)</Text>
+                                    <Text className='text-xs text-neutral-500'>Visit any of these stations</Text>
+                                </View>
+                            </View>
+                            <View className='px-5 py-4'>
+                                <VehiclePickupLocations variant='inline' />
                             </View>
                         </View>
                     )}

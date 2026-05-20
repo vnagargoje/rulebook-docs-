@@ -8,7 +8,8 @@ export function StatCard({
     helper,
     icon,
     trend,
-    className
+    className,
+    onClick,
 }: {
     title: string
     value: string | number
@@ -16,9 +17,17 @@ export function StatCard({
     icon: ReactNode
     trend?: { value: string; positive: boolean }
     className?: string
+    onClick?: () => void
 }) {
     return (
-        <Card className={cn('relative overflow-hidden border-border/40 bg-white/80 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1', className)}>
+        <Card
+            className={cn(
+                'relative overflow-hidden border-border/40 bg-white/80 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1',
+                onClick && 'cursor-pointer',
+                className,
+            )}
+            onClick={onClick}
+        >
             <div className="absolute top-0 right-0 p-4 opacity-[0.03] text-primary pointer-events-none">
                 {icon}
             </div>

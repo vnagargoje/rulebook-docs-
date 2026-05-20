@@ -49,6 +49,15 @@ export const NAVIGATION_ITEMS = [
     // { to: '/maintenance', label: 'Maintenance', description: 'Service records', icon: IconTool },
     // { to: '/inactive-vehicles', label: 'Inactive Vehicles', description: 'Downtime tracking', icon: IconChecklist },
     // { to: '/assignments', label: 'Assignments', description: 'Vehicle allocation', icon: IconArrowsLeftRight },
-    { to: '/batteries', label: 'Batteries', description: 'Inventory and stations', icon: IconBattery },
+    {
+        label: 'Batteries',
+        description: 'Battery operations',
+        icon: IconBattery,
+        children: [
+            { to: '/batteries', label: 'Inventory', description: 'Battery inventory and stations' },
+            { to: '/battery-swap-history', label: 'Swap History', description: 'Battery swap records' },
+            { to: '/battery-transports', label: 'Transports', description: 'Battery transport movements' },
+        ],
+    },
     { to: '/surrender', label: 'Surrender', description: 'Closure workflow', icon: IconClipboardCheck },
 ]

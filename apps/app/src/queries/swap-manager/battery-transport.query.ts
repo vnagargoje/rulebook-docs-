@@ -66,3 +66,65 @@ export const useGetDeliveredMovementsToStation = createQuery<
         return response.data
     },
 })
+
+export const useGetSentMovements = createQuery<
+    V1BatteryTransportsGetManyMovementsResponse,
+    { fromStationId: string }
+>({
+    queryKey: ['swap-manager', 'movements-sent'],
+    fetcher: async ({ fromStationId }) => {
+        const response = await client.v1.v1BatteryTransportsGetManyMovements({
+            'filter.fromStationId': [`$eq:${fromStationId}`],
+            sortBy: ['createdAt:DESC'],
+            limit: 50,
+        })
+        return response.data
+    },
+})
+
+export const useGetReceivedMovements = createQuery<
+    V1BatteryTransportsGetManyMovementsResponse,
+    { toStationId: string }
+>({
+    queryKey: ['swap-manager', 'movements-received'],
+    fetcher: async ({ toStationId }) => {
+        const response = await client.v1.v1BatteryTransportsGetManyMovements({
+            'filter.toStationId': [`$eq:${toStationId}`],
+            sortBy: ['createdAt:DESC'],
+            limit: 50,
+        })
+        return response.data
+    },
+})
+
+export const useGetStationMovements = createQuery<
+    V1BatteryTransportsGetManyMovementsResponse,
+    { toStationId: string; status: string }
+>({
+    queryKey: ['swap-manager', 'station-movements'],
+    fetcher: async ({ toStationId, status }) => {
+        const response = await client.v1.v1BatteryTransportsGetManyMovements({
+            'filter.toStationId': [`$eq:${toStationId}`],
+            'filter.status': [`$eq:${status}`],
+            sortBy: ['createdAt:DESC'],
+            limit: 50,
+        })
+        return response.data
+    },
+})
+
+export const useGetFromStationMovements = createQuery<
+    V1BatteryTransportsGetManyMovementsResponse,
+    { fromStationId: string; status: string }
+>({
+    queryKey: ['swap-manager', 'from-station-movements'],
+    fetcher: async ({ fromStationId, status }) => {
+        const response = await client.v1.v1BatteryTransportsGetManyMovements({
+            'filter.fromStationId': [`$eq:${fromStationId}`],
+            'filter.status': [`$eq:${status}`],
+            sortBy: ['createdAt:DESC'],
+            limit: 50,
+        })
+        return response.data
+    },
+})

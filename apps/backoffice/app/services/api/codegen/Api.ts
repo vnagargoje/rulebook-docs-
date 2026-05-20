@@ -4724,6 +4724,23 @@ export class Api<
          */
         "filter.station.managers.id"?: string[];
         /**
+         * Filter by station.type query param.
+         *
+         * **Format:** filter.station.type={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.station.type=$eq:vehicle_station
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.station.type"?: string[];
+        /**
          * Filter by status query param.
          *
          * **Format:** filter.status={$not}:OPERATION:VALUE

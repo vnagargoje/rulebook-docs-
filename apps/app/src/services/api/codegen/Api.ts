@@ -36,6 +36,16 @@ export interface V1AuthSendOtpBody {
   mobilenumber: string;
 }
 
+export interface V1AuthResendOtpResponse {
+  mobilenumber: string;
+  method: "sms";
+  otpSent: boolean;
+}
+
+export interface V1AuthResendOtpBody {
+  mobilenumber: string;
+}
+
 export interface V1AuthVerifyOtpResponse {
   verified: boolean;
   accessToken?: string;
@@ -109,6 +119,7 @@ export interface KycGetStatusResponse {
     status: string;
     verifiedAt: string | null;
     notes: string | null;
+    attemptCount: number;
   } | null;
   pan: {
     id: string;
@@ -117,6 +128,7 @@ export interface KycGetStatusResponse {
     status: string;
     verifiedAt: string | null;
     notes: string | null;
+    attemptCount: number;
   } | null;
   license: {
     id: string;
@@ -125,7 +137,59 @@ export interface KycGetStatusResponse {
     status: string;
     verifiedAt: string | null;
     notes: string | null;
+    attemptCount: number;
   } | null;
+}
+
+export interface KycGetAllKycsResponse {
+  data: {
+    id: string;
+    documentId: string;
+    type: string;
+    status: string;
+    verifiedAt: string | null;
+    notes: string | null;
+    attemptCount: number;
+    userId: string;
+    createdAt: string;
+    updatedAt: string;
+  }[][];
+  meta: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, "ASC" | "DESC"][];
+    searchBy: string[];
+    search: string;
+    filter?: object;
+  };
+  links: {
+    first?: string;
+    last?: string;
+    current: string;
+    previous?: string;
+    next?: string;
+  };
+}
+
+export interface KycUpdateStatusResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface KycUpdateStatusBody {
+  status: string;
+  notes?: string;
+}
+
+export interface KycApplyManualResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface KycApplyManualBody {
+  notes?: string;
 }
 
 export interface V1StatesListManyStatesResponse {
@@ -439,7 +503,7 @@ export interface V1PlansGetPlansResponse {
     kmLimit: number;
     price: number;
     deposit: number;
-    gst: number;
+    gstPercentage: number;
     registrationFee: number;
     totalAmount: number;
     active: boolean;
@@ -473,7 +537,7 @@ export interface V1PlansGetPlanByIdResponse {
   kmLimit: number;
   price: number;
   deposit: number;
-  gst: number;
+  gstPercentage: number;
   registrationFee: number;
   totalAmount: number;
   active: boolean;
@@ -489,7 +553,7 @@ export interface V1PlansAdminCreatePlanResponse {
   kmLimit: number;
   price: number;
   deposit: number;
-  gst: number;
+  gstPercentage: number;
   registrationFee: number;
   totalAmount: number;
   active: boolean;
@@ -504,8 +568,7 @@ export interface V1PlansAdminCreatePlanBody {
   kmLimit: number;
   price: number;
   deposit: number;
-  gst: number;
-  registrationFee?: number;
+  gstPercentage: number;
   active?: boolean;
 }
 
@@ -517,7 +580,7 @@ export interface V1PlansAdminUpdatePlanResponse {
   kmLimit: number;
   price: number;
   deposit: number;
-  gst: number;
+  gstPercentage: number;
   registrationFee: number;
   totalAmount: number;
   active: boolean;
@@ -532,8 +595,7 @@ export interface V1PlansAdminUpdatePlanBody {
   kmLimit?: number;
   price?: number;
   deposit?: number;
-  gst?: number;
-  registrationFee?: number;
+  gstPercentage?: number;
   active?: boolean;
 }
 
@@ -542,10 +604,10 @@ export interface V1TopUpsGetTopUpsResponse {
     id: string;
     name: string;
     description: string | null;
-    validityDays: number;
     kmLimit: number;
     price: number;
-    gst: number;
+    gstPercentage: number;
+    totalAmount: number;
     active: boolean;
     createdAt: string;
     updatedAt: string;
@@ -573,10 +635,10 @@ export interface V1TopUpsGetTopUpByIdResponse {
   id: string;
   name: string;
   description: string | null;
-  validityDays: number;
   kmLimit: number;
   price: number;
-  gst: number;
+  gstPercentage: number;
+  totalAmount: number;
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -586,10 +648,10 @@ export interface V1TopUpsAdminCreateTopUpResponse {
   id: string;
   name: string;
   description: string | null;
-  validityDays: number;
   kmLimit: number;
   price: number;
-  gst: number;
+  gstPercentage: number;
+  totalAmount: number;
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -598,10 +660,9 @@ export interface V1TopUpsAdminCreateTopUpResponse {
 export interface V1TopUpsAdminCreateTopUpBody {
   name: string;
   description?: string;
-  validityDays: number;
   kmLimit: number;
   price: number;
-  gst: number;
+  gstPercentage: number;
   active?: boolean;
 }
 
@@ -609,10 +670,10 @@ export interface V1TopUpsAdminUpdateTopUpResponse {
   id: string;
   name: string;
   description: string | null;
-  validityDays: number;
   kmLimit: number;
   price: number;
-  gst: number;
+  gstPercentage: number;
+  totalAmount: number;
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -621,10 +682,9 @@ export interface V1TopUpsAdminUpdateTopUpResponse {
 export interface V1TopUpsAdminUpdateTopUpBody {
   name?: string;
   description?: string;
-  validityDays?: number;
   kmLimit?: number;
   price?: number;
-  gst?: number;
+  gstPercentage?: number;
   active?: boolean;
 }
 
@@ -741,6 +801,32 @@ export interface V1UserPlansVerifyPaymentBody {
   razorpayOrderId: string;
   razorpayPaymentId: string;
   razorpaySignature: string;
+}
+
+export interface V1UserPlansActivateQueuedPlanResponse {
+  id: string;
+  userId: string;
+  planId: string;
+  planSnapshot: any;
+  status: string;
+  startsAt: string | null;
+  expiresAt: string | null;
+  remainingKm: number;
+  totalKm: number;
+  qrCodeId: string | null;
+  qrCode?: {
+    id: string;
+    path: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  topUps?: {
+    id: string;
+    topUpId: string;
+    topUpSnapshot: any;
+    status: string;
+    appliedAt: string | null;
+  }[];
 }
 
 export interface V1UserPlansApplyTopUpResponse {
@@ -1290,6 +1376,43 @@ export interface V1StationsUpdateOneStationBody {
   managerId?: string;
 }
 
+export type V1StationsGetNearestSwapStationsResponse = {
+  id: string;
+  name: string;
+  latitude?: number;
+  longitude?: number;
+  active: boolean;
+  distanceKm: number;
+  address?: {
+    id: string;
+    lineOne: string;
+    lineTwo?: string;
+    pincode: string;
+    city?: {
+      id: string;
+      name: string;
+      state?: {
+        id: string;
+        name: string;
+        code: string;
+      };
+    };
+  };
+}[];
+
+export interface V1StationsGetNearestSwapStationsBody {
+  /**
+   * @min -90
+   * @max 90
+   */
+  latitude: number;
+  /**
+   * @min -180
+   * @max 180
+   */
+  longitude: number;
+}
+
 export interface V1VehiclesGetManyVehiclesResponse {
   data: {
     id: string;
@@ -1454,8 +1577,8 @@ export interface V1BatteriesGetManyBatteriesResponse {
       weight?: string;
       warranty?: string;
       removableOption?: boolean;
-      latitude?: number;
-      longitude?: number;
+      lat?: number;
+      long?: number;
       socPercent?: number;
       speed?: number;
     };
@@ -1511,8 +1634,8 @@ export interface V1BatteriesCreateOneBatteryResponse {
     weight?: string;
     warranty?: string;
     removableOption?: boolean;
-    latitude?: number;
-    longitude?: number;
+    lat?: number;
+    long?: number;
     socPercent?: number;
     speed?: number;
   };
@@ -1566,8 +1689,8 @@ export interface V1BatteriesGetOneBatteryResponse {
     weight?: string;
     warranty?: string;
     removableOption?: boolean;
-    latitude?: number;
-    longitude?: number;
+    lat?: number;
+    long?: number;
     socPercent?: number;
     speed?: number;
   };
@@ -1605,8 +1728,8 @@ export interface V1BatteriesUpdateOneBatteryResponse {
     weight?: string;
     warranty?: string;
     removableOption?: boolean;
-    latitude?: number;
-    longitude?: number;
+    lat?: number;
+    long?: number;
     socPercent?: number;
     speed?: number;
   };
@@ -2336,6 +2459,23 @@ export class Api<
      * No description
      *
      * @tags auth
+     * @name V1AuthResendOtp
+     * @request POST:/v1/auth/otp/resend
+     */
+    v1AuthResendOtp: (data: V1AuthResendOtpBody, params: RequestParams = {}) =>
+      this.request<V1AuthResendOtpResponse, any>({
+        path: `/v1/auth/otp/resend`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags auth
      * @name V1AuthVerifyOtp
      * @request POST:/v1/auth/otp/verify
      */
@@ -2514,6 +2654,227 @@ export class Api<
     /**
      * No description
      *
+     * @tags kyc
+     * @name KycGetAllKycs
+     * @request GET:/v1/kyc/all
+     * @secure
+     */
+    kycGetAllKycs: (
+      query?: {
+        /**
+         * Page number to retrieve. If you provide invalid value the default page number will applied
+         *
+         * **Example:** 1
+         *
+         *
+         * **Default Value:** 1
+         *
+         */
+        page?: number;
+        /**
+         * Number of records per page.
+         *
+         *
+         * **Example:** 20
+         *
+         *
+         *
+         * **Default Value:** 50
+         *
+         *
+         *
+         * **Max Value:** 100
+         *
+         *
+         * If provided value is greater than max value, max value will be applied.
+         */
+        limit?: number;
+        /**
+         * Filter by documentId query param.
+         *
+         * **Format:** filter.documentId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.documentId=$eq:John Doe&filter.documentId=$ilike:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $ilike
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.documentId"?: string[];
+        /**
+         * Filter by userId query param.
+         *
+         * **Format:** filter.userId={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.userId=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.userId"?: string[];
+        /**
+         * Filter by status query param.
+         *
+         * **Format:** filter.status={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.status=$eq:John Doe&filter.status=$in:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $in
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.status"?: string[];
+        /**
+         * Filter by type query param.
+         *
+         * **Format:** filter.type={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.type=$eq:John Doe&filter.type=$in:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $in
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.type"?: string[];
+        /**
+         * Parameter to sort by.
+         * To sort by multiple fields, just provide query param multiple types. The order in url defines an order of sorting
+         *
+         * **Format:** {fieldName}:{DIRECTION}
+         *
+         *
+         * **Example:** sortBy=id:DESC&sortBy=createdAt:DESC
+         *
+         *
+         * **Default Value:** createdAt:DESC
+         *
+         * **Available Fields**
+         * - id
+         *
+         * - createdAt
+         *
+         * - updatedAt
+         */
+        sortBy?: (
+          | "id:ASC"
+          | "id:DESC"
+          | "createdAt:ASC"
+          | "createdAt:DESC"
+          | "updatedAt:ASC"
+          | "updatedAt:DESC"
+        )[];
+        /**
+         * Search term to filter result values
+         *
+         * **Example:** John
+         *
+         *
+         * **Default Value:** No default value
+         *
+         */
+        search?: string;
+        /**
+         * List of fields to search by term to filter result values
+         *
+         * **Example:** documentId,userId
+         *
+         *
+         * **Default Value:** By default all fields mentioned below will be used to search by term
+         *
+         * **Available Fields**
+         * - documentId
+         *
+         * - userId
+         */
+        searchBy?: string[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<KycGetAllKycsResponse, any>({
+        path: `/v1/kyc/all`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags kyc
+     * @name KycUpdateStatus
+     * @request PATCH:/v1/kyc/{id}/status
+     * @secure
+     */
+    kycUpdateStatus: (
+      id: string,
+      data: KycUpdateStatusBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<KycUpdateStatusResponse, any>({
+        path: `/v1/kyc/${id}/status`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags kyc
+     * @name KycApplyManual
+     * @request POST:/v1/kyc/{id}/apply-manual
+     * @secure
+     */
+    kycApplyManual: (
+      id: string,
+      data: KycApplyManualBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<KycApplyManualResponse, any>({
+        path: `/v1/kyc/${id}/apply-manual`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags geographic data
      * @name V1StatesListManyStates
      * @request GET:/v1/states
@@ -2585,6 +2946,28 @@ export class Api<
          * - name
          */
         sortBy?: ("id:ASC" | "id:DESC" | "name:ASC" | "name:DESC")[];
+        /**
+         * Search term to filter result values
+         *
+         * **Example:** John
+         *
+         *
+         * **Default Value:** No default value
+         *
+         */
+        search?: string;
+        /**
+         * List of fields to search by term to filter result values
+         *
+         * **Example:** name
+         *
+         *
+         * **Default Value:** By default all fields mentioned below will be used to search by term
+         *
+         * **Available Fields**
+         * - name
+         */
+        searchBy?: string[];
       },
       params: RequestParams = {},
     ) =>
@@ -2670,6 +3053,28 @@ export class Api<
          * - name
          */
         sortBy?: ("id:ASC" | "id:DESC" | "name:ASC" | "name:DESC")[];
+        /**
+         * Search term to filter result values
+         *
+         * **Example:** John
+         *
+         *
+         * **Default Value:** No default value
+         *
+         */
+        search?: string;
+        /**
+         * List of fields to search by term to filter result values
+         *
+         * **Example:** name
+         *
+         *
+         * **Default Value:** By default all fields mentioned below will be used to search by term
+         *
+         * **Available Fields**
+         * - name
+         */
+        searchBy?: string[];
       },
       params: RequestParams = {},
     ) =>
@@ -3533,6 +3938,23 @@ export class Api<
      * No description
      *
      * @tags user-plans
+     * @name V1UserPlansActivateQueuedPlan
+     * @request POST:/v1/user-plans/{id}/activate
+     * @secure
+     */
+    v1UserPlansActivateQueuedPlan: (id: string, params: RequestParams = {}) =>
+      this.request<V1UserPlansActivateQueuedPlanResponse, any>({
+        path: `/v1/user-plans/${id}/activate`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags user-plans
      * @name V1UserPlansApplyTopUp
      * @request POST:/v1/user-plans/top-up
      * @secure
@@ -3975,6 +4397,28 @@ export class Api<
     /**
      * No description
      *
+     * @tags stations
+     * @name V1StationsGetNearestSwapStations
+     * @request POST:/v1/stations/nearest-swap
+     * @secure
+     */
+    v1StationsGetNearestSwapStations: (
+      data: V1StationsGetNearestSwapStationsBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<V1StationsGetNearestSwapStationsResponse, any>({
+        path: `/v1/stations/nearest-swap`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags vehicles
      * @name V1VehiclesGetManyVehicles
      * @request GET:/v1/vehicles
@@ -4338,6 +4782,23 @@ export class Api<
          * - $or
          */
         "filter.station.managers.id"?: string[];
+        /**
+         * Filter by station.type query param.
+         *
+         * **Format:** filter.station.type={$not}:OPERATION:VALUE
+         *
+         *
+         *
+         * **Example:** filter.station.type=$eq:John Doe
+         *
+         * **Available Operations**
+         * - $eq
+         *
+         * - $and
+         *
+         * - $or
+         */
+        "filter.station.type"?: string[];
         /**
          * Filter by status query param.
          *

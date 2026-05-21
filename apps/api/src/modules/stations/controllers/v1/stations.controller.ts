@@ -13,11 +13,11 @@ import {
     Req,
     UseGuards,
 } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { type Static } from '@sinclair/typebox';
-import { CreateStationCommand, UpdateStationCommand } from '@yugo/cqrs';
+import { type Static, Type } from '@sinclair/typebox';
+import { CreateStationCommand, GetNearestSwapStationsQuery, UpdateStationCommand } from '@yugo/cqrs';
 import { AccessService, Actions } from '@yugo/nestjs-casl';
 import { StationEntity } from '@yugo/nestjs-database/entities';
 import { StationSubject } from '@yugo/permissions';
@@ -30,8 +30,8 @@ import {
     type PaginateQuery,
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
-import { CreateStationPayload } from '../../dtos/payloads';
-import { StationResponse } from '../../dtos/responses';
+import { CreateStationPayload, NearestSwapStationsPayload } from '../../dtos/payloads';
+import { NearestSwapStationResponse, StationResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<StationEntity> = {
     sortableColumns: ['id', 'name', 'createdAt'],
@@ -55,6 +55,7 @@ export class V1StationsController {
         @InjectDataSource() private readonly datasource: DataSource,
         @Inject(AccessService) private readonly accessService: AccessService,
         private readonly commandBus: CommandBus,
+        private readonly queryBus: QueryBus,
     ) {}
 
     @Get()
@@ -86,6 +87,17 @@ export class V1StationsController {
             throw new NotFoundException('Station not found');
         }
         return station;
+    }
+
+    @ApiBody({ schema: NearestSwapStationsPayload as object })
+    @ApiResource(Type.Array(NearestSwapStationResponse))
+    @Post('nearest-swap')
+    async getNearestSwapStations(
+        @Body() body: Static<typeof NearestSwapStationsPayload>,
+    ) {
+        return this.queryBus.execute(
+            new GetNearestSwapStationsQuery(body.latitude, body.longitude),
+        );
     }
 
     @ApiBody({ schema: CreateStationPayload as object })

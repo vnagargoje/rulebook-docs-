@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner-native'
 import RazorpayCheckout from 'react-native-razorpay'
 import type { PaymentSuccessData, PaymentErrorData } from 'react-native-razorpay/src/types'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { StatTile } from '@/components/customer/shared'
 
@@ -18,6 +19,7 @@ export default function ConfirmTopUpScreen() {
     const { topUpId } = useLocalSearchParams<{ topUpId: string }>()
     const router = useRouter()
     const queryClient = useQueryClient()
+    const insets = useSafeAreaInsets()
 
     const { data: topUp, isLoading: topUpLoading } = useTopUpById({
         variables: topUpId ? { id: topUpId } : undefined,
@@ -337,7 +339,9 @@ export default function ConfirmTopUpScreen() {
                 </View>
             </ScrollView>
 
-            <View className='absolute bottom-0 left-0 right-0 border-t border-neutral-100 bg-white px-4 pb-8 pt-4'>
+            <View
+                style={{ paddingBottom: Math.max(insets.bottom, 16) + 12 }}
+                className='absolute bottom-0 left-0 right-0 border-t border-neutral-100 bg-white px-4 pt-4'>
                 <Button
                     label={
                         initiateTopUpPurchase.isPending

@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback } from 'react'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { PriceRow, StatTile } from '@/components/customer/plan-detail'
 import { Button, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
@@ -13,6 +14,7 @@ export default function PlanDetailScreen() {
     const router = useRouter()
     const token = useAuthStore.use.token()
     const { data: plan, isLoading } = usePlanById({ variables: { id: id! } })
+    const insets = useSafeAreaInsets()
     const registrationFee = toSafeNumber(plan?.registrationFee)
     const shouldShowRegistrationFee = registrationFee > 0
     const gstAmount = plan
@@ -155,7 +157,9 @@ export default function PlanDetailScreen() {
                     </View>
                 </ScrollView>
 
-                <View className='absolute bottom-0 left-0 right-0 border-t border-neutral-100 bg-white px-4 pb-8 pt-4'>
+                <View
+                    style={{ paddingBottom: Math.max(insets.bottom, 16) + 12 }}
+                    className='absolute bottom-0 left-0 right-0 border-t border-neutral-100 bg-white px-4 pt-4'>
                     <View className='flex-row items-center justify-between'>
                         <View>
                             <Text className='text-[10px] font-semibold uppercase tracking-[1px] text-neutral-400'>

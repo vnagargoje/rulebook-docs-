@@ -18,6 +18,9 @@ export class BatteryEntity extends IdTimestamppedEntity {
     @Column('enum', { enum: BatteryStatus, default: BatteryStatus.AVAILABLE })
     status: BatteryStatus
 
+    @Column('int', { nullable: true })
+    range: number
+
     // Relations
     @Column('varchar', { nullable: true })
     qrCodeId: string

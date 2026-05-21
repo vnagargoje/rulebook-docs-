@@ -39,3 +39,13 @@ export const StationResponse = Type.Object({
     address: Type.Optional(AddressResponse),
     managers: Type.Optional(Type.Array(StationManagerResponse)),
 });
+
+export const NearestSwapStationResponse = Type.Object({
+    id: Type.String(),
+    name: Type.String(),
+    latitude: Type.Optional(Type.Number()),
+    longitude: Type.Optional(Type.Number()),
+    active: Type.Boolean(),
+    distanceKm: Type.Number(),
+    address: Type.Optional(AddressResponse),
+});

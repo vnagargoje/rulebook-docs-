@@ -42,8 +42,8 @@ export default function BatteryTrackRoute() {
     }
 
     const props = (battery.properties || {}) as Record<string, any>
-    const lat: number | null = props['latitude'] ?? null
-    const lng: number | null = props['longitude'] ?? null
+    const lat: number | null = props['lat'] != null ? parseFloat(props['lat']) : null
+    const lng: number | null = props['long'] != null ? parseFloat(props['long']) : null
     const socPercent: number | null = props['socPercent'] ?? null
     const speed: number | null = props['speed'] ?? null
 

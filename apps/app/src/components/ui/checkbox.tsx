@@ -68,29 +68,37 @@ export function CheckboxIcon({ checked = false }: IconProps) {
                 height: SIZE,
                 width: SIZE,
                 borderColor: color,
+                backgroundColor: checked ? color : 'transparent',
             }}
             className='shrink-0 items-center justify-center rounded-[5px] border-2'
-            from={{ backgroundColor: 'transparent', borderColor: '#CCCFD6' }}
+            from={{ borderColor: '#CCCFD6' }}
             animate={{
-                backgroundColor: checked ? color : 'transparent',
                 borderColor: color,
             }}
             transition={{
-                backgroundColor: { type: 'timing', duration: 100 },
                 borderColor: { type: 'timing', duration: 100 },
             }}>
             <MotiView
+                style={{
+                    width: 14,
+                    height: 14,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
                 from={{ opacity: 0 }}
                 animate={{ opacity: checked ? 1 : 0 }}
                 transition={{ opacity: { type: 'timing', duration: 100 } }}>
                 <Svg
-                    width='24'
-                    height='24'
+                    width='12'
+                    height='12'
                     viewBox='0 0 24 24'
-                    fill='none'>
+                    fill='none'
+                    stroke='#ffffff'
+                    strokeWidth='3.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'>
                     <Path
-                        d='m16.726 7-.64.633c-2.207 2.212-3.878 4.047-5.955 6.158l-2.28-1.928-.69-.584L6 12.66l.683.577 2.928 2.477.633.535.591-.584c2.421-2.426 4.148-4.367 6.532-6.756l.633-.64L16.726 7Z'
-                        fill='#fff'
+                        d='M20 6L9 17l-5-5'
                     />
                 </Svg>
             </MotiView>

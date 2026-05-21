@@ -26,27 +26,27 @@ function StatItem({ label, value, icon, color, bgColor }: StatProps) {
 }
 
 type Props = {
-    charged: number
     available: number
+    drained: number
     isLoading?: boolean
 }
 
-export function InventoryStats({ charged, available, isLoading }: Props) {
+export function InventoryStats({ available, drained, isLoading }: Props) {
     return (
         <View className='flex-row gap-4 px-4'>
             <StatItem
-                label='Charged'
-                value={isLoading ? '–' : charged}
-                icon='battery-charging-100'
+                label='Available Batteries'
+                value={isLoading ? '–' : available}
+                icon='battery-high'
                 color='#10B981'
                 bgColor='bg-success-50'
             />
             <StatItem
-                label='Empty Slots'
-                value={isLoading ? '–' : available}
+                label='Drained Batteries'
+                value={isLoading ? '–' : drained}
                 icon='battery-outline'
-                color='#F59E0B'
-                bgColor='bg-warning-50'
+                color='#EF4444'
+                bgColor='bg-red-50'
             />
         </View>
     )

@@ -5,7 +5,7 @@ import { FlatList, RefreshControl } from 'react-native'
 
 import { SwapStationCard } from '@/components/customer/swap-stations'
 import { SectionHeading } from '@/components/section-heading'
-import { ActivityIndicator, SafeAreaView, Text, View } from '@/components/ui'
+import { ActivityIndicator, SafeAreaView, Text, TouchableOpacity, View } from '@/components/ui'
 import { useSwapStations } from '@/queries/customer'
 
 export default function SwapStationsScreen() {
@@ -92,6 +92,25 @@ export default function SwapStationsScreen() {
                                 Walk in with a drained battery and ride out fully charged — in under 60 seconds.
                             </Text>
                         </View>
+
+                        <TouchableOpacity
+                            onPress={() => router.push('/customer/nearby-swap-stations')}
+                            className='flex-row items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-4'>
+                            <View className='h-10 w-10 items-center justify-center rounded-xl bg-primary-50'>
+                                <MaterialCommunityIcons
+                                    name='map-marker-radius'
+                                    size={20}
+                                    color='#2563EB'
+                                />
+                            </View>
+                            <View className='flex-1'>
+                                <Text className='text-sm font-semibold text-neutral-900'>Nearby Me</Text>
+                                <Text className='text-xs text-neutral-500'>
+                                    View nearest stations on the map
+                                </Text>
+                            </View>
+                            <MaterialCommunityIcons name='chevron-right' size={20} color='#9CA3AF' />
+                        </TouchableOpacity>
                     </View>
                 }
                 ListFooterComponent={

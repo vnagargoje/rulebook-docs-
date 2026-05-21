@@ -1,6 +1,11 @@
 import { Type } from '@sinclair/typebox';
 import { StationType } from '@yugo/shared';
 
+export const NearestSwapStationsPayload = Type.Object({
+    latitude: Type.Number({ minimum: -90, maximum: 90 }),
+    longitude: Type.Number({ minimum: -180, maximum: 180 }),
+});
+
 export const AddressPayload = Type.Object({
     lineOne: Type.String(),
     lineTwo: Type.Optional(Type.String()),

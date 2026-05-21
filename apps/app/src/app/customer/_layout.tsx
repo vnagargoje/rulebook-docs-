@@ -139,6 +139,13 @@ export default function CustomerLayout() {
                 }}
             />
             <Stack.Screen name='kyc' options={{ headerShown: false }} />
+            <Stack.Screen
+                name='nearby-swap-stations'
+                options={{
+                    headerShown: false,
+                    gestureEnabled: true,
+                }}
+            />
         </Stack>
     )
 }

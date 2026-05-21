@@ -44,7 +44,15 @@ export default function BatteriesListRoute() {
             { header: 'GPS ID', accessor: 'gpsId' as const },
             { header: 'Capacity', cell: (b: BatteryItem) => b.properties?.capacity ?? '—' },
             { header: 'Range', cell: (b: BatteryItem) => b.properties?.range ?? '—' },
-            { header: 'Station', cell: (b: BatteryItem) => b.station?.name ?? <StatusBadge status={(b.status ?? '').toUpperCase()} /> },
+            { header: 'Station', cell: (b: BatteryItem) => b.station?.name ?? 'Unassigned' },
+            { header: 'Status', cell: (b: BatteryItem) => <StatusBadge status={(b.status ?? '').toUpperCase()} /> },
+            {
+                header: 'SOC',
+                cell: (b: BatteryItem) => {
+                    const soc = (b.properties as Record<string, unknown> | null)?.socPercent as number | undefined
+                    return soc != null ? `${soc}%` : '—'
+                },
+            },
             { header: 'Removable', cell: (b: BatteryItem) => (b.properties?.removableOption ? 'Yes' : 'No') },
             {
                 header: 'Actions',

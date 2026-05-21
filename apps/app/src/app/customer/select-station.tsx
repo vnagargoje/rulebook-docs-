@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useState } from 'react'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { FlatList, RefreshControl } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { StationCard } from '@/components/customer/select-station'
 import { ActivityIndicator, Button, Text, View } from '@/components/ui'
@@ -12,6 +13,7 @@ export default function SelectStationScreen() {
     const router = useRouter()
     const { data, isLoading, refetch, isRefetching } = useStations()
     const [selectedStationId, setSelectedStationId] = useState<string | null>(null)
+    const insets = useSafeAreaInsets()
 
     const stations = data?.data ?? []
 
@@ -93,7 +95,9 @@ export default function SelectStationScreen() {
             />
 
             {selectedStationId && (
-                <View className='absolute bottom-0 left-0 right-0 border-t border-neutral-100 bg-white px-4 pb-8 pt-4'>
+                <View
+                    style={{ paddingBottom: Math.max(insets.bottom, 16) + 12 }}
+                    className='absolute bottom-0 left-0 right-0 border-t border-neutral-100 bg-white px-4 pt-4'>
                     <Button
                         label='Continue'
                         onPress={handleContinue}

@@ -69,32 +69,7 @@ export function SwapCard({ swap }: Props) {
                 />
             </View>
 
-            <View className='flex-row gap-2'>
-                <View className='flex-row items-center gap-1 rounded-lg bg-neutral-100 px-2 py-1'>
-                    <MaterialCommunityIcons
-                        name='bookmark-outline'
-                        size={11}
-                        color='#6B7280'
-                    />
-                    <Text
-                        className='text-[11px] text-neutral-500'
-                        numberOfLines={1}>
-                        {swap.bookingId.slice(0, 8)}…
-                    </Text>
-                </View>
-                <View className='flex-row items-center gap-1 rounded-lg bg-neutral-100 px-2 py-1'>
-                    <MaterialCommunityIcons
-                        name='car-outline'
-                        size={11}
-                        color='#6B7280'
-                    />
-                    <Text
-                        className='text-[11px] text-neutral-500'
-                        numberOfLines={1}>
-                        {swap.vehicleId.slice(0, 8)}…
-                    </Text>
-                </View>
-            </View>
+
 
             {swap.userPlan?.user && (
                 <SwapUserRow

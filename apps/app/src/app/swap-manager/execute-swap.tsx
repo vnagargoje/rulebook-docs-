@@ -113,7 +113,7 @@ export default function ExecuteSwapScreen() {
     return (
         <SafeAreaView
             className='flex-1 bg-neutral-50'
-            edges={['top']}>
+            edges={['top', 'bottom']}>
             <View className='flex-row items-center px-4 py-3 bg-white'>
                 <Pressable
                     onPress={() => router.back()}

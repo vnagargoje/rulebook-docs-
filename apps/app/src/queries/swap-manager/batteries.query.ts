@@ -46,36 +46,26 @@ export const useGetSwapBatteryById = createQuery<V1BatteriesGetOneBatteryRespons
 export const useStationBatteryCounts = createQuery<StationBatteryCounts, { managerId: string }>({
     queryKey: ['swap-manager', 'battery-counts'],
     fetcher: async ({ managerId }) => {
-        const [chargedResp, chargingResp, drainedResp, inTransitResp, availableResp] = await Promise.all([
+        const [drainedResp, inTransitResp, availableResp] = await Promise.all([
             client.v1.v1BatteriesGetManyBatteries({
                 page: 1, limit: 1,
                 'filter.station.managers.id': [`$eq:${managerId}`],
-                'filter.status': ['$eq:charged'],
+                'filter.status': ['$eq:DRAINED'],
             }),
             client.v1.v1BatteriesGetManyBatteries({
                 page: 1, limit: 1,
                 'filter.station.managers.id': [`$eq:${managerId}`],
-                'filter.status': ['$eq:charging'],
+                'filter.status': ['$eq:IN_TRANSIT'],
             }),
             client.v1.v1BatteriesGetManyBatteries({
                 page: 1, limit: 1,
                 'filter.station.managers.id': [`$eq:${managerId}`],
-                'filter.status': ['$eq:drained'],
-            }),
-            client.v1.v1BatteriesGetManyBatteries({
-                page: 1, limit: 1,
-                'filter.station.managers.id': [`$eq:${managerId}`],
-                'filter.status': ['$eq:in_transit'],
-            }),
-            client.v1.v1BatteriesGetManyBatteries({
-                page: 1, limit: 1,
-                'filter.station.managers.id': [`$eq:${managerId}`],
-                'filter.status': ['$eq:available'],
+                'filter.status': ['$eq:AVAILABLE'],
             }),
         ])
         return {
-            charged: chargedResp.data.meta.totalItems,
-            charging: chargingResp.data.meta.totalItems,
+            charged: 0,
+            charging: 0,
             drained: drainedResp.data.meta.totalItems,
             inTransit: inTransitResp.data.meta.totalItems,
             available: availableResp.data.meta.totalItems,

@@ -108,8 +108,8 @@ export default function () {
                             </Text>
                         </View>
                         <InventoryStats
-                            charged={batteryCounts?.charged ?? 0}
                             available={batteryCounts?.available ?? 0}
+                            drained={batteryCounts?.drained ?? 0}
                             isLoading={batteryCountsLoading}
                         />
                     </View>

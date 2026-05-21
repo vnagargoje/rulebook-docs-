@@ -61,20 +61,11 @@ export default function InventoryScreen() {
                         </Text>
                         <View className='overflow-hidden rounded-2xl border border-neutral-100 bg-white'>
                             <StatRow
-                                label='Charged'
-                                value={counts?.charged ?? 0}
-                                icon='battery-charging-100'
+                                label='Available'
+                                value={counts?.available ?? 0}
+                                icon='battery-high'
                                 iconColor='#10B981'
                                 dot='bg-emerald-400'
-                                isLoading={countsLoading}
-                                showDivider
-                            />
-                            <StatRow
-                                label='Charging'
-                                value={counts?.charging ?? 0}
-                                icon='battery-charging-50'
-                                iconColor='#3B82F6'
-                                dot='bg-blue-400'
                                 isLoading={countsLoading}
                                 showDivider
                             />

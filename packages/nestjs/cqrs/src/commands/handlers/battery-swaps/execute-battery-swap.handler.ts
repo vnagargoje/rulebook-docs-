@@ -84,12 +84,6 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
             }
 
             const kmLimit = plan.planSnapshot?.kmLimit || 0
-            if (Number(plan.remainingKm) <= 0) {
-                throw new BadRequestException(
-                    'KM balance is exhausted. User must purchase a top-up or surrender the vehicle before another swap can be performed.',
-                )
-            }
-
             const fromStationId = newBattery.stationId
 
             booking.batteryId = newBattery.id
@@ -104,11 +98,21 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
             await manager.save(newBattery)
 
             if (kmLimit > 0) {
-                const oldSoc = Number(oldBattery.properties?.socPercent ?? 0)
-                const kmUsed = ((100 - oldSoc) / 100) * 80
+                const startSoc = Number(plan.batteryPercentAtTimeOfSwap ?? 100)
+                const endSoc = Number(oldBattery.properties?.socPercent ?? 0)
+                const p = startSoc - endSoc
+                const range = Number(oldBattery.range ?? 80)
+                const kmUsed = range * (Math.max(0, p) / 100)
                 plan.remainingKm = Number(plan.remainingKm) - kmUsed
             }
+            plan.batteryPercentAtTimeOfSwap = Number(newBattery.properties?.socPercent ?? 100)
             await manager.save(plan)
+
+            if (Number(plan.remainingKm) <= 0) {
+                throw new BadRequestException(
+                    'KM balance is exhausted. User must purchase a top-up or surrender the vehicle before another swap can be performed.',
+                )
+            }
 
             const swapHistory = manager.create(BatterySwapHistoryEntity, {
                 userPlanId: booking.userPlanId,

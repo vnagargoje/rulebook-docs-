@@ -17,6 +17,7 @@ export class CreateBatteryHandler implements ICommandHandler<CreateBatteryComman
                 gpsId: payload.gpsId,
                 properties: payload.properties,
                 stationId: payload.stationId,
+                range: payload.range,
             })
 
             await manager.save(battery)

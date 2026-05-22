@@ -124,6 +124,7 @@ export class AssignVehicleToBookingHandler implements ICommandHandler<AssignVehi
             userPlan.status = UserPlanStatus.ACTIVE
             userPlan.startsAt = new Date()
             userPlan.expiresAt = addDays(userPlan.startsAt, Number(userPlan.planSnapshot.validityDays))
+            userPlan.batteryPercentAtTimeOfSwap = Number(battery.properties?.socPercent ?? 100)
             await manager.save(userPlan)
 
             await this.generateAndUploadQrCode(manager, userPlan, vehicleId, batteryId)

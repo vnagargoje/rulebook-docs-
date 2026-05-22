@@ -1,166 +1,48 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'expo-router'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { ActivityIndicator, Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, TextInput } from 'react-native'
+import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, TextInput } from 'react-native'
+import { Controller } from 'react-hook-form'
 import { OtpInput } from 'react-native-otp-entry'
-import type { OtpInputRef } from 'react-native-otp-entry'
 
-import { Button, SafeAreaView, ScrollView, Text, View, showErrorMessage } from '@/components/ui'
-import { FieldWrapper } from '@/components/profile/field-wrapper'
-import { SectionCard } from '@/components/profile/section-card'
-import {
-    KYC_STATUS_QUERY_KEY,
-    fetchKycStatus,
-    getFirstIncompleteKycRoute,
-    useAadhaarConnect,
-    useAadhaarGenerateOtp,
-    useAadhaarReloadCaptcha,
-    useAadhaarVerifyOtp,
-    useKycStatus,
-} from '@/queries/customer/kyc.query'
-import { MY_PROFILE_QUERY_KEY } from '@/queries/profile'
-import { aadhaarFormSchema, type AadhaarFormValues } from '@/schema/kyc/kyc.schema'
+import { Button, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 import colors from '@/components/ui/colors'
+import { FieldWrapper, SectionCard, inputStyle } from '@/components/profile'
+import { KycFailedScreen } from '@/components/kyc'
+import { StepIndicator } from '@/components/shared/step-indicator'
+import { useAadhaarVerification } from '@/hooks/customer/use-aadhaar-verification'
 
-type Phase = 'form' | 'otp'
+const KYC_STEPS = ['Aadhaar', 'PAN', 'License']
 
 export default function AadhaarScreen() {
-    const router = useRouter()
-    const queryClient = useQueryClient()
-    const { data: kycStatus } = useKycStatus()
+    const {
+        phase,
+        sessionId,
+        captchaBase64,
+        otp,
+        otpInputRef,
+        isConnecting,
+        isFormSubmitting,
+        isOtpSubmitting,
+        isButtonDisabled,
+        aadhaarState,
+        formMethods,
+        setOtp,
+        handleFormSubmit,
+        handleOtpSubmit,
+        handleReloadCaptcha,
+        handleBackToForm,
+        handleContinueToPan,
+    } = useAadhaarVerification()
 
-    const [phase, setPhase] = useState<Phase>('form')
-    const [sessionId, setSessionId] = useState<string | null>(null)
-    const [captchaBase64, setCaptchaBase64] = useState<string | null>(null)
-    const [aadhaarNumber, setAadhaarNumberState] = useState<string>('')
-    const [otp, setOtp] = useState<string>('')
-    const otpInputRef = useRef<OtpInputRef>(null)
+    const { control, formState } = formMethods
 
-    const connect = useAadhaarConnect()
-    const reloadCaptcha = useAadhaarReloadCaptcha()
-    const generateOtp = useAadhaarGenerateOtp()
-    const verifyOtp = useAadhaarVerifyOtp()
-
-    const formMethods = useForm<AadhaarFormValues>({
-        resolver: zodResolver(aadhaarFormSchema),
-        mode: 'onBlur',
-        defaultValues: { aadhaarNumber: '', captcha: '' },
-    })
-
-    const startSession = useCallback(async () => {
-        try {
-            const data = await connect.mutateAsync()
-            setSessionId(data.sessionId)
-            setCaptchaBase64(data.captcha)
-        } catch {
-            // error shown via onError in hook
-        }
-    }, [connect])
-
-    useEffect(() => {
-        startSession()
-    }, [])
-
-    const handleReloadCaptcha = useCallback(async () => {
-        if (!sessionId) return
-        try {
-            const data = await reloadCaptcha.mutateAsync({ sessionId })
-            setCaptchaBase64(data.captcha)
-            formMethods.setValue('captcha', '')
-        } catch {
-            // handled
-        }
-    }, [sessionId, reloadCaptcha, formMethods])
-
-    const handleFormSubmit = formMethods.handleSubmit(async (values) => {
-        if (!sessionId) return
-        Keyboard.dismiss()
-        setAadhaarNumberState(values.aadhaarNumber)
-
-        const result = await generateOtp.mutateAsync({
-            sessionId,
-            captcha: values.captcha,
-            aadhaarNumber: values.aadhaarNumber,
-        })
-
-        if (result.success) {
-            setOtp('')
-            setPhase('otp')
-        } else {
-            const nextStatus = await queryClient.fetchQuery({ queryKey: [...KYC_STATUS_QUERY_KEY], queryFn: fetchKycStatus })
-            const nextRoute = getFirstIncompleteKycRoute(nextStatus)
-            if (nextRoute !== '/customer/kyc/aadhaar') {
-                router.replace(nextRoute as never)
-                return
-            }
-            showErrorMessage(result.message || 'Failed to send OTP. Please try again.')
-            await handleReloadCaptcha()
-        }
-    })
-
-    const handleOtpSubmit = useCallback(async () => {
-        if (!sessionId) return
-        if (otp.length < 6) {
-            showErrorMessage('Please enter the 6-digit OTP.')
-            return
-        }
-        Keyboard.dismiss()
-
-        const result = await verifyOtp.mutateAsync({
-            sessionId,
-            otp,
-            aadhaarNumber,
-        })
-
-        if (result.success) {
-            await queryClient.invalidateQueries({ queryKey: [...KYC_STATUS_QUERY_KEY] })
-            await queryClient.invalidateQueries({ queryKey: [...MY_PROFILE_QUERY_KEY] })
-            router.replace('/customer/kyc/pan')
-        } else {
-            const nextStatus = await queryClient.fetchQuery({ queryKey: [...KYC_STATUS_QUERY_KEY], queryFn: fetchKycStatus })
-            const nextRoute = getFirstIncompleteKycRoute(nextStatus)
-            if (nextRoute !== '/customer/kyc/aadhaar') {
-                router.replace(nextRoute as never)
-                return
-            }
-            showErrorMessage(result.message || 'OTP verification failed. Please try again.')
-            setOtp('')
-            otpInputRef.current?.clear()
-            setPhase('form')
-            await handleReloadCaptcha()
-        }
-    }, [sessionId, otp, aadhaarNumber, verifyOtp, queryClient, router, handleReloadCaptcha])
-
-    const isConnecting = connect.isPending && !sessionId
-
-    const isAadhaarVerified = kycStatus?.aadhaar?.status === 'verified' || kycStatus?.aadhaar?.status === 'approved'
-    const isFailedMax = getFirstIncompleteKycRoute(kycStatus) !== '/customer/kyc/aadhaar' && !isAadhaarVerified
-
-    if (isFailedMax) {
+    if (aadhaarState.isFailedMax) {
         return (
-            <SafeAreaView className='flex-1 bg-white'>
-                <View className='mx-4 mt-4 flex-row items-center gap-2'>
-                    <StepDot active step={1} />
-                    <StepLine />
-                    <StepDot step={2} />
-                    <StepLine />
-                    <StepDot step={3} />
-                </View>
-                <View className='flex-1 items-center justify-center px-6'>
-                    <Text className='text-center text-xl font-bold text-neutral-900'>Verification Failed</Text>
-                    <Text className='mt-2 text-center text-sm text-neutral-500'>
-                        Aadhaar verification has failed after {kycStatus?.aadhaar?.attemptCount ?? 0} attempts. You can continue with the remaining KYC steps.
-                    </Text>
-                    <Button
-                        label='Continue to PAN'
-                        onPress={() => router.replace('/customer/kyc/pan')}
-                        className='mt-8 h-13 w-full rounded-2xl bg-primary-600'
-                        textClassName='text-base font-semibold text-white'
-                    />
-                </View>
-            </SafeAreaView>
+            <KycFailedScreen
+                currentStep={1}
+                title='Aadhaar'
+                attemptCount={aadhaarState.attemptCount}
+                buttonLabel='Continue to PAN'
+                onContinue={handleContinueToPan}
+            />
         )
     }
 
@@ -183,13 +65,7 @@ export default function AadhaarScreen() {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps='handled'
                     contentContainerStyle={{ paddingBottom: 40 }}>
-                    <View className='mx-4 mt-4 flex-row items-center gap-2'>
-                        <StepDot active step={1} />
-                        <StepLine />
-                        <StepDot step={2} />
-                        <StepLine />
-                        <StepDot step={3} />
-                    </View>
+                    <StepIndicator steps={KYC_STEPS} currentStepIndex={0} />
 
                     <View className='mx-4 mt-5 mb-2'>
                         <Text className='text-lg font-bold text-neutral-900'>
@@ -205,13 +81,13 @@ export default function AadhaarScreen() {
                     {phase === 'form' ? (
                         <SectionCard title='Aadhaar Details'>
                             <Controller
-                                control={formMethods.control}
+                                control={control}
                                 name='aadhaarNumber'
                                 render={({ field: { onChange, onBlur, value } }) => (
                                     <FieldWrapper
                                         label='Aadhaar Number'
                                         required
-                                        error={formMethods.formState.errors.aadhaarNumber?.message}>
+                                        error={formState.errors.aadhaarNumber?.message}>
                                         <TextInput
                                             value={value}
                                             onChangeText={(t) => onChange(t.replace(/\D/g, '').slice(0, 12))}
@@ -252,9 +128,9 @@ export default function AadhaarScreen() {
                                     )}
                                     <Pressable
                                         onPress={handleReloadCaptcha}
-                                        disabled={reloadCaptcha.isPending}
+                                        disabled={isFormSubmitting}
                                         className='flex-row items-center gap-1 rounded-xl border border-primary-200 bg-primary-50 px-3 py-2'>
-                                        {reloadCaptcha.isPending ? (
+                                        {isFormSubmitting ? (
                                             <ActivityIndicator size='small' color={colors.primary[600]} />
                                         ) : (
                                             <Text className='text-xs font-semibold text-primary-600'>↻ Reload</Text>
@@ -264,13 +140,13 @@ export default function AadhaarScreen() {
                             </View>
 
                             <Controller
-                                control={formMethods.control}
+                                control={control}
                                 name='captcha'
                                 render={({ field: { onChange, onBlur, value } }) => (
                                     <FieldWrapper
                                         label='Enter Captcha'
                                         required
-                                        error={formMethods.formState.errors.captcha?.message}
+                                        error={formState.errors.captcha?.message}
                                         last>
                                         <TextInput
                                             value={value}
@@ -311,14 +187,7 @@ export default function AadhaarScreen() {
                                 }}
                                 onTextChange={(text) => setOtp(text)}
                             />
-                            <Pressable
-                                onPress={() => {
-                                    setOtp('')
-                                    otpInputRef.current?.clear()
-                                    setPhase('form')
-                                    handleReloadCaptcha()
-                                }}
-                                className='mt-5'>
+                            <Pressable onPress={handleBackToForm} className='mt-5'>
                                 <Text className='text-center text-xs font-medium text-primary-600'>
                                     ← Back to Aadhaar form
                                 </Text>
@@ -330,13 +199,8 @@ export default function AadhaarScreen() {
                         <Button
                             label={phase === 'form' ? 'Send OTP' : 'Verify OTP'}
                             onPress={phase === 'form' ? handleFormSubmit : handleOtpSubmit}
-                            loading={generateOtp.isPending || verifyOtp.isPending}
-                            disabled={
-                                !sessionId ||
-                                generateOtp.isPending ||
-                                verifyOtp.isPending ||
-                                (phase === 'otp' && otp.length < 6)
-                            }
+                            loading={isFormSubmitting || isOtpSubmitting}
+                            disabled={isButtonDisabled}
                             className='h-13 rounded-2xl bg-primary-600'
                             textClassName='text-base font-semibold text-white'
                         />
@@ -345,28 +209,4 @@ export default function AadhaarScreen() {
             </SafeAreaView>
         </KeyboardAvoidingView>
     )
-}
-
-function StepDot({ step, active }: { step: number; active?: boolean }) {
-    return (
-        <View
-            className={`h-7 w-7 items-center justify-center rounded-full ${active ? 'bg-primary-600' : 'bg-neutral-200'}`}>
-            <Text className={`text-xs font-bold ${active ? 'text-white' : 'text-neutral-500'}`}>{step}</Text>
-        </View>
-    )
-}
-
-function StepLine() {
-    return <View className='h-0.5 flex-1 bg-neutral-200' />
-}
-
-const inputStyle = {
-    height: 52,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#F9FAFB',
-    paddingHorizontal: 14,
-    fontSize: 15,
-    color: '#111827',
 }

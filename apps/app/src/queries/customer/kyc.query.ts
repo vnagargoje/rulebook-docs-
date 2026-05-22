@@ -29,6 +29,13 @@ type KycStep = NonNullable<KycGetStatusResponse[keyof KycGetStatusResponse]>
 const VERIFIED_STATUSES = ['approved', 'verified'] as const
 const DONE_STATUSES = ['approved', 'verified', 'manual_verification_requested'] as const
 
+export type KycStepState = {
+    isVerified: boolean
+    isFailedMax: boolean
+    isDone: boolean
+    attemptCount: number
+}
+
 function getKycSteps(status: KycGetStatusResponse | undefined): Array<KycStep | null> {
     if (!status) return []
     return [status.aadhaar, status.pan, status.license]
@@ -38,7 +45,7 @@ function hasStatus(step: { status: string } | null | undefined, statuses: readon
     return !!step && statuses.includes(step.status)
 }
 
-function isAttemptLimitReached(step: KycStep | null | undefined): boolean {
+export function isAttemptLimitReached(step: KycStep | null | undefined): boolean {
     if (!step) return false
     return !hasStatus(step, VERIFIED_STATUSES) && (step.attemptCount ?? 0) >= MAX_KYC_ATTEMPTS
 }
@@ -46,6 +53,15 @@ function isAttemptLimitReached(step: KycStep | null | undefined): boolean {
 function isStepDone(step: KycStep | null | undefined): boolean {
     if (!step) return false
     return hasStatus(step, DONE_STATUSES) || isAttemptLimitReached(step)
+}
+
+export function getStepState(step: KycStep | null | undefined): KycStepState {
+    return {
+        isVerified: hasStatus(step, VERIFIED_STATUSES),
+        isFailedMax: isAttemptLimitReached(step),
+        isDone: isStepDone(step),
+        attemptCount: step?.attemptCount ?? 0,
+    }
 }
 
 export function isKycComplete(status: KycGetStatusResponse | undefined): boolean {
@@ -112,7 +128,6 @@ export const useAadhaarGenerateOtp = createMutation<AadhaarGenerateOtpResponse, 
         const response = await client.v1.aadhaarGenerateOtp(data)
         return response.data
     },
-    onError: showError,
 })
 
 export const useAadhaarVerifyOtp = createMutation<AadhaarVerifyOtpResponse, AadhaarVerifyOtpBody>({
@@ -121,7 +136,6 @@ export const useAadhaarVerifyOtp = createMutation<AadhaarVerifyOtpResponse, Aadh
         const response = await client.v1.aadhaarVerifyOtp(data)
         return response.data
     },
-    onError: showError,
 })
 
 export const usePanVerify = createMutation<PanVerifyResponse, PanVerifyBody>({

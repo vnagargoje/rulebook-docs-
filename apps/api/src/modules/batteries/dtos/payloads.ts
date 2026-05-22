@@ -16,6 +16,7 @@ export const CreateBatteryPayload = Type.Object({
     gpsId: Type.Optional(Type.String()),
     properties: Type.Optional(BatteryPropertiesPayload),
     stationId: Type.Optional(Type.String()),
+    range: Type.Integer(),
 });
 
 export const UpdateBatteryPayload = Type.Partial(CreateBatteryPayload);

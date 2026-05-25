@@ -21,12 +21,17 @@ export function useKycFlow() {
     const panState: KycStepState = getStepState(kycStatus?.pan)
     const licenseState: KycStepState = getStepState(kycStatus?.license)
 
+    const refreshStatus = useCallback(async () => {
+        const nextStatus = await queryClient.fetchQuery({
+            queryKey: [...KYC_STATUS_QUERY_KEY],
+            queryFn: fetchKycStatus,
+        })
+        return nextStatus
+    }, [queryClient])
+
     const refreshAndNavigate = useCallback(
         async (currentRoute: string): Promise<boolean> => {
-            const nextStatus = await queryClient.fetchQuery({
-                queryKey: [...KYC_STATUS_QUERY_KEY],
-                queryFn: fetchKycStatus,
-            })
+            const nextStatus = await refreshStatus()
             const nextRoute = getFirstIncompleteKycRoute(nextStatus)
             if (nextRoute !== currentRoute) {
                 router.replace(nextRoute as never)
@@ -34,7 +39,7 @@ export function useKycFlow() {
             }
             return false
         },
-        [queryClient, router],
+        [refreshStatus, router],
     )
 
     const navigateToNext = useCallback(
@@ -52,6 +57,7 @@ export function useKycFlow() {
         aadhaarState,
         panState,
         licenseState,
+        refreshStatus,
         refreshAndNavigate,
         navigateToNext,
     }

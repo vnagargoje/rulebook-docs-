@@ -11,6 +11,8 @@ import {
     useAadhaarGenerateOtp,
     useAadhaarReloadCaptcha,
     useAadhaarVerifyOtp,
+    isAttemptLimitReached,
+    getFirstIncompleteKycRoute,
 } from '@/queries/customer/kyc.query'
 import { aadhaarFormSchema, type AadhaarFormValues } from '@/schema/kyc/kyc.schema'
 import { extractError } from '@/components/ui/utils'
@@ -23,7 +25,7 @@ function getAadhaarErrorMessage(error: unknown, fallback: string): string {
     const lowerMsg = backendMessage.toLowerCase()
 
     if (lowerMsg.includes('attempt') || lowerMsg.includes('limit') || lowerMsg.includes('exceed') || lowerMsg.includes('maximum')) {
-        return 'Attempt limit reached. Redirecting to next step...'
+        return 'Your Aadhaar KYC attempt limit has been reached. contuneu with pan  .'
     }
     if (lowerMsg.includes('invalid') || lowerMsg.includes('incorrect')) {
         return 'The OTP you entered is incorrect. Please try again.'
@@ -34,17 +36,14 @@ function getAadhaarErrorMessage(error: unknown, fallback: string): string {
     if (lowerMsg.includes('conflict') || lowerMsg.includes('duplicate') || lowerMsg.includes('already')) {
         return 'This Aadhaar is already registered or verification failed.'
     }
-    if (lowerMsg.includes('internal server error')) {
-        return 'Aadhaar KYC Failed.'
-    }
 
-    return backendMessage.trim() || fallback
+    return 'Aadhaar KYC failed'
 }
 
 const CURRENT_ROUTE = '/customer/kyc/aadhaar'
 
 export function useAadhaarVerification() {
-    const { aadhaarState, refreshAndNavigate, navigateToNext } = useKycFlow()
+    const { aadhaarState, refreshStatus, refreshAndNavigate, navigateToNext } = useKycFlow()
 
     const [phase, setPhase] = useState<Phase>('form')
     const [sessionId, setSessionId] = useState<string | null>(null)
@@ -117,11 +116,20 @@ export function useAadhaarVerification() {
                 }
             }
         } catch (error) {
+            const nextStatus = await refreshStatus()
+
+            if (isAttemptLimitReached(nextStatus.aadhaar)) {
+                showErrorMessage('Your Aadhaar KYC attempt limit has been reached. contuneu with pan  .')
+                return
+            }
+
             const msg = getAadhaarErrorMessage(error, 'Failed to send OTP. Please try again.')
             showErrorMessage(msg)
 
-            const navigated = await refreshAndNavigate(CURRENT_ROUTE)
-            if (!navigated) {
+            const nextRoute = getFirstIncompleteKycRoute(nextStatus)
+            if (nextRoute !== CURRENT_ROUTE) {
+                navigateToNext(nextRoute)
+            } else {
                 await handleReloadCaptcha()
             }
         } finally {
@@ -159,11 +167,20 @@ export function useAadhaarVerification() {
                 }
             }
         } catch (error) {
+            const nextStatus = await refreshStatus()
+
+            if (isAttemptLimitReached(nextStatus.aadhaar)) {
+                showErrorMessage('Your Aadhaar KYC attempt limit has been reached. contuneu with pan  .')
+                return
+            }
+
             const msg = getAadhaarErrorMessage(error, 'OTP verification failed. Please try again.')
             showErrorMessage(msg)
 
-            const navigated = await refreshAndNavigate(CURRENT_ROUTE)
-            if (!navigated) {
+            const nextRoute = getFirstIncompleteKycRoute(nextStatus)
+            if (nextRoute !== CURRENT_ROUTE) {
+                navigateToNext(nextRoute)
+            } else {
                 setOtp('')
                 otpInputRef.current?.clear()
                 setPhase('form')
@@ -172,7 +189,7 @@ export function useAadhaarVerification() {
         } finally {
             isSubmittingRef.current = false
         }
-    }, [sessionId, otp, aadhaarNumber, verifyOtp, navigateToNext, refreshAndNavigate, handleReloadCaptcha])
+    }, [sessionId, otp, aadhaarNumber, verifyOtp, navigateToNext, refreshStatus, refreshAndNavigate, handleReloadCaptcha])
 
     const handleBackToForm = useCallback(() => {
         setOtp('')

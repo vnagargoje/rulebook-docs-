@@ -1,4 +1,4 @@
-export * from './step-indicator'
+export * from '@/components/shared/step-indicator'
 export * from './scanned-battery-item'
 export * from './confirm-battery-list'
 export * from './success-state'

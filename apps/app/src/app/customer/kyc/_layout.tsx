@@ -17,11 +17,24 @@ export default function KycLayout() {
                 name='aadhaar'
                 options={{ title: 'Aadhaar Verification', gestureEnabled: false, headerBackVisible: false }}
             />
-            <Stack.Screen name='pan' options={{ title: 'PAN Verification' }} />
-            <Stack.Screen name='license' options={{ title: 'Driving License' }} />
+            <Stack.Screen
+                name='pan'
+                options={{ title: 'PAN Verification', gestureEnabled: false, headerBackVisible: false }}
+            />
+            <Stack.Screen
+                name='license'
+                options={{ title: 'Driving License', gestureEnabled: false, headerBackVisible: false }}
+            />
             <Stack.Screen name='profile' options={{ title: 'Confirm Your Profile' }} />
             <Stack.Screen name='address' options={{ title: 'Address Details' }} />
-            <Stack.Screen name='manual-verification' options={{ title: 'Manual Verification', gestureEnabled: false, headerBackVisible: false }} />
+            <Stack.Screen
+                name='manual-verification'
+                options={{ title: 'Manual Verification', gestureEnabled: false, headerBackVisible: false }}
+            />
+            <Stack.Screen
+                name='emergency'
+                options={{ title: 'Emergency Contact' }}
+            />
         </Stack>
     )
 }

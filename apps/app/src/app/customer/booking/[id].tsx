@@ -47,7 +47,9 @@ export default function BookingDetailScreen() {
     const totalAmount = planSnapshot.totalAmount ?? (booking.userPlan?.plan as any)?.totalAmount ?? null
     const planPrice = planSnapshot.price ?? (booking.userPlan?.plan as any)?.price ?? null
     const registrationFee = planSnapshot.registrationFee ?? null
+    const deposit = planSnapshot.deposit ?? (booking.userPlan?.plan as any)?.deposit ?? null
     const gstPercentage = planSnapshot.gstPercentage ?? (booking.userPlan?.plan as any)?.gstPercentage ?? null
+    const gstAmount = planSnapshot.gstAmount ?? (planPrice != null && gstPercentage != null ? ((Number(planPrice) + Number(registrationFee || 0)) * Number(gstPercentage)) / 100 : null)
     const hasFinancials = totalAmount != null || planPrice != null
 
     const batteryProperties = (batteryDetail?.properties ?? {}) as BatteryProperties
@@ -477,10 +479,16 @@ export default function BookingDetailScreen() {
                                         <Text className='text-sm font-semibold text-neutral-900'>{formatCurrencyIN(registrationFee)}</Text>
                                     </View>
                                 )}
-                                {gstPercentage != null && (
+                                {deposit != null && Number(deposit) > 0 && (
+                                    <View className='flex-row items-center justify-between'>
+                                        <Text className='text-sm text-neutral-500'>Deposit (Refundable)</Text>
+                                        <Text className='text-sm font-semibold text-neutral-900'>{formatCurrencyIN(deposit)}</Text>
+                                    </View>
+                                )}
+                                {gstAmount != null && Number(gstAmount) > 0 && (
                                     <View className='flex-row items-center justify-between'>
                                         <Text className='text-sm text-neutral-500'>GST</Text>
-                                        <Text className='text-sm font-semibold text-neutral-900'>{gstPercentage}%</Text>
+                                        <Text className='text-sm font-semibold text-neutral-900'>{formatCurrencyIN(gstAmount)}</Text>
                                     </View>
                                 )}
                                 {totalAmount != null && (

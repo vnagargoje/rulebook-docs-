@@ -84,9 +84,11 @@ export default function BookingsListRoute() {
         },
         {
             header: 'Plan Amount',
-            cell: (booking: BookingItem) => (
-                <span>{formatCurrency((booking.userPlan as any).plan?.totalAmount)}</span>
-            ),
+            cell: (booking: BookingItem) => {
+                const planSnapshot = (booking.userPlan as any).planSnapshot ?? {}
+                const plan = (booking.userPlan as any).plan
+                return <span>{formatCurrency(planSnapshot.totalAmount ?? plan?.totalAmount)}</span>
+            },
         },
         {
             header: 'Vehicle Number',

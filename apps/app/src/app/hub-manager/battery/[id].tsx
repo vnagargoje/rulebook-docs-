@@ -26,7 +26,7 @@ export default function BatteryDetailScreen() {
 
     const properties = (battery.properties ?? {}) as BatteryProperties
     const statusConfig = STATUS_CONFIG[battery.status]
-    const hasIot = properties.socPercent != null || properties.latitude != null || properties.speed != null
+    const hasIot = properties.socPercent != null || properties.lat != null || properties.speed != null
     const hasSpecs = properties.capacity || properties.range || properties.chargingTime || properties.lifecycle || properties.weight || properties.warranty || properties.mfgDate || properties.removableOption !== undefined
     const createdAtText = battery.createdAt
         ? `${formatDateIN(battery.createdAt)} ${formatTimeIN(battery.createdAt)}`
@@ -149,7 +149,7 @@ export default function BatteryDetailScreen() {
                                     </View>
                                 </View>
                             )}
-                            {properties.latitude != null && properties.longitude != null && (
+                            {properties.lat != null && properties.long != null && (
                                 <View className='flex-row items-center gap-2 rounded-2xl border border-violet-100 bg-violet-50 px-3 py-2.5' style={{ minWidth: '45%' }}>
                                     <View className='h-7 w-7 items-center justify-center rounded-xl bg-violet-100'>
                                         <MaterialCommunityIcons name='map-marker-outline' size={14} color='#7C3AED' />
@@ -157,7 +157,7 @@ export default function BatteryDetailScreen() {
                                     <View className='flex-1'>
                                         <Text className='text-[11px] text-violet-600'>Location</Text>
                                         <Text className='text-[11px] font-bold text-violet-900' numberOfLines={1}>
-                                            {Number(properties.latitude).toFixed(5)}, {Number(properties.longitude).toFixed(5)}
+                                            {Number(properties.lat).toFixed(5)}, {Number(properties.long).toFixed(5)}
                                         </Text>
                                     </View>
                                 </View>

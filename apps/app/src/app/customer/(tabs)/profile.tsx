@@ -8,11 +8,7 @@ import { useAppUpdate } from '@/hooks/use-app-update'
 import { Button, ConfirmDialog, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
 import { formatKmIN } from '@/lib/formatters/customer'
 import { useMyPlans } from '@/queries/customer'
-import {
-    getFirstIncompleteKycRoute,
-    isKycComplete,
-    useKycStatus,
-} from '@/queries/customer/kyc.query'
+import { getFirstIncompleteKycRoute, isKycComplete, useKycStatus } from '@/queries/customer/kyc.query'
 import { useMyProfile } from '@/queries/profile'
 import { useAuthStore } from '@/stores/auth.store'
 
@@ -291,7 +287,9 @@ export default function CustomerProfileScreen() {
                         textClassName='text-base font-semibold text-red-600'
                     />
 
-                    <Text className='text-center text-xs text-neutral-400'>App version 1.0.0</Text>
+                    <Text className='text-center text-xs text-neutral-400'>
+                        Made by BOP Consultancy & Services — App version 1.0.0
+                    </Text>
                 </View>
             </ScrollView>
             <ConfirmDialog

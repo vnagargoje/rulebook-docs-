@@ -399,11 +399,11 @@ export default function BookingViewRoute() {
                         </div>
                         <div>
                             <SectionLabel>Commercials</SectionLabel>
-                            <DetailRow label="Price" value={formatCurrency(plan?.price ?? planSnapshot.price)} />
-                            <DetailRow label="Deposit" value={formatCurrency(plan?.deposit ?? planSnapshot.deposit)} />
-                            <DetailRow label="GST" value={`${(plan as any)?.gstPercentage ?? planSnapshot.gstPercentage ?? 0}%`} />
+                            <DetailRow label="Price" value={formatCurrency(planSnapshot.price ?? plan?.price)} />
+                            <DetailRow label="Deposit" value={formatCurrency(planSnapshot.deposit ?? plan?.deposit)} />
+                            <DetailRow label="GST" value={`${planSnapshot.gstPercentage ?? (plan as any)?.gstPercentage ?? 0}%`} />
                             <DetailRow label="Registration" value={formatCurrency(planSnapshot.registrationFee)} />
-                            <DetailRow label="Total amount" value={formatCurrency(plan?.totalAmount ?? planSnapshot.totalAmount)} />
+                            <DetailRow label="Total amount" value={formatCurrency(planSnapshot.totalAmount ?? plan?.totalAmount)} />
                             <DetailRow label="KM limit" value={formatKm(kmLimit)} />
                         </div>
                     </CardContent>

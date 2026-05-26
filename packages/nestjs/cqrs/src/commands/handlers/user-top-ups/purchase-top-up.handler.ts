@@ -53,6 +53,7 @@ export class PurchaseTopUpHandler implements ICommandHandler<PurchaseTopUpComman
                 price: topUp.price,
                 gstPercentage,
                 gstAmount,
+                totalAmount,
             }
 
             // --- Idempotency (mirrors plan-purchase pattern) ---

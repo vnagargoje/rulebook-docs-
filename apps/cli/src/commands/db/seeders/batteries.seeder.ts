@@ -152,6 +152,7 @@ export class BatteriesSeeder implements Seeder {
             const battery = manager.create(BatteryEntity, {
                 batteryQrId,
                 qrCodeId: file.id,
+                range: 80,
             });
             await manager.save(battery);
 

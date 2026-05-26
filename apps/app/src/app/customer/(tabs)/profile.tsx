@@ -33,7 +33,7 @@ export default function CustomerProfileScreen() {
         return (fullName[0] ?? token?.phoneNumber?.[0] ?? 'Y').toUpperCase()
     }, [fullName, token?.phoneNumber])
     const handleLoginPress = useCallback(() => {
-        router.push({ pathname: '/auth/sign-in', params: { redirect: '/customer/profile' } })
+        router.push({ pathname: '/auth/sign-in' })
     }, [router])
 
     const handleBrowsePlans = useCallback(() => {

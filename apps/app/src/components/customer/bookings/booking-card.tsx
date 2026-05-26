@@ -12,7 +12,7 @@ type Props = {
 
 export function BookingCard({ booking, onPress }: Props) {
     const statusConfig = getBookingStatusConfig(booking.status)
-    const showOtp = ['created', 'ongoing'].includes(booking.status)
+    const showOtp = ['created', 'ongoing'].includes(booking.status) && !booking.vehicle
 
     return (
         <Pressable onPress={onPress}>

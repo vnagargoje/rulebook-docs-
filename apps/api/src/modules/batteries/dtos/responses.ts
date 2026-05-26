@@ -23,6 +23,7 @@ export const BatteryResponse = Type.Object({
     gpsId: Type.Optional(Type.String()),
     properties: Type.Optional(BatteryPropertiesResponse),
     stationId: Type.Optional(Type.String()),
+    range: Type.Optional(Type.Integer()),
     station: Type.Optional(
         Type.Object({
             id: Type.String(),

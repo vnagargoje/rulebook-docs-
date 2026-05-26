@@ -5,6 +5,7 @@ export interface CreateBatteryPayload {
     gpsId?: string
     properties?: BatteryProperties
     stationId?: string
+    range?: number
 }
 
 export class CreateBatteryCommand {

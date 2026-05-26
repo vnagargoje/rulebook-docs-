@@ -22,6 +22,7 @@ export const UserPlanResponse = Type.Object({
     remainingKm: Type.Number(),
     totalKm: Type.Number(),
     qrCodeId: Type.Union([Type.String(), Type.Null()]),
+    batteryPercentAtTimeOfSwap: Type.Number(),
     qrCode: Type.Optional(
         Type.Object({
             id: Type.String(),
@@ -49,6 +50,7 @@ export const UserPlanQrScanResponse = Type.Object({
         status: Type.String(),
         planSnapshot: Type.Any(),
         remainingKm: Type.Number(),
+        batteryPercentAtTimeOfSwap: Type.Number(),
         startsAt: Type.Union([Type.String(), Type.Null()]),
         expiresAt: Type.Union([Type.String(), Type.Null()]),
         qrCodeUrl: Type.Union([Type.String(), Type.Null()]),

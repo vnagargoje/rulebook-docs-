@@ -18,6 +18,9 @@ export class UserPlanEntity extends IdTimestamppedEntity {
     @Column('varchar')
     planId: string
 
+    @Column('int', { nullable: true })
+    batteryPercentAtTimeOfSwap: number
+
     @ManyToOne(() => PlanEntity, { onDelete: 'CASCADE' })
     @JoinColumn()
     plan: PlanEntity

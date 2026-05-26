@@ -25,7 +25,7 @@ function getAadhaarErrorMessage(error: unknown, fallback: string): string {
     const lowerMsg = backendMessage.toLowerCase()
 
     if (lowerMsg.includes('attempt') || lowerMsg.includes('limit') || lowerMsg.includes('exceed') || lowerMsg.includes('maximum')) {
-        return 'Your Aadhaar KYC attempt limit has been reached. contuneu with pan  .'
+        return 'Your Aadhaar KYC attempt limit has been reached. continue with pan  .'
     }
     if (lowerMsg.includes('invalid') || lowerMsg.includes('incorrect')) {
         return 'The OTP you entered is incorrect. Please try again.'

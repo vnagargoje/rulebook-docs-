@@ -97,14 +97,31 @@ export class BatteryFunctions {
                 ...iotData.data,
             };
 
+            let status: BatteryStatus | undefined;
             if (battery.stationId && battery.station) {
-                battery.status = this.determineBatteryStatus(
+                status = this.determineBatteryStatus(
                     iotData.data.socPercent,
                     battery.station.type,
                 );
+                battery.status = status;
             }
 
-            await this.datasource.manager.save(battery);
+            const updateQuery = this.datasource.manager.createQueryBuilder(BatteryEntity, 'battery')
+                .update()
+                .where('id = :id', { id: battery.id });
+
+            const setValues: any = {
+                properties: () => `JSON_MERGE_PATCH(COALESCE(properties, JSON_OBJECT()), :iotDataJson)`
+            };
+            updateQuery.setParameter('iotDataJson', JSON.stringify(iotData.data));
+
+            if (status) {
+                setValues.status = status;
+            }
+
+            updateQuery.set(setValues);
+            await updateQuery.execute();
+
             return { batteryQrId: battery.batteryQrId, success: true };
         } catch (error: any) {
             this.logger.error(

@@ -133,6 +133,8 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
             deposit: plan.deposit,
             gstPercentage,
             gstAmount,
+            registrationFee,
+            totalAmount,
         }
 
         return { totalAmount, planSnapshot }

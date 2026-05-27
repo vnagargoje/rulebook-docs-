@@ -65,3 +65,10 @@ export type RefreshTokenResponse = {
     accessToken: string
     refreshToken?: string
 }
+
+export type AuthScreenShellProps = {
+    eyebrow: string
+    title: string
+    description: string
+    children: React.ReactNode
+}

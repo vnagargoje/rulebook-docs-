@@ -18,6 +18,7 @@ import { MetaPill } from '~/components/ui/meta-pill'
 import { useGetBookingById, useAssignVehicle } from '~/queries/bookings'
 import { useInfiniteVehicles } from '~/queries/vehicles'
 import { useInfiniteBatteries } from '~/queries/batteries'
+import { useInfiniteUserPlans } from '~/queries/user-plans'
 import { formatCurrency, formatDate, formatKm } from '~/lib/formatter'
 import { assignVehicleSchema, type AssignVehicleValues } from '~/schemas'
 
@@ -43,12 +44,20 @@ export default function BookingViewRoute() {
     const { data: vehiclesData, isFetching: vehiclesLoading, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles({
         sortBy: ['createdAt:DESC'],
         'filter.status': ['$eq:available'],
-    })
+        'filter.station.type': ['$eq:vehicle_station'],
+    } as any)
     const { data: batteriesData, isFetching: batteriesLoading, fetchNextPage: fetchNextBatteryPage, hasNextPage: hasNextBatteryPage } = useInfiniteBatteries({
         sortBy: ['createdAt:DESC'],
         'filter.status': ['$eq:available'],
         'filter.station.type': ['$eq:vehicle_station'],
     })
+    const { data: userPlansData } = useInfiniteUserPlans(
+        booking?.userPlan?.userId ? ({
+            'filter.userId': [`$eq:${booking.userPlan.userId}`],
+            'filter.status': ['$eq:purchased'],
+        } as any) : undefined
+    )
+    const futurePlan = userPlansData?.pages[0]?.data?.[0]
     const assignVehicle = useAssignVehicle()
 
     const form = useForm<AssignVehicleValues>({
@@ -422,6 +431,46 @@ export default function BookingViewRoute() {
                     </CardContent>
                 </Card>
             </div>
+
+            {futurePlan && (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+                    <Card className="overflow-hidden border-amber-500/20 bg-amber-50/10 shadow-sm">
+                        <CardHeader className="border-b border-border/40">
+                            <CardTitle className="text-amber-700">Future Plan Details</CardTitle>
+                            <CardDescription>Upcoming plan that will activate when the current one expires.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid gap-6 p-6 md:grid-cols-2">
+                            <div>
+                                <SectionLabel>Plan summary</SectionLabel>
+                                <DetailRow label="Plan name" value={(futurePlan as any).plan?.name ?? (futurePlan.planSnapshot as any)?.name ?? '—'} />
+                                <DetailRow label="Plan ID" value={futurePlan.planId ?? '—'} />
+                                <DetailRow label="User Plan status" value={<StatusBadge status={futurePlan.status.toUpperCase()} />} />
+                                <DetailRow label="Purchased At" value={formatDate(futurePlan.createdAt)} />
+                            </div>
+                            <div>
+                                <SectionLabel>Commercials</SectionLabel>
+                                <DetailRow label="Price" value={formatCurrency((futurePlan.planSnapshot as any)?.price ?? (futurePlan as any).plan?.price)} />
+                                <DetailRow label="Deposit" value={formatCurrency((futurePlan.planSnapshot as any)?.deposit ?? (futurePlan as any).plan?.deposit)} />
+                                <DetailRow label="Total amount" value={formatCurrency((futurePlan.planSnapshot as any)?.totalAmount ?? (futurePlan as any).plan?.totalAmount)} />
+                                <DetailRow label="KM limit" value={formatKm((futurePlan.planSnapshot as any)?.kmLimit ?? (futurePlan as any).plan?.kmLimit)} />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="overflow-hidden border-amber-500/20 bg-amber-50/10 shadow-sm">
+                        <CardHeader className="border-b border-border/40">
+                            <CardTitle className="text-amber-700">Future Snapshot</CardTitle>
+                            <CardDescription>Immutable data captured when the user purchased this future plan.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4 p-6">
+                            <div className="grid grid-cols-2 gap-3">
+                                <StatTile label="Plan value" value={formatCurrency((futurePlan.planSnapshot as any)?.totalAmount ?? (futurePlan as any).plan?.totalAmount)} icon={IconReceiptRupee} />
+                                <StatTile label="Purchased KM" value={formatKm((futurePlan.planSnapshot as any)?.kmLimit ?? (futurePlan as any).plan?.kmLimit)} icon={IconBolt} />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 gap-6">
                 <Card className="overflow-hidden border-border/40 bg-white shadow-sm">

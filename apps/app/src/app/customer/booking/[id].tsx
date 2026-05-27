@@ -168,7 +168,7 @@ export default function BookingDetailScreen() {
                         </View>
                     )}
 
-                    {booking.userPlan?.qrCode?.path ? (
+                    {booking.status !== 'completed' && booking.userPlan?.qrCode?.path ? (
                         <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
                             <View className='border-b border-neutral-100 px-5 py-4'>
                                 <View className='flex-row items-center gap-3'>
@@ -345,7 +345,7 @@ export default function BookingDetailScreen() {
                     )}
 
                     {/* Full battery health card */}
-                    {hasBatterySoc && batteryDetail && (
+                    {booking.status !== 'completed' && hasBatterySoc && batteryDetail && (
                         <View className='overflow-hidden rounded-[28px] bg-[#080E1C]'>
                             {/* Header */}
                             <View className='flex-row items-center justify-between border-b border-white/[0.07] px-5 py-4'>

@@ -23,9 +23,10 @@ export function SwapStationCard({ station, onPress }: Props) {
               .join(', ')
         : null
 
-    const managerName = station.manager
-        ? [station.manager.firstName, station.manager.lastName].filter(Boolean).join(' ') ||
-          station.manager.mobilenumber ||
+    const manager = station.managers?.[0]
+    const managerName = manager
+        ? [manager.firstName, manager.lastName].filter(Boolean).join(' ') ||
+          manager.mobilenumber ||
           null
         : null
 

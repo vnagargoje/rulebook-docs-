@@ -25,3 +25,13 @@ export function createAuthToken(response: VerifiedOtpResponse, phoneNumber: stri
         phoneNumber,
     }
 }
+
+export const DEFAULT_AUTH_REDIRECT = '/(tabs)'
+
+export function normalizeOtpCode(code: unknown) {
+    return typeof code === 'string' ? code.trim() : ''
+}
+
+export function sanitizeInternalRedirect(redirect: string) {
+    return redirect.startsWith('/') ? redirect : `/${redirect}`
+}

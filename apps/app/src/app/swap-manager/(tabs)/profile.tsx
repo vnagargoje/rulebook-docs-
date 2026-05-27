@@ -219,7 +219,9 @@ export default function SwapManagerProfileScreen() {
                         textClassName='text-base font-semibold text-red-600'
                     />
 
-                    <Text className='text-center text-xs text-neutral-400'>App version 1.0.0</Text>
+                   <Text className='text-center text-xs text-neutral-400'>
+                        Made by BOP Consultancy & Services — App version 1.0.0
+                    </Text>
                 </View>
             </ScrollView>
             <ConfirmDialog

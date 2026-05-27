@@ -26,7 +26,7 @@ export default function OtpPage() {
         async (data: OTPFormValues) => {
             if (!phone) {
                 showErrorMessage('Phone number is missing. Please request a new OTP.')
-                router.replace('/login')
+                router.replace('/login' as Href)
                 return
             }
 
@@ -35,7 +35,7 @@ export default function OtpPage() {
                 otp: normalizeOtpCode(data.code),
             })
 
-            if (!isVerifiedOtpResponse(response.data)) {
+            if (!isVerifiedOtpResponse(response)) {
                 showErrorMessage('Invalid OTP. Please try again.')
                 return
             }

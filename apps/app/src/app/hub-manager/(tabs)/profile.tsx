@@ -3,7 +3,16 @@ import { useRouter } from 'expo-router'
 import { useCallback, useMemo, useState } from 'react'
 
 import { DetailRow } from '@/components/profile'
-import { ActivityIndicator, Button, ConfirmDialog, Pressable, SafeAreaView, ScrollView, Text, View } from '@/components/ui'
+import {
+    ActivityIndicator,
+    Button,
+    ConfirmDialog,
+    Pressable,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    View,
+} from '@/components/ui'
 import { useMyProfile } from '@/queries/profile'
 import { useAuthStore } from '@/stores/auth.store'
 import { useAppUpdate } from '@/hooks/use-app-update'
@@ -128,13 +137,33 @@ export default function HubManagerProfileScreen() {
                                 </View>
                             </View>
                             <View className='ml-14 border-b border-neutral-100' />
-                            <DetailRow icon='account-outline' label='Full Name' value={fullName !== 'Hub Manager' ? fullName : null} placeholder='Add your name' />
+                            <DetailRow
+                                icon='account-outline'
+                                label='Full Name'
+                                value={fullName !== 'Hub Manager' ? fullName : null}
+                                placeholder='Add your name'
+                            />
                             <View className='ml-14 border-b border-neutral-100' />
-                            <DetailRow icon='email-outline' label='Email' value={profile?.email} placeholder='Add email address' />
+                            <DetailRow
+                                icon='email-outline'
+                                label='Email'
+                                value={profile?.email}
+                                placeholder='Add email address'
+                            />
                             <View className='ml-14 border-b border-neutral-100' />
-                            <DetailRow icon='gender-male-female' label='Gender' value={gender} placeholder='Not specified' />
+                            <DetailRow
+                                icon='gender-male-female'
+                                label='Gender'
+                                value={gender}
+                                placeholder='Not specified'
+                            />
                             <View className='ml-14 border-b border-neutral-100' />
-                            <DetailRow icon='cake-variant-outline' label='Date of Birth' value={dob} placeholder='Not added' />
+                            <DetailRow
+                                icon='cake-variant-outline'
+                                label='Date of Birth'
+                                value={dob}
+                                placeholder='Not added'
+                            />
                         </View>
                     </View>
 
@@ -197,7 +226,10 @@ export default function HubManagerProfileScreen() {
                                     </Text>
                                 </View>
                                 {isCheckingUpdate ? (
-                                    <ActivityIndicator size='small' color='#2563EB' />
+                                    <ActivityIndicator
+                                        size='small'
+                                        color='#2563EB'
+                                    />
                                 ) : (
                                     <MaterialCommunityIcons
                                         name='chevron-right'
@@ -216,7 +248,9 @@ export default function HubManagerProfileScreen() {
                         textClassName='text-base font-semibold text-red-600'
                     />
 
-                    <Text className='text-center text-xs text-neutral-400'>App version 1.0.0</Text>
+                    <Text className='text-center text-xs text-neutral-400'>
+                        Made by BOP Consultancy & Services — App version 1.0.0
+                    </Text>
                 </View>
             </ScrollView>
             <ConfirmDialog

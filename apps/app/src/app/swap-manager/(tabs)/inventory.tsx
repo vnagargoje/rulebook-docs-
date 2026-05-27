@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router'
+import { useMemo } from 'react'
 import { RefreshControl } from 'react-native'
 
 import { StatRow, TransportCard } from '@/components/swap-manager/inventory'
@@ -24,12 +25,16 @@ export default function InventoryScreen() {
         enabled: !!managerId,
     })
 
-    const { data: inboundMovements, refetch: refetchMovements } = useGetInTransitMovementsToStation({
+    const { data: inboundMovements, isLoading: inboundLoading, refetch: refetchMovements } = useGetInTransitMovementsToStation({
         variables: { toStationId: station?.id ?? '' },
         enabled: !!station?.id,
     })
 
     const inboundCount = inboundMovements?.data?.length ?? 0
+
+    const inTransitBatteriesCount = useMemo(() => {
+        return inboundMovements?.data?.reduce((acc, movement) => acc + (movement.batteryIds?.length ?? 0), 0) ?? 0
+    }, [inboundMovements])
 
     const handleRefresh = () => {
         refetchStation()
@@ -80,11 +85,11 @@ export default function InventoryScreen() {
                             />
                             <StatRow
                                 label='In Transit'
-                                value={counts?.inTransit ?? 0}
+                                value={inTransitBatteriesCount}
                                 icon='truck-fast-outline'
                                 iconColor='#8B5CF6'
                                 dot='bg-violet-400'
-                                isLoading={countsLoading}
+                                isLoading={countsLoading || inboundLoading}
                             />
                         </View>
                     </View>

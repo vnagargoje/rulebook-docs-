@@ -45,9 +45,10 @@ export function StationSheet({
               .join(', ')
         : null
 
-    const managerName = station.manager
-        ? [station.manager.firstName, station.manager.lastName].filter(Boolean).join(' ') ||
-          station.manager.mobilenumber ||
+    const manager = station.managers?.[0]
+    const managerName = manager
+        ? [manager.firstName, manager.lastName].filter(Boolean).join(' ') ||
+          manager.mobilenumber ||
           null
         : null
 
@@ -141,7 +142,7 @@ export function StationSheet({
                 </View>
 
                 {/* Manager section */}
-                {managerName || station.manager?.email || station.manager?.mobilenumber ? (
+                {managerName || manager?.email || manager?.mobilenumber ? (
                     <View className='px-5 pt-4'>
                         <View className='border-t border-neutral-100 pt-4'>
                             <Text className='mb-1 text-[11px] font-bold uppercase tracking-[1.4px] text-neutral-400'>
@@ -150,14 +151,14 @@ export function StationSheet({
                             {managerName ? (
                                 <InfoRow icon='account-outline' label='Manager' value={managerName} />
                             ) : null}
-                            {station.manager?.email ? (
-                                <InfoRow icon='email-outline' label='Email' value={station.manager.email} />
+                            {manager?.email ? (
+                                <InfoRow icon='email-outline' label='Email' value={manager.email} />
                             ) : null}
-                            {station.manager?.mobilenumber ? (
+                            {manager?.mobilenumber ? (
                                 <InfoRow
                                     icon='phone-outline'
                                     label='Mobile'
-                                    value={station.manager.mobilenumber}
+                                    value={manager.mobilenumber}
                                 />
                             ) : null}
                         </View>

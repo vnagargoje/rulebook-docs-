@@ -1,6 +1,6 @@
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import React, { useState } from 'react'
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Linking, StyleSheet, Text, TouchableOpacity, View, Vibration } from 'react-native'
 
 interface QrScannerProps {
     onScan: (data: string) => void
@@ -31,7 +31,13 @@ export function QrScanner({ onScan, onClose, title, description }: QrScannerProp
                 <Text style={styles.text}>Camera permission needed</Text>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={requestPermission}>
+                    onPress={() => {
+                        if (permission.canAskAgain) {
+                            requestPermission()
+                        } else {
+                            Linking.openSettings()
+                        }
+                    }}>
                     <Text style={styles.buttonText}>Allow Camera</Text>
                 </TouchableOpacity>
             </View>
@@ -42,6 +48,7 @@ export function QrScanner({ onScan, onClose, title, description }: QrScannerProp
         if (!isScanned.current && data) {
             isScanned.current = true
             setScanned(true)
+            Vibration.vibrate(100)
             onScan(data)
             // Reset after a short delay so the next battery can be scanned
             setTimeout(() => {

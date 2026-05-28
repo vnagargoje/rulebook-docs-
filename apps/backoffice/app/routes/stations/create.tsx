@@ -82,11 +82,13 @@ export default function SwapStationsCreateRoute() {
     const managerOptions = useMemo(() => {
         const allManagers = managers?.pages.flatMap((page) => page.data) ?? []
 
-        return allManagers.map((u) => ({
-            label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email || u.mobilenumber || u.id,
-            value: u.id,
-        }))
-    }, [managers])
+        return allManagers
+            .filter((u) => u.active !== false && !u.stationId)
+            .map((u) => ({
+                label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email || u.mobilenumber || u.id,
+                value: u.id,
+            }))
+    }, [managers?.pages])
     const stateOptions = useMemo(() => (states ?? []).map((s) => ({ label: s.name, value: s.id })), [states])
     const cityOptions = useMemo(() => {
         const allCities = cities?.pages.flatMap((page) => page.data) ?? []

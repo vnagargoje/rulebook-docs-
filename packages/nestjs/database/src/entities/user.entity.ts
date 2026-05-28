@@ -16,6 +16,9 @@ export class UserEntity extends IdTimestamppedEntity {
     @Column('varchar', { nullable: true, unique: true })
     mobilenumber: string
 
+    @Column('boolean', { default: true })
+    active: boolean
+
     @Column('varchar', { nullable: true })
     password: string
 

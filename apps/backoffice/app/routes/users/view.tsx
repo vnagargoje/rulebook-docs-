@@ -133,7 +133,10 @@ export default function UserViewRoute() {
                             <CardTitle className="text-xl">{name}</CardTitle>
                             <CardDescription className="mt-1">{user.email || displayMobile}</CardDescription>
                         </div>
-                        <StatusBadge status={role} />
+                        <div className="flex items-center gap-2">
+                            <StatusBadge status={role} />
+                            <StatusBadge status={user.active !== false ? 'ACTIVE' : 'INACTIVE'} />
+                        </div>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
                         <MetaPill icon={IconPhone}>{displayMobile}</MetaPill>

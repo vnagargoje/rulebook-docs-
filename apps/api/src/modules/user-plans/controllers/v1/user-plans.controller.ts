@@ -58,9 +58,10 @@ const PAGINATE_CONFIG: PaginateConfig<UserPlanEntity> = {
     defaultLimit: 50,
     filterableColumns: {
         status: [FilterOperator.EQ, FilterOperator.IN],
+        userId: [FilterOperator.EQ],
     },
     defaultSortBy: [['createdAt', 'DESC']],
-    relations: ['qrCode', 'topUps'],
+    relations: ['qrCode', 'topUps', 'plan'],
 };
 
 @ApiTags('user-plans')
@@ -82,8 +83,14 @@ export class V1UserPlansController {
         @AuthenticatedUser() user: ContextUserType,
     ) {
         const qb = this.datasource.manager
-            .createQueryBuilder(UserPlanEntity, 'userPlan')
-            .where('userPlan.userId = :userId', { userId: user.id });
+            .createQueryBuilder(UserPlanEntity, 'userPlan');
+
+        const isAdmin = this.accessService.hasAbility(user, Actions.manage, new UserPlanSubject());
+
+        if (!isAdmin) {
+            qb.where('userPlan.userId = :userId', { userId: user.id });
+        }
+
         return paginate(query, qb, PAGINATE_CONFIG);
     }
 

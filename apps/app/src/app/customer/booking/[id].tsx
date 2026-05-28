@@ -5,7 +5,7 @@ import { getBookingStatusMeta } from '@/data/customer/booking-status.data'
 import { InfoRow } from '@/components/customer/booking-detail'
 import { Image, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
 import { formatCurrencyIN, formatDateIN, formatNumberIN, formatTimeIN } from '@/lib/formatters/customer'
-import { useBookingById } from '@/queries/customer'
+import { useBookingById, useMyPlans } from '@/queries/customer'
 import { useGetBatteryById } from '@/queries/hub-manager'
 import { CircularSoc } from '@/components/customer/home'
 import { STATUS_CONFIG } from '@/data/swap-manager/battery-status-config.data'
@@ -22,6 +22,10 @@ export default function BookingDetailScreen() {
         variables: { id: booking?.battery?.id ?? '' },
         enabled: !!booking?.battery?.id,
     })
+    const { data: futurePlansData } = useMyPlans({
+        variables: { status: 'purchased' }
+    })
+    const futurePlan = futurePlansData?.data?.[0]
 
     const meta = booking ? getBookingStatusMeta(booking.status) : null
 
@@ -617,6 +621,75 @@ export default function BookingDetailScreen() {
                             ) : null}
                         </View>
                     </View>
+
+                    {futurePlan && (
+                        <>
+                            <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
+                                <View className='border-b border-neutral-100 px-5 py-4'>
+                                    <View className='flex-row items-center gap-3'>
+                                        <View className='h-10 w-10 items-center justify-center rounded-xl bg-primary-50'>
+                                            <MaterialCommunityIcons name='calendar-arrow-right' size={20} color='#2563EB' />
+                                        </View>
+                                        <Text className='text-sm font-bold text-neutral-900'>Future Plan Info</Text>
+                                    </View>
+                                </View>
+                                <View className='px-5 py-5'>
+                                    <Text className='text-xs leading-5 text-neutral-500 mb-4'>
+                                        This plan will automatically activate when your current plan expires.
+                                    </Text>
+                                    <InfoRow
+                                        icon='identifier'
+                                        iconColor='#6B7280'
+                                        iconBg='bg-neutral-100'
+                                        label='Plan Name'
+                                        value={(futurePlan as any).plan?.name ?? (futurePlan.planSnapshot as any)?.name ?? '—'}
+                                    />
+                                    <View className='border-b border-neutral-100' />
+                                    <InfoRow
+                                        icon='calendar-check-outline'
+                                        iconColor='#2563EB'
+                                        iconBg='bg-primary-50'
+                                        label='Purchased On'
+                                        value={formatDateIN(futurePlan.createdAt)}
+                                    />
+                                </View>
+                            </View>
+
+                            <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
+                                <View className='border-b border-neutral-100 px-5 py-4'>
+                                    <View className='flex-row items-center gap-3'>
+                                        <View className='h-10 w-10 items-center justify-center rounded-xl bg-success-50'>
+                                            <MaterialCommunityIcons name='receipt' size={20} color='#16A34A' />
+                                        </View>
+                                        <Text className='text-sm font-bold text-neutral-900'>Future Plan Payment</Text>
+                                    </View>
+                                </View>
+                                <View className='px-5 py-4 gap-3'>
+                                    {((futurePlan.planSnapshot as any)?.price ?? (futurePlan as any).plan?.price) != null && (
+                                        <View className='flex-row items-center justify-between'>
+                                            <Text className='text-sm text-neutral-500'>Plan Price</Text>
+                                            <Text className='text-sm font-semibold text-neutral-900'>{formatCurrencyIN((futurePlan.planSnapshot as any)?.price ?? (futurePlan as any).plan?.price)}</Text>
+                                        </View>
+                                    )}
+                                    {((futurePlan.planSnapshot as any)?.deposit ?? (futurePlan as any).plan?.deposit) != null && Number((futurePlan.planSnapshot as any)?.deposit ?? (futurePlan as any).plan?.deposit) > 0 && (
+                                        <View className='flex-row items-center justify-between'>
+                                            <Text className='text-sm text-neutral-500'>Deposit</Text>
+                                            <Text className='text-sm font-semibold text-neutral-900'>{formatCurrencyIN((futurePlan.planSnapshot as any)?.deposit ?? (futurePlan as any).plan?.deposit)}</Text>
+                                        </View>
+                                    )}
+                                    {((futurePlan.planSnapshot as any)?.totalAmount ?? (futurePlan as any).plan?.totalAmount) != null && (
+                                        <>
+                                            <View className='border-t border-neutral-100' />
+                                            <View className='flex-row items-center justify-between'>
+                                                <Text className='text-sm font-bold text-neutral-900'>Total Paid</Text>
+                                                <Text className='text-base font-bold text-success-700'>{formatCurrencyIN((futurePlan.planSnapshot as any)?.totalAmount ?? (futurePlan as any).plan?.totalAmount)}</Text>
+                                            </View>
+                                        </>
+                                    )}
+                                </View>
+                            </View>
+                        </>
+                    )}
                 </View>
             </ScrollView>
         </View>

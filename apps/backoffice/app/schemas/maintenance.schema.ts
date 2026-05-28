@@ -21,7 +21,7 @@ const maintenanceBaseSchema = z.object({
         .min(1, 'Expected fix date is required')
         .refine((val) => !isNaN(new Date(val).getTime()), 'Enter a valid date'),
     status: z.enum(['REPORTED', 'IN_PROGRESS', 'RESOLVED'], {
-        required_error: 'Status is required',
+        message: 'Status is required',
     }),
 })
 

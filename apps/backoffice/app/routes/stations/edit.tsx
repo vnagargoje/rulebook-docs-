@@ -71,10 +71,12 @@ export default function SwapStationsEditRoute() {
 
     const managerOptions = useMemo(() => {
         const allManagers = managers?.pages.flatMap((page) => page.data) ?? []
-        const mappedOptions = allManagers.map((u) => ({
-            label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email || u.mobilenumber || u.id,
-            value: u.id,
-        }))
+        const mappedOptions = allManagers
+            .filter((u) => u.active !== false && !u.stationId)
+            .map((u) => ({
+                label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email || u.mobilenumber || u.id,
+                value: u.id,
+            }))
 
         if (selectedStationManager && selectedManagerId === selectedStationManager.id && !mappedOptions.some((option) => option.value === selectedStationManager.id)) {
             mappedOptions.unshift({

@@ -41,6 +41,7 @@ export default function CreateUserRoute() {
             lineOne: '',
             lineTwo: '',
             pincode: '',
+            active: 'true',
         },
     })
 
@@ -78,6 +79,7 @@ export default function CreateUserRoute() {
             gender: values.gender,
             dateOfBirth: values.dateOfBirth || undefined,
             role: values.role,
+            active: values.active === 'true',
             properties: {
                 roleName: values.role,
             },
@@ -138,6 +140,17 @@ export default function CreateUserRoute() {
                                         required
                                     />
                                     <TextInputField control={form.control} name="dateOfBirth" label="Date of Birth" type="date" required />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <SelectField
+                                        control={form.control}
+                                        name="active"
+                                        label="Account Status"
+                                        options={[
+                                            { label: 'Active', value: 'true' },
+                                            { label: 'Inactive', value: 'false' },
+                                        ]}
+                                    />
                                 </div>
                             </div>
 

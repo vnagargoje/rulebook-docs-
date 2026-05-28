@@ -38,4 +38,5 @@ export const UserResponse = Type.Object({
     roles: Type.Optional(Type.Array(RoleResponse)),
     addresses: Type.Optional(Type.Array(AddressResponse)),
     stationId: Type.Optional(Type.String()),
+    active: Type.Boolean(),
 });

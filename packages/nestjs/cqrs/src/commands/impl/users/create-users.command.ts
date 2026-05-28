@@ -18,6 +18,7 @@ export interface CreateUserPayload {
     dateOfBirth?: string
     address?: CreateUserAddressPayload
     stationId?: string
+    active?: boolean
 }
 
 export class CreateUserCommand {

@@ -44,6 +44,8 @@ const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
         email: [FilterOperator.EQ, FilterOperator.ILIKE],
         mobilenumber: [FilterOperator.EQ, FilterOperator.ILIKE],
         'roles.name': [FilterOperator.EQ, FilterOperator.IN],
+        active: [FilterOperator.EQ],
+        stationId: [FilterOperator.EQ, FilterOperator.NULL],
     },
     relations: ['roles', 'addresses', 'addresses.city', 'addresses.city.state'],
     defaultSortBy: [['createdAt', 'DESC']],

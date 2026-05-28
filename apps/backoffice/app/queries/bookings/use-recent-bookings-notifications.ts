@@ -9,10 +9,10 @@ export function useRecentBookingsNotifications() {
             const response = await v1BookingsGetAllBookings({
                 limit: 20,
                 sortBy: ['createdAt:DESC'],
+                'filter.vehicleId': ['$null'],
             })
-            // Return only lightweight data to keep the navbar fast, excluding bookings with assigned vehicles
+
             return response.data.data
-                .filter((booking) => !booking.vehicleId)
                 .map((booking) => ({
                     id: booking.id,
                     createdAt: booking.createdAt,

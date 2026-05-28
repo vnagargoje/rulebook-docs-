@@ -1,18 +1,8 @@
 import { Link } from 'react-router'
 import { Bell } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
-import { cn } from '~/lib/utils'
+import { cn, getRelativeTime } from '~/lib/utils'
 import { useNotificationBell } from '~/hooks/use-notification-bell'
-
-function getRelativeTime(dateString: string) {
-    const diff = (new Date(dateString).getTime() - Date.now()) / 1000;
-    const absDiff = Math.abs(diff);
-
-    if (absDiff < 60) return 'Just now';
-    if (absDiff < 3600) return `${Math.round(absDiff / 60)} min ago`;
-    if (absDiff < 86400) return `${Math.round(absDiff / 3600)} h ago`;
-    return `${Math.round(absDiff / 86400)} d ago`;
-}
 
 export function NotificationBell() {
     const {

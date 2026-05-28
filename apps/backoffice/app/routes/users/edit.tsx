@@ -75,6 +75,7 @@ export default function EditUserRoute() {
             gender: undefined,
             dateOfBirth: '',
             role: isCustomerRoute ? 'customer' : 'swap_manager',
+            active: 'true',
             currentStateId: '',
             currentCityId: '',
             currentLineOne: '',
@@ -133,6 +134,7 @@ export default function EditUserRoute() {
                 gender: normalizedGender,
                 dateOfBirth: user.dateOfBirth ?? '',
                 role: isCustomerRoute ? 'customer' : normalizedRole,
+                active: user.active !== false ? 'true' : 'false',
                 currentStateId: currentAddr?.city?.state?.id ?? '',
                 currentCityId: currentAddr?.city?.id ?? '',
                 currentLineOne: currentAddr?.lineOne ?? '',
@@ -162,6 +164,7 @@ export default function EditUserRoute() {
             gender: values.gender,
             dateOfBirth: values.dateOfBirth || undefined,
             role,
+            active: values.active === 'true',
             properties: {
                 ...existingProperties,
                 roleName: role,
@@ -259,6 +262,17 @@ export default function EditUserRoute() {
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <SelectField control={form.control} name="gender" label="Gender" options={[...genderOptions]} />
                                     <TextInputField control={form.control} name="dateOfBirth" label="Date of Birth" type="date" />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <SelectField
+                                        control={form.control}
+                                        name="active"
+                                        label="Account Status"
+                                        options={[
+                                            { label: 'Active', value: 'true' },
+                                            { label: 'Inactive', value: 'false' },
+                                        ]}
+                                    />
                                 </div>
                             </div>
 

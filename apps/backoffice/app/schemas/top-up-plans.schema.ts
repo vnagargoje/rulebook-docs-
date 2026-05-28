@@ -7,16 +7,16 @@ const topUpBaseSchema = z.object({
         .max(100, 'Plan name must be at most 100 characters'),
     description: z.string().max(500, 'Description must be at most 500 characters').optional(),
     kmLimit: z.coerce
-        .number({ invalid_type_error: 'Must be a number' })
+        .number({ message: 'Must be a number' })
         .min(0, 'Must be 0 or more'),
     price: z.coerce
-        .number({ invalid_type_error: 'Must be a number' })
+        .number({ message: 'Must be a number' })
         .min(1, 'Price must be greater than 0'),
     gstPercentage: z.coerce
-        .number({ invalid_type_error: 'Must be a number' })
+        .number({ message: 'Must be a number' })
         .min(0, 'Must be 0 or more')
         .max(100, 'Cannot exceed 100'),
-    active: z.enum(['true', 'false'], { required_error: 'Status is required' }),
+    active: z.enum(['true', 'false'], { message: 'Status is required' }),
 })
 
 export const createTopUpPlanSchema = topUpBaseSchema

@@ -4,6 +4,7 @@ import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
+import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useUsers, type UserItem } from '~/queries/users'
 
@@ -57,6 +58,10 @@ export default function UsersListRoute() {
         {
             header: 'Role',
             cell: (user: UserItem) => (user.properties as { roleName?: string })?.roleName ?? '—',
+        },
+        {
+            header: 'Status',
+            cell: (user: UserItem) => <StatusBadge status={user.active !== false ? 'ACTIVE' : 'INACTIVE'} />,
         },
         {
             header: 'Actions',

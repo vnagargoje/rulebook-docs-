@@ -31,6 +31,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
                 properties: body.properties,
                 dateOfBirth: body.dateOfBirth,
                 roles: [role],
+                active: body.active,
             })
 
             await manager.save(user)

@@ -52,6 +52,9 @@ export class V1AuthController {
         if (!user) {
             throw new NotFoundException('User not found');
         }
+        if (!user.active) {
+            throw new UnauthorizedException('Your account has been deactivated. Please contact administrator.');
+        }
         if (!compareSync(body.password, user.password)) {
             throw new UnauthorizedException('Invalid credentials');
         }
@@ -136,6 +139,9 @@ export class V1AuthController {
         });
         if (!user) {
             throw new NotFoundException('User not found');
+        }
+        if (!user.active) {
+            throw new UnauthorizedException('Your account has been deactivated. Please contact administrator.');
         }
         const tokens = await this.tokenService.generateTokens({
             id: user.id,

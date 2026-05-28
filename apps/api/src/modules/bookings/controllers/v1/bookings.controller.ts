@@ -28,6 +28,7 @@ const PAGINATE_CONFIG: PaginateConfig<BookingEntity> = {
     defaultLimit: 50,
     filterableColumns: {
         status: [FilterOperator.EQ, FilterOperator.IN],
+        vehicleId: [FilterOperator.EQ, FilterOperator.NULL],
     },
     defaultSortBy: [['createdAt', 'DESC']],
 };

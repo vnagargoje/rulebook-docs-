@@ -45,6 +45,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         if (!user) {
             throw new UnauthorizedException('user not found');
         }
+        if (!user.active) {
+            throw new UnauthorizedException('Your account has been deactivated. Please contact administrator.');
+        }
         return {
             ...user,
             roles: user.roles?.map((role) => role.name) || [],

@@ -45,6 +45,7 @@ const PAGINATE_CONFIG: PaginateConfig<VehicleEntity> = {
         gpsId: [FilterOperator.ILIKE],
         stationId: [FilterOperator.EQ, FilterOperator.NULL],
         'station.name': [FilterOperator.ILIKE],
+        'station.type': [FilterOperator.EQ],
         status: [FilterOperator.EQ],
     },
     defaultSortBy: [['createdAt', 'DESC']],

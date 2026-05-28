@@ -12,7 +12,7 @@ const inactiveBaseSchema = z.object({
         .min(10, 'Description must be at least 10 characters')
         .max(1000, 'Description must be at most 1000 characters'),
     status: z.enum(['REPORTED', 'UNDER_REVIEW', 'RESOLVED'], {
-        required_error: 'Status is required',
+        message: 'Status is required',
     }),
 })
 

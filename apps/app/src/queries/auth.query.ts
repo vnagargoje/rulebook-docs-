@@ -40,6 +40,18 @@ export const useSendOtp = createMutation<SendOtpResponse, string>({
     onError: handleMutationError,
 })
 
+export const useResendOtp = createMutation<any, string>({
+    mutationKey: ['resend-otp'],
+    mutationFn: async (phoneNumber: string) => {
+        const response = await client.v1.v1AuthResendOtp({ mobilenumber: phoneNumber })
+        return response.data
+    },
+    onSuccess: () => {
+        showSuccessMessage('OTP resent successfully')
+    },
+    onError: handleMutationError,
+})
+
 export const useVerifyOtp = createMutation<VerifyOtpResponse, VerifyOtpVariables>({
     mutationKey: ['verify-otp'],
     mutationFn: async ({ phoneNumber, otp }: VerifyOtpVariables) => {

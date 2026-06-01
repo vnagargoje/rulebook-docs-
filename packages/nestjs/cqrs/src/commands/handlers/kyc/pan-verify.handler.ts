@@ -82,7 +82,9 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
             },
         })
 
-        const isSuccess = response.data.code === 200 || response.data.code === 201
+        const panStatus = response.data.code === 200 ? response.data.data.status : null
+
+        const isSuccess = panStatus === 'VALID' ? true : false
 
         await manager.transaction(async (manager) => {
             let kyc = await manager.findOne(UserKycEntity, {

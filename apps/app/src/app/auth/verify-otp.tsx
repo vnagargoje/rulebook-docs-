@@ -13,6 +13,7 @@ import { useIsAuthenticated, useVerifyOtp } from '@/queries/auth.query'
 import { getFirstIncompleteKycRoute, isKycComplete } from '@/queries/customer/kyc.query'
 import { useAuthStore } from '@/stores/auth.store'
 import { client } from '@/lib/api/client'
+import { useOtpTimer } from '@/hooks/use-otp-timer'
 
 export default function VerifyOtpPage() {
     const router = useRouter()
@@ -24,6 +25,7 @@ export default function VerifyOtpPage() {
     const planId = searchParams.planId ? String(searchParams.planId) : ''
     const verifyOtp = useVerifyOtp()
     const { refetch } = useIsAuthenticated()
+    const { timeLeft, canResend, handleResend, isResending } = useOtpTimer(60, mobilenumber)
 
     const handleOtpFilled = useCallback((text: string) => {
         setOtp(text)
@@ -154,17 +156,34 @@ export default function VerifyOtpPage() {
                             onTextChange={handleOtpChange}
                         />
 
-                        <View className='mt-4 flex-row items-center'>
-                            <Paragraph
-                                text='Entered wrong number? '
-                                className='leading-5'
-                            />
-                            <Pressable onPress={() => router.back()}>
+                        <View className='mt-4 flex-col items-center gap-3'>
+                            <View className='flex-row items-center'>
                                 <Paragraph
-                                    text='Change number'
-                                    className='font-medium text-primary-600 underline'
+                                    text={canResend ? "Didn't receive code? " : `Resend code in 00:${timeLeft.toString().padStart(2, '0')} `}
+                                    className='leading-5 text-neutral-600'
                                 />
-                            </Pressable>
+                                {canResend && (
+                                    <Pressable onPress={handleResend} disabled={isResending}>
+                                        <Paragraph
+                                            text={isResending ? 'Resending...' : 'Resend OTP'}
+                                            className={`font-medium underline ${isResending ? 'text-neutral-400' : 'text-primary-600'}`}
+                                        />
+                                    </Pressable>
+                                )}
+                            </View>
+
+                            <View className='flex-row items-center'>
+                                <Paragraph
+                                    text='Entered wrong number? '
+                                    className='leading-5'
+                                />
+                                <Pressable onPress={() => router.back()}>
+                                    <Paragraph
+                                        text='Change number'
+                                        className='font-medium text-primary-600 underline'
+                                    />
+                                </Pressable>
+                            </View>
                         </View>
 
                         <View className='mt-8 w-full pb-5'>

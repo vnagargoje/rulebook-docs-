@@ -28,6 +28,7 @@ export const AadhaarReloadCaptchaResponse = Type.Object({
 export const GenericKycResponse = Type.Object({
     success: Type.Boolean(),
     message: Type.String(),
+    data: Type.Optional(Type.Any()),
 });
 
 export const LicenseInitiateResponse = Type.Object({

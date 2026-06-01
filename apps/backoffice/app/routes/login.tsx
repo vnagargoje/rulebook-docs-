@@ -84,7 +84,7 @@ export default function LoginRoute() {
 
                         <div className='space-y-6 mb-auto'>
                             <h2 className='font-display text-4xl leading-[1.15] font-bold text-white tracking-tight'>
-                                Manage your entire mobility fleet in one place. dikshant testing asadaadsfsfds
+                                Manage your entire mobility fleet in one place.
                             </h2>
                             <p className='text-white/80 text-lg font-medium leading-relaxed'>
                                 Real-time telemetry, battery logistics, vehicle assignments, and customer management.

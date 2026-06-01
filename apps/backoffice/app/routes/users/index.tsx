@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
 
@@ -7,11 +7,11 @@ import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useUsers, type UserItem } from '~/queries/users'
+import { useListingState } from '~/hooks'
 
 export default function UsersListRoute() {
     const navigate = useNavigate()
-    const [searchQuery, setSearchQuery] = useState('')
-    const [page, setPage] = useState(1)
+    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -33,11 +33,6 @@ export default function UsersListRoute() {
 
     const users = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleSearchChange = useCallback((value: string) => {
-        setSearchQuery(value)
-        setPage(1)
-    }, [])
 
     const columns = useMemo(() => [
         {
@@ -100,7 +95,7 @@ export default function UsersListRoute() {
                 emptyMessage="No employees found."
                 searchPlaceholder="Search users by name, email, or mobile..."
                 searchValue={searchQuery}
-                onSearchChange={handleSearchChange}
+                onSearchChange={setSearchQuery}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? users.length}

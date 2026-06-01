@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
 
@@ -6,11 +6,11 @@ import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
 import { useVehicles, type VehiclesListParams, type VehicleItem } from '~/queries/vehicles'
+import { useListingState } from '~/hooks'
 
 export default function VehiclesListRoute() {
     const navigate = useNavigate()
-    const [searchQuery, setSearchQuery] = useState('')
-    const [page, setPage] = useState(1)
+    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -31,11 +31,6 @@ export default function VehiclesListRoute() {
 
     const vehicles = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleSearchChange = useCallback((value: string) => {
-        setSearchQuery(value)
-        setPage(1)
-    }, [])
 
     const columns = useMemo(() => [
         { header: 'Reg Number', accessor: 'vehicleNumber' as const },
@@ -88,7 +83,7 @@ export default function VehiclesListRoute() {
                 emptyMessage="No vehicles found."
                 searchPlaceholder="Search vehicles by registration number..."
                 searchValue={searchQuery}
-                onSearchChange={handleSearchChange}
+                onSearchChange={setSearchQuery}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? vehicles.length}

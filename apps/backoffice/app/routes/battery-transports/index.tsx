@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 
 import { PageHeader } from '~/components/ui/page-header'
@@ -6,6 +6,7 @@ import { ResourceTable, type ResourceTableColumn } from '~/components/ui/resourc
 import { StatusBadge } from '~/components/ui/status-badge'
 import { formatDate } from '~/lib/formatter'
 import { useBatteryTransports, type BatteryTransportItem } from '~/queries/battery-transports'
+import { useListingState } from '~/hooks'
 
 const TRANSPORT_STATUS_OPTIONS = [
     { label: 'In Transit', value: 'in_transit' },
@@ -14,8 +15,8 @@ const TRANSPORT_STATUS_OPTIONS = [
 
 export default function BatteryTransportsRoute() {
     const navigate = useNavigate()
-    const [page, setPage] = useState(1)
-    const [statusFilter, setStatusFilter] = useState('all')
+    const { page, setPage, filters, setFilters } = useListingState({ initialFilters: { status: 'all' } })
+    const statusFilter = filters.status || 'all'
 
     const queryParams = useMemo(() => {
         const params: Parameters<typeof useBatteryTransports>[0] = {
@@ -32,11 +33,6 @@ export default function BatteryTransportsRoute() {
     const { data } = useBatteryTransports(queryParams)
     const records = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleFilterChange = useCallback((filters: Record<string, string>) => {
-        setStatusFilter(filters.status ?? 'all')
-        setPage(1)
-    }, [])
 
     const columns = useMemo<ResourceTableColumn<BatteryTransportItem>[]>(() => [
         {
@@ -106,7 +102,7 @@ export default function BatteryTransportsRoute() {
                 emptyMessage='No transport records found.'
                 onRowClick={(item) => navigate(`/battery-transports/${item.id}`)}
                 filterValues={{ status: statusFilter }}
-                onFilterChange={handleFilterChange}
+                onFilterChange={setFilters}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? records.length}

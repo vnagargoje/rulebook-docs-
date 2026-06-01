@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconBolt, IconEye, IconReceiptRupee, IconUser } from '@tabler/icons-react'
 
@@ -8,6 +8,7 @@ import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useTransactions, type TransactionItem, type TransactionsListParams, type PlanSnapshot, type TopUpSnapshot } from '~/queries/transactions'
 import { formatCurrency, formatDate } from '~/lib/formatter'
+import { useListingState } from '~/hooks'
 
 const PAYMENT_STATUS_OPTIONS = [
     { label: 'Awaiting', value: 'awaiting' },
@@ -18,8 +19,8 @@ const PAYMENT_STATUS_OPTIONS = [
 
 export default function TransactionsListRoute() {
     const navigate = useNavigate()
-    const [page, setPage] = useState(1)
-    const [statusFilter, setStatusFilter] = useState('all')
+    const { page, setPage, filters, setFilters } = useListingState({ initialFilters: { status: 'all' } })
+    const statusFilter = filters.status || 'all'
 
     const queryParams = useMemo<TransactionsListParams>(() => {
         const params: TransactionsListParams = {
@@ -36,11 +37,6 @@ export default function TransactionsListRoute() {
     const { data } = useTransactions(queryParams)
     const transactions = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleFilterChange = useCallback((filters: Record<string, string>) => {
-        setStatusFilter(filters.status ?? 'all')
-        setPage(1)
-    }, [])
 
     const columns = useMemo<ResourceTableColumn<TransactionItem>[]>(() => [
         {
@@ -140,7 +136,7 @@ export default function TransactionsListRoute() {
                 columns={columns}
                 emptyMessage='No transactions found.'
                 filterValues={{ status: statusFilter }}
-                onFilterChange={handleFilterChange}
+                onFilterChange={setFilters}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? transactions.length}

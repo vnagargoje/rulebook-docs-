@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconPlus, IconEdit } from '@tabler/icons-react'
 
@@ -8,11 +8,11 @@ import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { usePlans } from '~/queries/plans'
 import { formatCurrency } from '~/lib/formatter'
+import { useListingState } from '~/hooks'
 
 export default function PlansListRoute() {
     const navigate = useNavigate()
-    const [searchQuery, setSearchQuery] = useState('')
-    const [page, setPage] = useState(1)
+    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -31,11 +31,6 @@ export default function PlansListRoute() {
 
     const plans = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleSearchChange = useCallback((value: string) => {
-        setSearchQuery(value)
-        setPage(1)
-    }, [])
 
     const columns = useMemo(() => [
         { header: 'Plan Name', accessor: 'name' as const },
@@ -78,7 +73,7 @@ export default function PlansListRoute() {
                 emptyMessage="No plans found."
                 searchPlaceholder="Search plans by name or description..."
                 searchValue={searchQuery}
-                onSearchChange={handleSearchChange}
+                onSearchChange={setSearchQuery}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? plans.length}

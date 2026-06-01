@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconEye } from '@tabler/icons-react'
 
@@ -6,11 +6,11 @@ import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
 import { useUsers, type UserItem } from '~/queries/users'
+import { useListingState } from '~/hooks'
 
 export default function UsersCustomerListRoute() {
     const navigate = useNavigate()
-    const [searchQuery, setSearchQuery] = useState('')
-    const [page, setPage] = useState(1)
+    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -32,11 +32,6 @@ export default function UsersCustomerListRoute() {
 
     const users = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleSearchChange = useCallback((value: string) => {
-        setSearchQuery(value)
-        setPage(1)
-    }, [])
 
     const formatMobile = (mobile?: string) => {
         if (!mobile) {
@@ -67,7 +62,7 @@ export default function UsersCustomerListRoute() {
                     <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/${user.id}`)}>
                         <IconEye className="h-4 w-4" />
                     </Button>
-                    {/* <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/edit/${user.id}`)}>
+                    {/* <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
                         <IconEdit className="h-4 w-4" />
                     </Button> */}
                 </div>
@@ -97,7 +92,7 @@ export default function UsersCustomerListRoute() {
                 emptyMessage='No customers found.'
                 searchPlaceholder='Search customers by name, email, or mobile...'
                 searchValue={searchQuery}
-                onSearchChange={handleSearchChange}
+                onSearchChange={setSearchQuery}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? users.length}

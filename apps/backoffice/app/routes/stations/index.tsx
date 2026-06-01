@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconEdit, IconEye, IconPlus } from '@tabler/icons-react'
 
@@ -9,11 +9,11 @@ import { Button } from '~/components/ui/button'
 import { formatLabel } from '~/lib/formatter'
 import { useStations, type StationItem, type StationsListParams } from '~/queries/stations'
 import { getStationCreatePath, getStationEditPath, getStationViewPath } from '~/constants'
+import { useListingState } from '~/hooks'
 
 export default function SwapStationsListRoute() {
     const navigate = useNavigate()
-    const [searchQuery, setSearchQuery] = useState('')
-    const [page, setPage] = useState(1)
+    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -34,11 +34,6 @@ export default function SwapStationsListRoute() {
     const { data, isLoading } = useStations(queryParams)
     const stations = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleSearchChange = useCallback((value: string) => {
-        setSearchQuery(value)
-        setPage(1)
-    }, [])
 
     const columns = useMemo(() => [
         { header: 'Name', accessor: 'name' as const },
@@ -85,7 +80,7 @@ export default function SwapStationsListRoute() {
                 emptyMessage="No swap stations found."
                 searchPlaceholder="Search swap stations by name..."
                 searchValue={searchQuery}
-                onSearchChange={handleSearchChange}
+                onSearchChange={setSearchQuery}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? stations.length}

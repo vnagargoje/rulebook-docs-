@@ -11,7 +11,7 @@ import { SectionLabel } from '~/components/ui/section-label'
 import { StatTile } from '~/components/ui/stat-tile'
 import { useGetStationById, type StationDetail } from '~/queries/stations'
 import { formatLabel } from '~/lib/formatter'
-import { getStationEditPath, stationListPathByType } from '~/constants'
+import { getStationEditPath } from '~/constants'
 
 function formatStationAddress(station: StationDetail) {
     const address = station.address
@@ -56,7 +56,7 @@ export default function HubStationsViewRoute() {
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate(stationListPathByType[station.type])} className="shrink-0">
+                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader title={station.name} description="Full details for this station." />

@@ -19,11 +19,11 @@ import {
 } from '~/types/admin'
 import { toast } from 'sonner'
 import { formatDate } from '~/lib/formatter'
+import { useListingState } from '~/hooks'
 
 export default function AssignmentsListRoute() {
     const navigate = useNavigate()
-    const [stationAssignmentsSearchQuery, setStationAssignmentsSearchQuery] = useState('')
-    const [stationAssignmentsPage, setStationAssignmentsPage] = useState(1)
+    const { page: stationAssignmentsPage, setPage: setStationAssignmentsPage, searchQuery: stationAssignmentsSearchQuery, setSearchQuery: setStationAssignmentsSearchQuery } = useListingState()
     const [customerAssignments, setCustomerAssignments] = useState<CustomerVehicleAssignment[]>([])
     const [customerRequests, setCustomerRequests] = useState<CustomerVehicleRequest[]>([])
     const [vehicles, setVehicles] = useState<Vehicle[]>([])
@@ -76,8 +76,7 @@ export default function AssignmentsListRoute() {
 
     const handleStationAssignmentsSearchChange = useCallback((value: string) => {
         setStationAssignmentsSearchQuery(value)
-        setStationAssignmentsPage(1)
-    }, [])
+    }, [setStationAssignmentsSearchQuery])
 
     const getVehicleName = (id: string) => vehicles.find((v) => v.id === id)?.registrationNumber || id
     const getStationName = (id: string) => stations.find((s) => s.id === id)?.name || id

@@ -10,7 +10,7 @@ import {
 } from '@yugo/nestjs-database/entities'
 import { BatteryStatus, BookingStatus, UserPlanStatus, VehicleStatus } from '@yugo/shared'
 import { SurrenderVehicleCommand } from 'src/commands/impl/surrenders'
-import { DataSource } from 'typeorm'
+import { DataSource, In } from 'typeorm'
 
 @CommandHandler(SurrenderVehicleCommand)
 export class SurrenderVehicleHandler implements ICommandHandler<SurrenderVehicleCommand> {
@@ -59,9 +59,16 @@ export class SurrenderVehicleHandler implements ICommandHandler<SurrenderVehicle
             await tx.update(BookingEntity, booking.id, {
                 status: BookingStatus.COMPLETED,
             })
-            await tx.update(UserPlanEntity, booking.userPlanId, {
-                status: UserPlanStatus.EXPIRED,
-            })
+            await tx.update(
+                UserPlanEntity,
+                {
+                    userId: booking.userPlan.userId,
+                    status: In([UserPlanStatus.ACTIVE, UserPlanStatus.PURCHASED]),
+                },
+                {
+                    status: UserPlanStatus.EXPIRED,
+                },
+            )
             await tx.update(BatteryEntity, { id: booking.batteryId }, { status: BatteryStatus.AVAILABLE })
             await tx.update(VehicleEntity, { id: vehicle.id }, { status: VehicleStatus.AVAILABLE })
             return {

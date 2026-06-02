@@ -37,7 +37,7 @@ SplashScreen.setOptions({
 export default function RootLayout() {
     return (
         <Providers>
-            <Stack>
+            <Stack screenOptions={{ animation: 'slide_from_right' }}>
                 <Stack.Screen
                     name='index'
                     options={{ headerShown: false }}

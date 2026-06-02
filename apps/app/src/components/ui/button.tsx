@@ -5,6 +5,10 @@ import * as React from 'react'
 import { ActivityIndicator, Pressable, Text } from 'react-native'
 import { tv } from 'tailwind-variants'
 
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+
 const button = tv({
     slots: {
         container: 'my-2 flex flex-row items-center justify-center rounded-md px-4',
@@ -108,12 +112,33 @@ export function Button({
 }: Props & { ref?: React.RefObject<View | null> }) {
     const styles = React.useMemo(() => button({ variant, disabled, size }), [variant, disabled, size])
 
+    const scale = useSharedValue(1)
+    
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ scale: scale.value }],
+        }
+    })
+
+    const handlePressIn = React.useCallback((e: any) => {
+        scale.value = withTiming(0.97, { duration: 100 })
+        if (props.onPressIn) props.onPressIn(e)
+    }, [scale, props.onPressIn])
+
+    const handlePressOut = React.useCallback((e: any) => {
+        scale.value = withTiming(1, { duration: 100 })
+        if (props.onPressOut) props.onPressOut(e)
+    }, [scale, props.onPressOut])
+
     return (
-        <Pressable
+        <AnimatedPressable
             disabled={disabled || loading}
             className={styles.container({ className })}
+            style={[animatedStyle, props.style as any]}
             {...props}
-            ref={ref}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            ref={ref as any}
             testID={testID}>
             {props.children ? (
                 props.children
@@ -134,6 +159,6 @@ export function Button({
                     )}
                 </>
             )}
-        </Pressable>
+        </AnimatedPressable>
     )
 }

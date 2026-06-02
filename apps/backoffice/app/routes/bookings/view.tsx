@@ -57,7 +57,7 @@ export default function BookingViewRoute() {
             'filter.status': ['$eq:purchased'],
         } as any) : undefined
     )
-    const futurePlan = userPlansData?.pages[0]?.data?.[0]
+    const futurePlan = userPlansData?.pages[0]?.data?.find((plan: any) => plan.id !== booking?.userPlan?.id)
     const assignVehicle = useAssignVehicle()
 
     const form = useForm<AssignVehicleValues>({

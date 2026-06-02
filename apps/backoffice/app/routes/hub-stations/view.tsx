@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router'
-import { IconArrowLeft, IconEdit, IconMapPin, IconUser, IconUsers } from '@tabler/icons-react'
+import { IconArrowLeft, IconEdit, IconMapPin, IconUser, IconUsers, IconTrash } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { StatusBadge } from '~/components/ui/status-badge'
@@ -12,6 +13,8 @@ import { StatTile } from '~/components/ui/stat-tile'
 import { useGetStationById, type StationDetail } from '~/queries/stations'
 import { formatLabel } from '~/lib/formatter'
 import { getStationEditPath } from '~/constants'
+import { useRemoveStationManager } from '~/hooks/use-remove-station-manager'
+import { ConfirmDialog } from '~/components/ui/confirm-dialog'
 
 function formatStationAddress(station: StationDetail) {
     const address = station.address
@@ -33,6 +36,7 @@ export default function HubStationsViewRoute() {
     const { id } = useParams()
     const navigate = useNavigate()
     const { data: station, isLoading } = useGetStationById(id)
+    const { promptRemove, cancelRemove, confirmRemove, removingManagerId, isRemoving } = useRemoveStationManager(id!)
 
     if (isLoading) {
         return (
@@ -120,14 +124,24 @@ export default function HubStationsViewRoute() {
                                     const managerMeta = manager.email || manager.mobilenumber || manager.id
 
                                     return (
-                                        <div key={manager.id} className="flex items-start gap-3 rounded-2xl border border-border/50 bg-muted/20 p-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                        <div key={manager.id} className="flex items-center gap-3 rounded-2xl border border-border/50 bg-muted/20 p-4">
+                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                                 <IconUser size={18} />
                                             </div>
-                                            <div className="min-w-0">
+                                            <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-semibold text-foreground">{managerName}</p>
                                                 <p className="text-sm text-muted-foreground break-all">{managerMeta}</p>
                                             </div>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="shrink-0 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
+                                                onClick={() => promptRemove(manager.id)}
+                                                disabled={removingManagerId === manager.id}
+                                            >
+                                                <IconTrash size={16} className="mr-2" />
+                                                Remove
+                                            </Button>
                                         </div>
                                     )
                                 })}
@@ -138,6 +152,17 @@ export default function HubStationsViewRoute() {
                     </CardContent>
                 </Card>
             </div>
+            <ConfirmDialog 
+                isOpen={!!removingManagerId}
+                isLoading={isRemoving}
+                title="Remove Manager"
+                description="Are you sure you want to remove this manager from the station?"
+                confirmText="Yes, Remove"
+                loadingText="Removing..."
+                variant="destructive"
+                onClose={cancelRemove}
+                onConfirm={confirmRemove}
+            />
         </div>
     )
 }

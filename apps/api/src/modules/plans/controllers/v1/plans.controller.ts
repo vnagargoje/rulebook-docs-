@@ -54,6 +54,14 @@ export class V1PlansController {
             PlanEntity,
             'plan',
         );
+
+        if (query.filter?.active) {
+            const val = Array.isArray(query.filter.active) ? query.filter.active[0] : query.filter.active;
+            const isActive = val === '$eq:true' || val === 'true';
+            qb.andWhere('plan.active = :isActive', { isActive });
+            delete query.filter.active;
+        }
+
         const paginated = await paginate(query, qb, PAGINATE_CONFIG);
 
         paginated.data = await this.queryBus.execute(

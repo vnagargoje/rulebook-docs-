@@ -1,4 +1,4 @@
-import { type BatteryProperties } from '@yugo/shared'
+import { type BatteryProperties, type BatteryStatus } from '@yugo/shared'
 
 export interface CreateBatteryPayload {
     batteryQrId: string
@@ -6,6 +6,7 @@ export interface CreateBatteryPayload {
     properties?: BatteryProperties
     stationId?: string
     range?: number
+    status?: BatteryStatus
 }
 
 export class CreateBatteryCommand {

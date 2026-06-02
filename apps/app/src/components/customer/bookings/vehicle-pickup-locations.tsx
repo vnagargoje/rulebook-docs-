@@ -9,7 +9,7 @@ type Props = {
     variant?: 'light' | 'dark' | 'inline'
 }
 
-function buildAddress(station: Station): string {
+export function buildAddress(station: Station): string {
     const parts: string[] = []
     if (station.address?.lineOne) parts.push(station.address.lineOne)
     if (station.address?.lineTwo) parts.push(station.address.lineTwo)
@@ -19,7 +19,7 @@ function buildAddress(station: Station): string {
     return parts.join(', ')
 }
 
-function StationRow({ station, isDark }: { station: Station; isDark: boolean }) {
+export function StationRow({ station, isDark }: { station: Station; isDark: boolean }) {
     const address = buildAddress(station)
     const hasCoords = station.latitude != null && station.longitude != null
 

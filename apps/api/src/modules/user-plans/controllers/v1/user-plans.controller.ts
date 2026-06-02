@@ -117,7 +117,7 @@ export class V1UserPlansController {
         @AuthenticatedUser() user: ContextUserType,
     ) {
         return this.commandBus.execute(
-            new PurchasePlanCommand(user.id, body.planId),
+            new PurchasePlanCommand(user.id, body.planId, body.stationId),
         );
     }
 

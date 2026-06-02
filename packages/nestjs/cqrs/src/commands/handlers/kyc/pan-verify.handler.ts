@@ -130,6 +130,7 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
         return {
             success: isSuccess,
             message: response.data.message || (isSuccess ? 'PAN verification successful' : 'PAN verification failed'),
+            data: response.data,
         }
     }
 }

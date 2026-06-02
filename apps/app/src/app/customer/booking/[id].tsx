@@ -26,7 +26,7 @@ export default function BookingDetailScreen() {
     const { data: futurePlansData } = useMyPlans({
         variables: { status: 'purchased' }
     })
-    const futurePlan = futurePlansData?.data?.[0]
+    const futurePlan = futurePlansData?.data?.find(plan => plan.id !== booking?.userPlan?.id)
 
     const meta = booking ? getBookingStatusMeta(booking.status) : null
 

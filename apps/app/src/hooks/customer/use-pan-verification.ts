@@ -30,20 +30,23 @@ export function usePanVerification() {
 
             const result = await panVerify.mutateAsync({ pan: values.pan })
 
-            if (result.success) {
+            const deepvueStatus = result.data?.data?.status
+            const deepvueCode = result.data?.code
+
+            if (result.success && deepvueCode === 200 && deepvueStatus === 'VALID') {
                 await navigateToNext('/customer/kyc/license')
             } else {
                 const navigated = await refreshAndNavigate(CURRENT_ROUTE)
                 if (!navigated) {
-                    showErrorMessage(
-                        result.message || 'PAN verification failed. Please check the number and try again.',
-                    )
+                    const errorMsg = result.data?.message || result.message || 'PAN verification failed. Please check the number and try again.'
+                    showErrorMessage(errorMsg)
                 }
             }
-        } catch {
+        } catch (error: any) {
             const navigated = await refreshAndNavigate(CURRENT_ROUTE)
             if (!navigated) {
-                showErrorMessage('PAN verification failed. Please try again.')
+                const errorMessage = error?.response?.data?.message || 'PAN verification failed. Please try again.'
+                showErrorMessage(typeof errorMessage === 'string' ? errorMessage : 'PAN verification failed. Please try again.')
             }
         } finally {
             isSubmittingRef.current = false

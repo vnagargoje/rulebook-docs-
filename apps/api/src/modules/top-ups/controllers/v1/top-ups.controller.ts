@@ -47,6 +47,14 @@ export class V1TopUpsController {
             TopUpEntity,
             'topUp',
         );
+
+        if (query.filter?.active) {
+            const val = Array.isArray(query.filter.active) ? query.filter.active[0] : query.filter.active;
+            const isActive = val === '$eq:true' || val === 'true';
+            qb.andWhere('topUp.active = :isActive', { isActive });
+            delete query.filter.active;
+        }
+
         return paginate(query, qb, PAGINATE_CONFIG);
     }
 

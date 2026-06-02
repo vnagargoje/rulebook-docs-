@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { IconUser } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
@@ -6,9 +6,10 @@ import { ResourceTable, type ResourceTableColumn } from '~/components/ui/resourc
 import { StatusBadge } from '~/components/ui/status-badge'
 import { formatDate } from '~/lib/formatter'
 import { useSwapHistory, type SwapHistoryItem } from '~/queries/swap-history'
+import { useListingState } from '~/hooks'
 
 export default function BatterySwapHistoryRoute() {
-    const [page, setPage] = useState(1)
+    const { page, setPage } = useListingState()
 
     const queryParams = useMemo(() => ({ page, limit: 20, sortBy: ['createdAt:DESC' as const] }), [page])
 

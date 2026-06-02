@@ -187,7 +187,7 @@ export default function SwapStationsEditRoute() {
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate(stationListPathByType[station.type])} className="shrink-0">
+                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader title="Edit Station Config" description="Update station operational data" />

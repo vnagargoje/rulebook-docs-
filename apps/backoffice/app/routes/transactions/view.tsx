@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from 'react-router'
 import {
     IconArrowLeft,
-    IconCalendarEvent,
     IconCash,
     IconCreditCard,
     IconBolt,
@@ -55,7 +54,7 @@ export default function TransactionViewRoute() {
     return (
         <div className='mx-auto max-w-5xl space-y-6 pb-12'>
             <div className='flex items-center gap-4'>
-                <Button variant='ghost' size='icon' onClick={() => navigate('/transactions')}>
+                <Button variant='ghost' size='icon' onClick={() => navigate(-1)}>
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader title='Transaction Details' description={`ID: ${transaction.id}`} />
@@ -90,14 +89,14 @@ export default function TransactionViewRoute() {
                     {isTopUp ? (
                         <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
                             <StatTile label='KM Added' value={topUpSnap?.kmLimit ? formatKm(topUpSnap.kmLimit) : '—'} icon={IconBolt} />
-                            <StatTile label='Validity Extension' value={topUpSnap?.validityDays ? `+${topUpSnap.validityDays} days` : '—'} icon={IconCalendarEvent} />
+                            {/* <StatTile label='Validity Extension' value={topUpSnap?.validityDays ? `+${topUpSnap.validityDays} days` : '—'} icon={IconCalendarEvent} /> */}
                             <StatTile label='Applied At' value={transaction.userTopUp?.appliedAt ? formatDate(transaction.userTopUp.appliedAt) : 'Pending'} icon={IconShieldCheck} />
                             <StatTile label='Order ID' value={<span className='text-xs font-mono'>{transaction.razorpayOrderId.slice(-8)}</span>} icon={IconReceiptRupee} />
                         </div>
                     ) : (
                         <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
                             <StatTile label='KM Limit' value={formatKm(planSnap?.kmLimit ?? 0)} icon={IconBolt} />
-                            <StatTile label='Validity' value={`${planSnap?.validityDays ?? 0} days`} icon={IconCalendarEvent} />
+                            {/* <StatTile label='Validity' value={`${planSnap?.validityDays ?? 0} days`} icon={IconCalendarEvent} /> */}
                             <StatTile label='Remaining KM' value={formatKm(transaction.userPlan?.remainingKm ?? 0)} icon={IconShieldCheck} />
                             <StatTile label='Order ID' value={<span className='text-xs font-mono'>{transaction.razorpayOrderId.slice(-8)}</span>} icon={IconReceiptRupee} />
                         </div>
@@ -115,10 +114,10 @@ export default function TransactionViewRoute() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                {isTopUp ? (
-                    <>
-                        <DetailRow label='Base Price' value={formatCurrency(topUpSnap?.price ?? 0)} />
-                        <DetailRow label='GST' value={`${topUpSnap?.gstPercentage ?? 0}%`} />
+                        {isTopUp ? (
+                            <>
+                                <DetailRow label='Base Price' value={formatCurrency(topUpSnap?.price ?? 0)} />
+                                <DetailRow label='GST' value={`${topUpSnap?.gstPercentage ?? 0}%`} />
                                 <div className='mt-2 flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3'>
                                     <span className='text-sm font-bold text-foreground'>Total</span>
                                     <span className='text-base font-bold text-foreground'>{formatCurrency(totalAmount)}</span>

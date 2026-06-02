@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconPlus, IconEdit } from '@tabler/icons-react'
 
@@ -8,11 +8,11 @@ import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useTopUps } from '~/queries/top-ups'
 import { formatCurrency } from '~/lib/formatter'
+import { useListingState } from '~/hooks'
 
 export default function TopUpPlansListRoute() {
     const navigate = useNavigate()
-    const [searchQuery, setSearchQuery] = useState('')
-    const [page, setPage] = useState(1)
+    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -31,11 +31,6 @@ export default function TopUpPlansListRoute() {
 
     const topUps = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleSearchChange = useCallback((value: string) => {
-        setSearchQuery(value)
-        setPage(1)
-    }, [])
 
     const columns = useMemo(() => [
         { header: 'Plan Name', accessor: 'name' as const },
@@ -76,7 +71,7 @@ export default function TopUpPlansListRoute() {
                 emptyMessage="No top-up plans found."
                 searchPlaceholder="Search top-ups by name or description..."
                 searchValue={searchQuery}
-                onSearchChange={handleSearchChange}
+                onSearchChange={setSearchQuery}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? topUps.length}

@@ -121,7 +121,7 @@ export default function EditBatteryRoute() {
                 <Button
                     variant='ghost'
                     size='icon'
-                    onClick={() => navigate('/batteries')}
+                    onClick={() => navigate(-1)}
                     className='shrink-0'>
                     <IconArrowLeft size={20} />
                 </Button>

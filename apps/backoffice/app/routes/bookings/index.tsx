@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconEye, IconUser } from '@tabler/icons-react'
 
@@ -7,12 +7,13 @@ import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useBookings, type BookingItem, type BookingsListParams } from '~/queries/bookings'
+import { useListingState } from '~/hooks'
 import { formatDate, formatCurrency } from '~/lib/formatter'
 
 export default function BookingsListRoute() {
     const navigate = useNavigate()
-    const [page, setPage] = useState(1)
-    const [statusFilter, setStatusFilter] = useState('all')
+    const { page, setPage, filters, setFilters } = useListingState({ initialFilters: { status: 'all' } })
+    const statusFilter = filters.status || 'all'
 
     const queryParams = useMemo(() => {
         const params: BookingsListParams = {
@@ -33,11 +34,6 @@ export default function BookingsListRoute() {
 
     const bookings = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleFilterChange = useCallback((filters: Record<string, string>) => {
-        setStatusFilter(filters.status || 'all')
-        setPage(1)
-    }, [])
 
     const columns = useMemo(() => [
         {
@@ -123,7 +119,7 @@ export default function BookingsListRoute() {
                 data={bookings}
                 emptyMessage="No bookings found."
                 filterValues={{ status: statusFilter }}
-                onFilterChange={handleFilterChange}
+                onFilterChange={setFilters}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? bookings.length}

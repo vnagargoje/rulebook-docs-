@@ -63,6 +63,7 @@ export default function CreateBatteryRoute() {
                         warranty: values.warranty || undefined,
                         removableOption: values.removable,
                     },
+                    range: Number(values.range) || 0,
                 },
                 {
                     onSuccess: () => {
@@ -84,7 +85,7 @@ export default function CreateBatteryRoute() {
                 <Button
                     variant='ghost'
                     size='icon'
-                    onClick={() => navigate('/batteries')}
+                    onClick={() => navigate(-1)}
                     className='shrink-0'>
                     <IconArrowLeft size={20} />
                 </Button>

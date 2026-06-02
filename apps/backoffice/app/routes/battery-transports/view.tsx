@@ -50,7 +50,7 @@ export default function BatteryTransportViewRoute() {
     return (
         <div className='mx-auto max-w-4xl space-y-6 pb-12'>
             <div className='flex items-center gap-4'>
-                <Button variant='ghost' size='icon' onClick={() => navigate('/battery-transports')}>
+                <Button variant='ghost' size='icon' onClick={() => navigate(-1)}>
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader

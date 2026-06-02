@@ -89,7 +89,7 @@ export class VerifyPaymentHandler implements ICommandHandler<VerifyPaymentComman
                 const pickupOtp = String(randomInt(1000, 10000))
                 const booking = manager.create(BookingEntity, {
                     userPlanId: transaction.userPlan.id,
-                    stationId: null,
+                    stationId: transaction.userPlan.planSnapshot?.stationId,
                     vehicleId: null,
                     batteryId: null,
                     status: BookingStatus.CREATED,

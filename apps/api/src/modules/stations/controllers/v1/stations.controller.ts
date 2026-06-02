@@ -42,6 +42,7 @@ const PAGINATE_CONFIG: PaginateConfig<StationEntity> = {
         'managers.firstName': [FilterOperator.ILIKE],
         'managers.lastName': [FilterOperator.ILIKE],
         'managers.id': [FilterOperator.EQ],
+        active: [FilterOperator.EQ],
     },
     defaultSortBy: [['createdAt', 'DESC']],
 };
@@ -56,7 +57,7 @@ export class V1StationsController {
         @Inject(AccessService) private readonly accessService: AccessService,
         private readonly commandBus: CommandBus,
         private readonly queryBus: QueryBus,
-    ) {}
+    ) { }
 
     @Get()
     @ApiResource(StationResponse, PAGINATE_CONFIG)

@@ -18,7 +18,7 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
     ) {}
 
     async execute(command: PurchasePlanCommand) {
-        const { userId, planId } = command
+        const { userId, planId, stationId } = command
         const manager = this.datasource.manager
         const config = this.configService.getOrThrow<RazorpayConfig>('razorpay.config')
 
@@ -64,6 +64,7 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
                 plan,
                 userId,
                 await this.isFirstTimePurchase(manager, userId),
+                stationId,
             )
 
             const userPlan = manager.create(UserPlanEntity, {
@@ -113,7 +114,7 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
         return count === 0
     }
 
-    private buildPlanSnapshot(plan: PlanEntity, userId: string, isFirstTime: boolean) {
+    private buildPlanSnapshot(plan: PlanEntity, userId: string, isFirstTime: boolean, stationId?: string) {
         const basePrice = Number(plan.price)
         const deposit = Number(plan.deposit || 0)
         const registrationFee = isFirstTime ? REGITRATION_FEE : 0
@@ -135,6 +136,7 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
             gstAmount,
             registrationFee,
             totalAmount,
+            stationId,
         }
 
         return { totalAmount, planSnapshot }

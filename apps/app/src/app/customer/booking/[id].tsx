@@ -3,15 +3,16 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 import { getBookingStatusMeta } from '@/data/customer/booking-status.data'
 import { InfoRow } from '@/components/customer/booking-detail'
-import { Image, ScreenLoader, ScrollView, Text, View } from '@/components/ui'
+import { Image, ScreenLoader, ScrollView, Text, View, Pressable } from '@/components/ui'
 import { formatCurrencyIN, formatDateIN, formatNumberIN, formatTimeIN } from '@/lib/formatters/customer'
+import { openLinkInBrowser } from '@/lib/utils'
 import { useBookingById, useMyPlans } from '@/queries/customer'
 import { useGetBatteryById } from '@/queries/hub-manager'
 import { CircularSoc } from '@/components/customer/home'
 import { STATUS_CONFIG } from '@/data/swap-manager/battery-status-config.data'
 import { BatteryPropertyRow } from '@/components/swap-manager/batteries/property-row'
 import type { V1BatteriesGetOneBatteryResponse } from '@/services/api/codegen/Api'
-import { VehiclePickupLocations } from '@/components/customer/bookings/vehicle-pickup-locations'
+import { StationRow } from '@/components/customer/bookings/vehicle-pickup-locations'
 
 type BatteryProperties = NonNullable<V1BatteriesGetOneBatteryResponse['properties']>
 
@@ -223,26 +224,7 @@ export default function BookingDetailScreen() {
                         </View>
                     )}
 
-                    {(!booking.vehicleId || !booking.batteryId) && (
-                        <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
-                            <View className='flex-row items-center gap-3 border-b border-neutral-100 px-5 py-4'>
-                                <View className='h-10 w-10 items-center justify-center rounded-xl bg-primary-50'>
-                                    <MaterialCommunityIcons
-                                        name='map-marker-multiple-outline'
-                                        size={20}
-                                        color='#2563EB'
-                                    />
-                                </View>
-                                <View className='flex-1'>
-                                    <Text className='text-sm font-bold text-neutral-900'>Vehicle Pickup Location(s)</Text>
-                                    <Text className='text-xs text-neutral-500'>Visit any of these stations</Text>
-                                </View>
-                            </View>
-                            <View className='px-5 py-4'>
-                                <VehiclePickupLocations variant='inline' />
-                            </View>
-                        </View>
-                    )}
+
 
                     {booking.station && (
                         <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
@@ -260,23 +242,18 @@ export default function BookingDetailScreen() {
                                 </View>
                                 {booking.station.active !== undefined && (
                                     <View
-                                        className={`rounded-full px-3 py-1 ${
-                                            booking.station.active ? 'bg-success-100' : 'bg-red-100'
-                                        }`}>
-                                        <Text
-                                            className={`text-xs font-bold ${
-                                                booking.station.active ? 'text-success-700' : 'text-red-700'
+                                        className={`rounded-full px-3 py-1 ${booking.station.active ? 'bg-success-100' : 'bg-red-100'
                                             }`}>
+                                        <Text
+                                            className={`text-xs font-bold ${booking.station.active ? 'text-success-700' : 'text-red-700'
+                                                }`}>
                                             {booking.station.active ? 'Open' : 'Closed'}
                                         </Text>
                                     </View>
                                 )}
                             </View>
                             <View className='px-5 py-4'>
-                                <Text className='text-lg font-bold text-neutral-900'>{booking.station.name}</Text>
-                                <Text className='mt-1 text-xs capitalize text-neutral-500'>
-                                    {booking.station.type} station
-                                </Text>
+                                <StationRow station={booking.station as any} isDark={false} />
                             </View>
                         </View>
                     )}
@@ -531,13 +508,12 @@ export default function BookingDetailScreen() {
                                     return (
                                         <View
                                             key={topUp.id}
-                                            className={`rounded-2xl border px-4 py-4 ${
-                                                isApplied
+                                            className={`rounded-2xl border px-4 py-4 ${isApplied
                                                     ? 'border-success-100 bg-success-50'
                                                     : topUp.status === 'awaiting'
-                                                    ? 'border-warning-100 bg-warning-50'
-                                                    : 'border-red-100 bg-red-50'
-                                            }`}>
+                                                        ? 'border-warning-100 bg-warning-50'
+                                                        : 'border-red-100 bg-red-50'
+                                                }`}>
                                             <View className='flex-row items-start justify-between gap-3'>
                                                 <View className='flex-1'>
                                                     <Text className='text-sm font-bold text-neutral-900'>

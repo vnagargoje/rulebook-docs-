@@ -36,6 +36,7 @@ export const useTopUps = createQuery<TopUpsResponse>({
             page: 1,
             limit: 50,
             sortBy: ['price:ASC'],
+            'filter.active': ['$eq:true'],
         })
         return response.data
     },

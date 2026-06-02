@@ -1,4 +1,5 @@
 import { Type } from '@sinclair/typebox';
+import { BatteryStatus } from '@yugo/shared';
 
 export const BatteryPropertiesPayload = Type.Object({
     mfgDate: Type.Optional(Type.String()),
@@ -17,6 +18,7 @@ export const CreateBatteryPayload = Type.Object({
     properties: Type.Optional(BatteryPropertiesPayload),
     stationId: Type.Optional(Type.String()),
     range: Type.Integer(),
+    status: Type.Optional(Type.Enum(BatteryStatus, { default: BatteryStatus.AVAILABLE })),
 });
 
 export const UpdateBatteryPayload = Type.Partial(CreateBatteryPayload);

@@ -36,12 +36,13 @@ export const useStationById = createQuery<StationDetail, { id: string }>({
 })
 
 export const useVehicleStations = createQuery<StationsResponse>({
-    queryKey: ['vehicle-stations'],
+    queryKey: ['vehicle-stations', 'active-only'],
     fetcher: async () => {
         const response = await client.v1.v1StationsGetManyStations({
             page: 1,
             limit: 50,
             'filter.type': ['$eq:vehicle_station'],
+            'filter.active': '$eq:1' as any,
         })
         return response.data
     },

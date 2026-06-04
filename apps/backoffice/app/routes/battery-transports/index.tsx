@@ -6,6 +6,7 @@ import { ResourceTable, type ResourceTableColumn } from '~/components/ui/resourc
 import { StatusBadge } from '~/components/ui/status-badge'
 import { formatDate } from '~/lib/formatter'
 import { useBatteryTransports, type BatteryTransportItem } from '~/queries/battery-transports'
+import { useStations } from '~/queries/stations'
 import { useListingState } from '~/hooks'
 
 const TRANSPORT_STATUS_OPTIONS = [
@@ -15,8 +16,13 @@ const TRANSPORT_STATUS_OPTIONS = [
 
 export default function BatteryTransportsRoute() {
     const navigate = useNavigate()
-    const { page, setPage, filters, setFilters } = useListingState({ initialFilters: { status: 'all' } })
-    const statusFilter = filters.status || 'all'
+    const { page, setPage, filters, setFilters, resetFilters } = useListingState({ initialFilters: { status: 'all', station: 'all' } })
+
+    const { data: stationsData } = useStations({ limit: 1000 })
+    const stationOptions = useMemo(() => {
+        if (!stationsData?.data) return []
+        return stationsData.data.map(s => ({ label: s.name, value: s.id }))
+    }, [stationsData])
 
     const queryParams = useMemo(() => {
         const params: Parameters<typeof useBatteryTransports>[0] = {
@@ -24,11 +30,16 @@ export default function BatteryTransportsRoute() {
             limit: 20,
             sortBy: ['createdAt:DESC'],
         }
-        if (statusFilter !== 'all') {
-            params['filter.status'] = [`$eq:${statusFilter}`]
+        if (filters.status && filters.status !== 'all') {
+            params['filter.status'] = [`$eq:${filters.status}`]
+        }
+        if (filters.station && filters.station !== 'all') {
+            // Can be either fromStation or toStation, but typically we just map it to one if backend doesn't support OR. 
+            // We'll map to fromStation.id as a reasonable default for "Station" filter in transport
+            params['filter.fromStationId'] = [`$eq:${filters.station}`]
         }
         return params
-    }, [page, statusFilter])
+    }, [page, filters])
 
     const { data } = useBatteryTransports(queryParams)
     const records = data?.data ?? []
@@ -101,8 +112,9 @@ export default function BatteryTransportsRoute() {
                 columns={columns}
                 emptyMessage='No transport records found.'
                 onRowClick={(item) => navigate(`/battery-transports/${item.id}`)}
-                filterValues={{ status: statusFilter }}
+                filterValues={filters}
                 onFilterChange={setFilters}
+                onReset={resetFilters}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? records.length}
@@ -113,7 +125,12 @@ export default function BatteryTransportsRoute() {
                         label: 'Status',
                         options: TRANSPORT_STATUS_OPTIONS,
                     },
-                ]}
+                    {
+                        field: 'station',
+                        label: 'Station',
+                        options: stationOptions
+                    }
+                ] as any}
             />
         </div>
     )

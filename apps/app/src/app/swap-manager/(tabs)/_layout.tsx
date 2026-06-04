@@ -56,7 +56,7 @@ export default function () {
             <Tabs.Screen
                 name='batteries'
                 options={{
-                    title: 'Batteries',
+                    title: 'Battery',
                     tabBarIcon: ({ color }) => (
                         <Entypo
                             name='battery'
@@ -65,20 +65,6 @@ export default function () {
                         />
                     ),
                     tabBarButtonTestID: 'swap-manager-batteries-tab',
-                }}
-            />
-            <Tabs.Screen
-                name='history'
-                options={{
-                    title: 'History',
-                    tabBarIcon: ({ color }) => (
-                        <FontAwesome
-                            name='history'
-                            size={24}
-                            color={color}
-                        />
-                    ),
-                    tabBarButtonTestID: 'swap-manager-history-tab',
                 }}
             />
             <Tabs.Screen
@@ -93,6 +79,20 @@ export default function () {
                         />
                     ),
                     tabBarButtonTestID: 'swap-manager-inventory-tab',
+                }}
+            />
+            <Tabs.Screen
+                name='history'
+                options={{
+                    title: 'History',
+                    tabBarIcon: ({ color }) => (
+                        <FontAwesome
+                            name='history'
+                            size={24}
+                            color={color}
+                        />
+                    ),
+                    tabBarButtonTestID: 'swap-manager-history-tab',
                 }}
             />
             <Tabs.Screen

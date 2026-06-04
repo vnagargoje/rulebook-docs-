@@ -6,7 +6,9 @@ import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
 import { useUsers, type UserItem } from '~/queries/users'
-import { useListingState } from '~/hooks'
+import { useListingState, useCustomerExport } from '~/hooks'
+import { ExportDialog } from '~/components/ui/export-dialog'
+import { useState } from 'react'
 
 export default function UsersCustomerListRoute() {
     const navigate = useNavigate()
@@ -32,6 +34,9 @@ export default function UsersCustomerListRoute() {
 
     const users = data?.data ?? []
     const paginationMeta = data?.meta
+
+    const [exportModalOpen, setExportModalOpen] = useState(false)
+    const { mutate, isPending } = useCustomerExport()
 
     const formatMobile = (mobile?: string) => {
         if (!mobile) {
@@ -80,12 +85,22 @@ export default function UsersCustomerListRoute() {
 
     return (
         <div className='space-y-6'>
-            <div className='flex items-center justify-between'>
-                <PageHeader
-                    title='Customers'
-                    description='Manage customer accounts across the platform.'
-                />
-            </div>
+            <PageHeader
+                title='Customers'
+                description='Manage customer accounts across the platform.'
+                actions={
+                    <ExportDialog 
+                        open={exportModalOpen} 
+                        onOpenChange={setExportModalOpen}
+                        title="Export Customers"
+                        description="Download customer records as an Excel spreadsheet."
+                        showDateFilter={true}
+                        showStatusFilter={false}
+                        isExporting={isPending}
+                        onExport={(filters) => mutate(filters, { onSuccess: () => setExportModalOpen(false) })}
+                    />
+                }
+            />
 
             <ResourceTable
                 data={users}

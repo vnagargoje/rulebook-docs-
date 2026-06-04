@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconBolt, IconEye, IconReceiptRupee, IconUser } from '@tabler/icons-react'
 
@@ -6,16 +6,11 @@ import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable, type ResourceTableColumn } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
+import { ExportDialog } from '~/components/ui/export-dialog'
+import { PAYMENT_STATUS_OPTIONS } from '~/constants'
 import { useTransactions, type TransactionItem, type TransactionsListParams, type PlanSnapshot, type TopUpSnapshot } from '~/queries/transactions'
 import { formatCurrency, formatDate } from '~/lib/formatter'
-import { useListingState } from '~/hooks'
-
-const PAYMENT_STATUS_OPTIONS = [
-    { label: 'Awaiting', value: 'awaiting' },
-    { label: 'Succeeded', value: 'succeeded' },
-    { label: 'Failed', value: 'failed' },
-    { label: 'Cancelled', value: 'cancelled' },
-]
+import { useListingState, useTransactionExport } from '~/hooks'
 
 export default function TransactionsListRoute() {
     const navigate = useNavigate()
@@ -37,6 +32,9 @@ export default function TransactionsListRoute() {
     const { data } = useTransactions(queryParams)
     const transactions = data?.data ?? []
     const paginationMeta = data?.meta
+
+    const [exportModalOpen, setExportModalOpen] = useState(false)
+    const { mutate, isPending } = useTransactionExport()
 
     const columns = useMemo<ResourceTableColumn<TransactionItem>[]>(() => [
         {
@@ -130,6 +128,19 @@ export default function TransactionsListRoute() {
             <PageHeader
                 title='Transactions'
                 description='Plan purchases and payment activity.'
+                actions={
+                    <ExportDialog 
+                        open={exportModalOpen} 
+                        onOpenChange={setExportModalOpen}
+                        title="Export Transactions"
+                        description="Download transaction data as an Excel spreadsheet. Select the time period and status to filter records."
+                        showDateFilter={true}
+                        showStatusFilter={true}
+                        statusOptions={PAYMENT_STATUS_OPTIONS}
+                        isExporting={isPending}
+                        onExport={(filters) => mutate(filters, { onSuccess: () => setExportModalOpen(false) })}
+                    />
+                }
             />
             <ResourceTable
                 data={transactions}

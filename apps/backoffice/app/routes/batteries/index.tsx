@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconPlus, IconEdit, IconEye, IconMapPin } from '@tabler/icons-react'
 
@@ -7,11 +7,11 @@ import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { useBatteries, type BatteriesListParams, type BatteryItem } from '~/queries/batteries'
+import { useListingState } from '~/hooks'
 
 export default function BatteriesListRoute() {
     const navigate = useNavigate()
-    const [searchQuery, setSearchQuery] = useState('')
-    const [page, setPage] = useState(1)
+    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -32,11 +32,6 @@ export default function BatteriesListRoute() {
 
     const batteries = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleSearchChange = useCallback((value: string) => {
-        setSearchQuery(value)
-        setPage(1)
-    }, [])
 
     const columns = useMemo(
         () => [
@@ -117,7 +112,7 @@ export default function BatteriesListRoute() {
                 emptyMessage='No batteries in inventory.'
                 searchPlaceholder='Search by battery code...'
                 searchValue={searchQuery}
-                onSearchChange={handleSearchChange}
+                onSearchChange={setSearchQuery}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? batteries.length}

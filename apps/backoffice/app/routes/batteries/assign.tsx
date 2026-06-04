@@ -16,7 +16,7 @@ import { batteryAssignmentSchema, type BatteryAssignmentValues } from '~/schemas
 
 export default function AssignBatteriesRoute() {
     const navigate = useNavigate()
-    const { data: batteriesData, isFetching: isBatteriesFetching } = useInfiniteBatteries()
+    const { data: batteriesData } = useInfiniteBatteries()
     const { data: stationsData, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations()
     const updateBattery = useUpdateBattery()
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -48,7 +48,7 @@ export default function AssignBatteriesRoute() {
                 setIsSubmitting(false)
             }
         },
-        [batteriesData?.data, updateBattery, navigate],
+        [batteriesData?.pages, updateBattery, navigate],
     )
 
     const stationOptions = useMemo(
@@ -74,7 +74,7 @@ export default function AssignBatteriesRoute() {
                 <Button
                     variant='ghost'
                     size='icon'
-                    onClick={() => navigate('/batteries')}
+                    onClick={() => navigate(-1)}
                     className='shrink-0'>
                     <IconArrowLeft size={20} />
                 </Button>

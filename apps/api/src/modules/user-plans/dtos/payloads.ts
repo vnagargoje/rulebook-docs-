@@ -2,6 +2,7 @@ import { Type } from '@sinclair/typebox';
 
 export const PurchasePlanPayload = Type.Object({
     planId: Type.String(),
+    stationId: Type.Optional(Type.String()),
 });
 
 export const VerifyPaymentPayload = Type.Object({

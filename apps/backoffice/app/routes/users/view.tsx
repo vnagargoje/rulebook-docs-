@@ -70,7 +70,6 @@ export default function UserViewRoute() {
     const { data: user, isLoading } = useGetUserById(id)
 
     const isCustomerRoute = location.pathname.startsWith('/customers')
-    const backPath = isCustomerRoute ? '/customers' : '/users'
     const editPath = isCustomerRoute ? `/customers/edit/${id}` : `/users/edit/${id}`
 
     const { data: kycData } = useCustomerKyc(id)
@@ -111,7 +110,7 @@ export default function UserViewRoute() {
     return (
         <div className="mx-auto max-w-6xl space-y-6 pb-12">
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate(backPath)} className="shrink-0">
+                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader

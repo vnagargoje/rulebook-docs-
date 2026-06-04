@@ -43,7 +43,7 @@ export default function SurrenderViewRoute() {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate('/surrender')} className="shrink-0">
+                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader

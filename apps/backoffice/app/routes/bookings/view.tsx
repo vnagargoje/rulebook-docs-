@@ -57,7 +57,7 @@ export default function BookingViewRoute() {
             'filter.status': ['$eq:purchased'],
         } as any) : undefined
     )
-    const futurePlan = userPlansData?.pages[0]?.data?.[0]
+    const futurePlan = userPlansData?.pages[0]?.data?.find((plan: any) => plan.id !== booking?.userPlan?.id)
     const assignVehicle = useAssignVehicle()
 
     const form = useForm<AssignVehicleValues>({
@@ -125,7 +125,7 @@ export default function BookingViewRoute() {
     return (
         <div className="mx-auto max-w-7xl space-y-6 pb-12">
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate('/bookings')} className="shrink-0">
+                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader

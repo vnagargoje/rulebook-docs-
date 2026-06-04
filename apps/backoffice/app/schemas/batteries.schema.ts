@@ -67,6 +67,7 @@ export const updateBatterySchema = batteryBaseSchema
 
 export const batteryAssignmentSchema = z.object({
     stationId: z.string().min(1, 'Station is required'),
+    status: z.string().min(1, 'Please select battery status'),
     batteryIds: z.array(z.string()).min(1, 'At least one battery is required'),
 })
 

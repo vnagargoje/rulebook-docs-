@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useDeferredValue } from 'react'
 import { useNavigate } from 'react-router'
 import { IconBolt, IconEye, IconReceiptRupee, IconUser } from '@tabler/icons-react'
 
@@ -14,7 +14,8 @@ import { useListingState, useTransactionExport } from '~/hooks'
 
 export default function TransactionsListRoute() {
     const navigate = useNavigate()
-    const { page, setPage, filters, setFilters } = useListingState({ initialFilters: { status: 'all' } })
+    const { page, setPage, filters, setFilters, resetFilters, searchQuery, setSearchQuery } = useListingState({ initialFilters: { status: 'all' } })
+    const deferredSearchQuery = useDeferredValue(searchQuery.trim())
     const statusFilter = filters.status || 'all'
 
     const queryParams = useMemo<TransactionsListParams>(() => {
@@ -26,8 +27,11 @@ export default function TransactionsListRoute() {
         if (statusFilter !== 'all') {
             params['filter.status'] = [`$eq:${statusFilter}`]
         }
+        if (deferredSearchQuery) {
+            (params as any).search = deferredSearchQuery
+        }
         return params
-    }, [page, statusFilter])
+    }, [page, statusFilter, deferredSearchQuery])
 
     const { data } = useTransactions(queryParams)
     const transactions = data?.data ?? []
@@ -146,12 +150,16 @@ export default function TransactionsListRoute() {
                 data={transactions}
                 columns={columns}
                 emptyMessage='No transactions found.'
+                searchPlaceholder='Search transactions...'
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
                 filterValues={{ status: statusFilter }}
                 onFilterChange={setFilters}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? transactions.length}
                 onPageChange={setPage}
+                onReset={resetFilters}
                 filterConfigs={[
                     {
                         field: 'status',

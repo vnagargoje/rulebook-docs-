@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useDeferredValue } from 'react'
 import { useNavigate } from 'react-router'
 import { IconEye, IconUser } from '@tabler/icons-react'
 
@@ -14,8 +14,8 @@ import { formatDate, formatCurrency } from '~/lib/formatter'
 
 export default function BookingsListRoute() {
     const navigate = useNavigate()
-    const { page, setPage, filters, setFilters } = useListingState({ initialFilters: { status: 'all' } })
-    const statusFilter = filters.status || 'all'
+    const { page, setPage, filters, setFilters, resetFilters, searchQuery, setSearchQuery } = useListingState({ initialFilters: { status: 'all' } })
+    const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
         const params: BookingsListParams = {
@@ -24,12 +24,16 @@ export default function BookingsListRoute() {
             sortBy: ['createdAt:DESC'],
         }
 
-        if (statusFilter !== 'all') {
-            params['filter.status'] = [`$eq:${statusFilter}`]
+        if (filters.status && filters.status !== 'all') {
+            params['filter.status'] = [`$eq:${filters.status}`]
+        }
+
+        if (deferredSearchQuery) {
+            (params as any).search = deferredSearchQuery
         }
 
         return params
-    }, [page, statusFilter])
+    }, [page, filters, deferredSearchQuery])
     
 
     const { data, isLoading } = useBookings(queryParams)
@@ -141,12 +145,16 @@ export default function BookingsListRoute() {
             <ResourceTable
                 data={bookings}
                 emptyMessage="No bookings found."
-                filterValues={{ status: statusFilter }}
-                onFilterChange={setFilters}
-                currentPage={paginationMeta?.currentPage ?? page}
-                totalPages={paginationMeta?.totalPages ?? 1}
+                searchPlaceholder="Search bookings..."
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
                 totalItems={paginationMeta?.totalItems ?? bookings.length}
+                totalPages={paginationMeta?.totalPages ?? 1}
+                currentPage={paginationMeta?.currentPage ?? page}
                 onPageChange={setPage}
+                onReset={resetFilters}
+                filterValues={filters}
+                onFilterChange={setFilters}
                 filterConfigs={[
                     {
                         field: 'status',
@@ -159,8 +167,8 @@ export default function BookingsListRoute() {
                             { label: 'Cancelled', value: 'cancelled' },
                             { label: 'Inactive', value: 'inactive' },
                         ],
-                    },
-                ]}
+                    }
+                ] as any}
                 columns={columns}
             />
         </div>

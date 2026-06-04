@@ -7,7 +7,9 @@ import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useBookings, type BookingItem, type BookingsListParams } from '~/queries/bookings'
-import { useListingState } from '~/hooks'
+import { useListingState, useBookingExport } from '~/hooks'
+import { ExportDialog } from '~/components/ui/export-dialog'
+import { useState } from 'react'
 import { formatDate, formatCurrency } from '~/lib/formatter'
 
 export default function BookingsListRoute() {
@@ -34,6 +36,9 @@ export default function BookingsListRoute() {
 
     const bookings = data?.data ?? []
     const paginationMeta = data?.meta
+
+    const [exportModalOpen, setExportModalOpen] = useState(false)
+    const { mutate, isPending } = useBookingExport()
 
     const columns = useMemo(() => [
         {
@@ -108,12 +113,30 @@ export default function BookingsListRoute() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <PageHeader
-                    title="Bookings"
-                    description="View and manage all customer bookings."
-                />
-            </div>
+            <PageHeader
+                title="Bookings"
+                description="View and manage all customer bookings."
+                actions={
+                    <ExportDialog 
+                        open={exportModalOpen} 
+                        onOpenChange={setExportModalOpen}
+                        title="Export Bookings"
+                        description="Download booking records as an Excel spreadsheet."
+                        showDateFilter={true}
+                        showStatusFilter={true}
+                        statusOptions={[
+                            { label: 'Draft', value: 'draft' },
+                            { label: 'Created', value: 'created' },
+                            { label: 'Ongoing', value: 'ongoing' },
+                            { label: 'Completed', value: 'completed' },
+                            { label: 'Cancelled', value: 'cancelled' },
+                            { label: 'Inactive', value: 'inactive' },
+                        ]}
+                        isExporting={isPending}
+                        onExport={(filters) => mutate(filters, { onSuccess: () => setExportModalOpen(false) })}
+                    />
+                }
+            />
 
             <ResourceTable
                 data={bookings}

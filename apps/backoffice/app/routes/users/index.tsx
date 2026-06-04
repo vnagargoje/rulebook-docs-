@@ -7,7 +7,9 @@ import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useUsers, type UserItem } from '~/queries/users'
-import { useListingState } from '~/hooks'
+import { useListingState, useEmployeeExport } from '~/hooks'
+import { ExportDialog } from '~/components/ui/export-dialog'
+import { useState } from 'react'
 
 export default function UsersListRoute() {
     const navigate = useNavigate()
@@ -33,6 +35,9 @@ export default function UsersListRoute() {
 
     const users = data?.data ?? []
     const paginationMeta = data?.meta
+
+    const [exportModalOpen, setExportModalOpen] = useState(false)
+    const { mutate, isPending } = useEmployeeExport()
 
     const columns = useMemo(() => [
         {
@@ -79,16 +84,28 @@ export default function UsersListRoute() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <PageHeader
-                    title="Employees"
-                    description="Manage employee accounts across the platform."
-                />
-                <Button onClick={() => navigate('/users/create')}>
-                    <IconPlus className="mr-2 h-4 w-4" />
-                    Create New User
-                </Button>
-            </div>
+            <PageHeader
+                title="Employees"
+                description="Manage employee accounts across the platform."
+                actions={
+                    <>
+                        <ExportDialog 
+                            open={exportModalOpen} 
+                            onOpenChange={setExportModalOpen}
+                            title="Export Employees"
+                            description="Download employee records as an Excel spreadsheet."
+                            showDateFilter={true}
+                            showStatusFilter={false}
+                            isExporting={isPending}
+                            onExport={(filters) => mutate(filters, { onSuccess: () => setExportModalOpen(false) })}
+                        />
+                        <Button onClick={() => navigate('/users/create')}>
+                            <IconPlus className="mr-2 h-4 w-4" />
+                            Create New User
+                        </Button>
+                    </>
+                }
+            />
 
             <ResourceTable
                 data={users}

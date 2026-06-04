@@ -36,6 +36,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
+        "file-saver": "^2.0.5",
         "isbot": "^5.1.36",
         "lucide-react": "^1.8.0",
         "next-themes": "^0.4.6",
@@ -51,11 +52,13 @@
         "tailwind-merge": "^3.5.0",
         "vaul": "^1.1.2",
         "xior": "^0.8.3",
+        "xlsx": "^0.18.5",
         "zod": "^4.3.6"
     },
     "devDependencies": {
         "@react-router/dev": "7.14.0",
         "@tailwindcss/vite": "^4.2.2",
+        "@types/file-saver": "^2",
         "@types/node": "^22",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",

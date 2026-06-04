@@ -26,8 +26,10 @@ import { TransactionResponse } from '../../dtos/responses';
 const PAGINATE_CONFIG: PaginateConfig<TransactionEntity> = {
     sortableColumns: ['id', 'status', 'amount', 'createdAt'],
     defaultLimit: 20,
+    maxLimit: 10000,
     filterableColumns: {
         status: [FilterOperator.EQ, FilterOperator.IN],
+        createdAt: [FilterOperator.BTW, FilterOperator.GTE, FilterOperator.LTE],
     },
     defaultSortBy: [['createdAt', 'DESC']],
 };

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { IconUser } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
@@ -6,20 +6,37 @@ import { ResourceTable, type ResourceTableColumn } from '~/components/ui/resourc
 import { StatusBadge } from '~/components/ui/status-badge'
 import { formatDate } from '~/lib/formatter'
 import { useSwapHistory, type SwapHistoryItem } from '~/queries/swap-history'
+import { useStations } from '~/queries/stations'
 import { useListingState } from '~/hooks'
 
 export default function BatterySwapHistoryRoute() {
-    const { page, setPage } = useListingState()
+    const { page, setPage, filters, setFilters, searchQuery, setSearchQuery, resetFilters } = useListingState({
+        initialFilters: { station: 'all', status: 'all' }
+    })
 
-    const queryParams = useMemo(() => ({ page, limit: 20, sortBy: ['createdAt:DESC' as const] }), [page])
+    const { data: stationsData } = useStations({ limit: 1000 })
+    const stationOptions = useMemo(() => {
+        if (!stationsData?.data) return []
+        return stationsData.data.map(s => ({ label: s.name, value: s.id }))
+    }, [stationsData])
+
+    const queryParams = useMemo(() => {
+        const params: any = { page, limit: 20, sortBy: ['createdAt:DESC' as const] }
+        if (filters.station && filters.station !== 'all') {
+            params['filter.fromStation.id'] = [`$eq:${filters.station}`]
+        }
+        if (filters.status && filters.status !== 'all') {
+            params['filter.status'] = [`$eq:${filters.status}`]
+        }
+        if (searchQuery.trim()) {
+            params.search = searchQuery.trim()
+        }
+        return params
+    }, [page, filters, searchQuery])
 
     const { data } = useSwapHistory(queryParams)
     const records = data?.data ?? []
     const paginationMeta = data?.meta
-
-    const handleFilterChange = useCallback(() => {
-        setPage(1)
-    }, [])
 
     const columns = useMemo<ResourceTableColumn<SwapHistoryItem>[]>(() => [
         {
@@ -94,7 +111,27 @@ export default function BatterySwapHistoryRoute() {
                 data={records}
                 columns={columns}
                 emptyMessage='No swap history found.'
-                onFilterChange={handleFilterChange}
+                searchPlaceholder='Search swaps...'
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
+                filterValues={filters}
+                onFilterChange={setFilters}
+                onReset={resetFilters}
+                filterConfigs={[
+                    {
+                        field: 'status',
+                        label: 'Status',
+                        options: [
+                            { label: 'Completed', value: 'completed' },
+                            { label: 'Failed', value: 'failed' }
+                        ]
+                    },
+                    {
+                        field: 'station',
+                        label: 'Station',
+                        options: stationOptions
+                    }
+                ] as any}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? records.length}

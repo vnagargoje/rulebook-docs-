@@ -46,7 +46,7 @@ export const useGetSwapBatteryById = createQuery<V1BatteriesGetOneBatteryRespons
 export const useStationBatteryCounts = createQuery<StationBatteryCounts, { managerId: string }>({
     queryKey: ['swap-manager', 'battery-counts'],
     fetcher: async ({ managerId }) => {
-        const [drainedResp, inTransitResp, availableResp] = await Promise.all([
+        const [drainedResp, inTransitResp, availableResp, chargedResp, chargingResp] = await Promise.all([
             client.v1.v1BatteriesGetManyBatteries({
                 page: 1, limit: 1,
                 'filter.station.managers.id': [`$eq:${managerId}`],
@@ -62,10 +62,20 @@ export const useStationBatteryCounts = createQuery<StationBatteryCounts, { manag
                 'filter.station.managers.id': [`$eq:${managerId}`],
                 'filter.status': ['$eq:AVAILABLE'],
             }),
+            client.v1.v1BatteriesGetManyBatteries({
+                page: 1, limit: 1,
+                'filter.station.managers.id': [`$eq:${managerId}`],
+                'filter.status': ['$eq:CHARGED'],
+            }),
+            client.v1.v1BatteriesGetManyBatteries({
+                page: 1, limit: 1,
+                'filter.station.managers.id': [`$eq:${managerId}`],
+                'filter.status': ['$eq:CHARGING'],
+            }),
         ])
         return {
-            charged: 0,
-            charging: 0,
+            charged: chargedResp.data.meta.totalItems,
+            charging: chargingResp.data.meta.totalItems,
             drained: drainedResp.data.meta.totalItems,
             inTransit: inTransitResp.data.meta.totalItems,
             available: availableResp.data.meta.totalItems,

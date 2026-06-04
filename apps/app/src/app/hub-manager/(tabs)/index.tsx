@@ -4,6 +4,10 @@ import { useCallback } from 'react'
 import { Pressable } from 'react-native'
 
 import { SafeAreaView, ScrollView, Text, View } from '@/components/ui'
+import { RefreshControl } from 'react-native'
+import { InventoryStats } from '@/components/hub-manager/home'
+import { useIsAuthenticated } from '@/queries/auth.query'
+import { useStationBatteryCounts } from '@/queries/swap-manager/batteries.query'
 
 interface ActionTileProps {
     icon: React.ComponentProps<typeof MaterialCommunityIcons>['name']
@@ -44,6 +48,18 @@ function ActionTile({ icon, iconBg, iconColor, title, description, onPress }: Ac
 export default function HubManagerHomeScreen() {
     const router = useRouter()
 
+    const { data: auth } = useIsAuthenticated()
+    const managerId = auth?.userId ?? ''
+
+    const { data: batteryCounts, isLoading: batteryCountsLoading, refetch: refetchCounts } = useStationBatteryCounts({
+        variables: { managerId },
+        enabled: !!managerId,
+    })
+
+    const handleRefresh = useCallback(() => {
+        refetchCounts()
+    }, [refetchCounts])
+
     const handleInward = useCallback(() => {
         router.push('/hub-manager/battery-inward')
     }, [router])
@@ -58,6 +74,12 @@ export default function HubManagerHomeScreen() {
             edges={['top']}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={false}
+                        onRefresh={handleRefresh}
+                    />
+                }
                 contentContainerStyle={{ paddingBottom: 40 }}>
                 <View className='gap-6'>
                     <View className='px-4 pt-4'>
@@ -69,6 +91,20 @@ export default function HubManagerHomeScreen() {
                             <View className='h-2 w-2 rounded-full bg-primary-500' />
                             <Text className='text-sm font-medium text-neutral-600'>Battery Operations</Text>
                         </View>
+                    </View>
+
+                    <View className='gap-3'>
+                        <View className='px-4'>
+                            <Text className='text-[10px] font-semibold uppercase tracking-[1px] text-neutral-400'>
+                                Inventory Status
+                            </Text>
+                        </View>
+                        <InventoryStats
+                            charged={batteryCounts?.charged ?? 0}
+                            charging={batteryCounts?.charging ?? 0}
+                            inTransit={batteryCounts?.inTransit ?? 0}
+                            isLoading={batteryCountsLoading}
+                        />
                     </View>
 
                     <View className='px-4 gap-3'>

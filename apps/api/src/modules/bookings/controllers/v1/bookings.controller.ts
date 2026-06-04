@@ -25,6 +25,16 @@ import { BookingResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<BookingEntity> = {
     sortableColumns: ['id', 'status', 'createdAt'],
+    searchableColumns: [
+        'id',
+        'userPlan.user.firstName',
+        'userPlan.user.lastName',
+        'userPlan.user.email',
+        'userPlan.user.mobilenumber',
+        'vehicle.vehicleNumber',
+        'vehicle.rcNumber',
+    ],
+    relations: ['userPlan', 'userPlan.user', 'vehicle'],
     defaultLimit: 50,
     filterableColumns: {
         status: [FilterOperator.EQ, FilterOperator.IN],

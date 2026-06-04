@@ -1,5 +1,5 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable } from 'react-native'
 
 import { SafeAreaView, Text, View } from '@/components/ui'
@@ -138,7 +138,7 @@ export default function HubManagerInventoryScreen() {
 
     const stationId = stationData?.data?.[0]?.id ?? ''
 
-    const { data, isLoading, refetch } = useGetMovements({
+    const { data: inboundData, isLoading: inboundLoading, refetch: refetchInbound } = useGetMovements({
         variables: {
             'filter.status': [`$eq:${activeTab}`],
             'filter.toStationId': stationId ? [`$eq:${stationId}`] : undefined,
@@ -146,7 +146,33 @@ export default function HubManagerInventoryScreen() {
         enabled: !!stationId,
     })
 
-    const movements = data?.data ?? []
+    const { data: outboundData, isLoading: outboundLoading, refetch: refetchOutbound } = useGetMovements({
+        variables: {
+            'filter.status': [`$eq:${activeTab}`],
+            'filter.fromStationId': stationId ? [`$eq:${stationId}`] : undefined,
+        },
+        enabled: !!stationId && activeTab === 'delivered',
+    })
+
+    const movements = useMemo(() => {
+        if (activeTab === 'in_transit') {
+            return inboundData?.data ?? []
+        }
+
+        return [
+            ...(inboundData?.data ?? []),
+            ...(outboundData?.data ?? []),
+        ]
+    }, [activeTab, inboundData, outboundData])
+
+    const isLoading = inboundLoading || outboundLoading
+
+    const handleRefresh = () => {
+        refetchInbound()
+        if (activeTab === 'delivered') {
+            refetchOutbound()
+        }
+    }
 
     return (
         <SafeAreaView
@@ -200,7 +226,7 @@ export default function HubManagerInventoryScreen() {
                     renderItem={({ item }) => <MovementCard movement={item} />}
                     contentContainerStyle={{ gap: 12, paddingBottom: 32 }}
                     showsVerticalScrollIndicator={false}
-                    onRefresh={refetch}
+                    onRefresh={handleRefresh}
                     refreshing={isLoading}
                 />
             )}

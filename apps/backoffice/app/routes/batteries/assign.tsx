@@ -16,15 +16,26 @@ import { batteryAssignmentSchema, type BatteryAssignmentValues } from '~/schemas
 
 export default function AssignBatteriesRoute() {
     const navigate = useNavigate()
-    const { data: batteriesData } = useInfiniteBatteries()
     const { data: stationsData, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations()
     const updateBattery = useUpdateBattery()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const form = useForm<BatteryAssignmentValues>({
         resolver: zodResolver(batteryAssignmentSchema),
-        defaultValues: { stationId: '', batteryIds: [] as string[] },
+        defaultValues: { stationId: '', status: '', batteryIds: [] as string[] },
     })
+
+    const selectedStatus = form.watch('status')
+
+    const batteryQueryParams = useMemo(() => {
+        const params: Record<string, any> = {}
+        if (selectedStatus) {
+            params['filter.status'] = [`$eq:${selectedStatus}`]
+        }
+        return params
+    }, [selectedStatus])
+
+    const { data: batteriesData, isFetching: isBatteriesFetching, fetchNextPage: fetchNextBatteryPage, hasNextPage: hasNextBatteryPage } = useInfiniteBatteries(batteryQueryParams as any)
 
     const onSubmit = useCallback(
         async (values: BatteryAssignmentValues) => {
@@ -101,12 +112,28 @@ export default function AssignBatteriesRoute() {
                                 hasNextPage={hasNextStationPage}
                             />
 
+                            <SearchableSelectField
+                                control={form.control}
+                                name='status'
+                                label='Battery Status'
+                                placeholder='Select battery status'
+                                options={[
+                                    { label: 'Available', value: 'Available' },
+                                    { label: 'Charging', value: 'Charging' },
+                                    { label: 'Drained', value: 'Drained' }
+                                ]}
+                            />
+
                             <MultiSelectField
                                 control={form.control}
                                 name='batteryIds'
                                 label='Select Batteries'
                                 placeholder='Choose one or more batteries'
                                 options={batteryOptions}
+                                isLoading={isBatteriesFetching}
+                                onLoadMore={fetchNextBatteryPage}
+                                hasNextPage={hasNextBatteryPage}
+                                disabled={!selectedStatus}
                             />
 
                             <div className='flex justify-end gap-3 pt-6 border-t mt-4'>

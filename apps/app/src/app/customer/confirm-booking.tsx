@@ -12,7 +12,8 @@ import { Button, ScreenLoader, ScrollView, Text, View, Pressable } from '@/compo
 import { formatCurrencyIN, formatNumberIN, formatPercentage, getAmountDifference, toSafeNumber } from '@/lib/formatters/customer'
 import { usePlanById } from '@/queries/customer'
 import { useInitiatePlanPurchase, useVerifyPayment } from '@/queries/customer'
-import { useCustomerProfile, useVehicleStations } from '@/queries/customer'
+import { useCustomerProfile, useVehicleStations, useMyPlans } from '@/queries/customer'
+import { handleRazorpayError } from '@/lib/razorpay'
 
 export default function ConfirmBookingScreen() {
     const { planId } = useLocalSearchParams<{ planId: string }>()
@@ -28,6 +29,11 @@ export default function ConfirmBookingScreen() {
     const [selectedStationId, setSelectedStationId] = useState<string | null>(null)
     const { data: stationsData, isLoading: isLoadingStations } = useVehicleStations()
     const stations = stationsData?.data ?? []
+
+    const { data: myPlansData, isLoading: isLoadingMyPlans } = useMyPlans({
+        variables: { status: 'active' }
+    })
+    const hasActivePlan = myPlansData?.data ? myPlansData.data.length > 0 : false
 
     useEffect(() => {
         if (stations.length === 1 && !selectedStationId) {
@@ -49,14 +55,14 @@ export default function ConfirmBookingScreen() {
     const handleConfirm = useCallback(() => {
         if (!planId) return
 
-        if (stations.length > 0 && !selectedStationId) {
+        if (!hasActivePlan && stations.length > 0 && !selectedStationId) {
             toast.error('Select a pickup location', { description: 'Please choose where you want to pick up your vehicle.' })
             return
         }
 
         // Step 1: create a Razorpay order on the backend
         initiatePurchase.mutate(
-            { planId, stationId: selectedStationId ?? undefined },
+            { planId, stationId: hasActivePlan ? undefined : (selectedStationId ?? undefined) },
             {
                 onSuccess: async (orderData) => {
                     const options = {
@@ -125,45 +131,16 @@ export default function ConfirmBookingScreen() {
                         )
                     } catch (error) {
                         isRazorpayOpen.current = false
-                        const razorpayError = error as PaymentErrorData
-                        
-                        let isCancelled = razorpayError?.code === 2
-                        let errorMessage = razorpayError?.description ?? 'Something went wrong. Please try again.'
-
-                        if (typeof errorMessage === 'string') {
-                            // Handle stringified JSON or raw backend error strings
-                            if (errorMessage.includes('{') || errorMessage.includes('BAD_REQUEST_ERROR')) {
-                                // If the user aborted during authentication (common when exiting via back button)
-                                if (
-                                    errorMessage.includes('payment_cancelled') ||
-                                    errorMessage.includes('canceled') ||
-                                    (errorMessage.includes('BAD_REQUEST_ERROR') && errorMessage.includes('payment_authentication'))
-                                ) {
-                                    isCancelled = true
-                                } else {
-                                    errorMessage = 'Payment process was interrupted or could not be completed. Please try again.'
-                                }
-                            }
-                        }
-
-                        if (isCancelled) {
-                            toast.error('Payment cancelled', {
-                                description: 'You cancelled the payment. Your order is saved - try again anytime.',
-                            })
-                        } else {
-                            toast.error('Payment failed', {
-                                description: errorMessage,
-                            })
-                        }
+                        handleRazorpayError(error)
                     }
                 },
             },
         )
-    }, [planId, plan, profile, initiatePurchase, verifyPayment, queryClient, router, stations.length, selectedStationId])
+    }, [planId, plan, profile, initiatePurchase, verifyPayment, queryClient, router, stations.length, selectedStationId, hasActivePlan])
 
     const isPending = initiatePurchase.isPending || verifyPayment.isPending
 
-    if (isLoading || !plan) {
+    if (isLoading || isLoadingMyPlans || !plan) {
         return <ScreenLoader />
     }
 
@@ -218,6 +195,51 @@ export default function ConfirmBookingScreen() {
                         </View>
                     </View>
 
+                    {!hasActivePlan && (
+                        <View className='rounded-3xl border border-neutral-200 bg-white p-5'>
+                            <Text className='text-xs font-bold uppercase tracking-[1.4px] text-neutral-500'>
+                                Pickup Location
+                            </Text>
+                            <View className='mt-4 gap-3'>
+                                {stations.length === 0 && !isLoadingStations ? (
+                                    <Text className='text-sm text-neutral-500'>No pickup locations available.</Text>
+                                ) : isLoadingStations ? (
+                                    <Text className='text-sm text-neutral-500'>Loading locations...</Text>
+                                ) : (
+                                    stations.map((station) => (
+                                        <Pressable
+                                            key={station.id}
+                                            onPress={() => setSelectedStationId(station.id)}
+                                            className={`flex-row items-center justify-between rounded-2xl border p-4 ${
+                                                selectedStationId === station.id
+                                                    ? 'border-primary-600 bg-primary-50'
+                                                    : 'border-neutral-200 bg-white'
+                                            }`}
+                                        >
+                                            <View className='flex-1 pr-3'>
+                                                <Text className='text-base font-semibold text-neutral-900'>{station.name}</Text>
+                                                <Text className='mt-1 text-sm text-neutral-500'>
+                                                    {[station.address?.lineOne, station.address?.lineTwo, station.address?.city?.name].filter(Boolean).join(', ')}
+                                                </Text>
+                                            </View>
+                                            <View
+                                                className={`h-6 w-6 items-center justify-center rounded-full border ${
+                                                    selectedStationId === station.id
+                                                        ? 'border-primary-600 bg-primary-600'
+                                                        : 'border-neutral-300'
+                                                }`}
+                                            >
+                                                {selectedStationId === station.id && (
+                                                    <MaterialCommunityIcons name='check' size={16} color='#fff' />
+                                                )}
+                                            </View>
+                                        </Pressable>
+                                    ))
+                                )}
+                            </View>
+                        </View>
+                    )}
+
                     <View className='rounded-3xl border border-neutral-200 bg-white p-5'>
                         <Text className='text-xs font-bold uppercase tracking-[1.4px] text-neutral-400'>
                             Payment Summary
@@ -252,49 +274,6 @@ export default function ConfirmBookingScreen() {
                                 value={formatCurrencyIN(plan.totalAmount)}
                                 bold
                             />
-                        </View>
-                    </View>
-
-                    <View className='rounded-3xl border border-neutral-200 bg-white p-5'>
-                        <Text className='text-xs font-bold uppercase tracking-[1.4px] text-neutral-500'>
-                            Pickup Location
-                        </Text>
-                        <View className='mt-4 gap-3'>
-                            {stations.length === 0 && !isLoadingStations ? (
-                                <Text className='text-sm text-neutral-500'>No pickup locations available.</Text>
-                            ) : isLoadingStations ? (
-                                <Text className='text-sm text-neutral-500'>Loading locations...</Text>
-                            ) : (
-                                stations.map((station) => (
-                                    <Pressable
-                                        key={station.id}
-                                        onPress={() => setSelectedStationId(station.id)}
-                                        className={`flex-row items-center justify-between rounded-2xl border p-4 ${
-                                            selectedStationId === station.id
-                                                ? 'border-primary-600 bg-primary-50'
-                                                : 'border-neutral-200 bg-white'
-                                        }`}
-                                    >
-                                        <View className='flex-1 pr-3'>
-                                            <Text className='text-base font-semibold text-neutral-900'>{station.name}</Text>
-                                            <Text className='mt-1 text-sm text-neutral-500'>
-                                                {[station.address?.lineOne, station.address?.lineTwo, station.address?.city?.name].filter(Boolean).join(', ')}
-                                            </Text>
-                                        </View>
-                                        <View
-                                            className={`h-6 w-6 items-center justify-center rounded-full border ${
-                                                selectedStationId === station.id
-                                                    ? 'border-primary-600 bg-primary-600'
-                                                    : 'border-neutral-300'
-                                            }`}
-                                        >
-                                            {selectedStationId === station.id && (
-                                                <MaterialCommunityIcons name='check' size={16} color='#fff' />
-                                            )}
-                                        </View>
-                                    </Pressable>
-                                ))
-                            )}
                         </View>
                     </View>
 

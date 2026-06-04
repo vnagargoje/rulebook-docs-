@@ -60,6 +60,14 @@ export class PurchasePlanHandler implements ICommandHandler<PurchasePlanCommand>
                 throw new NotFoundException('Plan not found or this plan is no longer available')
             }
 
+            const activePlan = await manager.findOne(UserPlanEntity, {
+                where: { userId, status: UserPlanStatus.ACTIVE },
+            })
+
+            if (activePlan && stationId) {
+                throw new BadRequestException('Pickup location should not be provided since you already have an assigned vehicle')
+            }
+
             const { totalAmount, planSnapshot } = this.buildPlanSnapshot(
                 plan,
                 userId,

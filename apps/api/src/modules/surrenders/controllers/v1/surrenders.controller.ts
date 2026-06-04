@@ -40,6 +40,7 @@ import {
 
 const PAGINATE_CONFIG: PaginateConfig<VehicleSurrenderEntity> = {
     sortableColumns: ['createdAt'],
+    searchableColumns: ['vehicleId', 'bookingId', 'vehicle.vehicleNumber', 'vehicle.rcNumber'],
     defaultLimit: 50,
     defaultSortBy: [['createdAt', 'DESC']],
     filterableColumns: {

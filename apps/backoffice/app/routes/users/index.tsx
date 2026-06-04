@@ -13,7 +13,9 @@ import { useState } from 'react'
 
 export default function UsersListRoute() {
     const navigate = useNavigate()
-    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
+    const { page, setPage, searchQuery, setSearchQuery, filters, setFilters, resetFilters } = useListingState({
+        initialFilters: { status: 'all' }
+    })
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -24,12 +26,16 @@ export default function UsersListRoute() {
             'filter.roles.name': ['$in:swap_manager,hub_manager,system_admin,system_user'],
         }
 
+        if (filters.status && filters.status !== 'all') {
+            params['filter.active'] = [`$eq:${filters.status}`]
+        }
+
         if (deferredSearchQuery) {
             params.search = deferredSearchQuery
         }
 
         return params
-    }, [deferredSearchQuery, page])
+    }, [deferredSearchQuery, page, filters])
 
     const { data, isLoading } = useUsers(queryParams)
 
@@ -89,8 +95,8 @@ export default function UsersListRoute() {
                 description="Manage employee accounts across the platform."
                 actions={
                     <>
-                        <ExportDialog 
-                            open={exportModalOpen} 
+                        <ExportDialog
+                            open={exportModalOpen}
                             onOpenChange={setExportModalOpen}
                             title="Export Employees"
                             description="Download employee records as an Excel spreadsheet."
@@ -113,10 +119,23 @@ export default function UsersListRoute() {
                 searchPlaceholder="Search users by name, email, or mobile..."
                 searchValue={searchQuery}
                 onSearchChange={setSearchQuery}
+                filterValues={filters}
+                onFilterChange={setFilters}
+                filterConfigs={[
+                    {
+                        field: 'active',
+                        label: 'Status',
+                        options: [
+                            { label: 'Active', value: 'true' },
+                            { label: 'Inactive', value: 'false' },
+                        ]
+                    }
+                ] as any}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? users.length}
                 onPageChange={setPage}
+                onReset={resetFilters}
                 columns={columns}
             />
         </div>

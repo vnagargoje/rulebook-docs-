@@ -27,8 +27,9 @@ export function useListingState<TFilters extends Record<string, string> = Record
         (newPage: number) => {
             setSearchParams(
                 (prev) => {
-                    prev.set('page', String(newPage))
-                    return prev
+                    const next = new URLSearchParams(prev)
+                    next.set('page', String(newPage))
+                    return next
                 },
                 { replace: true },
             )
@@ -40,13 +41,14 @@ export function useListingState<TFilters extends Record<string, string> = Record
         (newSearch: string) => {
             setSearchParams(
                 (prev) => {
+                    const next = new URLSearchParams(prev)
                     if (newSearch) {
-                        prev.set('search', newSearch)
+                        next.set('search', newSearch)
                     } else {
-                        prev.delete('search')
+                        next.delete('search')
                     }
-                    prev.set('page', '1') // Reset page on new search
-                    return prev
+                    next.set('page', '1') // Reset page on new search
+                    return next
                 },
                 { replace: true },
             )
@@ -58,21 +60,45 @@ export function useListingState<TFilters extends Record<string, string> = Record
         (newFilters: Record<string, string>) => {
             setSearchParams(
                 (prev) => {
+                    const next = new URLSearchParams(prev)
                     Object.entries(newFilters).forEach(([key, value]) => {
                         if (value && value !== 'all') {
-                            prev.set(key, value)
+                            next.set(key, value)
                         } else {
-                            prev.delete(key)
+                            next.delete(key)
                         }
                     })
-                    prev.set('page', '1') // Reset page on new filters
-                    return prev
+                    next.set('page', '1') // Reset page on new filters
+                    return next
                 },
                 { replace: true },
             )
         },
         [setSearchParams],
     )
+
+    const resetFilters = useCallback(() => {
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev)
+                next.delete('search')
+                Object.keys(options?.initialFilters ?? {}).forEach(key => next.delete(key))
+                
+                // Remove all other keys except page? 
+                // Or just delete all keys that match our filters.
+                // It's safer to just clear all query params or known filters.
+                const toDelete: string[] = []
+                for (const key of next.keys()) {
+                    if (key !== 'page') toDelete.push(key)
+                }
+                toDelete.forEach(key => next.delete(key))
+
+                next.set('page', '1')
+                return next
+            },
+            { replace: true }
+        )
+    }, [setSearchParams, options?.initialFilters])
 
     return {
         page,
@@ -81,5 +107,6 @@ export function useListingState<TFilters extends Record<string, string> = Record
         setSearchQuery,
         filters,
         setFilters,
+        resetFilters,
     }
 }

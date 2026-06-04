@@ -14,6 +14,7 @@ import { formatCurrencyIN, formatKmIN, formatNumberIN, formatPercentage, getAmou
 import { useInitiateTopUpPurchase, useVerifyTopUpPayment, useTopUpById } from '@/queries/customer'
 import { useMyPlans } from '@/queries/customer'
 import { useCustomerProfile } from '@/queries/customer'
+import { handleRazorpayError } from '@/lib/razorpay'
 
 export default function ConfirmTopUpScreen() {
     const { topUpId } = useLocalSearchParams<{ topUpId: string }>()
@@ -121,16 +122,7 @@ export default function ConfirmTopUpScreen() {
                         )
                     } catch (error) {
                         isRazorpayOpen.current = false
-                        const razorpayError = error as PaymentErrorData
-                        if (razorpayError?.code === 2) {
-                            toast.error('Payment cancelled', {
-                                description: 'You cancelled the payment. Try again anytime.',
-                            })
-                        } else {
-                            toast.error('Payment failed', {
-                                description: razorpayError?.description ?? 'Something went wrong. Please try again.',
-                            })
-                        }
+                        handleRazorpayError(error)
                     }
                 },
             },

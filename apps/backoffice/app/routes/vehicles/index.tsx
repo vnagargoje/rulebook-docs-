@@ -6,12 +6,21 @@ import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
 import { useVehicles, type VehiclesListParams, type VehicleItem } from '~/queries/vehicles'
+import { useStations } from '~/queries/stations'
 import { useListingState } from '~/hooks'
 
 export default function VehiclesListRoute() {
     const navigate = useNavigate()
-    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
+    const { page, setPage, searchQuery, setSearchQuery, filters, setFilters, resetFilters } = useListingState({
+        initialFilters: { station: 'all' }
+    })
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
+
+    const { data: stationsData } = useStations({ limit: 1000 })
+    const stationOptions = useMemo(() => {
+        if (!stationsData?.data) return []
+        return stationsData.data.map(s => ({ label: s.name, value: s.id }))
+    }, [stationsData])
 
     const queryParams = useMemo(() => {
         const params: VehiclesListParams = {
@@ -20,12 +29,16 @@ export default function VehiclesListRoute() {
             sortBy: ['createdAt:DESC'],
         }
 
+        if (filters.station && filters.station !== 'all') {
+            params['filter.stationId'] = [`$eq:${filters.station}`]
+        }
+
         if (deferredSearchQuery) {
             params['filter.vehicleNumber'] = [`$ilike:${deferredSearchQuery}`]
         }
 
         return params
-    }, [deferredSearchQuery, page])
+    }, [deferredSearchQuery, page, filters])
 
     const { data, isLoading } = useVehicles(queryParams)
 
@@ -84,6 +97,16 @@ export default function VehiclesListRoute() {
                 searchPlaceholder="Search vehicles by registration number..."
                 searchValue={searchQuery}
                 onSearchChange={setSearchQuery}
+                filterValues={filters}
+                onFilterChange={setFilters}
+                onReset={resetFilters}
+                filterConfigs={[
+                    {
+                        field: 'stationId',
+                        label: 'Station',
+                        options: stationOptions
+                    }
+                ] as any}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? vehicles.length}

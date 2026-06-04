@@ -72,10 +72,15 @@ export default function VehiclesListRoute() {
                     title="Vehicle Inventory"
                     description="Register and track all fleet vehicles details."
                 />
-                <Button onClick={() => navigate('/vehicles/create')}>
-                    <IconPlus className="mr-2 h-4 w-4" />
-                    Register New Vehicle
-                </Button>
+                <div className="flex items-center gap-3">
+                    <Button variant="outline" onClick={() => navigate('/vehicles/assign')}>
+                        Assign Vehicles
+                    </Button>
+                    <Button onClick={() => navigate('/vehicles/create')}>
+                        <IconPlus className="mr-2 h-4 w-4" />
+                        Register New Vehicle
+                    </Button>
+                </div>
             </div>
 
             <ResourceTable

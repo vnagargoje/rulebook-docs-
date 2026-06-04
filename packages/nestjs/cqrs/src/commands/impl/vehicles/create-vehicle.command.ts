@@ -1,4 +1,4 @@
-import { type VehicleProperties, type VehicleType } from '@yugo/shared'
+import { type VehicleProperties, type VehicleType, type VehicleStatus } from '@yugo/shared'
 
 export interface CreateVehiclePayload {
     type?: VehicleType
@@ -8,6 +8,7 @@ export interface CreateVehiclePayload {
     gpsId?: string
     properties?: VehicleProperties
     stationId?: string
+    status?: VehicleStatus
 }
 
 export class CreateVehicleCommand {

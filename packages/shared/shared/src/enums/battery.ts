@@ -5,6 +5,7 @@ export enum BatteryStatus {
     DRAINED = 'drained',
     IN_TRANSIT = 'in_transit',
     IN_USE = 'in_use',
+    UNDER_MAINTENANCE = 'under_maintenance',
 }
 
 export enum BatteryTransportStatus {

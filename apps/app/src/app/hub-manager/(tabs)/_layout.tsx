@@ -1,3 +1,5 @@
+import { FontAwesome } from '@expo/vector-icons'
+import Entypo from '@expo/vector-icons/Entypo'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { SplashScreen, Tabs } from 'expo-router'
 import { useCallback, useEffect } from 'react'
@@ -52,25 +54,25 @@ export default function HubManagerTabsLayout() {
                 }}
             />
             <Tabs.Screen
-                name='inventory'
+                name='batteries'
                 options={{
-                    title: 'Inventory',
+                    title: 'Battery',
                     tabBarIcon: ({ color }) => (
-                        <MaterialCommunityIcons
-                            name='battery-charging-outline'
-                            size={22}
+                        <Entypo
+                            name='battery'
+                            size={24}
                             color={color}
                         />
                     ),
                 }}
             />
             <Tabs.Screen
-                name='batteries'
+                name='inventory'
                 options={{
-                    title: 'Batteries',
+                    title: 'Inventory',
                     tabBarIcon: ({ color }) => (
                         <MaterialCommunityIcons
-                            name='battery-heart-outline'
+                            name='battery-sync-outline'
                             size={22}
                             color={color}
                         />

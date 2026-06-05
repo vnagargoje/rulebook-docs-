@@ -47,7 +47,7 @@ const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
         active: [FilterOperator.EQ],
         stationId: [FilterOperator.EQ, FilterOperator.NULL],
     },
-    relations: ['roles', 'addresses', 'addresses.city', 'addresses.city.state'],
+    relations: ['roles', 'addresses', 'addresses.city', 'addresses.city.state', 'station'],
     defaultSortBy: [['createdAt', 'DESC']],
 };
 
@@ -97,7 +97,7 @@ export class V1UsersController {
         const userId = id === 'me' ? req.user.id : id;
         const user = await this.datasource.manager.findOne(UserEntity, {
             where: { id: userId },
-            relations: { roles: true, addresses: { city: { state: true } } },
+            relations: { roles: true, addresses: { city: { state: true } }, station: true },
         });
 
         if (!user) {

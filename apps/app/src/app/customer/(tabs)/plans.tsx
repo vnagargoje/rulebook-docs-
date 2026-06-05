@@ -1,13 +1,13 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useState } from 'react'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { FlatList, RefreshControl } from 'react-native'
+import { Alert, FlatList, RefreshControl } from 'react-native'
 
 import { PlanCard, TopUpCard } from '@/components/customer/plans'
 import { TabButton } from '@/components/customer/shared'
 import { SectionHeading } from '@/components/section-heading'
 import { ActivityIndicator, SafeAreaView, Text, View } from '@/components/ui'
-import { usePlans } from '@/queries/customer'
+import { usePlans, useMyPlans } from '@/queries/customer'
 import { useTopUps } from '@/queries/customer'
 
 type TabKey = 'plans' | 'topups'
@@ -30,6 +30,9 @@ export default function PlansScreen() {
         isRefetching: topUpsRefetching,
     } = useTopUps()
 
+    const { data: myPlansData } = useMyPlans({ variables: { status: 'active' } })
+    const hasActivePlan = (myPlansData?.data?.length ?? 0) > 0
+
     const plans = plansData?.data ?? []
     const topUps = topUpsData?.data ?? []
 
@@ -47,9 +50,17 @@ export default function PlansScreen() {
 
     const handleTopUpPress = useCallback(
         (topUpId: string) => {
+            if (!hasActivePlan) {
+                Alert.alert(
+                    'No Active Plan',
+                    'Please purchase a regular plan first. After activating a plan, you will be able to purchase top-up plans.',
+                    [{ text: 'OK' }]
+                )
+                return
+            }
             router.push({ pathname: '/customer/confirm-topup', params: { topUpId } })
         },
-        [router],
+        [router, hasActivePlan],
     )
 
     return (

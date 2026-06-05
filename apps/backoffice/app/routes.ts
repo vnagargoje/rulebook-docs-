@@ -58,6 +58,7 @@ export default [
             index('routes/vehicles/index.tsx'),
             route('create', 'routes/vehicles/create.tsx'),
             route('edit/:id', 'routes/vehicles/edit.tsx'),
+            route('assign', 'routes/vehicles/assign.tsx'),
             route(':id', 'routes/vehicles/view.tsx'),
         ]),
 

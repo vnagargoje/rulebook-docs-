@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { CheckIcon, XCircle, ChevronDown, XIcon, WandSparkles } from 'lucide-react';
+import { CheckIcon, XCircle, ChevronDown, XIcon, WandSparkles, LoaderIcon } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { Separator } from './separator';
 import { Button } from './button';
@@ -260,6 +260,21 @@ interface MultiSelectProps
      * Optional, defaults to false.
      */
     closeOnSelect?: boolean;
+
+    /**
+     * Indicates whether the options are currently loading.
+     */
+    isLoading?: boolean;
+
+    /**
+     * Callback triggered when the end of the list is reached.
+     */
+    onLoadMore?: () => void;
+
+    /**
+     * Indicates if there are more options to load.
+     */
+    hasNextPage?: boolean;
 }
 
 /**
@@ -315,6 +330,9 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
             deduplicateOptions = false,
             resetOnDefaultValueChange = true,
             closeOnSelect = false,
+            isLoading,
+            onLoadMore,
+            hasNextPage,
             ...props
         },
         ref,
@@ -344,6 +362,22 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
         const listboxId = `${multiSelectId}-listbox`;
         const triggerDescriptionId = `${multiSelectId}-description`;
         const selectedCountId = `${multiSelectId}-count`;
+
+        const sentinelRef = React.useRef<HTMLDivElement>(null);
+        const handleSentinelRef = React.useCallback((el: HTMLDivElement | null) => {
+            ;(sentinelRef as any).current = el;
+            if (!el || !onLoadMore) return;
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    if (entries[0].isIntersecting && hasNextPage && !isLoading) {
+                        onLoadMore();
+                    }
+                },
+                { threshold: 0.1 },
+            );
+            observer.observe(el);
+            return () => observer.disconnect();
+        }, [onLoadMore, hasNextPage, isLoading]);
 
         const prevDefaultValueRef = React.useRef<string[]>( defaultValue );
 
@@ -1087,6 +1121,16 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                                             );
                                         } )}
                                     </CommandGroup>
+                                )}
+                                {onLoadMore && (
+                                    <div ref={handleSentinelRef} className="py-1">
+                                        {isLoading && (
+                                            <div className="flex items-center justify-center py-2 text-xs text-muted-foreground gap-1.5">
+                                                <LoaderIcon className="size-3 animate-spin" />
+                                                Loading more...
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
                                 <CommandSeparator />
                                 <CommandGroup>

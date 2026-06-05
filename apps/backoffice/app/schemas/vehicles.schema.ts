@@ -38,3 +38,10 @@ export const updateVehicleSchema = vehicleBaseSchema
 
 export type CreateVehicleFormValues = z.infer<typeof createVehicleSchema>
 export type UpdateVehicleFormValues = z.infer<typeof updateVehicleSchema>
+
+export const vehicleAssignmentSchema = z.object({
+    stationId: z.string().min(1, 'Please select a station.'),
+    vehicleIds: z.array(z.string()).min(1, 'Please select at least one vehicle.'),
+})
+
+export type VehicleAssignmentValues = z.infer<typeof vehicleAssignmentSchema>

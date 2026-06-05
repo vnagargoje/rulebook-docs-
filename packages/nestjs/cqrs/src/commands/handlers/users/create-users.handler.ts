@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestException, ConflictException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { AddressEntity, RoleEntity, UserEntity } from '@yugo/nestjs-database/entities'
@@ -20,6 +20,27 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
 
             if (!role) {
                 throw new BadRequestException(`User role ${body.role} does not exist`)
+            }
+
+            const isEmployee = body.role !== 'customer'
+            const entityName = isEmployee ? 'Employee' : 'Customer'
+
+            if (body.mobilenumber) {
+                const existingUserMobile = await manager.findOne(UserEntity, {
+                    where: { mobilenumber: body.mobilenumber },
+                })
+                if (existingUserMobile) {
+                    throw new ConflictException(`${entityName} with this mobile number already exists.`)
+                }
+            }
+
+            if (body.email) {
+                const existingUserEmail = await manager.findOne(UserEntity, {
+                    where: { email: body.email },
+                })
+                if (existingUserEmail) {
+                    throw new ConflictException(`${entityName} with this email address already exists.`)
+                }
             }
 
             const user = manager.create(UserEntity, {

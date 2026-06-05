@@ -6,77 +6,72 @@ import { IconArrowLeft } from '@tabler/icons-react'
 import { MultiSelectField, SearchableSelectField } from '~/components/forms/controlled-fields'
 import { Button } from '~/components/ui/button'
 import { Form } from '~/components/ui/form'
-import { useInfiniteBatteries, useUpdateBattery } from '~/queries/batteries'
+import { useInfiniteVehicles, useUpdateVehicle } from '~/queries/vehicles'
 import { useInfiniteStations } from '~/queries/stations'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 import { useCallback, useMemo, useState } from 'react'
-import { batteryAssignmentSchema, type BatteryAssignmentValues } from '~/schemas'
+import { vehicleAssignmentSchema, type VehicleAssignmentValues } from '~/schemas'
 
-export default function AssignBatteriesRoute() {
+export default function AssignVehiclesRoute() {
     const navigate = useNavigate()
     const { data: stationsData, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations()
-    const updateBattery = useUpdateBattery()
+    const updateVehicle = useUpdateVehicle()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const form = useForm<BatteryAssignmentValues>({
-        resolver: zodResolver(batteryAssignmentSchema),
-        defaultValues: { stationId: '', status: '', batteryIds: [] as string[] },
+    const form = useForm<VehicleAssignmentValues>({
+        resolver: zodResolver(vehicleAssignmentSchema),
+        defaultValues: { stationId: '', vehicleIds: [] as string[] },
     })
 
-    const selectedStatus = form.watch('status')
-
-    const batteryQueryParams = useMemo(() => {
+    const vehicleQueryParams = useMemo(() => {
         const params: Record<string, any> = {}
-        if (selectedStatus) {
-            params['filter.status'] = [`$eq:${selectedStatus}`]
-        }
         return params
-    }, [selectedStatus])
+    }, [])
 
-    const { data: batteriesData, isFetching: isBatteriesFetching, fetchNextPage: fetchNextBatteryPage, hasNextPage: hasNextBatteryPage } = useInfiniteBatteries(batteryQueryParams as any)
+    const { data: vehiclesData, isFetching: isVehiclesFetching, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles(vehicleQueryParams as any)
 
     const onSubmit = useCallback(
-        async (values: BatteryAssignmentValues) => {
+        async (values: VehicleAssignmentValues) => {
             setIsSubmitting(true)
             try {
-                const allBatteries = (batteriesData?.pages ?? []).flatMap((p) => p.data)
                 await Promise.all(
-                    values.batteryIds.map((id) => {
-                        const bat = allBatteries.find((b) => b.id === id)
-                        return updateBattery.mutateAsync({
+                    values.vehicleIds.map((id) => {
+                        return updateVehicle.mutateAsync({
                             id,
-                            data: { batteryQrId: bat?.batteryQrId ?? '', stationId: values.stationId },
+                            data: { stationId: values.stationId },
                         })
                     }),
                 )
-                toast.success('Batteries assigned to station')
-                navigate('/batteries')
+                toast.success('Vehicle(s) assigned successfully.')
+                navigate('/vehicles')
             } catch {
-                toast.error('Failed to assign some batteries')
+                toast.error('Failed to assign some vehicles')
             } finally {
                 setIsSubmitting(false)
             }
         },
-        [batteriesData?.pages, updateBattery, navigate],
+        [vehiclesData?.pages, updateVehicle, navigate],
     )
 
     const stationOptions = useMemo(
         () => (stationsData?.pages ?? []).flatMap((p) => p.data).map((s) => ({ label: s.name, value: s.id })),
         [stationsData?.pages],
     )
-    const unassignedBatteries = useMemo(
-        () => (batteriesData?.pages ?? []).flatMap((p) => p.data).filter((b) => !b.stationId),
-        [batteriesData?.pages],
+
+    const unassignedVehicles = useMemo(
+        () => (vehiclesData?.pages ?? []).flatMap((p) => p.data).filter((v) => !v.stationId),
+        [vehiclesData?.pages],
     )
-    const batteryOptions = useMemo(
+
+    const vehicleOptions = useMemo(
         () =>
-            unassignedBatteries.map((b) => ({
-                label: `${b.batteryQrId} (${b.properties?.capacity ?? '?'}Ah)`,
-                value: b.id,
+            unassignedVehicles.map((v) => ({
+                label: `${v.vehicleNumber} (${v.properties?.brand ?? ''} ${v.properties?.model ?? ''})`.trim(),
+                value: v.id,
             })),
-        [unassignedBatteries],
+        [unassignedVehicles],
     )
 
     return (
@@ -90,8 +85,8 @@ export default function AssignBatteriesRoute() {
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader
-                    title='Assign Batteries to Station'
-                    description='Allocate stock to swapping hubs'
+                    title='Assign Vehicles to Station'
+                    description='Allocate fleet vehicles to swapping hubs'
                 />
             </div>
 
@@ -104,7 +99,7 @@ export default function AssignBatteriesRoute() {
                             <SearchableSelectField
                                 control={form.control}
                                 name='stationId'
-                                label='Target Station'
+                                label='Destination Station'
                                 placeholder='Select Station'
                                 options={stationOptions}
                                 isLoading={isStationsFetching}
@@ -112,42 +107,29 @@ export default function AssignBatteriesRoute() {
                                 hasNextPage={hasNextStationPage}
                             />
 
-                            <SearchableSelectField
-                                control={form.control}
-                                name='status'
-                                label='Battery Status'
-                                placeholder='Select battery status'
-                                options={[
-                                    { label: 'Available', value: 'Available' },
-                                    { label: 'Charging', value: 'Charging' },
-                                    { label: 'Drained', value: 'Drained' }
-                                ]}
-                            />
-
                             <MultiSelectField
                                 control={form.control}
-                                name='batteryIds'
-                                label='Select Batteries'
-                                placeholder='Choose one or more batteries'
-                                options={batteryOptions}
-                                isLoading={isBatteriesFetching}
-                                onLoadMore={fetchNextBatteryPage}
-                                hasNextPage={hasNextBatteryPage}
-                                disabled={!selectedStatus}
+                                name='vehicleIds'
+                                label='Select Vehicles'
+                                placeholder='Choose one or more vehicles'
+                                options={vehicleOptions}
+                                isLoading={isVehiclesFetching}
+                                onLoadMore={fetchNextVehiclePage}
+                                hasNextPage={hasNextVehiclePage}
                             />
 
                             <div className='flex justify-end gap-3 pt-6 border-t mt-4'>
                                 <Button
                                     type='button'
                                     variant='ghost'
-                                    onClick={() => navigate('/batteries')}>
+                                    onClick={() => navigate('/vehicles')}>
                                     Cancel
                                 </Button>
                                 <Button
                                     type='submit'
                                     disabled={isSubmitting}
                                     className='min-w-35 uppercase text-xs font-bold tracking-widest'>
-                                    {isSubmitting ? 'Assigning...' : 'Complete Allocation'}
+                                    {isSubmitting ? 'Assigning...' : 'Assign Vehicle'}
                                 </Button>
                             </div>
                         </form>

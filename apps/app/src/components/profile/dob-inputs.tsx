@@ -125,6 +125,7 @@ export function DobInputs({ value, onChange }: DobInputsProps) {
                     flex={1}
                     onChangeText={(v) => {
                         const next = v.replace(/\D/g, '').slice(0, 2)
+                        if (next && parseInt(next, 10) > 31) return
                         setDd(next)
                         emit(next, mm, yyyy)
                         if (next.length === 2) monthRef.current?.focus()
@@ -138,6 +139,7 @@ export function DobInputs({ value, onChange }: DobInputsProps) {
                     inputRef={monthRef}
                     onChangeText={(v) => {
                         const next = v.replace(/\D/g, '').slice(0, 2)
+                        if (next && parseInt(next, 10) > 12) return
                         setMm(next)
                         emit(dd, next, yyyy)
                         if (next.length === 2) yearRef.current?.focus()

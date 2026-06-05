@@ -17,10 +17,13 @@ export const panSchema = z.object({
 })
 
 export const licenseSchema = z.object({
-    dlNumber: z.string().min(5, 'Enter a valid DL number').trim(),
+    dlNumber: z
+        .string()
+        .transform((v) => v.toUpperCase().trim())
+        .pipe(z.string().regex(/^[A-Z]{2}\d{13}$/, 'Enter a valid DL number (e.g. MH0123456789012)')),
     dateOfBirth: z
         .string()
-        .regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter date as YYYY-MM-DD')
+        .regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter date as DD-MM-YYYY')
         .trim(),
 })
 
@@ -87,9 +90,7 @@ export const addressSchema = z
 
 export const emergencyContactSchema = z.object({
     contactName: z.string().min(2, 'Name is required').trim(),
-    contactMobile: z
-        .string()
-        .regex(/^[6-9]\d{9}$/, 'Enter a valid 10-digit mobile number'),
+    contactMobile: z.string().regex(/^[6-9]\d{9}$/, 'Enter a valid 10-digit mobile number'),
 })
 
 export type AadhaarFormValues = z.infer<typeof aadhaarFormSchema>

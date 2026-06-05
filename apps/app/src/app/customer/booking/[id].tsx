@@ -173,38 +173,6 @@ export default function BookingDetailScreen() {
                         </View>
                     )}
 
-                    {booking.status !== 'completed' && booking.userPlan?.qrCode?.path ? (
-                        <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
-                            <View className='border-b border-neutral-100 px-5 py-4'>
-                                <View className='flex-row items-center gap-3'>
-                                    <View className='h-10 w-10 items-center justify-center rounded-xl bg-success-50'>
-                                        <MaterialCommunityIcons
-                                            name='qrcode-scan'
-                                            size={20}
-                                            color='#16A34A'
-                                        />
-                                    </View>
-                                    <View>
-                                        <Text className='text-sm font-bold text-neutral-900'>Plan QR Code</Text>
-                                        <Text className='text-xs text-neutral-500'>Scan at the station</Text>
-                                    </View>
-                                </View>
-                            </View>
-                            <View className='items-center px-5 pb-5 pt-4'>
-                                <View className='overflow-hidden rounded-[20px] border border-neutral-100 bg-neutral-50 p-5'>
-                                    <Image
-                                        source={{ uri: booking.userPlan.qrCode.path }}
-                                        contentFit='contain'
-                                        className='h-60 w-60'
-                                    />
-                                </View>
-                                <Text className='mt-4 text-center text-xs leading-5 text-neutral-500'>
-                                    Show this QR code for subscription verification and battery swap flow
-                                </Text>
-                            </View>
-                        </View>
-                    ) : null}
-
                     {!booking.vehicle && !booking.station && booking.status === 'created' && (
                         <View className='flex-row items-start gap-4 rounded-[28px] border border-dashed border-warning-300 bg-warning-50 px-5 py-5'>
                             <View className='mt-0.5 h-10 w-10 items-center justify-center rounded-xl bg-warning-100'>
@@ -223,8 +191,6 @@ export default function BookingDetailScreen() {
                             </View>
                         </View>
                     )}
-
-
 
                     {booking.station && (
                         <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
@@ -257,6 +223,38 @@ export default function BookingDetailScreen() {
                             </View>
                         </View>
                     )}
+
+                    {booking.status !== 'completed' && booking.userPlan?.qrCode?.path ? (
+                        <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
+                            <View className='border-b border-neutral-100 px-5 py-4'>
+                                <View className='flex-row items-center gap-3'>
+                                    <View className='h-10 w-10 items-center justify-center rounded-xl bg-success-50'>
+                                        <MaterialCommunityIcons
+                                            name='qrcode-scan'
+                                            size={20}
+                                            color='#16A34A'
+                                        />
+                                    </View>
+                                    <View>
+                                        <Text className='text-sm font-bold text-neutral-900'>Plan QR Code</Text>
+                                        <Text className='text-xs text-neutral-500'>Scan at the station</Text>
+                                    </View>
+                                </View>
+                            </View>
+                            <View className='items-center px-5 pb-5 pt-4'>
+                                <View className='overflow-hidden rounded-[20px] border border-neutral-100 bg-neutral-50 p-5'>
+                                    <Image
+                                        source={{ uri: booking.userPlan.qrCode.path }}
+                                        contentFit='contain'
+                                        className='h-60 w-60'
+                                    />
+                                </View>
+                                <Text className='mt-4 text-center text-xs leading-5 text-neutral-500'>
+                                    Show this QR code for subscription verification and battery swap flow
+                                </Text>
+                            </View>
+                        </View>
+                    ) : null}
 
                     {(booking.vehicle || booking.battery) && (
                         <View className='flex-row gap-3'>
@@ -509,10 +507,10 @@ export default function BookingDetailScreen() {
                                         <View
                                             key={topUp.id}
                                             className={`rounded-2xl border px-4 py-4 ${isApplied
-                                                    ? 'border-success-100 bg-success-50'
-                                                    : topUp.status === 'awaiting'
-                                                        ? 'border-warning-100 bg-warning-50'
-                                                        : 'border-red-100 bg-red-50'
+                                                ? 'border-success-100 bg-success-50'
+                                                : topUp.status === 'awaiting'
+                                                    ? 'border-warning-100 bg-warning-50'
+                                                    : 'border-red-100 bg-red-50'
                                                 }`}>
                                             <View className='flex-row items-start justify-between gap-3'>
                                                 <View className='flex-1'>

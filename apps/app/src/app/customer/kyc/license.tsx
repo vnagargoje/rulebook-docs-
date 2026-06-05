@@ -71,6 +71,7 @@ export default function LicenseScreen() {
                                             placeholder='KA0120191234567'
                                             placeholderTextColor='#C4C9D4'
                                             autoCapitalize='characters'
+                                            maxLength={15}
                                             style={inputStyle}
                                         />
                                     </FieldWrapper>

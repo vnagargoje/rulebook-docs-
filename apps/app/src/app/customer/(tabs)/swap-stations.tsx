@@ -10,15 +10,7 @@ import { useSwapStations } from '@/queries/customer'
 
 export default function SwapStationsScreen() {
     const router = useRouter()
-    const {
-        data,
-        isLoading,
-        refetch,
-        isRefetching,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-    } = useSwapStations()
+    const { data, isLoading, refetch, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useSwapStations()
 
     const stations = data?.pages.flatMap((page) => page.data) ?? []
 
@@ -93,7 +85,7 @@ export default function SwapStationsScreen() {
                             </Text>
                         </View>
 
-                        {/* <TouchableOpacity
+                        <TouchableOpacity
                             onPress={() => router.push('/customer/nearby-swap-stations')}
                             className='flex-row items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-4'>
                             <View className='h-10 w-10 items-center justify-center rounded-xl bg-primary-50'>
@@ -105,12 +97,14 @@ export default function SwapStationsScreen() {
                             </View>
                             <View className='flex-1'>
                                 <Text className='text-sm font-semibold text-neutral-900'>Nearby Me</Text>
-                                <Text className='text-xs text-neutral-500'>
-                                    View nearest stations on the map
-                                </Text>
+                                <Text className='text-xs text-neutral-500'>View nearest stations on the map</Text>
                             </View>
-                            <MaterialCommunityIcons name='chevron-right' size={20} color='#9CA3AF' />
-                        </TouchableOpacity> */}
+                            <MaterialCommunityIcons
+                                name='chevron-right'
+                                size={20}
+                                color='#9CA3AF'
+                            />
+                        </TouchableOpacity>
                     </View>
                 }
                 ListFooterComponent={
@@ -134,9 +128,7 @@ export default function SwapStationsScreen() {
                                 size={48}
                                 color='#D1D5DB'
                             />
-                            <Text className='mt-4 text-lg font-semibold text-neutral-900'>
-                                No swap stations found
-                            </Text>
+                            <Text className='mt-4 text-lg font-semibold text-neutral-900'>No swap stations found</Text>
                             <Text className='mt-2 text-sm text-neutral-500'>
                                 Check back soon as we expand our network
                             </Text>

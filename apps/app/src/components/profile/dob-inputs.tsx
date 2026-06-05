@@ -98,18 +98,8 @@ export function DobInputs({ value, onChange }: DobInputsProps) {
 
     const emit = (d: string, m: string, y: string) => {
         if (d.length === 2 && m.length === 2 && y.length === 4) {
-            const day = Number(d)
-            const month = Number(m)
-            const year = Number(y)
-            const isMonthValid = month >= 1 && month <= 12
-            const isYearValid = year >= 1900 && year <= new Date().getFullYear()
-            const daysInMonth = isMonthValid ? new Date(year, month, 0).getDate() : 0
-            const isDayValid = day >= 1 && day <= daysInMonth
-
-            if (isMonthValid && isYearValid && isDayValid) {
-                onChange(`${y}-${m}-${d}`)
-                return
-            }
+            onChange(`${y}-${m}-${d}`)
+            return
         }
 
         onChange('')
@@ -125,6 +115,7 @@ export function DobInputs({ value, onChange }: DobInputsProps) {
                     flex={1}
                     onChangeText={(v) => {
                         const next = v.replace(/\D/g, '').slice(0, 2)
+                        if (next && parseInt(next, 10) > 31) return
                         setDd(next)
                         emit(next, mm, yyyy)
                         if (next.length === 2) monthRef.current?.focus()
@@ -138,6 +129,7 @@ export function DobInputs({ value, onChange }: DobInputsProps) {
                     inputRef={monthRef}
                     onChangeText={(v) => {
                         const next = v.replace(/\D/g, '').slice(0, 2)
+                        if (next && parseInt(next, 10) > 12) return
                         setMm(next)
                         emit(dd, next, yyyy)
                         if (next.length === 2) yearRef.current?.focus()

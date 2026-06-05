@@ -5,13 +5,13 @@ import { Keyboard } from 'react-native'
 
 import { showErrorMessage } from '@/components/ui'
 import { useKycFlow } from '@/hooks/customer/use-kyc-flow'
-import { usePanVerify } from '@/queries/customer/kyc.query'
+import { getFirstIncompleteKycRoute, isAttemptLimitReached, usePanVerify } from '@/queries/customer/kyc.query'
 import { panSchema, type PanFormValues } from '@/schema/kyc/kyc.schema'
 
 const CURRENT_ROUTE = '/customer/kyc/pan'
 
 export function usePanVerification() {
-    const { panState, refreshAndNavigate, navigateToNext } = useKycFlow()
+    const { panState, refreshStatus, navigateToNext } = useKycFlow()
     const panVerify = usePanVerify()
     const isSubmittingRef = useRef(false)
 
@@ -36,15 +36,33 @@ export function usePanVerification() {
             if (result.success && deepvueCode === 200 && deepvueStatus === 'VALID') {
                 await navigateToNext('/customer/kyc/license')
             } else {
-                const navigated = await refreshAndNavigate(CURRENT_ROUTE)
-                if (!navigated) {
+                const nextStatus = await refreshStatus()
+
+                if (isAttemptLimitReached(nextStatus.pan)) {
+                    showErrorMessage('Your PAN KYC attempt limit has been reached. Continue with Driving License.')
+                    return
+                }
+
+                const nextRoute = getFirstIncompleteKycRoute(nextStatus)
+                if (nextRoute !== CURRENT_ROUTE) {
+                    await navigateToNext(nextRoute)
+                } else {
                     const errorMsg = result.data?.message || result.message || 'PAN verification failed. Please check the number and try again.'
                     showErrorMessage(errorMsg)
                 }
             }
         } catch (error: any) {
-            const navigated = await refreshAndNavigate(CURRENT_ROUTE)
-            if (!navigated) {
+            const nextStatus = await refreshStatus()
+
+            if (isAttemptLimitReached(nextStatus.pan)) {
+                showErrorMessage('Your PAN KYC attempt limit has been reached. Continue with Driving License.')
+                return
+            }
+
+            const nextRoute = getFirstIncompleteKycRoute(nextStatus)
+            if (nextRoute !== CURRENT_ROUTE) {
+                await navigateToNext(nextRoute)
+            } else {
                 const errorMessage = error?.response?.data?.message || 'PAN verification failed. Please try again.'
                 showErrorMessage(typeof errorMessage === 'string' ? errorMessage : 'PAN verification failed. Please try again.')
             }

@@ -25,6 +25,14 @@ import { TransactionResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<TransactionEntity> = {
     sortableColumns: ['id', 'status', 'amount', 'createdAt'],
+    searchableColumns: [
+        'id',
+        'userPlan.user.firstName',
+        'userPlan.user.lastName',
+        'userPlan.user.email',
+        'userPlan.user.mobilenumber',
+    ],
+    relations: ['userPlan', 'userPlan.user'],
     defaultLimit: 20,
     maxLimit: 10000,
     filterableColumns: {

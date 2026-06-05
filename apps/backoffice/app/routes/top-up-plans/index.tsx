@@ -12,7 +12,9 @@ import { useListingState } from '~/hooks'
 
 export default function TopUpPlansListRoute() {
     const navigate = useNavigate()
-    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
+    const { page, setPage, searchQuery, setSearchQuery, filters, setFilters, resetFilters } = useListingState({
+        initialFilters: { status: 'all' }
+    })
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -21,6 +23,11 @@ export default function TopUpPlansListRoute() {
             limit: 10,
             sortBy: ['createdAt:DESC'],
         }
+
+        if (filters.status && filters.status !== 'all') {
+            params['filter.active'] = [`$eq:${filters.status}`]
+        }
+
         if (deferredSearchQuery) {
             params.search = deferredSearchQuery
         }
@@ -72,6 +79,19 @@ export default function TopUpPlansListRoute() {
                 searchPlaceholder="Search top-ups by name or description..."
                 searchValue={searchQuery}
                 onSearchChange={setSearchQuery}
+                filterValues={filters}
+                onFilterChange={setFilters}
+                onReset={resetFilters}
+                filterConfigs={[
+                    {
+                        field: 'active',
+                        label: 'Status',
+                        options: [
+                            { label: 'Active', value: 'true' },
+                            { label: 'Inactive', value: 'false' },
+                        ]
+                    }
+                ] as any}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? topUps.length}

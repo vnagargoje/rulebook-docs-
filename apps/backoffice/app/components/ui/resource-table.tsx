@@ -1,4 +1,4 @@
-import { useState, useMemo, type ReactNode } from 'react'
+import { useState, useMemo, useEffect, useRef, type ReactNode } from 'react'
 import { IconChevronLeft, IconChevronRight, IconSearch, IconX } from '@tabler/icons-react'
 
 import { Card, CardContent, CardFooter } from '~/components/ui/card'
@@ -47,6 +47,48 @@ interface ResourceTableProps<T extends { id: string }> {
     totalPages?: number
     totalItems?: number
     onPageChange?: (page: number) => void
+    onReset?: () => void
+}
+
+function DebouncedInput({ 
+    value: externalValue, 
+    onChange, 
+    placeholder, 
+    className 
+}: { 
+    value: string, 
+    onChange: (val: string) => void, 
+    placeholder?: string, 
+    className?: string 
+}) {
+    const [value, setValue] = useState(externalValue)
+    const onChangeRef = useRef(onChange)
+
+    useEffect(() => {
+        onChangeRef.current = onChange
+    }, [onChange])
+
+    useEffect(() => {
+        setValue(externalValue)
+    }, [externalValue])
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (value !== externalValue) {
+                onChangeRef.current(value)
+            }
+        }, 300)
+        return () => clearTimeout(timeout)
+    }, [value, externalValue])
+
+    return (
+        <Input
+            placeholder={placeholder}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            className={className}
+        />
+    )
 }
 
 export function ResourceTable<T extends { id: string }>({
@@ -68,6 +110,7 @@ export function ResourceTable<T extends { id: string }>({
     totalPages: controlledTotalPages,
     totalItems: controlledTotalItems,
     onPageChange,
+    onReset,
 }: ResourceTableProps<T>) {
     const [localCurrentPage, setLocalCurrentPage] = useState(1)
     const [localSearchQuery, setLocalSearchQuery] = useState('')
@@ -137,6 +180,11 @@ export function ResourceTable<T extends { id: string }>({
     }
 
     const resetFilters = () => {
+        if (onReset) {
+            onReset()
+            return
+        }
+
         if (onSearchChange) {
             onSearchChange('')
         } else {
@@ -149,7 +197,9 @@ export function ResourceTable<T extends { id: string }>({
             setLocalActiveFilters({})
         }
 
-        goToPage(1)
+        if (!isControlledMode) {
+            goToPage(1)
+        }
     }
 
     const hasActiveFilters = searchQuery !== '' || Object.values(activeFilters).some(v => v !== 'all')
@@ -158,25 +208,24 @@ export function ResourceTable<T extends { id: string }>({
         <Card className={cn('gap-0 flex flex-col overflow-hidden border-slate-200 shadow-sm', className)}>
             <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 bg-white border-b">
                 <div className="flex-1 flex flex-col md:flex-row items-center gap-3">
-                    <div className="relative w-full md:w-80">
+                    {!!(onSearchChange || (searchFields && searchFields.length > 0)) && (
+                        <div className="relative w-full md:w-80">
                         <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                        <Input
+                        <DebouncedInput
                             placeholder={searchPlaceholder}
                             value={searchQuery}
-                            onChange={(e) => {
-                                const nextValue = e.target.value
-
+                            onChange={(nextValue) => {
                                 if (onSearchChange) {
                                     onSearchChange(nextValue)
                                 } else {
                                     setLocalSearchQuery(nextValue)
+                                    goToPage(1)
                                 }
-
-                                goToPage(1)
                             }}
                             className="pl-10 h-10 border-slate-200 focus:border-primary focus:ring-primary/10 transition-all rounded-xl text-sm"
                         />
                     </div>
+                    )}
                     
                     <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto no-scrollbar">
                         {filterConfigs.map((config) => (
@@ -193,9 +242,8 @@ export function ResourceTable<T extends { id: string }>({
                                         onFilterChange(nextFilters)
                                     } else {
                                         setLocalActiveFilters(nextFilters)
+                                        goToPage(1)
                                     }
-
-                                    goToPage(1)
                                 }}
                             >
                                 <SelectTrigger className="h-10 w-[140px] rounded-xl border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-600 focus:ring-primary/10">

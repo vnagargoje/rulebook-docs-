@@ -1,15 +1,34 @@
 import { useNavigate } from 'react-router'
 import { IconEye, IconPlus } from '@tabler/icons-react'
+import { useMemo, useDeferredValue } from 'react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { Button } from '~/components/ui/button'
 import { formatCurrency, formatDate } from '~/lib/formatter'
-import { useSurrenders, type SurrenderListItem } from '~/queries/surrender'
+import { useSurrenders, type SurrenderListItem, type SurrenderListParams } from '~/queries/surrender'
+import { useListingState } from '~/hooks'
 
 export default function SurrendersListRoute() {
     const navigate = useNavigate()
-    const { data, isLoading } = useSurrenders()
+    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
+    const deferredSearchQuery = useDeferredValue(searchQuery.trim())
+
+    const queryParams = useMemo(() => {
+        const params: SurrenderListParams = {
+            page,
+            limit: 10,
+            sortBy: ['createdAt:DESC'],
+        }
+
+        if (deferredSearchQuery) {
+            (params as any).search = deferredSearchQuery
+        }
+
+        return params
+    }, [page, deferredSearchQuery])
+
+    const { data, isLoading } = useSurrenders(queryParams)
 
     const surrenders = data?.data ?? []
     const meta = data?.meta
@@ -34,9 +53,13 @@ export default function SurrendersListRoute() {
             <ResourceTable
                 data={surrenders}
                 emptyMessage="No surrenders found."
-                totalItems={meta?.totalItems}
-                totalPages={meta?.totalPages}
-                currentPage={meta?.currentPage}
+                searchPlaceholder="Search surrenders..."
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
+                totalItems={meta?.totalItems ?? surrenders.length}
+                totalPages={meta?.totalPages ?? 1}
+                currentPage={meta?.currentPage ?? page}
+                onPageChange={setPage}
                 columns={[
                     { header: 'Vehicle', cell: (s: SurrenderListItem) => s.vehicle?.vehicleNumber ?? s.vehicleId },
                     { header: 'Booking', cell: (s: SurrenderListItem) => s.bookingId },

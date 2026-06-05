@@ -12,7 +12,9 @@ import { useListingState } from '~/hooks'
 
 export default function SwapStationsListRoute() {
     const navigate = useNavigate()
-    const { page, setPage, searchQuery, setSearchQuery } = useListingState()
+    const { page, setPage, searchQuery, setSearchQuery, filters, setFilters, resetFilters } = useListingState({
+        initialFilters: { status: 'all' }
+    })
     const deferredSearchQuery = useDeferredValue(searchQuery.trim())
 
     const queryParams = useMemo(() => {
@@ -23,12 +25,16 @@ export default function SwapStationsListRoute() {
             'filter.type': ['$eq:swap_station'],
         }
 
+        if (filters.status && filters.status !== 'all') {
+            params['filter.active'] = [`$eq:${filters.status}`]
+        }
+
         if (deferredSearchQuery) {
             params['filter.name'] = [`$ilike:${deferredSearchQuery}`]
         }
 
         return params
-    }, [deferredSearchQuery, page])
+    }, [deferredSearchQuery, page, filters])
 
     const { data, isLoading } = useStations(queryParams)
     const stations = data?.data ?? []
@@ -79,6 +85,19 @@ export default function SwapStationsListRoute() {
                 searchPlaceholder="Search swap stations by name..."
                 searchValue={searchQuery}
                 onSearchChange={setSearchQuery}
+                filterValues={filters}
+                onFilterChange={setFilters}
+                onReset={resetFilters}
+                filterConfigs={[
+                    {
+                        field: 'active',
+                        label: 'Status',
+                        options: [
+                            { label: 'Active', value: 'true' },
+                            { label: 'Inactive', value: 'false' },
+                        ]
+                    }
+                ] as any}
                 currentPage={paginationMeta?.currentPage ?? page}
                 totalPages={paginationMeta?.totalPages ?? 1}
                 totalItems={paginationMeta?.totalItems ?? stations.length}

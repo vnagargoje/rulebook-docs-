@@ -147,7 +147,7 @@ export function EditProfileScreen({ onSuccess }: EditProfileScreenProps = {}) {
                         control={control}
                         name='dateOfBirth'
                         render={({ field: { value, onChange } }) => (
-                            <FieldWrapper label='Date of Birth'>
+                            <FieldWrapper label='Date of Birth' error={errors.dateOfBirth?.message}>
                                 <DobInputs
                                     value={value}
                                     onChange={onChange}

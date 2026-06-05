@@ -9,7 +9,15 @@ export function MultiSelectField({
     placeholder,
     disabled,
     options,
-}: BaseFieldProps & { options: SelectOption[] }) {
+    isLoading,
+    onLoadMore,
+    hasNextPage,
+}: BaseFieldProps & { 
+    options: SelectOption[]
+    isLoading?: boolean
+    onLoadMore?: () => void
+    hasNextPage?: boolean
+}) {
     return (
         <FormField
             control={control}
@@ -24,6 +32,9 @@ export function MultiSelectField({
                             defaultValue={field.value ?? []}
                             placeholder={placeholder}
                             disabled={disabled}
+                            isLoading={isLoading}
+                            onLoadMore={onLoadMore}
+                            hasNextPage={hasNextPage}
                         />
                     </FormControl>
                     <FormMessage />

@@ -1,4 +1,5 @@
 import { ApiResource } from '@/decorators/api-resource.decorator';
+import { Public } from '@/decorators/public.decorator';
 import { AppAuthGuard } from '@/guards/app.guard';
 import {
     Body,
@@ -59,6 +60,7 @@ export class V1StationsController {
         private readonly queryBus: QueryBus,
     ) { }
 
+    @Public()
     @Get()
     @ApiResource(StationResponse, PAGINATE_CONFIG)
     async getManyStations(
@@ -72,6 +74,7 @@ export class V1StationsController {
         return paginate(query, queryBuilder, PAGINATE_CONFIG);
     }
 
+    @Public()
     @Get(':id')
     @ApiResource(StationResponse)
     async getOneStation(@Param('id') id: string, @Req() req: Request) {

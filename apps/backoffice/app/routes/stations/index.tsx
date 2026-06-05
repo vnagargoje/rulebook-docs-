@@ -6,7 +6,6 @@ import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
-import { formatLabel } from '~/lib/formatter'
 import { useStations, type StationItem, type StationsListParams } from '~/queries/stations'
 import { getStationCreatePath, getStationEditPath, getStationViewPath } from '~/constants'
 import { useListingState } from '~/hooks'
@@ -43,7 +42,6 @@ export default function SwapStationsListRoute() {
 
     const columns = useMemo(() => [
         { header: 'Name', accessor: 'name' as const },
-        { header: 'Type', cell: (station: StationItem) => formatLabel(station.type) },
         { header: 'City', cell: (station: StationItem) => station.address?.city?.name ?? '—' },
         {
             header: 'Status',

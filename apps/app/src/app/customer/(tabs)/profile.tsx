@@ -209,14 +209,14 @@ export default function CustomerProfileScreen() {
                                 value={kycComplete ? 'Verified' : 'Pending'}
                                 onPress={handleKycPress}
                             />
-                            <View className='ml-14 border-b border-neutral-100' />
+                            {/* <View className='ml-14 border-b border-neutral-100' />
                             <ProfileMenuItem
                                 icon='credit-card-outline'
                                 label='Payment Methods'
                                 subtitle='Manage your payment options'
                                 color='#7C3AED'
                                 onPress={() => handleComingSoon('Payment Methods')}
-                            />
+                            /> */}
                         </View>
                     </View>
 

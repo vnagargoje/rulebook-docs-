@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common'
+import { ConflictException, NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { InjectDataSource } from '@nestjs/typeorm'
 import { AddressEntity, RoleEntity, UserEntity } from '@yugo/nestjs-database/entities'
@@ -21,6 +21,27 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
 
             if (!user) {
                 throw new NotFoundException('User not found')
+            }
+
+            const isEmployee = (body.role ? body.role !== 'customer' : user.roles?.some((r) => r.name !== 'customer')) ?? false
+            const entityName = isEmployee ? 'Employee' : 'Customer'
+
+            if (body.mobilenumber && body.mobilenumber !== user.mobilenumber) {
+                const existingUserMobile = await manager.findOne(UserEntity, {
+                    where: { mobilenumber: body.mobilenumber },
+                })
+                if (existingUserMobile && existingUserMobile.id !== user.id) {
+                    throw new ConflictException(`${entityName} with this mobile number already exists.`)
+                }
+            }
+
+            if (body.email && body.email !== user.email) {
+                const existingUserEmail = await manager.findOne(UserEntity, {
+                    where: { email: body.email },
+                })
+                if (existingUserEmail && existingUserEmail.id !== user.id) {
+                    throw new ConflictException(`${entityName} with this email address already exists.`)
+                }
             }
 
             if (canUpdateRole && body.role) {

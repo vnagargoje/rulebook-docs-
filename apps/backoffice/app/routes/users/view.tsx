@@ -148,7 +148,7 @@ export default function UserViewRoute() {
                         <StatTile label="Role" value={role} icon={IconUser} />
                         <StatTile label="Gender" value={gender} icon={IconUser} />
                         <StatTile label="Address Entries" value={(user.addresses?.length ?? 0).toString()} icon={IconMapPin} />
-                        <StatTile label="Station" value={user.stationId ?? '—'} icon={IconMapPin} />
+                        <StatTile label="Station" value={(user as any).station?.name ?? 'Not Assigned'} icon={IconMapPin} />
                     </div>
                 </CardContent>
             </Card>

@@ -4,6 +4,7 @@ import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
+import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useVehicles, type VehiclesListParams, type VehicleItem } from '~/queries/vehicles'
 import { useStations } from '~/queries/stations'
@@ -58,6 +59,10 @@ export default function VehiclesListRoute() {
             cell: (vehicle: VehicleItem) => (
                 <span className="text-xs text-muted-foreground">{vehicle.properties?.insuranceExpiry ?? '—'}</span>
             ),
+        },
+        {
+            header: 'Status',
+            cell: (vehicle: VehicleItem) => <StatusBadge status={vehicle.status?.toUpperCase() ?? 'UNKNOWN'} />,
         },
         {
             header: 'Actions',

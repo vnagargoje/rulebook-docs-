@@ -22,7 +22,7 @@ function formatStationAddress(station: StationDetail) {
     const address = station.address
 
     if (!address) {
-        return '—'
+        return 'N/A'
     }
 
     return [
@@ -31,7 +31,7 @@ function formatStationAddress(station: StationDetail) {
         address.city?.name,
         address.city?.state?.name,
         address.pincode,
-    ].filter(Boolean).join(', ') || '—'
+    ].filter(Boolean).join(', ') || 'N/A'
 }
 
 export default function VehicleStationsViewRoute() {
@@ -105,7 +105,7 @@ export default function VehicleStationsViewRoute() {
                 <CardContent className="p-6">
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         <StatTile label="Station Type" value={formatLabel(station.type)} icon={IconMapPin} />
-                        <StatTile label="City" value={station.address?.city?.name ?? '—'} icon={IconMapPin} />
+                        <StatTile label="City" value={station.address?.city?.name ?? 'N/A'} icon={IconMapPin} />
                         <StatTile label="Assigned Vehicles" value={String(assignedVehicles.length)} icon={IconMotorbike} />
                     </div>
                 </CardContent>
@@ -194,7 +194,7 @@ export default function VehicleStationsViewRoute() {
                                         <IconMotorbike size={18} />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm font-semibold text-foreground">{vehicle.vehicleNumber ?? '—'}</p>
+                                        <p className="text-sm font-semibold text-foreground">{vehicle.vehicleNumber ?? 'N/A'}</p>
                                         <p className="text-[11px] text-muted-foreground">{vehicle.chassisNumber ?? vehicle.id}</p>
                                     </div>
                                     <StatusBadge status={vehicle.status ?? 'UNKNOWN'} />

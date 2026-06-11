@@ -48,7 +48,7 @@ export default function TransactionViewRoute() {
     const displayName = isTopUp ? (topUpSnap?.name ?? 'Top-Up') : (planSnap?.name ?? 'Plan')
     const totalAmount = transaction.amount
     const customer = transaction.userPlan?.user
-    const customerName = [customer?.firstName, customer?.lastName].filter(Boolean).join(' ') || '—'
+    const customerName = [customer?.firstName, customer?.lastName].filter(Boolean).join(' ') || 'N/A'
     const userId = transaction.userPlan?.userId
 
     return (
@@ -88,8 +88,8 @@ export default function TransactionViewRoute() {
 
                     {isTopUp ? (
                         <div className='grid grid-cols-2 gap-3 sm:grid-cols-4'>
-                            <StatTile label='KM Added' value={topUpSnap?.kmLimit ? formatKm(topUpSnap.kmLimit) : '—'} icon={IconBolt} />
-                            {/* <StatTile label='Validity Extension' value={topUpSnap?.validityDays ? `+${topUpSnap.validityDays} days` : '—'} icon={IconCalendarEvent} /> */}
+                            <StatTile label='KM Added' value={topUpSnap?.kmLimit ? formatKm(topUpSnap.kmLimit) : 'N/A'} icon={IconBolt} />
+                            {/* <StatTile label='Validity Extension' value={topUpSnap?.validityDays ? `+${topUpSnap.validityDays} days` : 'N/A'} icon={IconCalendarEvent} /> */}
                             <StatTile label='Applied At' value={transaction.userTopUp?.appliedAt ? formatDate(transaction.userTopUp.appliedAt) : 'Pending'} icon={IconShieldCheck} />
                             <StatTile label='Order ID' value={<span className='text-xs font-mono'>{transaction.razorpayOrderId.slice(-8)}</span>} icon={IconReceiptRupee} />
                         </div>
@@ -149,16 +149,16 @@ export default function TransactionViewRoute() {
                     <CardContent>
                         <DetailRow label='Transaction ID' value={<span className='font-mono text-xs'>{transaction.id}</span>} />
                         <DetailRow label='Razorpay Order' value={<span className='font-mono text-xs'>{transaction.razorpayOrderId}</span>} />
-                        <DetailRow label='Payment ID' value={<span className='font-mono text-xs'>{transaction.razorpayPaymentId ?? '—'}</span>} />
+                        <DetailRow label='Payment ID' value={<span className='font-mono text-xs'>{transaction.razorpayPaymentId ?? 'N/A'}</span>} />
                         <DetailRow label='Status' value={<StatusBadge status={transaction.status.toUpperCase()} />} />
                         {isTopUp ? (
                             <>
-                                <DetailRow label='Top-Up ID' value={<span className='font-mono text-xs'>{transaction.userTopUp?.topUpId ?? '—'}</span>} />
+                                <DetailRow label='Top-Up ID' value={<span className='font-mono text-xs'>{transaction.userTopUp?.topUpId ?? 'N/A'}</span>} />
                                 <DetailRow label='Applied At' value={transaction.userTopUp?.appliedAt ? formatDate(transaction.userTopUp.appliedAt) : null} />
                             </>
                         ) : (
                             <>
-                                <DetailRow label='Plan ID' value={<span className='font-mono text-xs'>{transaction.userPlan?.planId ?? '—'}</span>} />
+                                <DetailRow label='Plan ID' value={<span className='font-mono text-xs'>{transaction.userPlan?.planId ?? 'N/A'}</span>} />
                                 <DetailRow label='Active From' value={transaction.userPlan?.startsAt ? formatDate(transaction.userPlan.startsAt) : null} />
                                 <DetailRow label='Expires On' value={transaction.userPlan?.expiresAt ? formatDate(transaction.userPlan.expiresAt) : null} />
                             </>
@@ -176,7 +176,7 @@ export default function TransactionViewRoute() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <DetailRow label='Plan Name' value={(transaction.userPlan.planSnapshot as PlanSnapshot)?.name ?? '—'} />
+                            <DetailRow label='Plan Name' value={(transaction.userPlan.planSnapshot as PlanSnapshot)?.name ?? 'N/A'} />
                             <DetailRow label='User Plan ID' value={<span className='font-mono text-xs'>{transaction.userPlan.id}</span>} />
                             <DetailRow label='Plan Status' value={<StatusBadge status={transaction.userPlan.status.toUpperCase()} />} />
                             <DetailRow label='Remaining KM' value={formatKm(transaction.userPlan.remainingKm)} />
@@ -206,7 +206,7 @@ export default function TransactionViewRoute() {
                             {customer?.email && (
                                 <p className='text-sm text-muted-foreground'>{customer.email}</p>
                             )}
-                            <p className='font-mono text-xs text-muted-foreground'>{userId ?? '—'}</p>
+                            <p className='font-mono text-xs text-muted-foreground'>{userId ?? 'N/A'}</p>
                         </div>
                     </CardContent>
                 </Card>

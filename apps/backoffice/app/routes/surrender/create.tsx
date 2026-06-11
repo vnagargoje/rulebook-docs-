@@ -123,7 +123,7 @@ export default function CreateSurrenderRoute() {
                                     <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Surrender Details</div>
                                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
                                         <div className="text-sm"><span className="text-muted-foreground">Customer ID:</span> {detailsQuery.data.customerId}</div>
-                                        <div className="text-sm"><span className="text-muted-foreground">Customer Name:</span> {detailsQuery.data.customerName ?? '—'}</div>
+                                        <div className="text-sm"><span className="text-muted-foreground">Customer Name:</span> {detailsQuery.data.customerName ?? 'N/A'}</div>
                                         <div className="text-sm"><span className="text-muted-foreground">Deposit Amount:</span> {formatCurrency(detailsQuery.data.depositAmount)}</div>
                                         <div className="text-sm"><span className="text-muted-foreground">RTO Penalty:</span> {formatCurrency(detailsQuery.data.rtoPenalty)}</div>
                                         <div className="text-sm"><span className="text-muted-foreground">Suggested Refund:</span> {formatCurrency(detailsQuery.data.refundAmount)}</div>

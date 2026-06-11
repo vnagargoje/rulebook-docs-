@@ -72,10 +72,10 @@ export const formatTransactionForExport = (item: TransactionItem) => {
     const isTopUp = !!item.userTopUpId
     const topUpSnap = item.userTopUp?.topUpSnapshot as unknown as TopUpSnapshot
     const planSnap = item.userPlan?.planSnapshot as PlanSnapshot
-    const description = isTopUp ? (topUpSnap?.name ?? 'Top-Up') : (planSnap?.name ?? '—')
+    const description = isTopUp ? (topUpSnap?.name ?? 'Top-Up') : (planSnap?.name ?? 'N/A')
     const u = item.userPlan?.user
-    const customerName = [u?.firstName, u?.lastName].filter(Boolean).join(' ') || '—'
-    const customerContact = u?.mobilenumber ?? u?.email ?? '—'
+    const customerName = [u?.firstName, u?.lastName].filter(Boolean).join(' ') || 'N/A'
+    const customerContact = u?.mobilenumber ?? u?.email ?? 'N/A'
 
     return {
         'Transaction ID': item.id,
@@ -92,38 +92,38 @@ export const formatTransactionForExport = (item: TransactionItem) => {
 
 export const formatEmployeeForExport = (item: UserItem) => {
     return {
-        'Name': [item.firstName, item.lastName].filter(Boolean).join(' ') || '—',
-        'Email': item.email || '—',
-        'Mobile': item.mobilenumber || '—',
-        'Role': (item.properties as { roleName?: string })?.roleName ?? '—',
+        'Name': [item.firstName, item.lastName].filter(Boolean).join(' ') || 'N/A',
+        'Email': item.email || 'N/A',
+        'Mobile': item.mobilenumber || 'N/A',
+        'Role': (item.properties as { roleName?: string })?.roleName ?? 'N/A',
         'Status': item.active !== false ? 'ACTIVE' : 'INACTIVE',
-        'Created Date': (item as any).createdAt ? formatDate((item as any).createdAt) : '—'
+        'Created Date': (item as any).createdAt ? formatDate((item as any).createdAt) : 'N/A'
     }
 }
 
 export const formatCustomerForExport = (item: UserItem) => {
     return {
-        'Name': [item.firstName, item.lastName].filter(Boolean).join(' ') || '—',
-        'Email': item.email || '—',
-        'Mobile': item.mobilenumber || '—',
+        'Name': [item.firstName, item.lastName].filter(Boolean).join(' ') || 'N/A',
+        'Email': item.email || 'N/A',
+        'Mobile': item.mobilenumber || 'N/A',
         'Status': item.active !== false ? 'ACTIVE' : 'INACTIVE',
-        'Created Date': (item as any).createdAt ? formatDate((item as any).createdAt) : '—'
+        'Created Date': (item as any).createdAt ? formatDate((item as any).createdAt) : 'N/A'
     }
 }
 
 export const formatBookingForExport = (item: BookingItem) => {
     const u = (item.userPlan as any).user
-    const name = [u?.firstName, u?.lastName].filter(Boolean).join(' ') || '—'
+    const name = [u?.firstName, u?.lastName].filter(Boolean).join(' ') || 'N/A'
     const planSnapshot = (item.userPlan as any).planSnapshot ?? {}
     const plan = (item.userPlan as any).plan
 
     return {
         'Booking ID': item.id,
         'Customer Name': name,
-        'Customer Contact': u?.mobilenumber ?? u?.email ?? '—',
-        'Plan Name': plan?.name ?? '—',
+        'Customer Contact': u?.mobilenumber ?? u?.email ?? 'N/A',
+        'Plan Name': plan?.name ?? 'N/A',
         'Plan Amount': planSnapshot.totalAmount ?? plan?.totalAmount ?? 0,
-        'Vehicle Number': (item as any).vehicle?.vehicleNumber ?? '—',
+        'Vehicle Number': (item as any).vehicle?.vehicleNumber ?? 'N/A',
         'Status': item.status.toUpperCase(),
         'Date of Purchase': formatDate(item.userPlan.createdAt)
     }

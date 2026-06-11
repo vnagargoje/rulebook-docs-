@@ -64,6 +64,8 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
         const isCompleted = result?.status === 'completed'
         const isSuccess = isCompleted && sourceOutput?.status === 'id_found'
 
+        let nameMismatchError = false
+
         if (isSuccess) {
             await manager.transaction(async (manager) => {
                 let kyc = await manager.findOne(UserKycEntity, {
@@ -89,9 +91,6 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
 
                 const dlName: string = sourceOutput?.name || sourceOutput?.name_on_card || ''
                 kyc.documentId = sourceOutput?.id_number || kyc.documentId || 'LICENSE'
-                kyc.status = KycStatus.VERIFIED
-                kyc.verifiedAt = new Date()
-                kyc.notes = JSON.stringify(result)
                 kyc.verifiedName = dlName || null
 
                 if (dlName) {
@@ -100,13 +99,27 @@ export class LicenseGetResultHandler implements ICommandHandler<LicenseGetResult
                     })
                     for (const other of otherVerified) {
                         if (other.verifiedName && !namesMatch(dlName, other.verifiedName)) {
-                            throw new BadRequestException('Driving licence details do not belong to the same person as other KYC documents')
+                            nameMismatchError = true
+                            break
                         }
                     }
                 }
 
+                if (nameMismatchError) {
+                    kyc.status = KycStatus.REJECTED
+                    kyc.notes = 'Driving licence details do not belong to the same person as other KYC documents'
+                } else {
+                    kyc.status = KycStatus.VERIFIED
+                    kyc.verifiedAt = new Date()
+                    kyc.notes = JSON.stringify(result)
+                }
+
                 await manager.save(kyc)
             })
+        }
+
+        if (nameMismatchError) {
+            throw new BadRequestException('Driving licence details do not belong to the same person as other KYC documents')
         }
 
         return {

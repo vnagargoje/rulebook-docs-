@@ -1,13 +1,15 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconEdit, IconEye, IconPlus } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useStations, type StationItem, type StationsListParams } from '~/queries/stations'
-import { getStationCreatePath, getStationEditPath, getStationViewPath } from '~/constants'
+import { getStationCreatePath, getStationViewPath } from '~/constants'
+
 import { useListingState } from '~/hooks'
 
 export default function VehicleStationsListRoute() {
@@ -42,23 +44,10 @@ export default function VehicleStationsListRoute() {
 
     const columns = useMemo(() => [
         { header: 'Name', accessor: 'name' as const },
-        { header: 'City', cell: (station: StationItem) => station.address?.city?.name ?? '—' },
+        { header: 'City', cell: (station: StationItem) => station.address?.city?.name ?? 'N/A' },
         {
             header: 'Status',
             cell: (station: StationItem) => <StatusBadge status={station.active ? 'ACTIVE' : 'INACTIVE'} />,
-        },
-        {
-            header: 'Actions',
-            cell: (station: StationItem) => (
-                <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(getStationViewPath('vehicle_station', station.id))}>
-                        <IconEye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => navigate(getStationEditPath('vehicle_station', station.id))}>
-                        <IconEdit className="h-4 w-4" />
-                    </Button>
-                </div>
-            ),
         },
     ], [navigate])
 
@@ -81,6 +70,7 @@ export default function VehicleStationsListRoute() {
 
             <ResourceTable
                 data={stations}
+                onRowClick={(item) => navigate(getStationViewPath('vehicle_station', item.id))}
                 emptyMessage="No vehicle stations found."
                 searchPlaceholder="Search vehicle stations by name..."
                 searchValue={searchQuery}

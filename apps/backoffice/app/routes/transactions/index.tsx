@@ -1,13 +1,14 @@
 import { useState, useMemo, useDeferredValue } from 'react'
 import { useNavigate } from 'react-router'
-import { IconBolt, IconEye, IconReceiptRupee, IconUser } from '@tabler/icons-react'
+import { IconBolt, IconReceiptRupee, IconUser } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable, type ResourceTableColumn } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
-import { Button } from '~/components/ui/button'
 import { ExportDialog } from '~/components/ui/export-dialog'
 import { PAYMENT_STATUS_OPTIONS } from '~/constants'
+
 import { useTransactions, type TransactionItem, type TransactionsListParams, type PlanSnapshot, type TopUpSnapshot } from '~/queries/transactions'
 import { formatCurrency, formatDate } from '~/lib/formatter'
 import { useListingState, useTransactionExport } from '~/hooks'
@@ -47,7 +48,7 @@ export default function TransactionsListRoute() {
                 const isTopUp = !!item.userTopUpId
                 const topUpSnap = item.userTopUp?.topUpSnapshot as unknown as TopUpSnapshot
                 const planSnap = item.userPlan?.planSnapshot as PlanSnapshot
-                const name = isTopUp ? (topUpSnap?.name ?? 'Top-Up') : (planSnap?.name ?? '—')
+                const name = isTopUp ? (topUpSnap?.name ?? 'Top-Up') : (planSnap?.name ?? 'N/A')
                 const Icon = isTopUp ? IconBolt : IconReceiptRupee
                 return (
                     <div className='flex items-center gap-3'>
@@ -71,7 +72,7 @@ export default function TransactionsListRoute() {
             header: 'Customer',
             cell: (item) => {
                 const u = item.userPlan?.user
-                const name = [u?.firstName, u?.lastName].filter(Boolean).join(' ') || '—'
+                const name = [u?.firstName, u?.lastName].filter(Boolean).join(' ') || 'N/A'
                 return (
                     <div className='flex items-center gap-2'>
                         <div className='flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground'>
@@ -79,7 +80,7 @@ export default function TransactionsListRoute() {
                         </div>
                         <div>
                             <p className='text-sm font-medium text-foreground'>{name}</p>
-                            <p className='text-xs text-muted-foreground'>{u?.mobilenumber ?? u?.email ?? '—'}</p>
+                            <p className='text-xs text-muted-foreground'>{u?.mobilenumber ?? u?.email ?? 'N/A'}</p>
                         </div>
                     </div>
                 )
@@ -113,18 +114,6 @@ export default function TransactionsListRoute() {
                 <span className='text-xs text-muted-foreground'>{formatDate(item.createdAt)}</span>
             ),
         },
-        {
-            header: '',
-            cell: (item) => (
-                <Button
-                    variant='ghost'
-                    size='icon'
-                    onClick={() => navigate(`/transactions/${item.id}`)}
-                    aria-label='View transaction'>
-                    <IconEye className='h-4 w-4' />
-                </Button>
-            ),
-        },
     ], [navigate])
 
     return (
@@ -148,6 +137,7 @@ export default function TransactionsListRoute() {
             />
             <ResourceTable
                 data={transactions}
+                onRowClick={(item) => navigate(`/transactions/${item.id}`)}
                 columns={columns}
                 emptyMessage='No transactions found.'
                 searchPlaceholder='Search transactions...'

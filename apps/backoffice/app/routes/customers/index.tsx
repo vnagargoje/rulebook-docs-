@@ -1,10 +1,9 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconEye } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
-import { Button } from '~/components/ui/button'
 import { useUsers, type UserItem } from '~/queries/users'
 import { useListingState, useCustomerExport } from '~/hooks'
 import { ExportDialog } from '~/components/ui/export-dialog'
@@ -40,7 +39,7 @@ export default function UsersCustomerListRoute() {
 
     const formatMobile = (mobile?: string) => {
         if (!mobile) {
-            return '—'
+            return 'N/A'
         }
 
         return /^91\d{10}$/.test(mobile) ? mobile.slice(2) : mobile
@@ -49,7 +48,7 @@ export default function UsersCustomerListRoute() {
     const columns = useMemo(() => [
         {
             header: 'Name',
-            cell: (user: UserItem) => [user.firstName, user.lastName].filter(Boolean).join(' ') || '—',
+            cell: (user: UserItem) => [user.firstName, user.lastName].filter(Boolean).join(' ') || 'N/A',
         },
         { header: 'Email', accessor: 'email' as const },
         {
@@ -58,20 +57,7 @@ export default function UsersCustomerListRoute() {
         },
         {
             header: 'Role',
-            cell: (user: UserItem) => (user.properties as { roleName?: string })?.roleName ?? '—',
-        },
-        {
-            header: 'Actions',
-            cell: (user: UserItem) => (
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/${user.id}`)}>
-                        <IconEye className="h-4 w-4" />
-                    </Button>
-                    {/* <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-                        <IconEdit className="h-4 w-4" />
-                    </Button> */}
-                </div>
-            ),
+            cell: (user: UserItem) => (user.properties as { roleName?: string })?.roleName ?? 'N/A',
         },
     ], [navigate])
 
@@ -104,6 +90,7 @@ export default function UsersCustomerListRoute() {
 
             <ResourceTable
                 data={users}
+                onRowClick={(item) => navigate(`/customers/${item.id}`)}
                 emptyMessage='No customers found.'
                 searchPlaceholder='Search customers by name, email, or mobile...'
                 searchValue={searchQuery}

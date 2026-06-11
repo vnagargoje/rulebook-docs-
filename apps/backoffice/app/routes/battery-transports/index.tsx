@@ -50,7 +50,7 @@ export default function BatteryTransportsRoute() {
             header: 'From Station',
             cell: (item) => (
                 <div>
-                    <p className='text-sm font-medium'>{item.fromStation?.name ?? '—'}</p>
+                    <p className='text-sm font-medium'>{item.fromStation?.name ?? 'N/A'}</p>
                     {item.fromStation?.type && (
                         <p className='text-xs text-muted-foreground capitalize'>{item.fromStation.type.replace('_', ' ')}</p>
                     )}
@@ -61,7 +61,7 @@ export default function BatteryTransportsRoute() {
             header: 'To Station',
             cell: (item) => (
                 <div>
-                    <p className='text-sm font-medium'>{item.toStation?.name ?? '—'}</p>
+                    <p className='text-sm font-medium'>{item.toStation?.name ?? 'N/A'}</p>
                     {item.toStation?.type && (
                         <p className='text-xs text-muted-foreground capitalize'>{item.toStation.type.replace('_', ' ')}</p>
                     )}
@@ -84,7 +84,7 @@ export default function BatteryTransportsRoute() {
             header: 'Vehicle',
             cell: (item) => (
                 <span className='text-sm text-muted-foreground'>
-                    {item.vehicle?.vehicleNumber ?? '—'}
+                    {item.vehicle?.vehicleNumber ?? 'N/A'}
                 </span>
             ),
         },
@@ -97,7 +97,7 @@ export default function BatteryTransportsRoute() {
                         {new Date(item.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
                     </p>
                 </div>
-            ) : <span className='text-xs text-muted-foreground'>—</span>,
+            ) : <span className='text-xs text-muted-foreground'>N/A</span>,
         },
     ], [])
 

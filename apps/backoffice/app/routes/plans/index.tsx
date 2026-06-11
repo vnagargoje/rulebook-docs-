@@ -1,6 +1,7 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -48,14 +49,6 @@ export default function PlansListRoute() {
         { header: 'GST', cell: (plan: (typeof plans)[number]) => `${plan.gstPercentage}%` },
         { header: 'Total', cell: (plan: (typeof plans)[number]) => formatCurrency(plan.totalAmount) },
         { header: 'Status', cell: (plan: (typeof plans)[number]) => <StatusBadge status={plan.active ? 'ACTIVE' : 'INACTIVE'} /> },
-        {
-            header: 'Actions',
-            cell: (plan: (typeof plans)[number]) => (
-                <Button variant="ghost" size="icon" onClick={() => navigate(`/plans/edit/${plan.id}`)}>
-                    <IconEdit className="h-4 w-4" />
-                </Button>
-            ),
-        },
     ], [navigate])
 
     if (isLoading) {
@@ -77,6 +70,7 @@ export default function PlansListRoute() {
 
             <ResourceTable
                 data={plans}
+                onRowClick={(item) => navigate(`/plans/edit/${item.id}`)}
                 emptyMessage="No plans found."
                 searchPlaceholder="Search plans by name or description..."
                 searchValue={searchQuery}

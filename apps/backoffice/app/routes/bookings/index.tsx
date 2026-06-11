@@ -79,9 +79,11 @@ export default function BookingsListRoute() {
         },
         {
             header: 'Plan Name',
-            cell: (booking: BookingItem) => (
-                <span>{(booking.userPlan as any).plan?.name ?? '—'}</span>
-            ),
+            cell: (booking: BookingItem) => {
+                const planSnapshot = (booking.userPlan as any).planSnapshot ?? {}
+                const plan = (booking.userPlan as any).plan
+                return <span>{planSnapshot.name ?? plan?.name ?? '—'}</span>
+            },
         },
         {
             header: 'Status',

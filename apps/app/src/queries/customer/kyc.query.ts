@@ -144,7 +144,6 @@ export const usePanVerify = createMutation<PanVerifyResponse, PanVerifyBody>({
         const response = await client.v1.panVerify(data)
         return response.data
     },
-    onError: showError,
 })
 
 export const useLicenseInitiate = createMutation<LicenseInitiateResponse, LicenseInitiateBody>({
@@ -153,7 +152,6 @@ export const useLicenseInitiate = createMutation<LicenseInitiateResponse, Licens
         const response = await client.v1.licenseInitiate(data)
         return response.data
     },
-    onError: showError,
 })
 
 export const useLicenseGetResult = createMutation<LicenseGetResultResponse, { requestId: string }>({
@@ -162,7 +160,6 @@ export const useLicenseGetResult = createMutation<LicenseGetResultResponse, { re
         const response = await client.v1.licenseGetResult({ requestId })
         return response.data
     },
-    onError: showError,
 })
 
 export const useUpdateMyAddresses = createMutation<V1UsersUpdateAddressesResponse, V1UsersUpdateAddressesBody>({

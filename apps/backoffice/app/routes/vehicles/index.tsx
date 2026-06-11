@@ -35,7 +35,7 @@ export default function VehiclesListRoute() {
         }
 
         if (deferredSearchQuery) {
-            params['filter.vehicleNumber'] = [`$ilike:${deferredSearchQuery}`]
+            (params as any).search = deferredSearchQuery
         }
 
         return params

@@ -15,7 +15,7 @@ export function StatTile({
                 <Icon size={18} />
             </div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
-            <div className="mt-1 text-lg font-semibold text-foreground">{value ?? '—'}</div>
+            <div className="mt-1 text-lg font-semibold text-foreground">{value ?? 'N/A'}</div>
         </div>
     )
 }

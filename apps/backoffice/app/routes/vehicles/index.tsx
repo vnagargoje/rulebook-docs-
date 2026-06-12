@@ -1,6 +1,7 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
+import { IconPlus, IconEye, IconEdit } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -50,10 +51,10 @@ export default function VehiclesListRoute() {
         { header: 'Reg Number', accessor: 'vehicleNumber' as const },
         {
             header: 'Brand/Model',
-            cell: (vehicle: VehicleItem) => [vehicle.properties?.brand, vehicle.properties?.model].filter(Boolean).join(' ') || '—',
+            cell: (vehicle: VehicleItem) => [vehicle.properties?.brand, vehicle.properties?.model].filter(Boolean).join(' ') || 'N/A',
         },
         { header: 'GPS ID', accessor: 'gpsId' as const },
-        { header: 'Station', cell: (vehicle: VehicleItem) => vehicle.station?.name ?? '—' },
+        { header: 'Station', cell: (vehicle: VehicleItem) => vehicle.station?.name ?? 'N/A' },
         {
             header: 'Insurance Expiry',
             cell: (vehicle: VehicleItem) => (
@@ -103,6 +104,7 @@ export default function VehiclesListRoute() {
 
             <ResourceTable
                 data={vehicles}
+                onRowClick={(item) => navigate(`/vehicles/${item.id}`)}
                 emptyMessage="No vehicles found."
                 searchPlaceholder="Search vehicles by registration number..."
                 searchValue={searchQuery}

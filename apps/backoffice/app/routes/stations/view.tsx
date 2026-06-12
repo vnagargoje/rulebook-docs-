@@ -20,7 +20,7 @@ function formatStationAddress(station: StationDetail) {
     const address = station.address
 
     if (!address) {
-        return '—'
+        return 'N/A'
     }
 
     return [
@@ -29,7 +29,7 @@ function formatStationAddress(station: StationDetail) {
         address.city?.name,
         address.city?.state?.name,
         address.pincode,
-    ].filter(Boolean).join(', ') || '—'
+    ].filter(Boolean).join(', ') || 'N/A'
 }
 
 export default function SwapStationsViewRoute() {
@@ -90,7 +90,7 @@ export default function SwapStationsViewRoute() {
                 <CardContent className="p-6">
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         <StatTile label="Station Type" value={formatLabel(station.type)} icon={IconMapPin} />
-                        <StatTile label="City" value={station.address?.city?.name ?? '—'} icon={IconMapPin} />
+                        <StatTile label="City" value={station.address?.city?.name ?? 'N/A'} icon={IconMapPin} />
                         <StatTile label="Managers" value={String(managers.length)} icon={IconUsers} />
                     </div>
                 </CardContent>

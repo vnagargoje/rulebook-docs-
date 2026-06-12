@@ -1,6 +1,7 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -46,14 +47,6 @@ export default function TopUpPlansListRoute() {
         { header: 'GST', cell: (topUp: (typeof topUps)[number]) => `${topUp.gstPercentage}%` },
         { header: 'Total', cell: (topUp: (typeof topUps)[number]) => formatCurrency(topUp.totalAmount) },
         { header: 'Status', cell: (topUp: (typeof topUps)[number]) => <StatusBadge status={topUp.active ? 'ACTIVE' : 'INACTIVE'} /> },
-        {
-            header: 'Actions',
-            cell: (topUp: (typeof topUps)[number]) => (
-                <Button variant="ghost" size="icon" onClick={() => navigate(`/top-up-plans/edit/${topUp.id}`)}>
-                    <IconEdit className="h-4 w-4" />
-                </Button>
-            ),
-        },
     ], [navigate])
 
     if (isLoading) {
@@ -75,6 +68,7 @@ export default function TopUpPlansListRoute() {
 
             <ResourceTable
                 data={topUps}
+                onRowClick={(item) => navigate(`/top-up-plans/edit/${item.id}`)}
                 emptyMessage="No top-up plans found."
                 searchPlaceholder="Search top-ups by name or description..."
                 searchValue={searchQuery}

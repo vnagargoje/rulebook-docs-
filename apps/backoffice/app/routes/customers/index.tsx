@@ -1,10 +1,11 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { IconEye } from '@tabler/icons-react'
+import { Button } from '~/components/ui/button'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
-import { Button } from '~/components/ui/button'
 import { useUsers, type UserItem } from '~/queries/users'
 import { useListingState, useCustomerExport } from '~/hooks'
 import { ExportDialog } from '~/components/ui/export-dialog'
@@ -40,7 +41,7 @@ export default function UsersCustomerListRoute() {
 
     const formatMobile = (mobile?: string) => {
         if (!mobile) {
-            return '—'
+            return 'N/A'
         }
 
         return /^91\d{10}$/.test(mobile) ? mobile.slice(2) : mobile
@@ -49,14 +50,13 @@ export default function UsersCustomerListRoute() {
     const columns = useMemo(() => [
         {
             header: 'Name',
-            cell: (user: UserItem) => [user.firstName, user.lastName].filter(Boolean).join(' ') || '—',
+            cell: (user: UserItem) => [user.firstName, user.lastName].filter(Boolean).join(' ') || 'N/A',
         },
         { header: 'Email', accessor: 'email' as const },
         {
             header: 'Mobile',
             cell: (user: UserItem) => formatMobile(user.mobilenumber),
         },
-
         {
             header: 'Actions',
             cell: (user: UserItem) => (
@@ -86,8 +86,8 @@ export default function UsersCustomerListRoute() {
                 title='Customers'
                 description='Manage customer accounts across the platform.'
                 actions={
-                    <ExportDialog 
-                        open={exportModalOpen} 
+                    <ExportDialog
+                        open={exportModalOpen}
                         onOpenChange={setExportModalOpen}
                         title="Export Customers"
                         description="Download customer records as an Excel spreadsheet."
@@ -101,6 +101,7 @@ export default function UsersCustomerListRoute() {
 
             <ResourceTable
                 data={users}
+                onRowClick={(item) => navigate(`/customers/${item.id}`)}
                 emptyMessage='No customers found.'
                 searchPlaceholder='Search customers by name, email, or mobile...'
                 searchValue={searchQuery}

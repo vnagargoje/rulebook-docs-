@@ -43,7 +43,7 @@ function getUserProperties(properties: unknown) {
 }
 
 function formatMobileNumber(mobile?: string) {
-    if (!mobile) return '—'
+    if (!mobile) return 'N/A'
 
     const normalizedMobile = mobile.trim()
     return /^91\d{10}$/.test(normalizedMobile) ? normalizedMobile.slice(2) : normalizedMobile
@@ -55,7 +55,7 @@ function formatAddress(address?: {
     pincode?: string
     city?: { name?: string; state?: { name?: string } }
 }) {
-    if (!address) return '—'
+    if (!address) return 'N/A'
 
     return [address.lineOne, address.lineTwo, address.city?.name, address.city?.state?.name, address.pincode]
         .filter(Boolean)
@@ -102,8 +102,8 @@ export default function UserViewRoute() {
     const currentAddress = user.addresses?.find((address) => address.type === 'current')
     const permanentAddress = user.addresses?.find((address) => address.type === 'permanent')
     const displayMobile = formatMobileNumber(user.mobilenumber)
-    const gender = user.gender ? formatLabel(user.gender) : '—'
-    const role = roleName ? formatLabel(roleName) : '—'
+    const gender = user.gender ? formatLabel(user.gender) : 'N/A'
+    const role = roleName ? formatLabel(roleName) : 'N/A'
     const createdAt = (user as any)?.createdAt as string | undefined
     const updatedAt = (user as any)?.updatedAt as string | undefined
 
@@ -178,16 +178,16 @@ export default function UserViewRoute() {
                             <div className="rounded-2xl border border-border/50 bg-slate-50/70 p-5">
                                 <SectionLabel>Document Information</SectionLabel>
                                 <div className="mt-4 grid gap-x-6 gap-y-3 md:grid-cols-2">
-                                    <DetailRow label="Document ID" value={manualKyc.documentId || '—'} />
+                                    <DetailRow label="Document ID" value={manualKyc.documentId || 'N/A'} />
                                     <DetailRow label="Document Type" value={formatLabel(manualKyc.type)} />
                                     <DetailRow
                                         label="Submitted At"
-                                        value={manualKyc.createdAt ? formatDate(manualKyc.createdAt as string) : '—'}
+                                        value={manualKyc.createdAt ? formatDate(manualKyc.createdAt as string) : 'N/A'}
                                     />
                                     <DetailRow label="Current Status" value={formatLabel(manualKyc.status)} />
                                 </div>
                                 <div className="mt-4 border-t border-border/40 pt-4">
-                                    <DetailRow label="Notes" value={manualKyc.notes || '—'} />
+                                    <DetailRow label="Notes" value={manualKyc.notes || 'N/A'} />
                                 </div>
                             </div>
 
@@ -243,12 +243,12 @@ export default function UserViewRoute() {
                     <CardContent className="p-6">
                         <SectionLabel>Basic Info</SectionLabel>
                         <DetailRow label="User ID" value={user.id} />
-                        <DetailRow label="First Name" value={user.firstName ?? '—'} />
-                        <DetailRow label="Last Name" value={user.lastName ?? '—'} />
-                        <DetailRow label="Email" value={user.email ?? '—'} />
+                        <DetailRow label="First Name" value={user.firstName ?? 'N/A'} />
+                        <DetailRow label="Last Name" value={user.lastName ?? 'N/A'} />
+                        <DetailRow label="Email" value={user.email ?? 'N/A'} />
                         <DetailRow label="Mobile" value={displayMobile} />
                         <DetailRow label="Gender" value={gender} />
-                        <DetailRow label="Date of Birth" value={user.dateOfBirth ? formatDate(user.dateOfBirth) : '—'} />
+                        <DetailRow label="Date of Birth" value={user.dateOfBirth ? formatDate(user.dateOfBirth) : 'N/A'} />
                         <DetailRow label="Role" value={role} />
                     </CardContent>
                 </Card>
@@ -261,15 +261,15 @@ export default function UserViewRoute() {
                     <CardContent className="p-6">
                         <SectionLabel>Permanent Address</SectionLabel>
                         <DetailRow label="Address" value={formatAddress(permanentAddress)} />
-                        <DetailRow label="State" value={permanentAddress?.city?.state?.name ?? '—'} />
-                        <DetailRow label="City" value={permanentAddress?.city?.name ?? '—'} />
-                        <DetailRow label="PIN Code" value={permanentAddress?.pincode ?? '—'} />
+                        <DetailRow label="State" value={permanentAddress?.city?.state?.name ?? 'N/A'} />
+                        <DetailRow label="City" value={permanentAddress?.city?.name ?? 'N/A'} />
+                        <DetailRow label="PIN Code" value={permanentAddress?.pincode ?? 'N/A'} />
 
                         <SectionLabel className="mt-6">Current Address</SectionLabel>
                         <DetailRow label="Address" value={formatAddress(currentAddress)} />
-                        <DetailRow label="State" value={currentAddress?.city?.state?.name ?? '—'} />
-                        <DetailRow label="City" value={currentAddress?.city?.name ?? '—'} />
-                        <DetailRow label="PIN Code" value={currentAddress?.pincode ?? '—'} />
+                        <DetailRow label="State" value={currentAddress?.city?.state?.name ?? 'N/A'} />
+                        <DetailRow label="City" value={currentAddress?.city?.name ?? 'N/A'} />
+                        <DetailRow label="PIN Code" value={currentAddress?.pincode ?? 'N/A'} />
                     </CardContent>
                 </Card>
             </div>
@@ -305,16 +305,16 @@ export default function UserViewRoute() {
                                         <TableCell>
                                             <StatusBadge status={kyc.status.toUpperCase()} />
                                         </TableCell>
-                                        <TableCell className="font-mono text-xs">{kyc.documentId || '—'}</TableCell>
-                                        <TableCell className="text-center">{kyc.attemptCount ?? '—'}</TableCell>
+                                        <TableCell className="font-mono text-xs">{kyc.documentId || 'N/A'}</TableCell>
+                                        <TableCell className="text-center">{kyc.attemptCount ?? 'N/A'}</TableCell>
                                         <TableCell className="text-xs text-muted-foreground">
-                                            {kyc.verifiedAt ? formatDate(kyc.verifiedAt) : '—'}
+                                            {kyc.verifiedAt ? formatDate(kyc.verifiedAt) : 'N/A'}
                                         </TableCell>
                                         <TableCell className="text-xs text-muted-foreground">
-                                            {kyc.createdAt ? formatDate(kyc.createdAt) : '—'}
+                                            {kyc.createdAt ? formatDate(kyc.createdAt) : 'N/A'}
                                         </TableCell>
                                         <TableCell className="max-w-50 truncate text-xs text-muted-foreground">
-                                            {kyc.notes || '—'}
+                                            {kyc.notes || 'N/A'}
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -330,8 +330,8 @@ export default function UserViewRoute() {
                 </CardHeader>
                 <CardContent className="p-6">
                     <div className="grid grid-cols-1 gap-0 sm:grid-cols-2">
-                        <DetailRow label="Created At" value={createdAt ? formatDate(createdAt) : '—'} />
-                        <DetailRow label="Updated At" value={updatedAt ? formatDate(updatedAt) : '—'} />
+                        <DetailRow label="Created At" value={createdAt ? formatDate(createdAt) : 'N/A'} />
+                        <DetailRow label="Updated At" value={updatedAt ? formatDate(updatedAt) : 'N/A'} />
                     </div>
                 </CardContent>
             </Card>

@@ -1,11 +1,11 @@
 import { useMemo, useDeferredValue } from 'react'
 import { useNavigate } from 'react-router'
-import { IconEye, IconUser } from '@tabler/icons-react'
+import { IconUser } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
 import { StatusBadge } from '~/components/ui/status-badge'
-import { Button } from '~/components/ui/button'
 import { useBookings, type BookingItem, type BookingsListParams } from '~/queries/bookings'
 import { useListingState, useBookingExport } from '~/hooks'
 import { ExportDialog } from '~/components/ui/export-dialog'
@@ -62,9 +62,9 @@ export default function BookingsListRoute() {
                             <IconUser size={13} />
                         </div>
                         <div>
-                            <p className='text-sm font-medium text-foreground'>{name || u?.mobilenumber || u?.email || '—'}</p>
+                            <p className='text-sm font-medium text-foreground'>{name || u?.mobilenumber || u?.email || 'N/A'}</p>
                             {name && (
-                                <p className='text-xs text-muted-foreground'>{u?.mobilenumber ?? u?.email ?? '—'}</p>
+                                <p className='text-xs text-muted-foreground'>{u?.mobilenumber ?? u?.email ?? 'N/A'}</p>
                             )}
                         </div>
                     </div>
@@ -100,15 +100,7 @@ export default function BookingsListRoute() {
         {
             header: 'Vehicle Number',
             cell: (booking: BookingItem) => (
-                <span>{(booking as any).vehicle?.vehicleNumber ?? '—'}</span>
-            ),
-        },
-        {
-            header: 'Actions',
-            cell: (booking: BookingItem) => (
-                <Button variant="ghost" size="icon" onClick={() => navigate(`/bookings/${booking.id}`)}>
-                    <IconEye className="h-4 w-4" />
-                </Button>
+                <span>{(booking as any).vehicle?.vehicleNumber ?? 'N/A'}</span>
             ),
         },
     ], [navigate])
@@ -146,6 +138,7 @@ export default function BookingsListRoute() {
 
             <ResourceTable
                 data={bookings}
+                onRowClick={(item) => navigate(`/bookings/${item.id}`)}
                 emptyMessage="No bookings found."
                 searchPlaceholder="Search bookings..."
                 searchValue={searchQuery}

@@ -41,9 +41,9 @@ export default function VehicleViewRoute() {
     }
 
     const props = vehicle.properties ?? {}
-    const brand = props.brand ?? '—'
-    const model = props.model ?? '—'
-    const vehicleLabel = [brand, model].filter((v) => v !== '—').join(' ') || 'Vehicle'
+    const brand = props.brand ?? 'N/A'
+    const model = props.model ?? 'N/A'
+    const vehicleLabel = [brand, model].filter((v) => v !== 'N/A').join(' ') || 'Vehicle'
 
     return (
         <div className="space-y-6">
@@ -91,10 +91,10 @@ export default function VehicleViewRoute() {
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                         <StatTile label="Brand" value={brand} icon={IconCar} />
                         <StatTile label="Model" value={model} icon={IconCar} />
-                        <StatTile label="Type" value={vehicle.type ? formatLabel(vehicle.type) : '—'} icon={IconCar} />
+                        <StatTile label="Type" value={vehicle.type ? formatLabel(vehicle.type) : 'N/A'} icon={IconCar} />
                         <StatTile
                             label="Station"
-                            value={vehicle.station?.name ?? '—'}
+                            value={vehicle.station?.name ?? 'N/A'}
                             icon={IconMapPin}
                         />
                     </div>

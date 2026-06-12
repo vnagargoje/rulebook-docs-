@@ -1,6 +1,7 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit, IconEye, IconMapPin } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -50,44 +51,18 @@ export default function BatteriesListRoute() {
         () => [
             { header: 'Code', accessor: 'batteryQrId' as const },
             { header: 'GPS ID', accessor: 'gpsId' as const },
-            { header: 'Capacity', cell: (b: BatteryItem) => b.properties?.capacity ?? '—' },
-            { header: 'Range', cell: (b: BatteryItem) => b.properties?.range ?? '—' },
+            { header: 'Capacity', cell: (b: BatteryItem) => b.properties?.capacity ?? 'N/A' },
+            { header: 'Range', cell: (b: BatteryItem) => b.properties?.range ?? 'N/A' },
             { header: 'Station', cell: (b: BatteryItem) => b.station?.name ?? 'Unassigned' },
             { header: 'Status', cell: (b: BatteryItem) => <StatusBadge status={(b.status ?? '').toUpperCase()} /> },
             {
                 header: 'SOC',
                 cell: (b: BatteryItem) => {
                     const soc = (b.properties as Record<string, unknown> | null)?.socPercent as number | undefined
-                    return soc != null ? `${soc}%` : '—'
+                    return soc != null ? `${soc}%` : 'N/A'
                 },
             },
             { header: 'Removable', cell: (b: BatteryItem) => (b.properties?.removableOption ? 'Yes' : 'No') },
-            {
-                header: 'Actions',
-                cell: (b: BatteryItem) => (
-                    <div className='flex items-center gap-1'>
-                        <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={() => navigate(`/batteries/${b.id}`)}>
-                            <IconEye className='h-4 w-4' />
-                        </Button>
-                        <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={() => navigate(`/batteries/edit/${b.id}`)}>
-                            <IconEdit className='h-4 w-4' />
-                        </Button>
-                        <Button
-                            variant='ghost'
-                            size='icon'
-                            title='Track Battery'
-                            onClick={() => navigate(`/batteries/track/${b.id}`)}>
-                            <IconMapPin className='h-4 w-4' />
-                        </Button>
-                    </div>
-                ),
-            },
         ],
         [navigate],
     )
@@ -122,6 +97,7 @@ export default function BatteriesListRoute() {
 
             <ResourceTable
                 data={batteries}
+                onRowClick={(item) => navigate(`/batteries/${item.id}`)}
                 emptyMessage='No batteries in inventory.'
                 searchPlaceholder='Search by battery code...'
                 searchValue={searchQuery}

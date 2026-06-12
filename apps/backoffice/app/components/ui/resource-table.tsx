@@ -297,14 +297,14 @@ export function ResourceTable<T extends { id: string }>({
                                     key={item.id}
                                     className={cn(
                                         "group border-b last:border-0 transition-all duration-200",
-                                        onRowClick ? 'cursor-pointer hover:bg-slate-50' : 'hover:bg-slate-50/30',
+                                        onRowClick ? 'cursor-pointer hover:bg-slate-50 text-slate-700 hover:text-teal-600' : 'hover:bg-slate-50/30 text-slate-700',
                                         item.id === activeId ? 'bg-primary/5 border-l-2 border-l-primary' : '',
                                     )}
                                     onClick={() => onRowClick?.(item)}>
                                     {columns.map((column) => (
                                         <TableCell
                                             key={column.header}
-                                            className={cn("py-4 text-sm font-medium text-slate-700", column.className)}>
+                                            className={cn("py-4 text-sm font-medium transition-colors", column.className)}>
                                             {column.cell
                                                 ? column.cell(item)
                                                 : column.accessor

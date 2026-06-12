@@ -1,6 +1,7 @@
 import { useDeferredValue, useEffect, useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconMapPin, IconUsers, IconClipboardList, IconChevronRight } from '@tabler/icons-react'
+import { IconUsers, IconClipboardList, IconChevronRight, IconMapPin } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -137,7 +138,7 @@ export default function AssignmentsListRoute() {
                         onPageChange={setStationAssignmentsPage}
                         columns={[
                             { header: 'Vehicle Number', cell: (v: VehicleItem) => <span className="font-mono font-bold text-slate-700">{v.vehicleNumber ?? v.id}</span> },
-                            { header: 'Operational Hub', cell: (v: VehicleItem) => <span className="font-medium">{v.station?.name ?? '—'}</span> },
+                            { header: 'Operational Hub', cell: (v: VehicleItem) => <span className="font-medium">{v.station?.name ?? 'N/A'}</span> },
                             { header: 'Assigned Date', cell: (v: VehicleItem) => <span className="text-xs text-muted-foreground">{formatDate(v.updatedAt ?? v.createdAt ?? '')}</span> },
                             { header: 'Status', cell: () => <StatusBadge status="ASSIGNED" /> },
                         ]}

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -49,21 +50,14 @@ export default function InactiveVehiclesListRoute() {
             </div>
 
             <ResourceTable
-                title="Inactive Queue"
+                
                 data={records}
+                onRowClick={(item) => navigate(`/inactive-vehicles/edit/${item.id}`)}
                 emptyMessage="No inactive vehicles found."
                 columns={[
                     { header: 'Vehicle', cell: (record) => getVehicleName(record.vehicleId) },
                     { header: 'Reported', cell: (record) => formatDate(record.reportedDate) },
                     { header: 'Status', cell: (record) => <StatusBadge status={record.status} /> },
-                    {
-                        header: 'Actions',
-                        cell: (record) => (
-                            <Button variant="ghost" size="icon" onClick={() => navigate(`/inactive-vehicles/edit/${record.id}`)}>
-                                <IconEdit className="h-4 w-4" />
-                            </Button>
-                        ),
-                    },
                 ]}
             />
         </div>

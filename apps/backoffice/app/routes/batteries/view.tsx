@@ -55,13 +55,20 @@ export default function BatteryViewRoute() {
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader title={battery.batteryQrId} description='Full details for this battery unit.' />
-                <Button
-                    variant='outline'
-                    className='ml-auto shrink-0'
-                    onClick={() => navigate(`/batteries/edit/${battery.id}`)}>
-                    <IconEdit size={16} className='mr-2' />
-                    Edit
-                </Button>
+                <div className='ml-auto flex items-center gap-2'>
+                    <Button
+                        variant='outline'
+                        onClick={() => navigate(`/batteries/track/${battery.id}`)}>
+                        <IconMapPin size={16} className='mr-2' />
+                        Track
+                    </Button>
+                    <Button
+                        variant='outline'
+                        onClick={() => navigate(`/batteries/edit/${battery.id}`)}>
+                        <IconEdit size={16} className='mr-2' />
+                        Edit
+                    </Button>
+                </div>
             </div>
 
             {/* Summary card */}

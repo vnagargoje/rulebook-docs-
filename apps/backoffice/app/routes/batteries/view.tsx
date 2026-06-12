@@ -248,14 +248,14 @@ export default function BatteryViewRoute() {
                     <CardTitle>Audit</CardTitle>
                 </CardHeader>
                 <CardContent className='p-6'>
-                    <div className='grid grid-cols-1 gap-0 sm:grid-cols-2'>
+                    <div className='grid gap-x-6 gap-y-3 md:grid-cols-2'>
                         <DetailRow
                             label='Created At'
-                            value={battery.createdAt ? formatDate(battery.createdAt) : null}
+                            value={battery.createdAt ? formatDate(battery.createdAt) : 'N/A'}
                         />
                         <DetailRow
                             label='Updated At'
-                            value={battery.updatedAt ? formatDate(battery.updatedAt) : null}
+                            value={battery.updatedAt && battery.updatedAt !== battery.createdAt ? formatDate(battery.updatedAt) : 'N/A'}
                         />
                     </div>
                 </CardContent>

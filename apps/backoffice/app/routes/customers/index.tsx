@@ -1,7 +1,5 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconEye } from '@tabler/icons-react'
-import { Button } from '~/components/ui/button'
 
 
 import { PageHeader } from '~/components/ui/page-header'
@@ -57,19 +55,7 @@ export default function UsersCustomerListRoute() {
             header: 'Mobile',
             cell: (user: UserItem) => formatMobile(user.mobilenumber),
         },
-        {
-            header: 'Actions',
-            cell: (user: UserItem) => (
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/customers/${user.id}`)}>
-                        <IconEye className="h-4 w-4" />
-                    </Button>
-                    {/* <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-                        <IconEdit className="h-4 w-4" />
-                    </Button> */}
-                </div>
-            ),
-        },
+
     ], [navigate])
 
     if (isLoading) {

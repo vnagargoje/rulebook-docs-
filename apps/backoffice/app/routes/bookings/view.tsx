@@ -18,7 +18,7 @@ import { MetaPill } from '~/components/ui/meta-pill'
 import { useGetBookingById, useAssignVehicle } from '~/queries/bookings'
 import { useInfiniteVehicles } from '~/queries/vehicles'
 import { useInfiniteBatteries } from '~/queries/batteries'
-import { useInfiniteUserPlans } from '~/queries/user-plans'
+// import { useInfiniteUserPlans } from '~/queries/user-plans'
 import { formatCurrency, formatDate, formatKm } from '~/lib/formatter'
 import { assignVehicleSchema, type AssignVehicleValues } from '~/schemas'
 
@@ -51,6 +51,8 @@ export default function BookingViewRoute() {
         'filter.status': ['$eq:available'],
         'filter.station.type': ['$eq:vehicle_station'],
     })
+    // TODO: Re-enable Future Plan feature when required
+    /*
     const { data: userPlansData } = useInfiniteUserPlans(
         booking?.userPlan?.userId ? ({
             'filter.userId': [`$eq:${booking.userPlan.userId}`],
@@ -58,6 +60,7 @@ export default function BookingViewRoute() {
         } as any) : undefined
     )
     const futurePlan = userPlansData?.pages[0]?.data?.find((plan: any) => plan.id !== booking?.userPlan?.id)
+    */
     const assignVehicle = useAssignVehicle()
 
     const form = useForm<AssignVehicleValues>({
@@ -208,7 +211,7 @@ export default function BookingViewRoute() {
                                 )}
                             </div>
                         </div>
-                        
+
                         <div className="mt-8 rounded-2xl border border-border/60 bg-muted/30 p-5">
                             <h3 className="mb-4 text-sm font-semibold text-foreground">Contact Information</h3>
                             <div className="grid gap-3 flex-1">
@@ -432,6 +435,7 @@ export default function BookingViewRoute() {
                 </Card>
             </div>
 
+            {/* TODO: Re-enable Future Plan feature when required
             {futurePlan && (
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
                     <Card className="overflow-hidden border-amber-500/20 bg-amber-50/10 shadow-sm">
@@ -471,6 +475,7 @@ export default function BookingViewRoute() {
                     </Card>
                 </div>
             )}
+            */}
 
             <div className="grid grid-cols-1 gap-6">
                 <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
@@ -504,8 +509,8 @@ export default function BookingViewRoute() {
                                                 {topUp.status === 'applied'
                                                     ? `Applied ${topUp.appliedAt ? formatDate(topUp.appliedAt) : ''}`
                                                     : topUp.status === 'awaiting'
-                                                    ? 'Awaiting payment confirmation'
-                                                    : 'Payment failed'}
+                                                        ? 'Awaiting payment confirmation'
+                                                        : 'Payment failed'}
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">

@@ -23,10 +23,13 @@ export default function BookingDetailScreen() {
         variables: { id: booking?.battery?.id ?? '' },
         enabled: !!booking?.battery?.id,
     })
+    // TODO: Re-enable Future Plan feature when required
+    /*
     const { data: futurePlansData } = useMyPlans({
         variables: { status: 'purchased' }
     })
     const futurePlan = futurePlansData?.data?.find(plan => plan.id !== booking?.userPlan?.id)
+    */
 
     const meta = booking ? getBookingStatusMeta(booking.status) : null
 
@@ -596,6 +599,7 @@ export default function BookingDetailScreen() {
                         </View>
                     </View>
 
+                    {/* TODO: Re-enable Future Plan feature when required
                     {futurePlan && (
                         <>
                             <View className='overflow-hidden rounded-[28px] bg-white shadow-sm'>
@@ -664,6 +668,7 @@ export default function BookingDetailScreen() {
                             </View>
                         </>
                     )}
+                    */}
                 </View>
             </ScrollView>
         </View>

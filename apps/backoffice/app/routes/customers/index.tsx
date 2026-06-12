@@ -58,10 +58,6 @@ export default function UsersCustomerListRoute() {
             cell: (user: UserItem) => formatMobile(user.mobilenumber),
         },
         {
-            header: 'Role',
-            cell: (user: UserItem) => (user.properties as { roleName?: string })?.roleName ?? 'N/A',
-        },
-        {
             header: 'Actions',
             cell: (user: UserItem) => (
                 <div className="flex items-center gap-2">
@@ -90,8 +86,8 @@ export default function UsersCustomerListRoute() {
                 title='Customers'
                 description='Manage customer accounts across the platform.'
                 actions={
-                    <ExportDialog 
-                        open={exportModalOpen} 
+                    <ExportDialog
+                        open={exportModalOpen}
                         onOpenChange={setExportModalOpen}
                         title="Export Customers"
                         description="Download customer records as an Excel spreadsheet."

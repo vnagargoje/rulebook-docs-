@@ -22,6 +22,7 @@ export default function CreateStationAssignmentRoute() {
     const { data: vehiclesData, isFetching: isVehiclesFetching, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles({
         sortBy: ['createdAt:DESC'],
         'filter.stationId': ['$null'],
+        'filter.type': ['$eq:rental'],
     })
     const { data: stationsData, isFetching: isStationsFetching, fetchNextPage: fetchNextStationPage, hasNextPage: hasNextStationPage } = useInfiniteStations({
         sortBy: ['createdAt:DESC'],

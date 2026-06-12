@@ -86,6 +86,8 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
 
         const isSuccess = panStatus === 'VALID' ? true : false
 
+        let nameMismatchError = false
+
         await manager.transaction(async (manager) => {
             let kyc = await manager.findOne(UserKycEntity, {
                 where: { userId, type: KycDocumentType.PAN },
@@ -99,9 +101,6 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
             }
 
             kyc.documentId = pan
-            kyc.status = isSuccess ? KycStatus.VERIFIED : KycStatus.REJECTED
-            kyc.verifiedAt = isSuccess ? new Date() : kyc.verifiedAt
-            kyc.notes = JSON.stringify(response.data)
 
             if (isSuccess) {
                 const panName: string =
@@ -118,14 +117,28 @@ export class PanVerifyHandler implements ICommandHandler<PanVerifyCommand> {
                     })
                     for (const other of otherVerified) {
                         if (other.verifiedName && !namesMatch(panName, other.verifiedName)) {
-                            throw new BadRequestException('Aadhaar and PAN details do not belong to the same person')
+                            nameMismatchError = true
+                            break
                         }
                     }
                 }
             }
 
+            if (nameMismatchError) {
+                kyc.status = KycStatus.REJECTED
+                kyc.notes = 'Aadhaar and PAN card names do not match'
+            } else {
+                kyc.status = isSuccess ? KycStatus.VERIFIED : KycStatus.REJECTED
+                kyc.verifiedAt = isSuccess ? new Date() : kyc.verifiedAt
+                kyc.notes = JSON.stringify(response.data)
+            }
+
             await manager.save(kyc)
         })
+
+        if (nameMismatchError) {
+            throw new BadRequestException('Aadhaar and PAN card names do not match')
+        }
 
         return {
             success: isSuccess,

@@ -1,10 +1,11 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus } from '@tabler/icons-react'
+import { IconPlus, IconEye, IconEdit } from '@tabler/icons-react'
 
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
+import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useVehicles, type VehiclesListParams, type VehicleItem } from '~/queries/vehicles'
 import { useStations } from '~/queries/stations'
@@ -35,7 +36,7 @@ export default function VehiclesListRoute() {
         }
 
         if (deferredSearchQuery) {
-            params['filter.vehicleNumber'] = [`$ilike:${deferredSearchQuery}`]
+            (params as any).search = deferredSearchQuery
         }
 
         return params
@@ -57,7 +58,24 @@ export default function VehiclesListRoute() {
         {
             header: 'Insurance Expiry',
             cell: (vehicle: VehicleItem) => (
-                <span className="text-xs text-muted-foreground">{vehicle.properties?.insuranceExpiry ?? 'N/A'}</span>
+                <span className="text-xs text-muted-foreground">{vehicle.properties?.insuranceExpiry ?? '—'}</span>
+            ),
+        },
+        {
+            header: 'Status',
+            cell: (vehicle: VehicleItem) => <StatusBadge status={vehicle.status?.toUpperCase() ?? 'UNKNOWN'} />,
+        },
+        {
+            header: 'Actions',
+            cell: (vehicle: VehicleItem) => (
+                <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => navigate(`/vehicles/${vehicle.id}`)}>
+                        <IconEye className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}>
+                        <IconEdit className="h-4 w-4" />
+                    </Button>
+                </div>
             ),
         },
     ], [navigate])

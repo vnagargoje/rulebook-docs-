@@ -43,5 +43,6 @@ export const permissions: Permissions<Roles[keyof Roles], Subjects, Actions> = {
         can(Actions.manage, Subjects.BatterySwap)
         can(Actions.manage, Subjects.VehicleSurrender)
         can(Actions.manage, Subjects.Kyc)
+        can(Actions.manage, Subjects.VehicleMaintenance)
     },
 }

@@ -1,6 +1,6 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEye, IconEdit } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
 
 
 import { PageHeader } from '~/components/ui/page-header'
@@ -58,25 +58,12 @@ export default function VehiclesListRoute() {
         {
             header: 'Insurance Expiry',
             cell: (vehicle: VehicleItem) => (
-                <span className="text-xs text-muted-foreground">{vehicle.properties?.insuranceExpiry ?? '—'}</span>
+                <span className="text-xs text-muted-foreground">{vehicle.properties?.insuranceExpiry ?? 'N/A'}</span>
             ),
         },
         {
             header: 'Status',
             cell: (vehicle: VehicleItem) => <StatusBadge status={vehicle.status?.toUpperCase() ?? 'UNKNOWN'} />,
-        },
-        {
-            header: 'Actions',
-            cell: (vehicle: VehicleItem) => (
-                <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/vehicles/${vehicle.id}`)}>
-                        <IconEye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}>
-                        <IconEdit className="h-4 w-4" />
-                    </Button>
-                </div>
-            ),
         },
     ], [navigate])
 

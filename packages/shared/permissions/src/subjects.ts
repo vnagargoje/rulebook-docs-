@@ -71,3 +71,9 @@ export class KycSubject {
         return Subjects.Kyc
     }
 }
+
+export class VehicleMaintenanceSubject {
+    static get modelName() {
+        return Subjects.VehicleMaintenance
+    }
+}

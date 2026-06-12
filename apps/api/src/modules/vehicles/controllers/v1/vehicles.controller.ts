@@ -38,6 +38,7 @@ import { CreateVehicleCommand, UpdateVehicleCommand } from '@yugo/cqrs';
 
 const PAGINATE_CONFIG: PaginateConfig<VehicleEntity> = {
     sortableColumns: ['id', 'vehicleNumber', 'createdAt'],
+    searchableColumns: ['vehicleNumber'],
     relations: ['station'],
     filterableColumns: {
         type: [FilterOperator.EQ],

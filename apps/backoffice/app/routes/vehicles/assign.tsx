@@ -25,12 +25,9 @@ export default function AssignVehiclesRoute() {
         defaultValues: { stationId: '', vehicleIds: [] as string[] },
     })
 
-    const vehicleQueryParams = useMemo(() => {
-        const params: Record<string, any> = {}
-        return params
-    }, [])
-
-    const { data: vehiclesData, isFetching: isVehiclesFetching, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles(vehicleQueryParams as any)
+    const { data: vehiclesData, isFetching: isVehiclesFetching, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles({
+        'filter.type': ['$eq:rental'],
+    })
 
     const onSubmit = useCallback(
         async (values: VehicleAssignmentValues) => {

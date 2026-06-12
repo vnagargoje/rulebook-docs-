@@ -21,7 +21,7 @@ export default function TransactionsListRoute() {
     const queryParams = useMemo<TransactionsListParams>(() => {
         const params: TransactionsListParams = {
             page,
-            limit: 20,
+            limit: 10,
             sortBy: ['createdAt:DESC'],
         }
         if (statusFilter !== 'all') {

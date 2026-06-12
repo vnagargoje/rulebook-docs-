@@ -21,7 +21,7 @@ export default function BatterySwapHistoryRoute() {
     }, [stationsData])
 
     const queryParams = useMemo(() => {
-        const params: any = { page, limit: 20, sortBy: ['createdAt:DESC' as const] }
+        const params: any = { page, limit: 10, sortBy: ['createdAt:DESC' as const] }
         if (filters.station && filters.station !== 'all') {
             params['filter.fromStation.id'] = [`$eq:${filters.station}`]
         }

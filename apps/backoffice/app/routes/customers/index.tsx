@@ -56,10 +56,7 @@ export default function UsersCustomerListRoute() {
             header: 'Mobile',
             cell: (user: UserItem) => formatMobile(user.mobilenumber),
         },
-        {
-            header: 'Role',
-            cell: (user: UserItem) => (user.properties as { roleName?: string })?.roleName ?? '—',
-        },
+
         {
             header: 'Actions',
             cell: (user: UserItem) => (

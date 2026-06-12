@@ -27,7 +27,7 @@ export default function BatteryTransportsRoute() {
     const queryParams = useMemo(() => {
         const params: Parameters<typeof useBatteryTransports>[0] = {
             page,
-            limit: 20,
+            limit: 10,
             sortBy: ['createdAt:DESC'],
         }
         if (filters.status && filters.status !== 'all') {

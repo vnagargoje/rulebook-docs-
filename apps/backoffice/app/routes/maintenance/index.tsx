@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -49,8 +50,9 @@ export default function MaintenanceListRoute() {
             </div>
 
             <ResourceTable
-                title="Service Queue"
+                
                 data={records}
+                onRowClick={(item) => navigate(`/maintenance/edit/${item.id}`)}
                 emptyMessage="No maintenance records found."
                 columns={[
                     { header: 'Vehicle', cell: (record) => getVehicleName(record.vehicleId) },
@@ -58,14 +60,6 @@ export default function MaintenanceListRoute() {
                     { header: 'Technician', accessor: 'technicianName' },
                     { header: 'Expected Fix', cell: (record) => formatDate(record.expectedFixDate) },
                     { header: 'Status', cell: (record) => <StatusBadge status={record.status} /> },
-                    {
-                        header: 'Actions',
-                        cell: (record) => (
-                            <Button variant="ghost" size="icon" onClick={() => navigate(`/maintenance/edit/${record.id}`)}>
-                                <IconEdit className="h-4 w-4" />
-                            </Button>
-                        ),
-                    },
                 ]}
             />
         </div>

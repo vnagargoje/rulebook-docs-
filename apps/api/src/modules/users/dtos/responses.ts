@@ -45,4 +45,6 @@ export const UserResponse = Type.Object({
         }),
     ),
     active: Type.Boolean(),
+    createdAt: Type.Optional(Type.String()),
+    updatedAt: Type.Optional(Type.String()),
 });

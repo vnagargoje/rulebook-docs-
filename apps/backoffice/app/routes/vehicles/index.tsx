@@ -1,9 +1,11 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
+import { StatusBadge } from '~/components/ui/status-badge'
 import { Button } from '~/components/ui/button'
 import { useVehicles, type VehiclesListParams, type VehicleItem } from '~/queries/vehicles'
 import { useStations } from '~/queries/stations'
@@ -34,7 +36,7 @@ export default function VehiclesListRoute() {
         }
 
         if (deferredSearchQuery) {
-            params['filter.vehicleNumber'] = [`$ilike:${deferredSearchQuery}`]
+            (params as any).search = deferredSearchQuery
         }
 
         return params
@@ -49,28 +51,19 @@ export default function VehiclesListRoute() {
         { header: 'Reg Number', accessor: 'vehicleNumber' as const },
         {
             header: 'Brand/Model',
-            cell: (vehicle: VehicleItem) => [vehicle.properties?.brand, vehicle.properties?.model].filter(Boolean).join(' ') || '—',
+            cell: (vehicle: VehicleItem) => [vehicle.properties?.brand, vehicle.properties?.model].filter(Boolean).join(' ') || 'N/A',
         },
         { header: 'GPS ID', accessor: 'gpsId' as const },
-        { header: 'Station', cell: (vehicle: VehicleItem) => vehicle.station?.name ?? '—' },
+        { header: 'Station', cell: (vehicle: VehicleItem) => vehicle.station?.name ?? 'N/A' },
         {
             header: 'Insurance Expiry',
             cell: (vehicle: VehicleItem) => (
-                <span className="text-xs text-muted-foreground">{vehicle.properties?.insuranceExpiry ?? '—'}</span>
+                <span className="text-xs text-muted-foreground">{vehicle.properties?.insuranceExpiry ?? 'N/A'}</span>
             ),
         },
         {
-            header: 'Actions',
-            cell: (vehicle: VehicleItem) => (
-                <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/vehicles/${vehicle.id}`)}>
-                        <IconEye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}>
-                        <IconEdit className="h-4 w-4" />
-                    </Button>
-                </div>
-            ),
+            header: 'Status',
+            cell: (vehicle: VehicleItem) => <StatusBadge status={vehicle.status?.toUpperCase() ?? 'UNKNOWN'} />,
         },
     ], [navigate])
 
@@ -98,6 +91,7 @@ export default function VehiclesListRoute() {
 
             <ResourceTable
                 data={vehicles}
+                onRowClick={(item) => navigate(`/vehicles/${item.id}`)}
                 emptyMessage="No vehicles found."
                 searchPlaceholder="Search vehicles by registration number..."
                 searchValue={searchQuery}

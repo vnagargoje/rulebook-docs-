@@ -4,7 +4,6 @@ function tokenizeName(name: string): string[] {
         .replace(/[^a-z\s]/g, '')
         .split(/\s+/)
         .filter(Boolean)
-        .sort()
 }
 
 export function namesMatch(name1: string, name2: string): boolean {
@@ -18,5 +17,9 @@ export function namesMatch(name1: string, name2: string): boolean {
     const [shorter, longer] =
         tokens1.length <= tokens2.length ? [tokens1, tokens2] : [tokens2, tokens1]
 
-    return shorter.every((token) => longer.includes(token))
+    return shorter.every((shortToken) => {
+        return longer.some((longToken) => {
+            return longToken.startsWith(shortToken) || shortToken.startsWith(longToken)
+        })
+    })
 }

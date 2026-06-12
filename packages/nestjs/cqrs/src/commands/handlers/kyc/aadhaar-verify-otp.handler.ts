@@ -47,6 +47,8 @@ export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtp
 
         const isSuccess = response.data.code === 200 || response.data.code === 201
 
+        let nameMismatchError = false
+
         await manager.transaction(async (manager) => {
             let kyc = await manager.findOne(UserKycEntity, {
                 where: { userId, type: KycDocumentType.AADHAR },
@@ -59,9 +61,6 @@ export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtp
                 })
             }
 
-            kyc.status = isSuccess ? KycStatus.VERIFIED : KycStatus.REJECTED
-            kyc.verifiedAt = isSuccess ? new Date() : kyc.verifiedAt
-            kyc.notes = JSON.stringify(response.data)
             kyc.documentId = payload.aadhaarNumber || kyc.documentId || 'AADHAAR'
 
             if (isSuccess) {
@@ -83,10 +82,20 @@ export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtp
                     })
                     for (const other of otherVerified) {
                         if (other.verifiedName && !namesMatch(aadhaarName, other.verifiedName)) {
-                            throw new BadRequestException('Aadhaar and other KYC document details do not belong to the same person')
+                            nameMismatchError = true
+                            break
                         }
                     }
                 }
+            }
+
+            if (nameMismatchError) {
+                kyc.status = KycStatus.REJECTED
+                kyc.notes = 'Aadhaar and PAN card names do not match'
+            } else {
+                kyc.status = isSuccess ? KycStatus.VERIFIED : KycStatus.REJECTED
+                kyc.verifiedAt = isSuccess ? new Date() : kyc.verifiedAt
+                kyc.notes = JSON.stringify(response.data)
             }
 
             await manager.save(kyc)
@@ -117,6 +126,10 @@ export class AadhaarVerifyOtpHandler implements ICommandHandler<AadhaarVerifyOtp
                 await manager.save(user)
             }
         })
+
+        if (nameMismatchError) {
+            throw new BadRequestException('Aadhaar and PAN card names do not match')
+        }
 
         return {
             success: isSuccess,

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router'
-import { IconEye, IconPlus } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
 import { useMemo, useDeferredValue } from 'react'
 
 import { PageHeader } from '~/components/ui/page-header'
@@ -60,6 +60,7 @@ export default function SurrendersListRoute() {
                 totalPages={meta?.totalPages ?? 1}
                 currentPage={meta?.currentPage ?? page}
                 onPageChange={setPage}
+                onRowClick={(item) => navigate(`/surrender/${item.bookingId}`)}
                 columns={[
                     { header: 'Vehicle', cell: (s: SurrenderListItem) => s.vehicle?.vehicleNumber ?? s.vehicleId },
                     { header: 'Booking', cell: (s: SurrenderListItem) => s.bookingId },
@@ -67,14 +68,6 @@ export default function SurrendersListRoute() {
                     { header: 'Misc Charges', cell: (s: SurrenderListItem) => formatCurrency(s.miscCharges) },
                     { header: 'Refund Amount', cell: (s: SurrenderListItem) => formatCurrency(s.refundAmount) },
                     { header: 'Date', cell: (s: SurrenderListItem) => formatDate(s.createdAt) },
-                    {
-                        header: 'Actions',
-                        cell: (s: SurrenderListItem) => (
-                            <Button variant="ghost" size="icon" onClick={() => navigate(`/surrender/${s.bookingId}`)}>
-                                <IconEye className="h-4 w-4" />
-                            </Button>
-                        ),
-                    },
                 ]}
             />
         </div>

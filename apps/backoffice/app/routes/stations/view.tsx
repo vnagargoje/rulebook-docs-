@@ -11,7 +11,7 @@ import { MetaPill } from '~/components/ui/meta-pill'
 import { SectionLabel } from '~/components/ui/section-label'
 import { StatTile } from '~/components/ui/stat-tile'
 import { useGetStationById, type StationDetail } from '~/queries/stations'
-import { formatLabel } from '~/lib/formatter'
+import { formatDate, formatLabel } from '~/lib/formatter'
 import { getStationEditPath } from '~/constants'
 import { useRemoveStationManager } from '~/hooks/use-remove-station-manager'
 import { ConfirmDialog } from '~/components/ui/confirm-dialog'
@@ -20,7 +20,7 @@ function formatStationAddress(station: StationDetail) {
     const address = station.address
 
     if (!address) {
-        return '—'
+        return 'N/A'
     }
 
     return [
@@ -29,7 +29,7 @@ function formatStationAddress(station: StationDetail) {
         address.city?.name,
         address.city?.state?.name,
         address.pincode,
-    ].filter(Boolean).join(', ') || '—'
+    ].filter(Boolean).join(', ') || 'N/A'
 }
 
 export default function SwapStationsViewRoute() {
@@ -56,6 +56,10 @@ export default function SwapStationsViewRoute() {
 
     const stationAddress = formatStationAddress(station)
     const managers = station.managers ?? []
+    
+    const createdAt = (station as any)?.createdAt as string | undefined
+    const updatedAt = (station as any)?.updatedAt as string | undefined
+    const isUpdated = createdAt && updatedAt && createdAt !== updatedAt
 
     return (
         <div className="space-y-6">
@@ -90,7 +94,7 @@ export default function SwapStationsViewRoute() {
                 <CardContent className="p-6">
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         <StatTile label="Station Type" value={formatLabel(station.type)} icon={IconMapPin} />
-                        <StatTile label="City" value={station.address?.city?.name ?? '—'} icon={IconMapPin} />
+                        <StatTile label="City" value={station.address?.city?.name ?? 'N/A'} icon={IconMapPin} />
                         <StatTile label="Managers" value={String(managers.length)} icon={IconUsers} />
                     </div>
                 </CardContent>
@@ -152,6 +156,18 @@ export default function SwapStationsViewRoute() {
                     </CardContent>
                 </Card>
             </div>
+            
+            <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
+                <CardHeader className="border-b border-border/40">
+                    <CardTitle>Audit</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                    <div className="grid gap-x-6 gap-y-3 md:grid-cols-2">
+                        <DetailRow label="Created At" value={createdAt ? formatDate(createdAt) : 'N/A'} />
+                        <DetailRow label="Updated At" value={isUpdated ? formatDate(updatedAt) : 'N/A'} />
+                    </div>
+                </CardContent>
+            </Card>
             <ConfirmDialog 
                 isOpen={!!removingManagerId}
                 isLoading={isRemoving}

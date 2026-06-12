@@ -188,7 +188,7 @@ export default function BookingViewRoute() {
                             </div>
                             <div className="min-w-0 flex-1">
                                 <p className="text-lg font-bold text-foreground truncate">
-                                    {customerName || customer?.mobilenumber || customer?.email || '—'}
+                                    {customerName || customer?.mobilenumber || customer?.email || 'N/A'}
                                 </p>
                                 {(customer?.mobilenumber || customer?.email) && (
                                     <div className="mt-1.5 flex flex-wrap items-center gap-4 text-sm font-medium text-muted-foreground">
@@ -218,7 +218,7 @@ export default function BookingViewRoute() {
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p className="text-xs font-medium text-muted-foreground">Mobile</p>
-                                        <p className="truncate text-sm font-bold text-foreground mt-0.5">{customer?.mobilenumber || '—'}</p>
+                                        <p className="truncate text-sm font-bold text-foreground mt-0.5">{customer?.mobilenumber || 'N/A'}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-white p-3.5 shadow-sm">
@@ -227,7 +227,7 @@ export default function BookingViewRoute() {
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p className="text-xs font-medium text-muted-foreground">Email</p>
-                                        <p className="truncate text-sm font-bold text-foreground mt-0.5">{customer?.email || '—'}</p>
+                                        <p className="truncate text-sm font-bold text-foreground mt-0.5">{customer?.email || 'N/A'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -327,19 +327,19 @@ export default function BookingViewRoute() {
                             <DetailRow label="Status" value={<StatusBadge status={booking.status.toUpperCase()} />} />
                             <DetailRow label="Pickup OTP" value={booking.pickupOtp ? <span className="font-mono text-base font-bold tracking-widest">{booking.pickupOtp}</span> : 'Hidden for admin'} />
                             <DetailRow label="Created" value={formatDate(booking.createdAt)} />
-                            {/* <DetailRow label="Started At" value={booking.startedAt ? formatDate(booking.startedAt) : '—'} />
-                            <DetailRow label="Completed At" value={booking.completedAt ? formatDate(booking.completedAt) : '—'} /> */}
+                            {/* <DetailRow label="Started At" value={booking.startedAt ? formatDate(booking.startedAt) : 'N/A'} />
+                            <DetailRow label="Completed At" value={booking.completedAt ? formatDate(booking.completedAt) : 'N/A'} /> */}
                             <DetailRow label="Updated" value={formatDate(booking.updatedAt)} />
                         </div>
 
                         <div>
                             <SectionLabel>Assigned resources</SectionLabel>
-                            <DetailRow label="Station" value={booking.station?.name ?? booking.stationId ?? '—'} />
+                            <DetailRow label="Station" value={booking.station?.name ?? booking.stationId ?? 'N/A'} />
                             <DetailRow label="Vehicle" value={booking.vehicle?.vehicleNumber ?? booking.vehicleId ?? 'Unassigned'} />
                             <DetailRow label="Battery" value={booking.battery?.batteryQrId ?? booking.batteryId ?? 'Unassigned'} />
-                            {/* <DetailRow label="User ID" value={booking.userId ?? '—'} /> */}
+                            {/* <DetailRow label="User ID" value={booking.userId ?? 'N/A'} /> */}
                             <DetailRow label="User Plan ID" value={booking.userPlanId} />
-                            {/* <DetailRow label="Cancellation Reason" value={booking.cancellationReason ?? '—'} /> */}
+                            {/* <DetailRow label="Cancellation Reason" value={booking.cancellationReason ?? 'N/A'} /> */}
                         </div>
                     </CardContent>
                 </Card>
@@ -381,7 +381,7 @@ export default function BookingViewRoute() {
                         ) : null}
                         <div className="rounded-2xl border border-border/50 bg-muted/20 p-4">
                             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">QR reference</div>
-                            <div className="mt-2 break-all text-sm font-medium text-foreground">{booking.userPlan?.qrCode?.id ?? '—'}</div>
+                            <div className="mt-2 break-all text-sm font-medium text-foreground">{booking.userPlan?.qrCode?.id ?? 'N/A'}</div>
                             {booking.userPlan?.qrCode?.path ? (
                                 <div className="mt-2 break-all text-xs text-muted-foreground">{booking.userPlan.qrCode.path}</div>
                             ) : null}
@@ -400,11 +400,11 @@ export default function BookingViewRoute() {
                         <div>
                             <SectionLabel>Plan summary</SectionLabel>
                             <DetailRow label="Plan name" value={planName} />
-                            <DetailRow label="Plan ID" value={booking.userPlan.plan?.id ?? '—'} />
+                            <DetailRow label="Plan ID" value={booking.userPlan.plan?.id ?? 'N/A'} />
                             <DetailRow label="User Plan status" value={<StatusBadge status={booking.userPlan.status.toUpperCase()} />} />
                             <DetailRow label="Remaining KM" value={formatKm(remainingKm)} />
-                            <DetailRow label="Starts At" value={booking.userPlan.startsAt ? formatDate(booking.userPlan.startsAt) : '—'} />
-                            <DetailRow label="Expires At" value={booking.userPlan.expiresAt ? formatDate(booking.userPlan.expiresAt) : '—'} />
+                            <DetailRow label="Starts At" value={booking.userPlan.startsAt ? formatDate(booking.userPlan.startsAt) : 'N/A'} />
+                            <DetailRow label="Expires At" value={booking.userPlan.expiresAt ? formatDate(booking.userPlan.expiresAt) : 'N/A'} />
                         </div>
                         <div>
                             <SectionLabel>Commercials</SectionLabel>
@@ -442,8 +442,8 @@ export default function BookingViewRoute() {
                         <CardContent className="grid gap-6 p-6 md:grid-cols-2">
                             <div>
                                 <SectionLabel>Plan summary</SectionLabel>
-                                <DetailRow label="Plan name" value={(futurePlan as any).plan?.name ?? (futurePlan.planSnapshot as any)?.name ?? '—'} />
-                                <DetailRow label="Plan ID" value={futurePlan.planId ?? '—'} />
+                                <DetailRow label="Plan name" value={(futurePlan as any).plan?.name ?? (futurePlan.planSnapshot as any)?.name ?? 'N/A'} />
+                                <DetailRow label="Plan ID" value={futurePlan.planId ?? 'N/A'} />
                                 <DetailRow label="User Plan status" value={<StatusBadge status={futurePlan.status.toUpperCase()} />} />
                                 <DetailRow label="Purchased At" value={formatDate(futurePlan.createdAt)} />
                             </div>

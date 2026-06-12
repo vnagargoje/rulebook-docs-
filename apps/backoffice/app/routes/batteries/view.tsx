@@ -55,13 +55,20 @@ export default function BatteryViewRoute() {
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader title={battery.batteryQrId} description='Full details for this battery unit.' />
-                <Button
-                    variant='outline'
-                    className='ml-auto shrink-0'
-                    onClick={() => navigate(`/batteries/edit/${battery.id}`)}>
-                    <IconEdit size={16} className='mr-2' />
-                    Edit
-                </Button>
+                <div className='ml-auto flex items-center gap-2'>
+                    <Button
+                        variant='outline'
+                        onClick={() => navigate(`/batteries/track/${battery.id}`)}>
+                        <IconMapPin size={16} className='mr-2' />
+                        Track
+                    </Button>
+                    <Button
+                        variant='outline'
+                        onClick={() => navigate(`/batteries/edit/${battery.id}`)}>
+                        <IconEdit size={16} className='mr-2' />
+                        Edit
+                    </Button>
+                </div>
             </div>
 
             {/* Summary card */}
@@ -241,14 +248,14 @@ export default function BatteryViewRoute() {
                     <CardTitle>Audit</CardTitle>
                 </CardHeader>
                 <CardContent className='p-6'>
-                    <div className='grid grid-cols-1 gap-0 sm:grid-cols-2'>
+                    <div className='grid gap-x-6 gap-y-3 md:grid-cols-2'>
                         <DetailRow
                             label='Created At'
-                            value={battery.createdAt ? formatDate(battery.createdAt) : null}
+                            value={battery.createdAt ? formatDate(battery.createdAt) : 'N/A'}
                         />
                         <DetailRow
                             label='Updated At'
-                            value={battery.updatedAt ? formatDate(battery.updatedAt) : null}
+                            value={battery.updatedAt && battery.updatedAt !== battery.createdAt ? formatDate(battery.updatedAt) : 'N/A'}
                         />
                     </div>
                 </CardContent>

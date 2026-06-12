@@ -43,7 +43,7 @@ export default function BatteryTransportViewRoute() {
     }
 
     const stationTypeLabel = (type?: string) =>
-        type ? type.replace(/_/g, ' ') : '—'
+        type ? type.replace(/_/g, ' ') : 'N/A'
 
     const isDelivered = transport.status === 'delivered'
 
@@ -66,12 +66,12 @@ export default function BatteryTransportViewRoute() {
                         <div className='space-y-2'>
                             <StatusBadge status={transport.status.toUpperCase()} />
                             <h2 className='text-2xl font-semibold tracking-tight text-foreground'>
-                                {transport.fromStation?.name ?? '—'}
+                                {transport.fromStation?.name ?? 'N/A'}
                                 <span className='mx-2 text-muted-foreground'>→</span>
-                                {transport.toStation?.name ?? '—'}
+                                {transport.toStation?.name ?? 'N/A'}
                             </h2>
                             <p className='text-sm text-muted-foreground'>
-                                Dispatched on {transport.createdAt ? formatDate(transport.createdAt) : '—'}
+                                Dispatched on {transport.createdAt ? formatDate(transport.createdAt) : 'N/A'}
                             </p>
                         </div>
                         <div className='text-right'>
@@ -94,19 +94,19 @@ export default function BatteryTransportViewRoute() {
                             label='Vehicle'
                             value={
                                 <span className='font-mono text-sm'>
-                                    {transport.vehicle?.vehicleNumber ?? '—'}
+                                    {transport.vehicle?.vehicleNumber ?? 'N/A'}
                                 </span>
                             }
                             icon={IconMotorbike}
                         />
                         <StatTile
                             label='Dispatched'
-                            value={transport.createdAt ? formatDate(transport.createdAt) : '—'}
+                            value={transport.createdAt ? formatDate(transport.createdAt) : 'N/A'}
                             icon={IconClock}
                         />
                         <StatTile
                             label='Received'
-                            value={transport.receivedAt ? formatDate(transport.receivedAt) : '—'}
+                            value={transport.receivedAt ? formatDate(transport.receivedAt) : 'N/A'}
                             icon={IconCalendarEvent}
                         />
                     </div>
@@ -123,7 +123,7 @@ export default function BatteryTransportViewRoute() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <DetailRow label='Name' value={transport.fromStation?.name ?? '—'} />
+                        <DetailRow label='Name' value={transport.fromStation?.name ?? 'N/A'} />
                         <DetailRow
                             label='Type'
                             value={
@@ -141,7 +141,7 @@ export default function BatteryTransportViewRoute() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <DetailRow label='Name' value={transport.toStation?.name ?? '—'} />
+                        <DetailRow label='Name' value={transport.toStation?.name ?? 'N/A'} />
                         <DetailRow
                             label='Type'
                             value={

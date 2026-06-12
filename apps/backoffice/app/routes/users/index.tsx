@@ -1,6 +1,7 @@
 import { useDeferredValue, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import { IconPlus, IconEdit, IconEye } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
+
 
 import { PageHeader } from '~/components/ui/page-header'
 import { ResourceTable } from '~/components/ui/resource-table'
@@ -48,13 +49,13 @@ export default function UsersListRoute() {
     const columns = useMemo(() => [
         {
             header: 'Name',
-            cell: (user: UserItem) => [user.firstName, user.lastName].filter(Boolean).join(' ') || '—',
+            cell: (user: UserItem) => [user.firstName, user.lastName].filter(Boolean).join(' ') || 'N/A',
         },
         { header: 'Email', accessor: 'email' as const },
         {
             header: 'Mobile',
             cell: (user: UserItem) => {
-                let mobile = user.mobilenumber ?? '—'
+                let mobile = user.mobilenumber ?? 'N/A'
                 if (mobile.startsWith('91')) {
                     mobile = mobile.slice(2)
                 }
@@ -63,24 +64,11 @@ export default function UsersListRoute() {
         },
         {
             header: 'Role',
-            cell: (user: UserItem) => (user.properties as { roleName?: string })?.roleName ?? '—',
+            cell: (user: UserItem) => (user.properties as { roleName?: string })?.roleName ?? 'N/A',
         },
         {
             header: 'Status',
             cell: (user: UserItem) => <StatusBadge status={user.active !== false ? 'ACTIVE' : 'INACTIVE'} />,
-        },
-        {
-            header: 'Actions',
-            cell: (user: UserItem) => (
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/users/${user.id}`)}>
-                        <IconEye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/users/edit/${user.id}`)}>
-                        <IconEdit className="h-4 w-4" />
-                    </Button>
-                </div>
-            ),
         },
     ], [navigate])
 
@@ -115,6 +103,7 @@ export default function UsersListRoute() {
 
             <ResourceTable
                 data={users}
+                onRowClick={(item) => navigate(`/users/${item.id}`)}
                 emptyMessage="No employees found."
                 searchPlaceholder="Search users by name, email, or mobile..."
                 searchValue={searchQuery}

@@ -38,6 +38,7 @@ const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
     sortableColumns: ['id', 'firstName', 'lastName', 'createdAt'],
     searchableColumns: ['firstName', 'lastName', 'email', 'mobilenumber'],
     defaultLimit: 50,
+    multiWordSearch: true,
     filterableColumns: {
         firstName: [FilterOperator.ILIKE],
         lastName: [FilterOperator.ILIKE],

@@ -106,7 +106,7 @@ export default function UserViewRoute() {
     const role = roleName ? formatLabel(roleName) : 'N/A'
     const createdAt = (user as any)?.createdAt as string | undefined
     const updatedAt = (user as any)?.updatedAt as string | undefined
-
+    const isUpdated = createdAt && updatedAt && createdAt !== updatedAt
     return (
         <div className="mx-auto max-w-6xl space-y-6 pb-12">
             <div className="flex items-center gap-4">
@@ -329,9 +329,9 @@ export default function UserViewRoute() {
                     <CardTitle>Audit</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                    <div className="grid grid-cols-1 gap-0 sm:grid-cols-2">
+                    <div className="grid gap-x-6 gap-y-3 md:grid-cols-2">
                         <DetailRow label="Created At" value={createdAt ? formatDate(createdAt) : 'N/A'} />
-                        <DetailRow label="Updated At" value={updatedAt ? formatDate(updatedAt) : 'N/A'} />
+                        <DetailRow label="Updated At" value={isUpdated ? formatDate(updatedAt) : 'N/A'} />
                     </div>
                 </CardContent>
             </Card>

@@ -13,7 +13,7 @@ import { SectionLabel } from '~/components/ui/section-label'
 import { StatTile } from '~/components/ui/stat-tile'
 import { useGetStationById, type StationDetail } from '~/queries/stations'
 import { useVehicles } from '~/queries/vehicles'
-import { formatLabel } from '~/lib/formatter'
+import { formatDate, formatLabel } from '~/lib/formatter'
 import { getStationEditPath } from '~/constants'
 import { useRemoveStationManager } from '~/hooks/use-remove-station-manager'
 import { ConfirmDialog } from '~/components/ui/confirm-dialog'
@@ -63,6 +63,10 @@ export default function VehicleStationsViewRoute() {
 
     const stationAddress = formatStationAddress(station)
     const managers = station.managers ?? []
+    
+    const createdAt = (station as any)?.createdAt as string | undefined
+    const updatedAt = (station as any)?.updatedAt as string | undefined
+    const isUpdated = createdAt && updatedAt && createdAt !== updatedAt
 
     return (
         <div className="space-y-6">
@@ -204,6 +208,18 @@ export default function VehicleStationsViewRoute() {
                     ) : (
                         <p className="text-sm font-medium text-muted-foreground">No vehicles assigned to this station.</p>
                     )}
+                </CardContent>
+            </Card>
+            
+            <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
+                <CardHeader className="border-b border-border/40">
+                    <CardTitle>Audit</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                    <div className="grid gap-x-6 gap-y-3 md:grid-cols-2">
+                        <DetailRow label="Created At" value={createdAt ? formatDate(createdAt) : 'N/A'} />
+                        <DetailRow label="Updated At" value={isUpdated ? formatDate(updatedAt) : 'N/A'} />
+                    </div>
                 </CardContent>
             </Card>
             <ConfirmDialog 

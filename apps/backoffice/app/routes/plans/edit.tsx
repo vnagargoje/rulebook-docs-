@@ -10,8 +10,10 @@ import { Form } from '~/components/ui/form'
 import { useGetPlanById, useUpdatePlan } from '~/queries/plans'
 import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
-import { Card, CardContent } from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { updatePlanSchema, type UpdatePlanFormValues, type UpdatePlanFormInput } from '~/schemas'
+import { formatDate } from '~/lib/formatter'
+import { DetailRow } from '~/components/ui/detail-row'
 
 export default function EditPlanRoute() {
     const { id } = useParams()
@@ -70,6 +72,10 @@ export default function EditPlanRoute() {
     if (isLoading) {
         return <div className="p-8 text-center text-muted-foreground animate-pulse font-bold tracking-widest text-sm uppercase">Loading Record...</div>
     }
+
+    const createdAt = (plan as any)?.createdAt as string | undefined
+    const updatedAt = (plan as any)?.updatedAt as string | undefined
+    const isUpdated = createdAt && updatedAt && createdAt !== updatedAt
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-12">
@@ -132,6 +138,18 @@ export default function EditPlanRoute() {
                             </div>
                         </form>
                     </Form>
+                </CardContent>
+            </Card>
+
+            <Card className="border-border/40 shadow-sm bg-white overflow-hidden mt-6">
+                <CardHeader className="border-b border-border/40">
+                    <CardTitle>Audit Information</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                    <div className="grid gap-x-6 gap-y-3 md:grid-cols-2">
+                        <DetailRow label="Created At" value={createdAt ? formatDate(createdAt) : 'N/A'} />
+                        <DetailRow label="Updated At" value={isUpdated ? formatDate(updatedAt) : 'N/A'} />
+                    </div>
                 </CardContent>
             </Card>
         </div>

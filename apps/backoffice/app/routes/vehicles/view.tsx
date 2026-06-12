@@ -144,9 +144,9 @@ export default function VehicleViewRoute() {
                     <CardTitle>Audit</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                    <div className="grid grid-cols-1 gap-0 sm:grid-cols-2">
-                        <DetailRow label="Created At" value={vehicle.createdAt ? formatDate(vehicle.createdAt) : null} />
-                        <DetailRow label="Updated At" value={vehicle.updatedAt ? formatDate(vehicle.updatedAt) : null} />
+                    <div className="grid gap-x-6 gap-y-3 md:grid-cols-2">
+                        <DetailRow label="Created At" value={vehicle.createdAt ? formatDate(vehicle.createdAt) : 'N/A'} />
+                        <DetailRow label="Updated At" value={vehicle.updatedAt && vehicle.updatedAt !== vehicle.createdAt ? formatDate(vehicle.updatedAt) : 'N/A'} />
                     </div>
                 </CardContent>
             </Card>

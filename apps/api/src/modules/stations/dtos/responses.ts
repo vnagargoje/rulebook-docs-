@@ -38,6 +38,8 @@ export const StationResponse = Type.Object({
     active: Type.Boolean(),
     address: Type.Optional(AddressResponse),
     managers: Type.Optional(Type.Array(StationManagerResponse)),
+    createdAt: Type.Optional(Type.String()),
+    updatedAt: Type.Optional(Type.String()),
 });
 
 export const NearestSwapStationResponse = Type.Object({

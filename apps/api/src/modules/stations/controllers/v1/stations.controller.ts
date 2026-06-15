@@ -22,6 +22,7 @@ import { CreateStationCommand, GetNearestSwapStationsQuery, UpdateStationCommand
 import { AccessService, Actions } from '@yugo/nestjs-casl';
 import { StationEntity } from '@yugo/nestjs-database/entities';
 import { StationSubject } from '@yugo/permissions';
+import { BatteryStatus, VehicleStatus } from '@yugo/shared';
 import { type Request } from 'express';
 import {
     FilterOperator,
@@ -70,6 +71,36 @@ export class V1StationsController {
         const queryBuilder = this.datasource.manager.createQueryBuilder(
             StationEntity,
             'station',
+        )
+        .loadRelationCountAndMap(
+            'station.availableBatteriesCount',
+            'station.batteries',
+            'availableBattery',
+            (qb) => qb.where('availableBattery.status = :availableStatus', { availableStatus: BatteryStatus.AVAILABLE }),
+        )
+        .loadRelationCountAndMap(
+            'station.drainedBatteriesCount',
+            'station.batteries',
+            'drainedBattery',
+            (qb) => qb.where('drainedBattery.status = :drainedStatus', { drainedStatus: BatteryStatus.DRAINED }),
+        )
+        .loadRelationCountAndMap(
+            'station.chargedBatteriesCount',
+            'station.batteries',
+            'chargedBattery',
+            (qb) => qb.where('chargedBattery.status = :chargedStatus', { chargedStatus: BatteryStatus.CHARGED }),
+        )
+        .loadRelationCountAndMap(
+            'station.chargingBatteriesCount',
+            'station.batteries',
+            'chargingBattery',
+            (qb) => qb.where('chargingBattery.status = :chargingStatus', { chargingStatus: BatteryStatus.CHARGING }),
+        )
+        .loadRelationCountAndMap(
+            'station.availableVehiclesCount',
+            'station.vehicles',
+            'availableVehicle',
+            (qb) => qb.where('availableVehicle.status = :vehicleStatus', { vehicleStatus: VehicleStatus.AVAILABLE }),
         );
         return paginate(query, queryBuilder, PAGINATE_CONFIG);
     }
@@ -78,15 +109,46 @@ export class V1StationsController {
     @Get(':id')
     @ApiResource(StationResponse)
     async getOneStation(@Param('id') id: string, @Req() req: Request) {
-        const station = await this.datasource.manager.findOne(StationEntity, {
-            where: { id },
-            relations: [
-                'address',
-                'address.city',
-                'address.city.state',
-                'managers',
-            ],
-        });
+        const station = await this.datasource.manager.createQueryBuilder(
+            StationEntity,
+            'station',
+        )
+        .leftJoinAndSelect('station.address', 'address')
+        .leftJoinAndSelect('address.city', 'city')
+        .leftJoinAndSelect('city.state', 'state')
+        .leftJoinAndSelect('station.managers', 'managers')
+        .loadRelationCountAndMap(
+            'station.availableBatteriesCount',
+            'station.batteries',
+            'availableBattery',
+            (qb) => qb.where('availableBattery.status = :availableStatus', { availableStatus: BatteryStatus.AVAILABLE }),
+        )
+        .loadRelationCountAndMap(
+            'station.drainedBatteriesCount',
+            'station.batteries',
+            'drainedBattery',
+            (qb) => qb.where('drainedBattery.status = :drainedStatus', { drainedStatus: BatteryStatus.DRAINED }),
+        )
+        .loadRelationCountAndMap(
+            'station.chargedBatteriesCount',
+            'station.batteries',
+            'chargedBattery',
+            (qb) => qb.where('chargedBattery.status = :chargedStatus', { chargedStatus: BatteryStatus.CHARGED }),
+        )
+        .loadRelationCountAndMap(
+            'station.chargingBatteriesCount',
+            'station.batteries',
+            'chargingBattery',
+            (qb) => qb.where('chargingBattery.status = :chargingStatus', { chargingStatus: BatteryStatus.CHARGING }),
+        )
+        .loadRelationCountAndMap(
+            'station.availableVehiclesCount',
+            'station.vehicles',
+            'availableVehicle',
+            (qb) => qb.where('availableVehicle.status = :vehicleStatus', { vehicleStatus: VehicleStatus.AVAILABLE }),
+        )
+        .where('station.id = :id', { id })
+        .getOne();
         if (!station) {
             throw new NotFoundException('Station not found');
         }

@@ -40,6 +40,12 @@ export abstract class StationEntity extends IdTimestamppedEntity {
 
     @OneToMany(() => UserEntity, (user) => user.station)
     managers: UserEntity[]
+
+    availableBatteriesCount?: number
+    drainedBatteriesCount?: number
+    chargedBatteriesCount?: number
+    chargingBatteriesCount?: number
+    availableVehiclesCount?: number
 }
 
 @ChildEntity(StationType.SWAP_STATION)

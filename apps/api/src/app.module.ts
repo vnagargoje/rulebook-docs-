@@ -18,6 +18,7 @@ import {
     s3BucketConfig,
     inngestConfig,
     msg91Config,
+    fcmConfig,
 } from './config';
 import { AppAuthGuard } from './guards/app.guard.js';
 import { TypeboxSerializerInterceptor } from './interceptors/typebox-serializer.interceptor.js';
@@ -40,6 +41,7 @@ import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module
 import { SurrendersModule } from './modules/surrenders/surrenders.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { NestjsInngestModule } from '@yugo/nestjs-inngest';
+import { NestjsFcmModule } from '@yugo/nestjs-fcm';
 
 @Module({
     imports: [
@@ -57,6 +59,7 @@ import { NestjsInngestModule } from '@yugo/nestjs-inngest';
                 s3BucketConfig,
                 inngestConfig,
                 msg91Config,
+                fcmConfig,
             ],
         }),
         LoggerModule.forRootAsync({
@@ -91,6 +94,13 @@ import { NestjsInngestModule } from '@yugo/nestjs-inngest';
             inject: [ConfigService],
             async useFactory(configService: ConfigService) {
                 return configService.getOrThrow('inngest.config');
+            },
+        }),
+        NestjsFcmModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            async useFactory(configService: ConfigService) {
+                return configService.getOrThrow('fcm.config');
             },
         }),
         PassportModule.register({

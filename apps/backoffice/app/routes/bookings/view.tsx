@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import { IconArrowLeft, IconBolt, IconCalendarEvent, IconMapPin, IconMotorbike, IconPhone, IconQrcode, IconReceiptRupee, IconShieldCheck, IconUser, IconMail } from '@tabler/icons-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -21,6 +21,7 @@ import { useInfiniteBatteries } from '~/queries/batteries'
 import { useInfiniteUserPlans } from '~/queries/user-plans'
 import { formatCurrency, formatDate, formatKm } from '~/lib/formatter'
 import { assignVehicleSchema, type AssignVehicleValues } from '~/schemas'
+import { showKycRequiredToast } from '~/components/ui/kyc-toast'
 
 function getAssetUrl(path?: string | null) {
     if (!path) {
@@ -40,6 +41,7 @@ function getAssetUrl(path?: string | null) {
 export default function BookingViewRoute() {
     const { id } = useParams()
     const navigate = useNavigate()
+    const location = useLocation()
     const { data: booking, isLoading } = useGetBookingById(id)
     const { data: vehiclesData, isFetching: vehiclesLoading, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles({
         sortBy: ['createdAt:DESC'],
@@ -62,7 +64,11 @@ export default function BookingViewRoute() {
 
     const form = useForm<AssignVehicleValues>({
         resolver: zodResolver(assignVehicleSchema),
-        defaultValues: { vehicleId: '', batteryId: '', otp: '' },
+        defaultValues: {
+            vehicleId: location.state?.draftData?.vehicleId || '',
+            batteryId: location.state?.draftData?.batteryId || '',
+            otp: location.state?.draftData?.otp || ''
+        },
     })
 
     const vehicleOptions = useMemo(() => (vehiclesData?.pages ?? []).flatMap((p) => p.data).map((vehicle) => ({
@@ -94,7 +100,28 @@ export default function BookingViewRoute() {
             },
             onError: (error: any) => {
                 const message = error?.response?.data?.message
-                toast.error(Array.isArray(message) ? message.join(', ') : (message || 'Failed to assign vehicle'))
+                const msgString = Array.isArray(message) ? message.join(', ') : (message || 'Failed to assign vehicle')
+                
+                if (msgString.includes('KYC')) {
+                    showKycRequiredToast({
+                        message: msgString,
+                        onReview: () => {
+                            const customerId = (booking?.userPlan as any)?.user?.id
+                            if (customerId) {
+                                navigate(`/customers/${customerId}`, {
+                                    state: {
+                                        returnTo: location.pathname,
+                                        draftData: values,
+                                    }
+                                })
+                            } else {
+                                toast.error('Customer ID not found')
+                            }
+                        }
+                    })
+                } else {
+                    toast.error(msgString)
+                }
             },
         })
     }, [assignVehicle, form, id])

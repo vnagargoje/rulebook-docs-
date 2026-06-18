@@ -13,6 +13,8 @@ import {
     IconX,
 } from '@tabler/icons-react'
 import { KycStatus } from '@yugo/shared'
+import { toast } from 'sonner'
+import { api } from '~/services/api/sdk'
 
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
@@ -199,7 +201,39 @@ export default function UserViewRoute() {
                                 <div className="mt-6 flex flex-1 flex-col justify-end gap-3">
                                     {manualKyc.status !== KycStatus.APPROVED && (
                                         <Button
-                                            onClick={() => updateKycStatus({ id: manualKyc.id, status: KycStatus.APPROVED })}
+                                            onClick={() => updateKycStatus(
+                                                { id: manualKyc.id, status: KycStatus.APPROVED },
+                                                {
+                                                    onSuccess: async () => {
+                                                        const remainingPending = kycData?.data?.filter(
+                                                            k => k.id !== manualKyc.id && (k.status === KycStatus.PENDING || k.status === KycStatus.MANUAL_VERIFICATION_REQUESTED)
+                                                        ) || []
+                                                        
+                                                        try {
+                                                            const userRes = await api.instance.get(`/v1/users/${user.id}`)
+                                                            const updatedUser = userRes.data as any
+                                                            if (updatedUser.kycStatus?.toLowerCase() === KycStatus.APPROVED || updatedUser.kycStatus?.toLowerCase() === KycStatus.VERIFIED) {
+                                                                toast.success('Customer KYC has been fully approved successfully.')
+                                                                if (location.state?.returnTo) {
+                                                                    navigate(location.state.returnTo, {
+                                                                        state: { draftData: location.state.draftData }
+                                                                    })
+                                                                }
+                                                            } else {
+                                                                if (remainingPending.length > 0) {
+                                                                    const docTypes = remainingPending.map(k => formatLabel(k.type)).join(', ')
+                                                                    toast.success(`${formatLabel(manualKyc.type)} KYC approved successfully. ${remainingPending.length} KYC document${remainingPending.length > 1 ? 's' : ''} (${docTypes}) ${remainingPending.length > 1 ? 'are' : 'is'} still pending approval.`)
+                                                                } else {
+                                                                    toast.success(`${formatLabel(manualKyc.type)} KYC approved successfully.`)
+                                                                }
+                                                            }
+                                                        } catch (error) {
+                                                            console.error('Failed to fetch updated user status', error)
+                                                            toast.success(`${formatLabel(manualKyc.type)} KYC approved successfully.`)
+                                                        }
+                                                    }
+                                                }
+                                            )}
                                             disabled={isUpdatingKyc}
                                             className="h-11 w-full bg-emerald-600 hover:bg-emerald-700"
                                         >
@@ -217,6 +251,10 @@ export default function UserViewRoute() {
                                                         id: manualKyc.id,
                                                         status: KycStatus.REJECTED,
                                                         notes: reason,
+                                                    }, {
+                                                        onSuccess: () => {
+                                                            toast.success(`${formatLabel(manualKyc.type)} KYC rejected successfully.`)
+                                                        }
                                                     })
                                                 }
                                             }}

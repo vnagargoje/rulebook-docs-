@@ -18,7 +18,12 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { type Static } from '@sinclair/typebox';
-import { CreateUserCommand, UpdateUserCommand, UpdateUserAddressesCommand } from '@yugo/cqrs';
+import {
+    CreateUserCommand,
+    UpdateUserCommand,
+    UpdateUserAddressesCommand,
+    RegisterDeviceTokenCommand,
+} from '@yugo/cqrs';
 import { AccessService } from '@yugo/nestjs-casl';
 import { UserEntity } from '@yugo/nestjs-database/entities';
 import { Actions, UserSubject } from '@yugo/permissions';
@@ -31,7 +36,12 @@ import {
     type PaginateQuery,
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
-import { CreateUserPayload, UpdateUserPayload, UpdateUserAddressesPayload } from '../../dtos/payloads';
+import {
+    CreateUserPayload,
+    UpdateUserPayload,
+    UpdateUserAddressesPayload,
+    RegisterDeviceTokenPayload,
+} from '../../dtos/payloads';
 import { UserResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
@@ -48,7 +58,13 @@ const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
         active: [FilterOperator.EQ],
         stationId: [FilterOperator.EQ, FilterOperator.NULL],
     },
-    relations: ['roles', 'addresses', 'addresses.city', 'addresses.city.state', 'station'],
+    relations: [
+        'roles',
+        'addresses',
+        'addresses.city',
+        'addresses.city.state',
+        'station',
+    ],
     defaultSortBy: [['createdAt', 'DESC']],
 };
 
@@ -98,7 +114,11 @@ export class V1UsersController {
         const userId = id === 'me' ? req.user.id : id;
         const user = await this.datasource.manager.findOne(UserEntity, {
             where: { id: userId },
-            relations: { roles: true, addresses: { city: { state: true } }, station: true },
+            relations: {
+                roles: true,
+                addresses: { city: { state: true } },
+                station: true,
+            },
         });
 
         if (!user) {
@@ -181,6 +201,17 @@ export class V1UsersController {
 
         return this.commandBus.execute(
             new UpdateUserAddressesCommand(userId, body),
+        );
+    }
+
+    @ApiBody({ schema: RegisterDeviceTokenPayload })
+    @Post('device-token')
+    async registerDeviceToken(
+        @Body() body: Static<typeof RegisterDeviceTokenPayload>,
+        @Req() req: Request,
+    ) {
+        return this.commandBus.execute(
+            new RegisterDeviceTokenCommand(req.user.id, body.deviceToken),
         );
     }
 }

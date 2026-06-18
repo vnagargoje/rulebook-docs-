@@ -2,9 +2,10 @@ import { RedisService } from '@liaoliaots/nestjs-redis';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { BatteryEntity } from '@yugo/nestjs-database/entities';
+import { BatteryEntity, BookingEntity } from '@yugo/nestjs-database/entities';
 import { NestjsInngestFunction } from '@yugo/nestjs-inngest';
-import { BatteryStatus, StationType } from '@yugo/shared';
+import { BatteryStatus, StationType, BookingStatus } from '@yugo/shared';
+import { FcmService } from '@yugo/nestjs-fcm';
 import { HenchmenInngestClient } from '@yugo/utils';
 import { type GetFunctionInput } from 'inngest';
 import { DataSource } from 'typeorm';
@@ -37,6 +38,7 @@ export class BatteryFunctions {
         private readonly configService: ConfigService,
         @InjectDataSource() private readonly datasource: DataSource,
         @Inject(RedisService) private readonly redis: RedisService,
+        private readonly fcmService: FcmService,
     ) {}
 
     @NestjsInngestFunction<HenchmenInngestClient>(
@@ -84,6 +86,97 @@ export class BatteryFunctions {
         };
     }
 
+    @NestjsInngestFunction<HenchmenInngestClient>(
+        { id: 'checkLowBatteryBookings' },
+        { cron: '*/5 * * * *' },
+    )
+    async checkLowBatteryBookings({
+        step,
+    }: GetFunctionInput<HenchmenInngestClient>) {
+        const results = await step.run('check-low-battery', async () => {
+            const bookings = await this.datasource.manager.find(BookingEntity, {
+                where: {
+                    status: BookingStatus.ONGOING,
+                },
+                relations: ['userPlan', 'userPlan.user', 'battery'],
+            });
+
+            if (bookings.length === 0) {
+                this.logger.log('No ongoing bookings found.');
+                return [];
+            }
+
+            const processedResults = [];
+            const redisClient = this.redis.getOrThrow();
+
+            for (const booking of bookings) {
+                try {
+                    const battery = booking.battery;
+                    if (!battery) {
+                        continue;
+                    }
+
+                    const properties = battery.properties || {};
+                    const soc = properties.socPercent;
+
+                    if (typeof soc === 'number' && soc < 30) {
+                        const redisKey = `low_battery_notified:${booking.id}:${battery.id}`;
+                        const alreadyNotified = await redisClient.get(redisKey);
+
+                        if (!alreadyNotified) {
+                            const user = booking.userPlan?.user;
+                            const deviceToken = user?.properties?.deviceToken;
+
+                            if (deviceToken) {
+                                await this.fcmService.send({
+                                    notification: {
+                                        title: 'Low Battery Alert',
+                                        body: `Your battery is low (${soc}%). Please visit a nearby station to swap.`,
+                                    },
+                                    token: deviceToken,
+                                });
+
+                                // Mark as notified in Redis for 14 days
+                                await redisClient.set(
+                                    redisKey,
+                                    'true',
+                                    'EX',
+                                    1209600,
+                                );
+                                processedResults.push({
+                                    bookingId: booking.id,
+                                    batteryId: battery.id,
+                                    notified: true,
+                                    soc,
+                                });
+                            } else {
+                                this.logger.warn(
+                                    `[Booking ${booking.id}] User ${user?.id} has no registered device token.`,
+                                );
+                            }
+                        }
+                    }
+                } catch (error: any) {
+                    this.logger.error(
+                        `Error checking low battery for booking ${booking.id}: ${error.message}`,
+                    );
+                }
+            }
+
+            return processedResults;
+        });
+
+        const notifiedCount = results.length;
+        this.logger.log(
+            `Low battery check completed. Total notified in this run: ${notifiedCount}`,
+        );
+
+        return {
+            notifiedCount,
+            results,
+        };
+    }
+
     private async processBattery(battery: BatteryEntity) {
         try {
             const token = await this.getMoovingToken();
@@ -106,14 +199,19 @@ export class BatteryFunctions {
                 battery.status = status;
             }
 
-            const updateQuery = this.datasource.manager.createQueryBuilder(BatteryEntity, 'battery')
+            const updateQuery = this.datasource.manager
+                .createQueryBuilder(BatteryEntity, 'battery')
                 .update()
                 .where('id = :id', { id: battery.id });
 
             const setValues: any = {
-                properties: () => `JSON_MERGE_PATCH(COALESCE(properties, JSON_OBJECT()), :iotDataJson)`
+                properties: () =>
+                    `JSON_MERGE_PATCH(COALESCE(properties, JSON_OBJECT()), :iotDataJson)`,
             };
-            updateQuery.setParameter('iotDataJson', JSON.stringify(iotData.data));
+            updateQuery.setParameter(
+                'iotDataJson',
+                JSON.stringify(iotData.data),
+            );
 
             if (status) {
                 setValues.status = status;

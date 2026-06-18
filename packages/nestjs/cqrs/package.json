@@ -27,6 +27,7 @@
         "@nestjs/cqrs": "^11.0.3",
         "@nestjs/typeorm": "*",
         "@yugo/nestjs-database": "workspace:*",
+        "@yugo/nestjs-fcm": "workspace:*",
         "@yugo/shared": "workspace:*",
         "reflect-metadata": "*"
     },

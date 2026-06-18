@@ -1,0 +1,30 @@
+{
+    "name": "@yugo/nestjs-fcm",
+    "version": "0.1.0",
+    "private": true,
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "default": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "dev": "yarn build --watch",
+        "build": "tsup",
+        "clean": "del-cli ./dist ./.turbo/"
+    },
+    "dependencies": {
+        "firebase-admin": "^12.0.0"
+    },
+    "devDependencies": {
+        "@yugo/tsconfig": "workspace:*",
+        "del-cli": "^7.0.0",
+        "tsup": "^8.0.0",
+        "typescript": "^5.4.5"
+    },
+    "peerDependencies": {
+        "@nestjs/common": "*",
+        "reflect-metadata": "*"
+    }
+}

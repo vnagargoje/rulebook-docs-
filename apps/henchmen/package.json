@@ -19,6 +19,7 @@
         "@nestjs/typeorm": "^11.0.1",
         "@yugo/cqrs": "workspace:*",
         "@yugo/nestjs-database": "workspace:*",
+        "@yugo/nestjs-fcm": "workspace:*",
         "@yugo/nestjs-framework": "workspace:*",
         "@yugo/nestjs-inngest": "workspace:*",
         "@yugo/shared": "workspace:*",

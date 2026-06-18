@@ -28,3 +28,10 @@ export const UpdateUserAddressesPayload = Type.Object({
     current: Type.Optional(AddressPayload),
     permanent: Type.Optional(AddressPayload),
 });
+
+export const RegisterDeviceTokenPayload = Type.Object({
+    deviceToken: Type.String(),
+});
+
+
+

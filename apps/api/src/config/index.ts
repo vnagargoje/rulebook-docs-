@@ -7,3 +7,4 @@ export * from './razorpay.config.js';
 export * from './s3.config.js';
 export * from './inngest.config.js';
 export * from './msg91.config.js'
+export * from './fcm.config.js';

@@ -27,17 +27,17 @@ const EXPO_PUBLIC_APP_ENV = (process.env.EXPO_PUBLIC_APP_ENV ?? 'development') a
 >['EXPO_PUBLIC_APP_ENV']
 
 const BUNDLE_IDS = {
-    development: 'com.app.development',
-    preview: 'com.app.preview',
-    staging: 'com.app.staging',
-    production: 'com.app',
+    development: 'com.yugorides.app.development',
+    preview: 'com.yugorides.app.preview',
+    staging: 'com.yugorides.app.staging',
+    production: 'com.yugorides.app',
 } as const
 
 const PACKAGES = {
-    development: 'com.app.development',
-    preview: 'com.app.preview',
-    staging: 'com.app.staging',
-    production: 'com.app',
+    development: 'com.yugorides.app',
+    preview: 'com.yugorides.app.preview',
+    staging: 'com.yugorides.app.staging',
+    production: 'com.yugorides.app',
 } as const
 
 const SCHEMES = {
@@ -47,7 +47,7 @@ const SCHEMES = {
     production: 'app',
 } as const
 
-const NAME = 'app'
+const NAME = 'yugorides'
 
 // Check if strict validation is required (before prebuild)
 const STRICT_ENV_VALIDATION = process.env.STRICT_ENV_VALIDATION === '1'

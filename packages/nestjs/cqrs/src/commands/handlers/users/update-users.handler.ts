@@ -4,10 +4,15 @@ import { InjectDataSource } from '@nestjs/typeorm'
 import { AddressEntity, RoleEntity, UserEntity } from '@yugo/nestjs-database/entities'
 import { DataSource } from 'typeorm'
 import { UpdateUserCommand } from '../../impl/users/update-users.command.js'
+import { InjectInngestService } from '@yugo/nestjs-inngest'
+import { type HenchmenInngestClient } from '@yugo/utils'
 
 @CommandHandler(UpdateUserCommand)
 export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
-    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
+    constructor(
+        @InjectDataSource() private readonly datasource: DataSource,
+        @InjectInngestService() private readonly inngest: HenchmenInngestClient,
+    ) {}
 
     async execute(command: UpdateUserCommand) {
         const { userId, payload: body, canUpdateRole } = command
@@ -23,7 +28,8 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
                 throw new NotFoundException('User not found')
             }
 
-            const isEmployee = (body.role ? body.role !== 'customer' : user.roles?.some((r) => r.name !== 'customer')) ?? false
+            const isEmployee =
+                (body.role ? body.role !== 'customer' : user.roles?.some((r) => r.name !== 'customer')) ?? false
             const entityName = isEmployee ? 'Employee' : 'Customer'
 
             if (body.mobilenumber && body.mobilenumber !== user.mobilenumber) {
@@ -81,6 +87,14 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
             Object.assign(user, updateData)
 
             await manager.save(user)
+
+            await this.inngest.send({
+                name: 'user/user.update',
+                data: {
+                    userId: user.id,
+                    user: user,
+                },
+            })
 
             return manager.findOne(UserEntity, {
                 where: { id: userId },

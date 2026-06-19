@@ -17,6 +17,7 @@ import {
 import { AuthFunctions } from './functions/auth.functions.js';
 import { BatteryFunctions } from './functions/battery.functions';
 import { UserPlanFunctions } from './functions/user-plan.functions';
+import { NotificationServiceFunctions } from './functions/notification-service.functions';
 import { QueuedPlansSyncService } from './services/queued-plans-sync.service';
 
 import { CqrsModule } from '@nestjs/cqrs';
@@ -81,6 +82,7 @@ import { NestjsFcmModule } from '@yugo/nestjs-fcm';
         UserPlanFunctions,
         QueuedPlansSyncService,
         ActivateQueuedPlanHandler,
+        NotificationServiceFunctions,
     ],
 })
 export class HenchmenModule {}

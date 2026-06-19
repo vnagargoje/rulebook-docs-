@@ -39,7 +39,10 @@ export class VerifyPaymentHandler implements ICommandHandler<VerifyPaymentComman
             }
 
             if (transaction.status !== PaymentStatus.AWAITING) {
-                throw new BadRequestException({ code: 'PAYMENT_ALREADY_PROCESSED', message: 'This payment has already been processed' })
+                throw new BadRequestException({
+                    code: 'PAYMENT_ALREADY_PROCESSED',
+                    message: 'This payment has already been processed',
+                })
             }
 
             const expectedSignature = createHmac('sha256', config.apiSecret)
@@ -96,6 +99,23 @@ export class VerifyPaymentHandler implements ICommandHandler<VerifyPaymentComman
                     pickupOtp,
                 })
                 await manager.save(booking)
+
+                const fullBooking = await manager.findOne(BookingEntity, {
+                    where: { id: booking.id },
+                    relations: ['userPlan', 'userPlan.user', 'station'],
+                })
+
+                if (!fullBooking) {
+                    throw new NotFoundException('Booking not found after creation')
+                }
+
+                await this.inngest.send({
+                    name: 'booking/booking.create',
+                    data: {
+                        userId,
+                        booking: fullBooking,
+                    },
+                })
             }
             return transaction.userPlan
         })

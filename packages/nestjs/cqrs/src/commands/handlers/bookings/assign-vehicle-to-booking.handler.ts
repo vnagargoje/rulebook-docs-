@@ -16,6 +16,8 @@ import { addDays } from 'date-fns'
 import { toBuffer } from 'qrcode'
 import { DataSource, EntityManager } from 'typeorm'
 import { AssignVehicleToBookingCommand } from '../../impl/bookings/assign-vehicle-to-booking.command.js'
+import { InjectInngestService } from '@yugo/nestjs-inngest'
+import { type HenchmenInngestClient } from '@yugo/utils'
 
 const ACTIVE_BOOKING_STATUSES = [BookingStatus.ONGOING]
 
@@ -27,6 +29,7 @@ export class AssignVehicleToBookingHandler implements ICommandHandler<AssignVehi
     constructor(
         @InjectDataSource() private readonly datasource: DataSource,
         private readonly configService: ConfigService,
+        @InjectInngestService() private readonly inngest: HenchmenInngestClient,
     ) {
         const s3Config = this.configService.getOrThrow('s3-client.config')
         this.s3Client = new S3Client(s3Config)
@@ -128,6 +131,24 @@ export class AssignVehicleToBookingHandler implements ICommandHandler<AssignVehi
             await manager.save(userPlan)
 
             await this.generateAndUploadQrCode(manager, userPlan, vehicleId, batteryId)
+
+            const fullBooking = await manager.findOne(BookingEntity, {
+                where: { id: booking.id },
+                relations: ['userPlan', 'userPlan.user', 'vehicle', 'battery', 'station'],
+            })
+
+            if (!fullBooking) {
+                throw new NotFoundException('Booking not found after vehicle assignment')
+            }
+
+            await this.inngest.send({
+                name: 'booking/booking.ongoing',
+                data: {
+                    userId: userPlan.userId,
+                    booking: fullBooking,
+                },
+            })
+
             return booking
         })
     }

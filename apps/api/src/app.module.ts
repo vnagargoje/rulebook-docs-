@@ -40,6 +40,7 @@ import { BatteryTransportsModule } from './modules/battery-transports/battery-tr
 import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module';
 import { SurrendersModule } from './modules/surrenders/surrenders.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { NestjsInngestModule } from '@yugo/nestjs-inngest';
 import { NestjsFcmModule } from '@yugo/nestjs-fcm';
 
@@ -124,6 +125,7 @@ import { NestjsFcmModule } from '@yugo/nestjs-fcm';
         BatteryTransportsModule,
         SurrendersModule,
         TransactionsModule,
+        NotificationsModule,
     ],
     providers: [
         JwtStrategy,

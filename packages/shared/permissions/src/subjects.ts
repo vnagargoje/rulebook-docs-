@@ -71,3 +71,9 @@ export class KycSubject {
         return Subjects.Kyc
     }
 }
+
+export class NotificationSubject {
+    static get modelName() {
+        return Subjects.Notification
+    }
+}

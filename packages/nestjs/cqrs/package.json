@@ -29,7 +29,9 @@
         "@yugo/nestjs-database": "workspace:*",
         "@yugo/nestjs-fcm": "workspace:*",
         "@yugo/shared": "workspace:*",
-        "reflect-metadata": "*"
+        "nestjs-paginate": "^12.10.0",
+        "reflect-metadata": "*",
+        "typeorm": "*"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.1030.0",

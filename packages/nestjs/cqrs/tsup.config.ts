@@ -17,5 +17,7 @@ export default defineConfig( {
         '@yugo/shared',
         'reflect-metadata',
         'rxjs',
+        'typeorm',
+        'nestjs-paginate',
     ],
 } )

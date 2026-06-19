@@ -10,9 +10,9 @@ import {
     type PaginateQuery,
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
-import { ApiResource } from '@/decorators/api-resource.decorator.js';
-import { Public } from '@/decorators/public.decorator.js';
-import { StateResponse } from '../../dtos/responses.js';
+import { ApiResource } from '@/decorators/api-resource.decorator';
+import { Public } from '@/decorators/public.decorator';
+import { StateResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<StateEntity> = {
     sortableColumns: ['id', 'name'],

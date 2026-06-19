@@ -10654,6 +10654,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/handlebars@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "@types/handlebars@npm:4.1.0"
+  dependencies:
+    handlebars: "npm:*"
+  checksum: 10c0/50e85efb4a9306c8b2278dd1570714e9021f201ef317a259ce2d63406057e6575f3066b862bed3d192828d1cc32b80d3a0d2e18d0cd9cda98ec5f1f69038e342
+  languageName: node
+  linkType: hard
+
 "@types/helmet@npm:^4.0.0":
   version: 4.0.0
   resolution: "@types/helmet@npm:4.0.0"
@@ -11994,7 +12003,9 @@ __metadata:
     "@yugo/nestjs-database": "workspace:*"
     "@yugo/nestjs-fcm": "workspace:*"
     "@yugo/shared": "workspace:*"
+    nestjs-paginate: ^12.10.0
     reflect-metadata: "*"
+    typeorm: "*"
   languageName: unknown
   linkType: soft
 
@@ -12028,6 +12039,7 @@ __metadata:
     "@nestjs/schematics": "npm:^11.0.0"
     "@nestjs/testing": "npm:^11.0.1"
     "@nestjs/typeorm": "npm:^11.0.1"
+    "@types/handlebars": "npm:^4.1.0"
     "@types/node": "npm:^22.10.7"
     "@yugo/cqrs": "workspace:*"
     "@yugo/eslint": "workspace:*"
@@ -12038,6 +12050,7 @@ __metadata:
     "@yugo/shared": "workspace:*"
     "@yugo/tsconfig": "workspace:*"
     "@yugo/utils": "workspace:*"
+    handlebars: "npm:^4.7.9"
     inngest: "npm:^3.47.0"
     ioredis: "npm:^5.0.0"
     mysql2: "npm:^3.21.0"
@@ -18697,6 +18710,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"handlebars@npm:*, handlebars@npm:^4.7.9":
+  version: 4.7.9
+  resolution: "handlebars@npm:4.7.9"
+  dependencies:
+    minimist: "npm:^1.2.5"
+    neo-async: "npm:^2.6.2"
+    source-map: "npm:^0.6.1"
+    uglify-js: "npm:^3.1.4"
+    wordwrap: "npm:^1.0.0"
+  dependenciesMeta:
+    uglify-js:
+      optional: true
+  bin:
+    handlebars: bin/handlebars
+  checksum: 10c0/22f8105a7e68e81aff2662bb434edf05f757d21d850731d71cec886d69c10cd33d3c43e34b2892968ec62de8241611851d3d0674c8ef324ea3e01dc66262faa9
+  languageName: node
+  linkType: hard
+
 "has-ansi@npm:^2.0.0":
   version: 2.0.0
   resolution: "has-ansi@npm:2.0.0"
@@ -23340,7 +23371,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimist@npm:^1.2.0, minimist@npm:^1.2.6, minimist@npm:^1.2.8":
+"minimist@npm:^1.2.0, minimist@npm:^1.2.5, minimist@npm:^1.2.6, minimist@npm:^1.2.8":
   version: 1.2.8
   resolution: "minimist@npm:1.2.8"
   checksum: 10c0/19d3fcdca050087b84c2029841a093691a91259a47def2f18222f41e7645a0b7c44ef4b40e88a1e58a40c84d2ef0ee6047c55594d298146d0eb3f6b737c20ce6
@@ -29486,6 +29517,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"uglify-js@npm:^3.1.4":
+  version: 3.19.3
+  resolution: "uglify-js@npm:3.19.3"
+  bin:
+    uglifyjs: bin/uglifyjs
+  checksum: 10c0/83b0a90eca35f778e07cad9622b80c448b6aad457c9ff8e568afed978212b42930a95f9e1be943a1ffa4258a3340fbb899f41461131c05bb1d0a9c303aed8479
+  languageName: node
+  linkType: hard
+
 "uid2@npm:1.0.0":
   version: 1.0.0
   resolution: "uid2@npm:1.0.0"
@@ -30481,6 +30521,13 @@ __metadata:
   version: 0.3.0
   resolution: "word@npm:0.3.0"
   checksum: 10c0/c6da2a9f7a0d81a32fa6768a638d21b153da2be04f94f3964889c7cc1365d74b6ecb43b42256c3f926cd59512d8258206991c78c21000c3da96d42ff1238b840
+  languageName: node
+  linkType: hard
+
+"wordwrap@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "wordwrap@npm:1.0.0"
+  checksum: 10c0/7ed2e44f3c33c5c3e3771134d2b0aee4314c9e49c749e37f464bf69f2bcdf0cbf9419ca638098e2717cff4875c47f56a007532f6111c3319f557a2ca91278e92
   languageName: node
   linkType: hard
 

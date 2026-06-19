@@ -15,6 +15,8 @@ import { isAfter } from 'date-fns'
 import { toBuffer } from 'qrcode'
 import { DataSource, EntityManager } from 'typeorm'
 import { ExecuteBatterySwapCommand } from '../../impl/battery-swaps/execute-battery-swap.command.js'
+import { InjectInngestService } from '@yugo/nestjs-inngest'
+import { type HenchmenInngestClient } from '@yugo/utils'
 
 const ACTIVE_BOOKING_STATUSES = [BookingStatus.ONGOING]
 
@@ -25,6 +27,7 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
     constructor(
         @InjectDataSource() private readonly datasource: DataSource,
         private readonly configService: ConfigService,
+        @InjectInngestService() private readonly inngest: HenchmenInngestClient,
     ) {
         const s3Config = this.configService.getOrThrow('s3-client.config')
         this.s3Client = new S3Client(s3Config)
@@ -127,6 +130,33 @@ export class ExecuteBatterySwapHandler implements ICommandHandler<ExecuteBattery
             await manager.save(swapHistory)
 
             await this.regeneratePlanQrCode(manager, booking.userPlanId, booking.vehicleId!, newBattery.id)
+
+            const fullSwapHistory = await manager.findOne(BatterySwapHistoryEntity, {
+                where: { id: swapHistory.id },
+                relations: [
+                    'booking',
+                    'booking.userPlan',
+                    'booking.userPlan.user',
+                    'oldBattery',
+                    'newBattery',
+                    'vehicle',
+                    'fromStation',
+                    'toStation',
+                    'swappedBy',
+                ],
+            })
+
+            if (!fullSwapHistory) {
+                throw new NotFoundException('Swap history not found')
+            }
+
+            await this.inngest.send({
+                name: 'booking/battery.swap',
+                data: {
+                    userId: plan.userId,
+                    swapHistory: fullSwapHistory,
+                },
+            })
 
             return {
                 swapHistoryId: swapHistory.id,

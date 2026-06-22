@@ -38,6 +38,11 @@ export const StationResponse = Type.Object({
     active: Type.Boolean(),
     address: Type.Optional(AddressResponse),
     managers: Type.Optional(Type.Array(StationManagerResponse)),
+    availableBatteriesCount: Type.Optional(Type.Number()),
+    drainedBatteriesCount: Type.Optional(Type.Number()),
+    chargedBatteriesCount: Type.Optional(Type.Number()),
+    chargingBatteriesCount: Type.Optional(Type.Number()),
+    availableVehiclesCount: Type.Optional(Type.Number()),
     createdAt: Type.Optional(Type.String()),
     updatedAt: Type.Optional(Type.String()),
 });

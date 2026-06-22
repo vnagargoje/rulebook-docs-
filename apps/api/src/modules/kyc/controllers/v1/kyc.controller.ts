@@ -1,7 +1,7 @@
-import { ApiResource } from '@/decorators/api-resource.decorator.js';
-import { AuthenticatedUser } from '@/decorators/auth-user.decorator.js';
-import { AppAuthGuard } from '@/guards/app.guard.js';
-import { type ContextUserType } from '@/types/context-user.js';
+import { ApiResource } from '@/decorators/api-resource.decorator';
+import { AuthenticatedUser } from '@/decorators/auth-user.decorator';
+import { AppAuthGuard } from '@/guards/app.guard';
+import { type ContextUserType } from '@/types/context-user';
 import { type Static } from '@sinclair/typebox';
 import {
     Controller,

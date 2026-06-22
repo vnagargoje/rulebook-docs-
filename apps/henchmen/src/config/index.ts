@@ -4,3 +4,4 @@ export * from './inngest.config.js';
 export * from './logger.config.js';
 export * from './mooving.config.js';
 export * from './s3.config.js';
+export * from './fcm.config.js';

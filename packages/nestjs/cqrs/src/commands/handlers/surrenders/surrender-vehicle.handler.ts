@@ -11,10 +11,15 @@ import {
 import { BatteryStatus, BookingStatus, UserPlanStatus, VehicleStatus } from '@yugo/shared'
 import { SurrenderVehicleCommand } from 'src/commands/impl/surrenders'
 import { DataSource, In } from 'typeorm'
+import { InjectInngestService } from '@yugo/nestjs-inngest'
+import { type HenchmenInngestClient } from '@yugo/utils'
 
 @CommandHandler(SurrenderVehicleCommand)
 export class SurrenderVehicleHandler implements ICommandHandler<SurrenderVehicleCommand> {
-    constructor(@InjectDataSource() private readonly datasource: DataSource) {}
+    constructor(
+        @InjectDataSource() private readonly datasource: DataSource,
+        @InjectInngestService() private readonly inngest: HenchmenInngestClient,
+    ) {}
 
     async execute(command: SurrenderVehicleCommand) {
         const { vehicleNumber, penalty, miscCharges, refundAmount, notes } = command
@@ -71,6 +76,24 @@ export class SurrenderVehicleHandler implements ICommandHandler<SurrenderVehicle
             )
             await tx.update(BatteryEntity, { id: booking.batteryId }, { status: BatteryStatus.AVAILABLE })
             await tx.update(VehicleEntity, { id: vehicle.id }, { status: VehicleStatus.AVAILABLE })
+
+            const fullBooking = await tx.findOne(BookingEntity, {
+                where: { id: booking.id },
+                relations: ['userPlan', 'userPlan.user', 'vehicle', 'battery'],
+            })
+
+            if (!fullBooking) {
+                throw new NotFoundException('Booking not found after surrender')
+            }
+
+            await this.inngest.send({
+                name: 'booking/booking.completed',
+                data: {
+                    userId: booking.userPlan.userId,
+                    booking: fullBooking,
+                },
+            })
+
             return {
                 id: surrender.id,
                 bookingId: booking.id,

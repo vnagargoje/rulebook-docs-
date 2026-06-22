@@ -72,6 +72,12 @@ export class KycSubject {
     }
 }
 
+export class NotificationSubject {
+    static get modelName() {
+        return Subjects.Notification
+    }
+}
+
 export class VehicleMaintenanceSubject {
     static get modelName() {
         return Subjects.VehicleMaintenance

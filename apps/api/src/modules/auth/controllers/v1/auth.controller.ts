@@ -1,5 +1,5 @@
-import { ApiResource } from '@/decorators/api-resource.decorator.js';
-import { Public } from '@/decorators/public.decorator.js';
+import { ApiResource } from '@/decorators/api-resource.decorator';
+import { Public } from '@/decorators/public.decorator';
 import {
     Body,
     Controller,

@@ -11,5 +11,5 @@ export * from './batteries/index.js'
 export * from './battery-transports/index.js'
 export * from './battery-swaps/index.js'
 export * from './surrenders/index.js'
+export * from './notifications/index.js'
 export * from './vehicle-maintenances/index.js'
-

@@ -18,6 +18,7 @@ import {
     s3BucketConfig,
     inngestConfig,
     msg91Config,
+    fcmConfig,
 } from './config';
 import { AppAuthGuard } from './guards/app.guard.js';
 import { TypeboxSerializerInterceptor } from './interceptors/typebox-serializer.interceptor.js';
@@ -39,7 +40,9 @@ import { BatteryTransportsModule } from './modules/battery-transports/battery-tr
 import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module';
 import { SurrendersModule } from './modules/surrenders/surrenders.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { NestjsInngestModule } from '@yugo/nestjs-inngest';
+import { NestjsFcmModule } from '@yugo/nestjs-fcm';
 import { VehicleMaintenancesModule } from './modules/vehicle-maintenances/vehicle-maintenances.module';
 
 @Module({
@@ -58,6 +61,7 @@ import { VehicleMaintenancesModule } from './modules/vehicle-maintenances/vehicl
                 s3BucketConfig,
                 inngestConfig,
                 msg91Config,
+                fcmConfig,
             ],
         }),
         LoggerModule.forRootAsync({
@@ -94,6 +98,13 @@ import { VehicleMaintenancesModule } from './modules/vehicle-maintenances/vehicl
                 return configService.getOrThrow('inngest.config');
             },
         }),
+        NestjsFcmModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            async useFactory(configService: ConfigService) {
+                return configService.getOrThrow('fcm.config');
+            },
+        }),
         PassportModule.register({
             defaultStrategy: 'jwt',
         }),
@@ -115,6 +126,7 @@ import { VehicleMaintenancesModule } from './modules/vehicle-maintenances/vehicl
         BatteryTransportsModule,
         SurrendersModule,
         TransactionsModule,
+        NotificationsModule,
         VehicleMaintenancesModule,
     ],
     providers: [

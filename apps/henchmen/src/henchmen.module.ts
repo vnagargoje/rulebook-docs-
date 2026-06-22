@@ -12,14 +12,17 @@ import {
     redisConfig,
     s3BucketConfig,
     s3ClientConfig,
+    fcmConfig,
 } from './config';
 import { AuthFunctions } from './functions/auth.functions.js';
 import { BatteryFunctions } from './functions/battery.functions';
 import { UserPlanFunctions } from './functions/user-plan.functions';
+import { NotificationServiceFunctions } from './functions/notification-service.functions';
 import { QueuedPlansSyncService } from './services/queued-plans-sync.service';
 
 import { CqrsModule } from '@nestjs/cqrs';
 import { ActivateQueuedPlanHandler } from '@yugo/cqrs';
+import { NestjsFcmModule } from '@yugo/nestjs-fcm';
 
 @Module({
     imports: [
@@ -34,6 +37,7 @@ import { ActivateQueuedPlanHandler } from '@yugo/cqrs';
                 moovingConfig,
                 s3BucketConfig,
                 s3ClientConfig,
+                fcmConfig,
             ],
         }),
         TypeOrmModule.forRootAsync({
@@ -57,6 +61,13 @@ import { ActivateQueuedPlanHandler } from '@yugo/cqrs';
                 return configService.getOrThrow('inngest.config');
             },
         }),
+        NestjsFcmModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory(configService: ConfigService) {
+                return configService.getOrThrow('fcm.config');
+            },
+        }),
         LoggerModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
@@ -67,10 +78,11 @@ import { ActivateQueuedPlanHandler } from '@yugo/cqrs';
     ],
     providers: [
         AuthFunctions,
-        // BatteryFunctions,
+        BatteryFunctions,
         UserPlanFunctions,
         QueuedPlansSyncService,
         ActivateQueuedPlanHandler,
+        NotificationServiceFunctions,
     ],
 })
 export class HenchmenModule {}

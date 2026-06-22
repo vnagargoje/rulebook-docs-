@@ -1,5 +1,5 @@
-import { ApiResource } from '@/decorators/api-resource.decorator.js';
-import { Public } from '@/decorators/public.decorator.js';
+import { ApiResource } from '@/decorators/api-resource.decorator';
+import { Public } from '@/decorators/public.decorator';
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -12,7 +12,7 @@ import {
     type PaginateQuery,
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
-import { CityResponse } from '../../dtos/responses.js';
+import { CityResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<CityEntity> = {
     sortableColumns: ['id', 'name'],

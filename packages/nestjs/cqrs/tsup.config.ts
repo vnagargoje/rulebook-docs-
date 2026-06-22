@@ -13,8 +13,11 @@ export default defineConfig( {
         '@nestjs/cqrs',
         '@nestjs/typeorm',
         '@yugo/nestjs-database',
+        '@yugo/nestjs-fcm',
         '@yugo/shared',
         'reflect-metadata',
         'rxjs',
+        'typeorm',
+        'nestjs-paginate',
     ],
 } )

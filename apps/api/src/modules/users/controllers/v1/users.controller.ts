@@ -22,6 +22,7 @@ import {
     CreateUserCommand,
     UpdateUserCommand,
     UpdateUserAddressesCommand,
+    RegisterDeviceTokenCommand,
     computeKycStatus,
 } from '@yugo/cqrs';
 import { AccessService } from '@yugo/nestjs-casl';
@@ -40,6 +41,7 @@ import {
     CreateUserPayload,
     UpdateUserPayload,
     UpdateUserAddressesPayload,
+    RegisterDeviceTokenPayload,
 } from '../../dtos/payloads';
 import { UserResponse } from '../../dtos/responses';
 
@@ -208,6 +210,17 @@ export class V1UsersController {
 
         return this.commandBus.execute(
             new UpdateUserAddressesCommand(userId, body),
+        );
+    }
+
+    @ApiBody({ schema: RegisterDeviceTokenPayload })
+    @Post('device-token')
+    async registerDeviceToken(
+        @Body() body: Static<typeof RegisterDeviceTokenPayload>,
+        @Req() req: Request,
+    ) {
+        return this.commandBus.execute(
+            new RegisterDeviceTokenCommand(req.user.id, body.deviceToken),
         );
     }
 }

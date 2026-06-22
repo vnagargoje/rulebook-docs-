@@ -1,4 +1,4 @@
-export type BatteryStatus = 'available' | 'charged' | 'charging' | 'drained' | 'in_transit' | 'in_use'
+export type BatteryStatus = 'available' | 'charged' | 'charging' | 'drained' | 'in_transit' | 'in_use' | 'under_maintenance'
 
 export interface StatusConfig {
     label: string
@@ -50,5 +50,12 @@ export const STATUS_CONFIG: Record<BatteryStatus, StatusConfig> = {
         iconColor: '#0891B2',
         bg: 'bg-cyan-50',
         text: 'text-cyan-700',
+    },
+    under_maintenance: {
+        label: 'Maintenance',
+        icon: 'wrench',
+        iconColor: '#64748B',
+        bg: 'bg-slate-50',
+        text: 'text-slate-700',
     },
 }

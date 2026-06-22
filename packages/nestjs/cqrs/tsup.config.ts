@@ -15,6 +15,7 @@ export default defineConfig( {
         '@yugo/nestjs-database',
         '@yugo/nestjs-fcm',
         '@yugo/shared',
+        '@yugo/utils',
         'reflect-metadata',
         'rxjs',
         'typeorm',

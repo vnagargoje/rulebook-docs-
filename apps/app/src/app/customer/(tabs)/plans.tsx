@@ -43,9 +43,18 @@ export default function PlansScreen() {
 
     const handlePlanPress = useCallback(
         (planId: string) => {
+            // TODO: Re-enable Future Plan feature when required
+            if (hasActivePlan) {
+                Alert.alert(
+                    'Active Plan Exists',
+                    'You already have an active plan. Please wait until your current plan expires before purchasing a new plan. For additional usage, you can purchase a top-up.',
+                    [{ text: 'OK' }]
+                )
+                return
+            }
             router.push({ pathname: '/customer/plan/[id]', params: { id: planId } })
         },
-        [router],
+        [router, hasActivePlan],
     )
 
     const handleTopUpPress = useCallback(

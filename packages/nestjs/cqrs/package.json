@@ -34,6 +34,7 @@
         "@yugo/nestjs-database": "workspace:*",
         "@yugo/nestjs-fcm": "workspace:*",
         "@yugo/shared": "workspace:*",
+        "@yugo/utils": "workspace:*",
         "nestjs-paginate": "^12.10.0",
         "reflect-metadata": "*",
         "typeorm": "*"

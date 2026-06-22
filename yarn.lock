@@ -12011,6 +12011,7 @@ __metadata:
     "@yugo/nestjs-database": "workspace:*"
     "@yugo/nestjs-fcm": "workspace:*"
     "@yugo/shared": "workspace:*"
+    "@yugo/utils": "workspace:*"
     nestjs-paginate: ^12.10.0
     reflect-metadata: "*"
     typeorm: "*"
@@ -12191,6 +12192,7 @@ __metadata:
   resolution: "@yugo/utils@workspace:packages/shared/utils"
   dependencies:
     "@yugo/eslint": "workspace:*"
+    "@yugo/nestjs-database": "workspace:*"
     "@yugo/tsconfig": "workspace:*"
     tsup: "npm:^8.0.0"
     typescript: "npm:^5.4.5"

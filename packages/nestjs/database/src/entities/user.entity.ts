@@ -1,4 +1,4 @@
-import { Gender } from '@yugo/shared'
+import { Gender, KycDocumentType, KycStatus } from '@yugo/shared'
 import { Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm'
 import { AddressEntity } from './address.entity.js'
 import { IdTimestamppedEntity } from './id-timestampped.entity.js'
@@ -60,6 +60,8 @@ export class UserEntity extends IdTimestamppedEntity {
 
     @Column({ nullable: true })
     stationId: string
+
+    kycStatus?: KycStatus
 
     // CONSTANTS
     static PASSWORD_SALT_ROUNDS: number = 10

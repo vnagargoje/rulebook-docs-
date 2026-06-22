@@ -4,6 +4,7 @@ import { InjectDataSource } from '@nestjs/typeorm'
 import { AddressEntity, RoleEntity, UserEntity } from '@yugo/nestjs-database/entities'
 import { DataSource } from 'typeorm'
 import { CreateUserCommand } from '../../impl/users/create-users.command.js'
+import { computeKycStatus } from 'src/utils/kyc-status.js'
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
@@ -69,10 +70,16 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
                 user.addresses = [address]
             }
 
-            return manager.findOne(UserEntity, {
+            const savedUser = await manager.findOne(UserEntity, {
                 where: { id: user.id },
-                relations: { roles: true, addresses: { city: { state: true } } },
+                relations: { roles: true, addresses: { city: { state: true } }, kycs: true },
             })
+
+            if (savedUser) {
+                savedUser.kycStatus = computeKycStatus(savedUser.kycs)
+            }
+
+            return savedUser
         })
     }
 }

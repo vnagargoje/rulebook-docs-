@@ -52,10 +52,10 @@ export const STATUS_CONFIG: Record<BatteryStatus, StatusConfig> = {
         text: 'text-cyan-700',
     },
     under_maintenance: {
-        label: 'Under Maintenance',
-        icon: 'wrench-outline',
-        iconColor: '#EF4444',
-        bg: 'bg-red-50',
-        text: 'text-red-600',
+        label: 'Maintenance',
+        icon: 'wrench',
+        iconColor: '#64748B',
+        bg: 'bg-slate-50',
+        text: 'text-slate-700',
     },
 }

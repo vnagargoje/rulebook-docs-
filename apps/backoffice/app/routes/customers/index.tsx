@@ -8,6 +8,7 @@ import { useUsers, type UserItem } from '~/queries/users'
 import { useListingState, useCustomerExport } from '~/hooks'
 import { ExportDialog } from '~/components/ui/export-dialog'
 import { useState } from 'react'
+import { StatusBadge } from '~/components/ui/status-badge'
 
 export default function UsersCustomerListRoute() {
     const navigate = useNavigate()
@@ -55,7 +56,12 @@ export default function UsersCustomerListRoute() {
             header: 'Mobile',
             cell: (user: UserItem) => formatMobile(user.mobilenumber),
         },
-
+        {
+            header: 'KYC Status',
+            cell: (user: UserItem) => (
+                <StatusBadge status={(user as any).kycStatus ? (user as any).kycStatus.toUpperCase() : 'PENDING'} />
+            ),
+        },
     ], [navigate])
 
     if (isLoading) {

@@ -40,6 +40,7 @@ import { BatterySwapsModule } from './modules/battery-swaps/battery-swaps.module
 import { SurrendersModule } from './modules/surrenders/surrenders.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { NestjsInngestModule } from '@yugo/nestjs-inngest';
+import { VehicleMaintenancesModule } from './modules/vehicle-maintenances/vehicle-maintenances.module';
 
 @Module({
     imports: [
@@ -114,6 +115,7 @@ import { NestjsInngestModule } from '@yugo/nestjs-inngest';
         BatteryTransportsModule,
         SurrendersModule,
         TransactionsModule,
+        VehicleMaintenancesModule,
     ],
     providers: [
         JwtStrategy,

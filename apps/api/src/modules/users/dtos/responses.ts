@@ -1,5 +1,5 @@
 import { Type } from '@sinclair/typebox';
-import { AddressType, Gender } from '@yugo/shared';
+import { AddressType, Gender, KycStatus } from '@yugo/shared';
 
 export const RoleResponse = Type.Object({
     name: Type.String(),
@@ -45,6 +45,7 @@ export const UserResponse = Type.Object({
         }),
     ),
     active: Type.Boolean(),
+    kycStatus: Type.Optional(Type.Enum(KycStatus)),
     createdAt: Type.Optional(Type.String()),
     updatedAt: Type.Optional(Type.String()),
 });

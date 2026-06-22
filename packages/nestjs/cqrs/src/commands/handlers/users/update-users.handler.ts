@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm'
 import { UpdateUserCommand } from '../../impl/users/update-users.command.js'
 import { InjectInngestService } from '@yugo/nestjs-inngest'
 import { type HenchmenInngestClient } from '@yugo/utils'
+import { computeKycStatus } from 'src/utils/kyc-status.js'
 
 @CommandHandler(UpdateUserCommand)
 export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
@@ -96,10 +97,16 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
                 },
             })
 
-            return manager.findOne(UserEntity, {
+            const savedUser = await manager.findOne(UserEntity, {
                 where: { id: userId },
-                relations: { roles: true, addresses: { city: { state: true } } },
+                relations: { roles: true, addresses: { city: { state: true } }, kycs: true },
             })
+
+            if (savedUser) {
+                savedUser.kycStatus = computeKycStatus(savedUser.kycs)
+            }
+
+            return savedUser
         })
     }
 }

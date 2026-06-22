@@ -23,6 +23,7 @@ import {
     UpdateUserCommand,
     UpdateUserAddressesCommand,
     RegisterDeviceTokenCommand,
+    computeKycStatus,
 } from '@yugo/cqrs';
 import { AccessService } from '@yugo/nestjs-casl';
 import { UserEntity } from '@yugo/nestjs-database/entities';
@@ -64,6 +65,7 @@ const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
         'addresses.city',
         'addresses.city.state',
         'station',
+        'kycs',
     ],
     defaultSortBy: [['createdAt', 'DESC']],
 };
@@ -77,7 +79,7 @@ export class V1UsersController {
         @InjectDataSource() private readonly datasource: DataSource,
         @Inject(AccessService) private readonly accessService: AccessService,
         private readonly commandBus: CommandBus,
-    ) {}
+    ) { }
 
     @ApiResource(UserResponse, PAGINATE_CONFIG)
     @Get()
@@ -97,7 +99,11 @@ export class V1UsersController {
             UserEntity,
             'user',
         );
-        return paginate(query, queryBuilder, PAGINATE_CONFIG);
+        const result = await paginate(query, queryBuilder, PAGINATE_CONFIG);
+        for (const user of result.data) {
+            user.kycStatus = computeKycStatus(user.kycs);
+        }
+        return result;
     }
 
     @ApiResource(UserResponse)
@@ -118,12 +124,15 @@ export class V1UsersController {
                 roles: true,
                 addresses: { city: { state: true } },
                 station: true,
+                kycs: true,
             },
         });
 
         if (!user) {
             throw new NotFoundException('User not found');
         }
+
+        user.kycStatus = computeKycStatus(user.kycs);
 
         return user;
     }

@@ -43,6 +43,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { NestjsInngestModule } from '@yugo/nestjs-inngest';
 import { NestjsFcmModule } from '@yugo/nestjs-fcm';
+import { VehicleMaintenancesModule } from './modules/vehicle-maintenances/vehicle-maintenances.module';
 
 @Module({
     imports: [
@@ -126,6 +127,7 @@ import { NestjsFcmModule } from '@yugo/nestjs-fcm';
         SurrendersModule,
         TransactionsModule,
         NotificationsModule,
+        VehicleMaintenancesModule,
     ],
     providers: [
         JwtStrategy,

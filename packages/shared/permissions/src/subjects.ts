@@ -77,3 +77,9 @@ export class NotificationSubject {
         return Subjects.Notification
     }
 }
+
+export class VehicleMaintenanceSubject {
+    static get modelName() {
+        return Subjects.VehicleMaintenance
+    }
+}

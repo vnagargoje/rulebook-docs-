@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import { IconArrowLeft, IconBolt, IconCalendarEvent, IconMapPin, IconMotorbike, IconPhone, IconQrcode, IconReceiptRupee, IconShieldCheck, IconUser, IconMail } from '@tabler/icons-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -18,9 +18,10 @@ import { MetaPill } from '~/components/ui/meta-pill'
 import { useGetBookingById, useAssignVehicle } from '~/queries/bookings'
 import { useInfiniteVehicles } from '~/queries/vehicles'
 import { useInfiniteBatteries } from '~/queries/batteries'
-import { useInfiniteUserPlans } from '~/queries/user-plans'
+// import { useInfiniteUserPlans } from '~/queries/user-plans'
 import { formatCurrency, formatDate, formatKm } from '~/lib/formatter'
 import { assignVehicleSchema, type AssignVehicleValues } from '~/schemas'
+import { showKycRequiredToast } from '~/components/ui/kyc-toast'
 
 function getAssetUrl(path?: string | null) {
     if (!path) {
@@ -40,6 +41,7 @@ function getAssetUrl(path?: string | null) {
 export default function BookingViewRoute() {
     const { id } = useParams()
     const navigate = useNavigate()
+    const location = useLocation()
     const { data: booking, isLoading } = useGetBookingById(id)
     const { data: vehiclesData, isFetching: vehiclesLoading, fetchNextPage: fetchNextVehiclePage, hasNextPage: hasNextVehiclePage } = useInfiniteVehicles({
         sortBy: ['createdAt:DESC'],
@@ -51,6 +53,8 @@ export default function BookingViewRoute() {
         'filter.status': ['$eq:available'],
         'filter.station.type': ['$eq:vehicle_station'],
     })
+    // TODO: Re-enable Future Plan feature when required
+    /*
     const { data: userPlansData } = useInfiniteUserPlans(
         booking?.userPlan?.userId ? ({
             'filter.userId': [`$eq:${booking.userPlan.userId}`],
@@ -58,11 +62,16 @@ export default function BookingViewRoute() {
         } as any) : undefined
     )
     const futurePlan = userPlansData?.pages[0]?.data?.find((plan: any) => plan.id !== booking?.userPlan?.id)
+    */
     const assignVehicle = useAssignVehicle()
 
     const form = useForm<AssignVehicleValues>({
         resolver: zodResolver(assignVehicleSchema),
-        defaultValues: { vehicleId: '', batteryId: '', otp: '' },
+        defaultValues: {
+            vehicleId: location.state?.draftData?.vehicleId || '',
+            batteryId: location.state?.draftData?.batteryId || '',
+            otp: location.state?.draftData?.otp || ''
+        },
     })
 
     const vehicleOptions = useMemo(() => (vehiclesData?.pages ?? []).flatMap((p) => p.data).map((vehicle) => ({
@@ -94,7 +103,28 @@ export default function BookingViewRoute() {
             },
             onError: (error: any) => {
                 const message = error?.response?.data?.message
-                toast.error(Array.isArray(message) ? message.join(', ') : (message || 'Failed to assign vehicle'))
+                const msgString = Array.isArray(message) ? message.join(', ') : (message || 'Failed to assign vehicle')
+                
+                if (msgString.includes('KYC')) {
+                    showKycRequiredToast({
+                        message: msgString,
+                        onReview: () => {
+                            const customerId = (booking?.userPlan as any)?.user?.id
+                            if (customerId) {
+                                navigate(`/customers/${customerId}`, {
+                                    state: {
+                                        returnTo: location.pathname,
+                                        draftData: values,
+                                    }
+                                })
+                            } else {
+                                toast.error('Customer ID not found')
+                            }
+                        }
+                    })
+                } else {
+                    toast.error(msgString)
+                }
             },
         })
     }, [assignVehicle, form, id])
@@ -208,7 +238,7 @@ export default function BookingViewRoute() {
                                 )}
                             </div>
                         </div>
-                        
+
                         <div className="mt-8 rounded-2xl border border-border/60 bg-muted/30 p-5">
                             <h3 className="mb-4 text-sm font-semibold text-foreground">Contact Information</h3>
                             <div className="grid gap-3 flex-1">
@@ -432,6 +462,7 @@ export default function BookingViewRoute() {
                 </Card>
             </div>
 
+            {/* TODO: Re-enable Future Plan feature when required
             {futurePlan && (
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
                     <Card className="overflow-hidden border-amber-500/20 bg-amber-50/10 shadow-sm">
@@ -471,6 +502,7 @@ export default function BookingViewRoute() {
                     </Card>
                 </div>
             )}
+            */}
 
             <div className="grid grid-cols-1 gap-6">
                 <Card className="overflow-hidden border-border/40 bg-white shadow-sm">
@@ -504,8 +536,8 @@ export default function BookingViewRoute() {
                                                 {topUp.status === 'applied'
                                                     ? `Applied ${topUp.appliedAt ? formatDate(topUp.appliedAt) : ''}`
                                                     : topUp.status === 'awaiting'
-                                                    ? 'Awaiting payment confirmation'
-                                                    : 'Payment failed'}
+                                                        ? 'Awaiting payment confirmation'
+                                                        : 'Payment failed'}
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">

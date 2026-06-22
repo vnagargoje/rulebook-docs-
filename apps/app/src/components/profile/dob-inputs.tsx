@@ -12,6 +12,7 @@ interface DobFieldProps {
     onBlur?: () => void
     inputRef?: React.RefObject<TextInput | null>
     flex: number
+    disabled?: boolean
 }
 
 function DobField({
@@ -23,6 +24,7 @@ function DobField({
     onBlur,
     inputRef,
     flex,
+    disabled,
 }: DobFieldProps) {
     const [focused, setFocused] = useState(false)
     const filled = value.length > 0
@@ -37,6 +39,7 @@ function DobField({
                 keyboardType='number-pad'
                 maxLength={placeholder.length}
                 returnKeyType='next'
+                editable={!disabled}
                 onChangeText={onChangeText}
                 onFocus={() => {
                     setFocused(true)
@@ -50,12 +53,12 @@ function DobField({
                     height: 52,
                     borderRadius: 14,
                     borderWidth: focused ? 2 : 1.5,
-                    borderColor: focused ? '#2563EB' : filled ? '#93C5FD' : '#E5E7EB',
-                    backgroundColor: focused ? '#EFF6FF' : filled ? '#F0F7FF' : '#F9FAFB',
+                    borderColor: disabled ? '#E5E7EB' : (focused ? '#2563EB' : filled ? '#93C5FD' : '#E5E7EB'),
+                    backgroundColor: disabled ? '#F3F4F6' : (focused ? '#EFF6FF' : filled ? '#F0F7FF' : '#F9FAFB'),
                     textAlign: 'center',
                     fontSize: filled ? 18 : 15,
                     fontWeight: filled ? '700' : '400',
-                    color: focused ? '#1D4ED8' : filled ? '#1E40AF' : '#9CA3AF',
+                    color: disabled ? '#9CA3AF' : (focused ? '#1D4ED8' : filled ? '#1E40AF' : '#9CA3AF'),
                 }}
             />
             <Text
@@ -77,9 +80,10 @@ function DobField({
 interface DobInputsProps {
     value: string
     onChange: (v: string) => void
+    disabled?: boolean
 }
 
-export function DobInputs({ value, onChange }: DobInputsProps) {
+export function DobInputs({ value, onChange, disabled }: DobInputsProps) {
     const monthRef = useRef<TextInput>(null)
     const yearRef = useRef<TextInput>(null)
 
@@ -113,6 +117,7 @@ export function DobInputs({ value, onChange }: DobInputsProps) {
                     value={dd}
                     placeholder='DD'
                     flex={1}
+                    disabled={disabled}
                     onChangeText={(v) => {
                         const next = v.replace(/\D/g, '').slice(0, 2)
                         if (next && parseInt(next, 10) > 31) return
@@ -126,6 +131,7 @@ export function DobInputs({ value, onChange }: DobInputsProps) {
                     value={mm}
                     placeholder='MM'
                     flex={1}
+                    disabled={disabled}
                     inputRef={monthRef}
                     onChangeText={(v) => {
                         const next = v.replace(/\D/g, '').slice(0, 2)
@@ -140,6 +146,7 @@ export function DobInputs({ value, onChange }: DobInputsProps) {
                     value={yyyy}
                     placeholder='YYYY'
                     flex={2}
+                    disabled={disabled}
                     inputRef={yearRef}
                     onChangeText={(v) => {
                         const next = v.replace(/\D/g, '').slice(0, 4)

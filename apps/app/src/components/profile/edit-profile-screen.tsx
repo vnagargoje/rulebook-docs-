@@ -22,6 +22,7 @@ import { DobInputs } from './dob-inputs'
 import { GenderPill } from './gender-pill'
 import { SectionCard } from './section-card'
 import { FieldWrapper } from './field-wrapper'
+import { useKycStatus, getStepState } from '@/queries/customer/kyc.query'
 
 interface EditProfileScreenProps {
     onSuccess?: () => void
@@ -31,7 +32,16 @@ export function EditProfileScreen({ onSuccess }: EditProfileScreenProps = {}) {
     const router = useRouter()
     const queryClient = useQueryClient()
     const updateProfile = useUpdateMyProfile()
-    const { data: profile, isLoading } = useMyProfile()
+    const { data: profile, isLoading: isProfileLoading } = useMyProfile()
+    const isCustomer = profile?.roles?.some((r) => r.name === 'customer') ?? false
+
+    const { data: kycStatus, isLoading: isKycLoading } = useKycStatus({
+        variables: undefined,
+        enabled: isCustomer,
+    })
+
+    const isLoading = isProfileLoading || (isCustomer && isKycLoading)
+    const { isVerified: isAadhaarVerified } = getStepState(kycStatus?.aadhaar)
 
     const {
         control,
@@ -81,6 +91,13 @@ export function EditProfileScreen({ onSuccess }: EditProfileScreenProps = {}) {
         return <ScreenLoader label='Loading profile...' />
     }
 
+    const verifiedBadge = isAadhaarVerified ? (
+        <View className='flex-row items-center gap-1 rounded-full bg-green-50 px-2 py-0.5'>
+            <MaterialCommunityIcons name='shield-check' size={12} color='#16A34A' />
+            <Text className='text-[10px] font-semibold text-green-700'>Aadhaar Verified</Text>
+        </View>
+    ) : null
+
     return (
         <SafeAreaView edges={['bottom']} className='flex-1 bg-neutral-50'>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -101,13 +118,13 @@ export function EditProfileScreen({ onSuccess }: EditProfileScreenProps = {}) {
                     </View>
                 </View>
 
-                <SectionCard title='Name'>
+                <SectionCard title='Name' action={verifiedBadge}>
                     <Controller
                         control={control}
                         name='firstName'
                         render={({ field: { onChange, onBlur, value } }) => (
                             <FieldWrapper label='First Name' required error={errors.firstName?.message}>
-                                <Input value={value} onBlur={onBlur} onChangeText={onChange} placeholder='Enter first name' />
+                                <Input value={value} onBlur={onBlur} onChangeText={onChange} placeholder='Enter first name' disabled={isAadhaarVerified} />
                             </FieldWrapper>
                         )}
                     />
@@ -116,7 +133,7 @@ export function EditProfileScreen({ onSuccess }: EditProfileScreenProps = {}) {
                         name='lastName'
                         render={({ field: { onChange, onBlur, value } }) => (
                             <FieldWrapper label='Last Name' required error={errors.lastName?.message} last>
-                                <Input value={value} onBlur={onBlur} onChangeText={onChange} placeholder='Enter last name' />
+                                <Input value={value} onBlur={onBlur} onChangeText={onChange} placeholder='Enter last name' disabled={isAadhaarVerified} />
                             </FieldWrapper>
                         )}
                     />
@@ -142,7 +159,7 @@ export function EditProfileScreen({ onSuccess }: EditProfileScreenProps = {}) {
                     />
                 </SectionCard>
 
-                <SectionCard title='Personal'>
+                <SectionCard title='Personal' action={verifiedBadge}>
                     <Controller
                         control={control}
                         name='dateOfBirth'
@@ -151,6 +168,7 @@ export function EditProfileScreen({ onSuccess }: EditProfileScreenProps = {}) {
                                 <DobInputs
                                     value={value}
                                     onChange={onChange}
+                                    disabled={isAadhaarVerified}
                                 />
                             </FieldWrapper>
                         )}
@@ -171,6 +189,7 @@ export function EditProfileScreen({ onSuccess }: EditProfileScreenProps = {}) {
                                             label={opt.label}
                                             icon={opt.icon}
                                             isActive={value === opt.value}
+                                            disabled={isAadhaarVerified}
                                             onPress={() => onChange(opt.value)}
                                         />
                                     ))}

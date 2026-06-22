@@ -29,7 +29,7 @@ const inputTv = tv({
         },
         disabled: {
             true: {
-                input: 'bg-neutral-200',
+                input: 'bg-neutral-200 text-neutral-400 dark:bg-neutral-900 dark:text-neutral-500',
             },
         },
     },
@@ -47,7 +47,7 @@ export type NInputProps = {
 } & TextInputProps
 
 export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextInput | null> }) {
-    const { label, error, testID, onBlur: onBlurProp, onFocus: onFocusProp, ...inputProps } = props
+    const { label, error, testID, disabled, onBlur: onBlurProp, onFocus: onFocusProp, ...inputProps } = props
     const [isFocussed, setIsFocussed] = React.useState(false)
 
     const onBlur = useCallback(
@@ -69,7 +69,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
     const styles = inputTv({
         error: Boolean(error),
         focused: isFocussed,
-        disabled: Boolean(props.disabled),
+        disabled: Boolean(disabled),
     })
 
     return (
@@ -84,6 +84,7 @@ export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextIn
             <NTextInput
                 testID={testID}
                 ref={ref}
+                editable={!disabled}
                 placeholderTextColor={colors.neutral[400]}
                 className={styles.input()}
                 onBlur={onBlur}

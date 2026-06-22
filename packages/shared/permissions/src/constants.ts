@@ -12,4 +12,5 @@ export enum Subjects {
     VehicleSurrender = 'VehicleSurrender',
     Kyc = 'Kyc',
     Notification = 'Notification',
+    VehicleMaintenance = 'VehicleMaintenance',
 }

@@ -13,6 +13,8 @@ import {
     IconX,
 } from '@tabler/icons-react'
 import { KycStatus } from '@yugo/shared'
+import { toast } from 'sonner'
+import { api } from '~/services/api/sdk'
 
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
@@ -80,6 +82,67 @@ export default function UserViewRoute() {
     const manualKyc = manualReviewKycs[0]
     const { mutate: updateKycStatus, isPending: isUpdatingKyc } = useUpdateKycStatus()
 
+    const handleBack = () => navigate(-1)
+    const handleEdit = () => navigate(editPath)
+
+    const handleApproveVerification = () => {
+        if (!manualKyc || !user) return
+
+        updateKycStatus(
+            { id: manualKyc.id, status: KycStatus.APPROVED },
+            {
+                onSuccess: async () => {
+                    const remainingPending = kycData?.data?.filter(
+                        (k) => k.id !== manualKyc.id && (k.status === KycStatus.PENDING || k.status === KycStatus.MANUAL_VERIFICATION_REQUESTED)
+                    ) || []
+
+                    try {
+                        const userRes = await api.instance.get(`/v1/users/${user.id}`)
+                        const updatedUser = userRes.data as any
+                        if (updatedUser.kycStatus?.toLowerCase() === KycStatus.APPROVED || updatedUser.kycStatus?.toLowerCase() === KycStatus.VERIFIED) {
+                            toast.success('Customer KYC has been fully approved successfully.')
+                            if (location.state?.returnTo) {
+                                navigate(location.state.returnTo, {
+                                    state: { draftData: location.state.draftData },
+                                })
+                            }
+                        } else {
+                            if (remainingPending.length > 0) {
+                                const docTypes = remainingPending.map((k) => formatLabel(k.type)).join(', ')
+                                toast.success(`${formatLabel(manualKyc.type)} KYC approved successfully. ${remainingPending.length} KYC document${remainingPending.length > 1 ? 's' : ''} (${docTypes}) ${remainingPending.length > 1 ? 'are' : 'is'} still pending approval.`)
+                            } else {
+                                toast.success(`${formatLabel(manualKyc.type)} KYC approved successfully.`)
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Failed to fetch updated user status', error)
+                        toast.success(`${formatLabel(manualKyc.type)} KYC approved successfully.`)
+                    }
+                },
+            }
+        )
+    }
+
+    const handleRejectVerification = () => {
+        if (!manualKyc) return
+
+        const reason = window.prompt('Enter rejection reason:')
+        if (reason !== null) {
+            updateKycStatus(
+                {
+                    id: manualKyc.id,
+                    status: KycStatus.REJECTED,
+                    notes: reason,
+                },
+                {
+                    onSuccess: () => {
+                        toast.success(`${formatLabel(manualKyc.type)} KYC rejected successfully.`)
+                    },
+                }
+            )
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="animate-pulse p-8 text-center text-sm font-bold uppercase tracking-widest text-muted-foreground">
@@ -110,7 +173,7 @@ export default function UserViewRoute() {
     return (
         <div className="mx-auto max-w-6xl space-y-6 pb-12">
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
+                <Button variant="ghost" size="icon" onClick={handleBack} className="shrink-0">
                     <IconArrowLeft size={20} />
                 </Button>
                 <PageHeader
@@ -118,7 +181,7 @@ export default function UserViewRoute() {
                     description={isCustomerRoute ? 'Full customer profile details.' : 'Full employee profile details.'}
                 />
                 {!isCustomerRoute && (
-                    <Button variant="outline" className="ml-auto shrink-0" onClick={() => navigate(editPath)}>
+                    <Button variant="outline" className="ml-auto shrink-0" onClick={handleEdit}>
                         <IconEdit size={16} className="mr-2" />
                         Edit
                     </Button>
@@ -199,7 +262,7 @@ export default function UserViewRoute() {
                                 <div className="mt-6 flex flex-1 flex-col justify-end gap-3">
                                     {manualKyc.status !== KycStatus.APPROVED && (
                                         <Button
-                                            onClick={() => updateKycStatus({ id: manualKyc.id, status: KycStatus.APPROVED })}
+                                            onClick={handleApproveVerification}
                                             disabled={isUpdatingKyc}
                                             className="h-11 w-full bg-emerald-600 hover:bg-emerald-700"
                                         >
@@ -210,16 +273,7 @@ export default function UserViewRoute() {
                                     {manualKyc.status !== KycStatus.REJECTED && (
                                         <Button
                                             variant="destructive"
-                                            onClick={() => {
-                                                const reason = window.prompt('Enter rejection reason:')
-                                                if (reason !== null) {
-                                                    updateKycStatus({
-                                                        id: manualKyc.id,
-                                                        status: KycStatus.REJECTED,
-                                                        notes: reason,
-                                                    })
-                                                }
-                                            }}
+                                            onClick={handleRejectVerification}
                                             disabled={isUpdatingKyc}
                                             className="h-11 w-full"
                                         >

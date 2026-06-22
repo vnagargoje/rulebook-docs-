@@ -18,7 +18,12 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { type Static } from '@sinclair/typebox';
-import { CreateUserCommand, UpdateUserCommand, UpdateUserAddressesCommand } from '@yugo/cqrs';
+import {
+    CreateUserCommand,
+    UpdateUserCommand,
+    UpdateUserAddressesCommand,
+    computeKycStatus,
+} from '@yugo/cqrs';
 import { AccessService } from '@yugo/nestjs-casl';
 import { UserEntity } from '@yugo/nestjs-database/entities';
 import { Actions, UserSubject } from '@yugo/permissions';
@@ -31,7 +36,11 @@ import {
     type PaginateQuery,
 } from 'nestjs-paginate';
 import { DataSource } from 'typeorm';
-import { CreateUserPayload, UpdateUserPayload, UpdateUserAddressesPayload } from '../../dtos/payloads';
+import {
+    CreateUserPayload,
+    UpdateUserPayload,
+    UpdateUserAddressesPayload,
+} from '../../dtos/payloads';
 import { UserResponse } from '../../dtos/responses';
 
 const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
@@ -48,7 +57,14 @@ const PAGINATE_CONFIG: PaginateConfig<UserEntity> = {
         active: [FilterOperator.EQ],
         stationId: [FilterOperator.EQ, FilterOperator.NULL],
     },
-    relations: ['roles', 'addresses', 'addresses.city', 'addresses.city.state', 'station'],
+    relations: [
+        'roles',
+        'addresses',
+        'addresses.city',
+        'addresses.city.state',
+        'station',
+        'kycs',
+    ],
     defaultSortBy: [['createdAt', 'DESC']],
 };
 
@@ -61,7 +77,7 @@ export class V1UsersController {
         @InjectDataSource() private readonly datasource: DataSource,
         @Inject(AccessService) private readonly accessService: AccessService,
         private readonly commandBus: CommandBus,
-    ) {}
+    ) { }
 
     @ApiResource(UserResponse, PAGINATE_CONFIG)
     @Get()
@@ -81,7 +97,11 @@ export class V1UsersController {
             UserEntity,
             'user',
         );
-        return paginate(query, queryBuilder, PAGINATE_CONFIG);
+        const result = await paginate(query, queryBuilder, PAGINATE_CONFIG);
+        for (const user of result.data) {
+            user.kycStatus = computeKycStatus(user.kycs);
+        }
+        return result;
     }
 
     @ApiResource(UserResponse)
@@ -98,12 +118,19 @@ export class V1UsersController {
         const userId = id === 'me' ? req.user.id : id;
         const user = await this.datasource.manager.findOne(UserEntity, {
             where: { id: userId },
-            relations: { roles: true, addresses: { city: { state: true } }, station: true },
+            relations: {
+                roles: true,
+                addresses: { city: { state: true } },
+                station: true,
+                kycs: true,
+            },
         });
 
         if (!user) {
             throw new NotFoundException('User not found');
         }
+
+        user.kycStatus = computeKycStatus(user.kycs);
 
         return user;
     }

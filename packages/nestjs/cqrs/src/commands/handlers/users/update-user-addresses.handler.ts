@@ -5,6 +5,7 @@ import { AddressEntity, UserEntity } from '@yugo/nestjs-database/entities'
 import { AddressType } from '@yugo/shared'
 import { DataSource } from 'typeorm'
 import { UpdateUserAddressesCommand } from '../../impl/users/update-user-addresses.command.js'
+import { computeKycStatus } from 'src/utils/kyc-status.js'
 
 @CommandHandler(UpdateUserAddressesCommand)
 export class UpdateUserAddressesHandler implements ICommandHandler<UpdateUserAddressesCommand> {
@@ -52,10 +53,16 @@ export class UpdateUserAddressesHandler implements ICommandHandler<UpdateUserAdd
                 await manager.save(AddressEntity, address)
             }
 
-            return manager.findOne(UserEntity, {
+            const savedUser = await manager.findOne(UserEntity, {
                 where: { id: userId },
-                relations: { roles: true, addresses: { city: { state: true } } },
+                relations: { roles: true, addresses: { city: { state: true } }, kycs: true },
             })
+
+            if (savedUser) {
+                savedUser.kycStatus = computeKycStatus(savedUser.kycs)
+            }
+
+            return savedUser
         })
     }
 }

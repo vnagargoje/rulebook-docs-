@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import { IconArrowLeft } from '@tabler/icons-react'
 
 import { SelectField } from '~/components/forms/controlled-fields'
@@ -13,10 +13,12 @@ import { toast } from 'sonner'
 import { PageHeader } from '~/components/ui/page-header'
 import { Card, CardContent } from '~/components/ui/card'
 import { customerAssignmentSchema, type CustomerAssignmentValues } from '~/schemas'
+import { showKycRequiredToast } from '~/components/ui/kyc-toast'
 
 export default function CreateCustomerAssignmentRoute() {
     const navigate = useNavigate()
     const { customerId } = useParams()
+    const location = useLocation()
     const [vehicles, setVehicles] = useState<Vehicle[]>([])
     const [users, setUsers] = useState<User[]>([])
 
@@ -33,11 +35,26 @@ export default function CreateCustomerAssignmentRoute() {
     const form = useForm({
         resolver: zodResolver(customerAssignmentSchema) as any,
         mode: 'onChange',
-        defaultValues: { vehicleId: '', customerId: customerId || '' },
+        defaultValues: {
+            vehicleId: location.state?.draftData?.vehicleId || '',
+            customerId: location.state?.draftData?.customerId || customerId || ''
+        },
     })
 
     const onSubmit = async (values: CustomerAssignmentValues) => {
         try {
+            const user = users.find(u => u.id === values.customerId)
+            // Simulated KYC Validation
+            if (user && (user as any).kycStatus && (user as any).kycStatus !== 'APPROVED') {
+                showKycRequiredToast({
+                    message: 'Customer KYC is not approved',
+                    onReview: () => {
+                        navigate(`/customers/${user.id}`, { state: { returnTo: location.pathname, draftData: values } })
+                    }
+                })
+                return
+            }
+
             await mockApi.assignVehicleToCustomer(values)
             toast.success('Vehicle assigned to customer')
             navigate('/assignments')

@@ -21,7 +21,6 @@ export function useUpdateKycStatus() {
             return response.data
         },
         onSuccess: () => {
-            toast.success('KYC status updated successfully')
             queryClient.invalidateQueries({ queryKey: kycKeys.all })
         },
         onError: (error: any) => {

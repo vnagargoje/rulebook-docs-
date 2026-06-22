@@ -136,9 +136,9 @@ export default function SurrenderViewRoute() {
                     <CardTitle>Audit</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                    <div className="grid grid-cols-1 gap-0 sm:grid-cols-2">
-                        <DetailRow label="Created At" value={formatDate(surrender.createdAt)} />
-                        <DetailRow label="Updated At" value={formatDate(surrender.updatedAt)} />
+                    <div className="grid gap-x-6 gap-y-3 md:grid-cols-2">
+                        <DetailRow label="Created At" value={surrender.createdAt ? formatDate(surrender.createdAt) : 'N/A'} />
+                        <DetailRow label="Updated At" value={surrender.updatedAt && surrender.createdAt && new Date(surrender.updatedAt).getTime() !== new Date(surrender.createdAt).getTime() ? formatDate(surrender.updatedAt) : 'N/A'} />
                     </div>
                 </CardContent>
             </Card>

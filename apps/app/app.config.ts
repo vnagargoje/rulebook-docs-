@@ -43,9 +43,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         policy: 'appVersion',
     },
     updates: {
-        url: "https://u.expo.dev/8fec3d81-2fc5-4421-9e6a-476af4c8eb83",
+        url: 'https://u.expo.dev/8fec3d81-2fc5-4421-9e6a-476af4c8eb83',
         enabled: true,
-        checkAutomatically: "ON_LOAD",
+        checkAutomatically: 'ON_LOAD',
         fallbackToCacheTimeout: 30000,
     },
     assetBundlePatterns: ['**/*'],
@@ -68,6 +68,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             backgroundColor: '#2E3C4B',
         },
         package: Env.EXPO_PUBLIC_PACKAGE,
+        versionCode: 10,
+        googleServicesFile: './google-services.json',
+        permissions: [
+            'ACCESS_COARSE_LOCATION',
+            'ACCESS_FINE_LOCATION',
+            'CAMERA',
+            'INTERNET',
+            'VIBRATE',
+            'POST_NOTIFICATIONS',
+        ],
         config: {
             googleMaps: {
                 apiKey: Env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
@@ -129,6 +139,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         'expo-router',
         ['app-icon-badge', appIconBadgeConfig],
         ['react-native-edge-to-edge'],
+        ['expo-camera', { recordAudioAndroid: false }],
+        '@react-native-firebase/app',
+        '@react-native-firebase/messaging',
+        [
+            'expo-build-properties',
+            {
+                ios: {
+                    useFrameworks: 'static',
+                },
+            },
+        ],
+        // './plugins/with-android-release-signing',
     ],
     extra: {
         eas: {

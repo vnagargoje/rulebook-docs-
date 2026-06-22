@@ -9,9 +9,11 @@
         "dev": "tsup --watch",
         "lint": "eslint \"src/**/*.ts\""
     },
+    "dependencies": {
+        "@yugo/nestjs-database": "workspace:*"
+    },
     "devDependencies": {
         "@yugo/eslint": "workspace:*",
-        "@yugo/nestjs-database": "workspace:*",
         "@yugo/tsconfig": "workspace:*",
         "tsup": "^8.0.0",
         "typescript": "^5.4.5"

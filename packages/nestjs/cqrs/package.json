@@ -42,7 +42,10 @@
     "dependencies": {
         "@aws-sdk/client-s3": "^3.1030.0",
         "@types/qrcode": "^1.5.6",
+        "@yugo/nestjs-database": "workspace:*",
+        "@yugo/nestjs-fcm": "workspace:*",
         "@yugo/shared": "workspace:*",
+        "@yugo/utils": "workspace:*",
         "builder-pattern": "^2.2.0",
         "date-fns": "^4.1.0",
         "qrcode": "^1.5.4",

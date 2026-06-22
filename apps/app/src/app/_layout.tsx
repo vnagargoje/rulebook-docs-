@@ -17,11 +17,24 @@ import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme'
 import '../global.css'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
+import messaging from '@react-native-firebase/messaging'
+import { useNotifications } from '@/hooks/use-notifications'
+
+// Register background handler
+messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+    console.log('Message handled in the background!', remoteMessage)
+})
+
 export { ErrorBoundary } from 'expo-router'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const unstable_settings = {
     initialRouteName: 'index',
+}
+
+function NotificationInitializer() {
+    useNotifications()
+    return null
 }
 
 hydrateAuth()
@@ -73,6 +86,7 @@ function Providers({ children }: { children: React.ReactNode }) {
                         <FocusAwareStatusBar />
                         <APIProvider>
                             <BottomSheetModalProvider>
+                                <NotificationInitializer />
                                 {children}
                                 <Toaster />
                             </BottomSheetModalProvider>

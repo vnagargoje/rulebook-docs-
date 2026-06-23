@@ -12000,6 +12000,7 @@ __metadata:
     builder-pattern: "npm:^2.2.0"
     date-fns: "npm:^4.1.0"
     del-cli: "npm:^7.0.0"
+    nestjs-paginate: "npm:^12.10.0"
     qrcode: "npm:^1.5.4"
     razorpay: "npm:^2.9.6"
     tsup: "npm:^8.0.0"

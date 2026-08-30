@@ -464,23 +464,57 @@ export class GetUserBookingsHandler implements IQueryHandler<GetUserBookingsQuer
 ### 2.6 Inngest
 
 **Simple explanation:**
-Inngest is a **background job engine**. When a user signs up, you don't want to make them wait while the server sends a welcome email (which can take 2 seconds). Instead, you tell Inngest "send this email in the background" and immediately respond to the user. Inngest handles the rest asynchronously.
+Inngest is a **background job engine**. When a user signs up, you don't want to make them wait while the server sends a welcome email (which can take 2 seconds). Instead, you tell Inngest *"send this email in the background"* and immediately respond to the user. Inngest handles the rest asynchronously.
+
+**Why do we use Inngest in our app? (In Simple Words)**
+1. ⚡ **Instant API Responses (~50ms)**: When a user registers or books a vehicle, they don't wait 3 seconds for emails, SMS, or FCM push notifications to send. The server responds instantly, and Inngest handles the work in the background.
+2. 🔁 **Automatic Error Retries**: If an external service (like email or push notification API) goes down temporarily, Inngest automatically retries the job 3 to 5 times with exponential backoff until it succeeds.
+3. ⌛ **Delayed & Scheduled Workflows**: You can easily define multi-step workflows with delays (e.g. *"Send an email now, wait 24 hours, then check if user activated their subscription plan"*).
 
 **Quick Answer / Elevator Pitch:**
 > *"Inngest is an event-driven background job engine that manages queues, automatic retries, and multi-step async workflows."*
 
-**Real-life analogy:**
-When you order food at a restaurant, the waiter takes your order and immediately goes to the next table (responds fast). The kitchen (Inngest) prepares your food in the background without blocking the waiter.
+**Real-life Analogy — Waiter & Kitchen:**
+> When you order food at a restaurant, the **waiter (API)** takes your order and immediately goes to the next table (responds fast). The **kitchen (Inngest)** prepares your food in the background without blocking the waiter.
 
-**Technical example:**
+**Real-World Example — Swiggy Order:**
+* **Scenario**: When you click *"Place Order"* on Swiggy:
+  * 📱 **API Response**: Swiggy shows *"Order Confirmed! ✅"* in **0.1 seconds**.
+  * ⚙️ **Inngest in the Background**: Inngest triggers 4 background tasks behind the scenes:
+    1. Sends order details to restaurant kitchen.
+    2. Assigns delivery driver.
+    3. Sends SMS confirmation to your phone.
+    4. Schedules a reminder if driver is delayed by 30 mins.
+  * *You never had to wait 2 minutes for all 4 tasks to complete before seeing your confirmation screen!*
+
+**Technical Example — Blocking vs Inngest Non-Blocking:**
+
 ```typescript
-// ❌ Blocking — user waits for email to be sent (slow!)
-await sendWelcomeEmail(user.email);
-return { success: true };
+// ❌ Old Blocking Way — User waits 3 seconds for emails & push notifications! (Slow 🐢)
+async registerUser(@Body() dto: RegisterDTO) {
+  const user = await userRepo.save(dto);
+  await emailService.sendWelcomeEmail(user.email); // Takes 1.5s
+  await fcmService.sendPushNotification(user.id);  // Takes 1.5s
+  return user; // User waits 3.0+ seconds total!
+}
 
-// ✅ Non-blocking via Inngest — user gets instant response
-await inngest.send({ name: 'user/registered', data: { userId: user.id } });
-return { success: true }; // Returned immediately
+// ✅ Inngest Event-Driven Way — User gets instant response in 50ms! (Fast ⚡)
+// STEP 1: In API — Fire event to Inngest and return immediately
+async registerUser(@Body() dto: RegisterDTO) {
+  const user = await userRepo.save(dto);
+  
+  // Fire-and-forget event dispatch to Inngest
+  await this.inngest.send({ name: 'user/registered', data: { userId: user.id } });
+  
+  return user; // Response sent to user in ~50ms!
+}
+
+// STEP 2: In Henchmen Worker — Inngest executes function asynchronously in background
+@InngestFunction({ event: 'user/registered' })
+async handleUserRegistered({ event }: InngestEventContext) {
+  await this.emailService.sendWelcomeEmail(event.data.userId);
+  await this.fcmService.sendPushNotification(event.data.userId);
+}
 ```
 
 ---

@@ -573,23 +573,48 @@ export class UsersController {
 ### 2.8 CASL (Authorization)
 
 **Simple explanation:**
-CASL is an **authorization library** that defines who can do what. Authentication asks "Who are you?" (login). Authorization asks "Are you allowed to do this?" (permissions). CASL lets you define fine-grained rules like "An Admin can delete any booking, but a User can only cancel their own booking."
+CASL is an **authorization library** that defines who can do what. 
+
+- **Authentication** asks: *"Who are you?"* (e.g. Logging in with email & password).
+- **Authorization (CASL)** asks: *"Are you allowed to do this action?"* (e.g. Can this user delete this booking?).
+
+CASL lets you define fine-grained rules like *"An Admin can delete any booking, but a regular User can only view or cancel their own booking."*
+
+**Why do we use CASL? (In Simple Words)**
+1. 🎯 **Attribute-Based Control (ABAC)**: Permissions aren't just based on your role (Admin/User), but also on resource details (e.g. You can only edit a booking IF `booking.userId === user.id`).
+2. 📜 **No Messy `if/else` Code**: Without CASL, controllers get filled with messy `if (role === 'admin' || user.id === booking.userId)` checks. CASL provides clean `can()` and `cannot()` helper methods.
+3. 🔄 **Central Security Rulebook**: All application security permissions live in a single shared package (`@yugo/permissions`), making security audits super easy.
 
 **Quick Answer / Elevator Pitch:**
 > *"CASL is an attribute-based authorization library that defines fine-grained user permissions and policy rules."*
 
-**Real-life analogy:**
-CASL is like an **office security badge system**. An intern can enter the lobby. A manager can enter their floor. Only the CEO can enter the server room. Different access for different roles.
+**Real-life Analogy — Office Security Badge System:**
+* **Authentication** = Showing your ID card at the front entrance gate so the guard knows who you are.
+* **CASL Authorization** = Your security badge scanner. An intern's badge opens the lobby door. A manager's badge opens their department floor. Only the CEO's badge opens the server room door!
 
-**Technical example:**
+**Technical Example — Defining & Checking Rules:**
+
 ```typescript
-// Define rules
+import { AbilityBuilder, createMongoAbility } from '@casl/ability';
+
+// 1. DEFINE RULES based on User Role
+const { can, cannot, build } = new AbilityBuilder(createMongoAbility);
+
 if (user.role === 'admin') {
-  can(Actions.manage, 'all'); // Can do everything
+  can('manage', 'all'); // Admin can do EVERYTHING (Create, Read, Update, Delete)
 } else {
-  can(Actions.read, BookingSubject, { userId: user.id }); // Can only read own bookings
-  cannot(Actions.delete, BookingSubject); // Cannot delete
+  // Regular User can ONLY READ bookings where they are the owner
+  can('read', 'Booking', { userId: user.id });
+  
+  // Regular User can NEVER delete any booking
+  cannot('delete', 'Booking');
 }
+
+const ability = build();
+
+// 2. CHECK PERMISSION anywhere in code
+const isAllowed = ability.can('read', currentBooking);
+// Returns true ONLY IF currentBooking.userId matches user.id!
 ```
 
 ---

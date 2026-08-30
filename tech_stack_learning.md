@@ -100,6 +100,9 @@ The monorepo has heavily modularized features into shareable, internal packages 
 **Simple explanation:**
 Turborepo is like a **smart manager for a big company** that has many departments (frontend, backend, packages). Instead of going to each department one by one and asking them to build their thing, the manager does it all in the right order, skips work that hasn't changed, and caches results so nothing is done twice.
 
+**Quick Answer / Elevator Pitch:**
+> *"Turborepo is a high-performance monorepo build system with smart caching that runs tasks in parallel and skips work that hasn't changed."*
+
 **Real-life analogy:**
 Imagine a restaurant kitchen. Turborepo is the head chef who knows: "The bread must be baked before the sandwich is assembled." It runs tasks in the right order and never re-bakes bread that was already baked.
 
@@ -121,6 +124,9 @@ If `apps/api` code didn't change, Turborepo skips rebuilding it and uses the cac
 **Simple explanation:**
 Yarn Workspaces lets you treat your entire project as one big family where all members (apps and packages) can share resources (like `node_modules`) without each one needing their own copy.
 
+**Quick Answer / Elevator Pitch:**
+> *"Yarn Workspaces manages multiple apps (`apps/*`) and shared internal libraries (`packages/*`) in a single monorepo with unified dependency resolution."*
+
 **Real-life analogy:**
 Think of a shared apartment. Instead of each person buying their own TV, fridge, and wifi, they share one set for the whole apartment. This saves space (disk space) and money (install time).
 
@@ -139,6 +145,15 @@ Now `apps/api` can import `@yugo/cqrs` directly as if it's an npm package, even 
 
 **Simple explanation:**
 TypeScript is JavaScript with **labels on everything**. JavaScript lets you put anything anywhere; TypeScript forces you to say "this variable holds a number" or "this function returns a string." This prevents entire categories of bugs.
+
+**Quick Answer / Elevator Pitch (Option B — Developer Experience):**
+> *"TypeScript adds strict type definitions to JavaScript, giving us better autocomplete, self-documenting code, and safe refactoring."*
+
+**Key Terms & Concepts:**
+* **Type Safety**: Ensures variables only hold the data types they are defined to hold.
+* **Compile-Time Error Checking**: Catches typos, missing properties, and bugs *while coding*, before code ever runs in production.
+* **Self-Documenting Code**: Clear interfaces make it immediately obvious what data structure a function expects.
+* **Safe Refactoring**: Changing or renaming code in one file automatically alerts you if it breaks another file.
 
 **Real-life analogy:**
 Imagine a warehouse where every box has a label saying exactly what's inside. TypeScript is the labeling system. Without it (plain JavaScript), you might open a box expecting TVs and find shoes instead.
@@ -162,6 +177,9 @@ function getUser(id: string): string {
 
 **Simple explanation:**
 ESLint is the **spelling and grammar checker** for your code — it finds bugs and bad patterns. Prettier is the **auto-formatter** — it makes every developer's code look exactly the same, regardless of their personal style.
+
+**Quick Answer / Elevator Pitch:**
+> *"ESLint catches code bugs and bad architectural patterns at dev-time, while Prettier enforces consistent code formatting across the entire team."*
 
 **Real-life analogy:**
 ESLint = A teacher who marks your essay for logical errors.
@@ -189,6 +207,9 @@ if (x === 1) {
 
 **Simple explanation:**
 Henchmen is a **completely separate NestJS application** that runs alongside your main API (`apps/api`). Its sole job is to execute background tasks that were triggered by Inngest events. It never handles any direct HTTP requests from users — it only processes jobs from the Inngest queue.
+
+**Quick Answer / Elevator Pitch:**
+> *"Henchmen is a dedicated background worker process that handles long-running, asynchronous jobs (push notifications, email delivery, cron tasks) via Inngest without blocking user HTTP API responses."*
 
 Think of it like a two-team restaurant:
 - **`apps/api`** is the **front-of-house** — waiters taking orders (HTTP requests) and responding to customers immediately.
@@ -242,6 +263,9 @@ async handleBookingCreated({ event }: InngestEventContext) {
 **Simple explanation:**
 NestJS is a **framework** built on top of Node.js that gives you a structured way to build backend applications. Instead of writing raw Express routes everywhere, NestJS gives you `Modules`, `Controllers`, `Services`, `Guards`, and `Interceptors` — each with a clear, single job.
 
+**Quick Answer / Elevator Pitch:**
+> *"NestJS is an enterprise Node.js framework providing clean, modular architecture with Dependency Injection, Controllers, Services, and Modules."*
+
 **Real-life analogy:**
 NestJS is like the **floor plan of an office building**. Every department (HR, Finance, Engineering) has its own room (Module), a reception desk (Controller) that receives requests, and specialists (Services) that do the actual work.
 
@@ -266,6 +290,9 @@ export class UsersController {
 **Simple explanation:**
 TypeORM is a translator between your **TypeScript code and the database**. Instead of writing raw SQL like `SELECT * FROM users WHERE id = 1`, you write TypeScript classes and methods, and TypeORM converts them to SQL automatically.
 
+**Quick Answer / Elevator Pitch:**
+> *"TypeORM is an Object-Relational Mapper (ORM) that maps TypeScript class models into SQL queries for database interactions."*
+
 **Real-life analogy:**
 TypeORM is like **Google Translate for databases**. You speak TypeScript, the database speaks SQL. TypeORM translates in between so you never have to learn SQL from scratch.
 
@@ -285,6 +312,9 @@ const user = await manager.findOne(UserEntity, { where: { id: userId } });
 **Simple explanation:**
 MySQL is a **relational database** — think of it as a collection of Excel spreadsheets. Each "table" is a spreadsheet (e.g., `users`, `bookings`, `vehicles`). Rows are records, columns are fields. Tables can be linked together (e.g., a booking is linked to a user and a vehicle).
 
+**Quick Answer / Elevator Pitch:**
+> *"MySQL is our primary relational database for storing structured application data across linked tables."*
+
 **Real-life analogy:**
 MySQL is like a **well-organized filing cabinet**. Every drawer (table) holds records (rows). When you need to find a booking, you open the Bookings drawer and find the row by ID.
 
@@ -294,6 +324,9 @@ MySQL is like a **well-organized filing cabinet**. Every drawer (table) holds re
 
 **Simple explanation:**
 Redis is an **ultra-fast memory-based storage**. Unlike MySQL which writes to disk, Redis keeps everything in RAM (memory). It's used to store data that needs to be read extremely quickly, like session tokens, OTP codes, or cached API responses.
+
+**Quick Answer / Elevator Pitch:**
+> *"Redis is an ultra-fast in-memory key-value data store used for high-speed caching and temporary token storage."*
 
 **Real-life analogy:**
 MySQL is a **library archive** (slow to search, permanent storage). Redis is a **sticky note on your desk** (instant to read, temporary).
@@ -315,6 +348,9 @@ const otp = await redis.get(`otp:${phone}`);
 CQRS is a design pattern that says: **"Reading data and writing data should be completely separate code."**
 - **Command** = Something that changes the world (Create User, Update Booking)
 - **Query** = Something that reads the world (Get User, List Bookings)
+
+**Quick Answer / Elevator Pitch:**
+> *"CQRS strictly separates read operations (Queries) from write/mutation operations (Commands) for better performance and scalability."*
 
 **Real-life analogy:**
 In a hospital: **Doctors (Commands)** prescribe medicine and make changes to your health plan. **Nurses (Queries)** fetch your records and report status. They have different roles and never mix responsibilities.
@@ -342,6 +378,9 @@ return this.commandBus.execute(new CreateUserCommand(body.name, body.phone));
 **Simple explanation:**
 Inngest is a **background job engine**. When a user signs up, you don't want to make them wait while the server sends a welcome email (which can take 2 seconds). Instead, you tell Inngest "send this email in the background" and immediately respond to the user. Inngest handles the rest asynchronously.
 
+**Quick Answer / Elevator Pitch:**
+> *"Inngest is an event-driven background job engine that manages queues, automatic retries, and multi-step async workflows."*
+
 **Real-life analogy:**
 When you order food at a restaurant, the waiter takes your order and immediately goes to the next table (responds fast). The kitchen (Inngest) prepares your food in the background without blocking the waiter.
 
@@ -362,6 +401,9 @@ return { success: true }; // Returned immediately
 
 **Simple explanation:**
 TypeBox is a library that lets you write a schema **once** and get both: (1) runtime validation of incoming JSON data, and (2) automatic TypeScript types for free. It replaces decorators like `@IsString()` from `class-validator`.
+
+**Quick Answer / Elevator Pitch:**
+> *"TypeBox provides high-performance JSON schema validation for DTOs while automatically inferring TypeScript types."*
 
 **Real-life analogy:**
 TypeBox is like a **custom stamp/mould**. You create one mould, and it produces both the physical shape (TypeScript type) AND a checklist (runtime validator) at the same time.
@@ -388,6 +430,9 @@ async createUser(@Body() body: CreateUserDTO) { ... }
 **Simple explanation:**
 CASL is an **authorization library** that defines who can do what. Authentication asks "Who are you?" (login). Authorization asks "Are you allowed to do this?" (permissions). CASL lets you define fine-grained rules like "An Admin can delete any booking, but a User can only cancel their own booking."
 
+**Quick Answer / Elevator Pitch:**
+> *"CASL is an attribute-based authorization library that defines fine-grained user permissions and policy rules."*
+
 **Real-life analogy:**
 CASL is like an **office security badge system**. An intern can enter the lobby. A manager can enter their floor. Only the CEO can enter the server room. Different access for different roles.
 
@@ -408,6 +453,9 @@ if (user.role === 'admin') {
 
 **Simple explanation:**
 Passport.js handles the "Who are you?" question. When you log in, the server gives you a **JWT token** (like a digital ID card). Every subsequent request you make carries this token. Passport verifies it is valid and tells NestJS who you are.
+
+**Quick Answer / Elevator Pitch:**
+> *"Passport.js handles user authentication by verifying signed JSON Web Tokens (JWT) on incoming requests."*
 
 **Real-life analogy:**
 Logging in = Getting a hotel key card at check-in. Every time you want to enter your room (make an API request), you scan the key card (send the JWT). The door (Passport) checks if the card is valid.
@@ -430,6 +478,9 @@ getProfile(@Req() req: Request) {
 **Simple explanation:**
 Swagger automatically generates a **visual documentation website** for your API. It shows every available endpoint, what parameters they accept, and what they return. Developers and frontend teams use it to understand how to use the backend without reading source code.
 
+**Quick Answer / Elevator Pitch:**
+> *"Swagger automatically generates interactive OpenAPI documentation for testing and integrating backend REST APIs."*
+
 **Real-life analogy:**
 Swagger is like the **menu of a restaurant**. As a customer (frontend developer), you don't need to go into the kitchen (backend code) to know what's available. The menu (Swagger UI) tells you exactly what you can order and how.
 
@@ -439,6 +490,9 @@ Swagger is like the **menu of a restaurant**. As a customer (frontend developer)
 
 **Simple explanation:**
 Pino is an extremely fast logger. Instead of `console.log`, production applications use structured loggers like Pino that write logs in JSON format, which can be easily searched, filtered, and monitored in services like Datadog or CloudWatch.
+
+**Quick Answer / Elevator Pitch:**
+> *"Pino is a low-overhead, high-speed structured JSON logger for Node.js production applications."*
 
 **Technical example:**
 ```typescript
@@ -479,6 +533,9 @@ const html = handlebars.compile(template)({ name: 'Vaibhav', bookingId: 'BK-001'
 **Simple explanation:**
 React Native lets you write **one codebase in JavaScript/TypeScript** and deploy it as a real native app on both iOS and Android. Unlike a website in a browser, React Native apps use actual native UI components (real buttons, real text inputs) from iOS and Android.
 
+**Quick Answer / Elevator Pitch:**
+> *"React Native is a cross-platform mobile framework allowing us to build native iOS and Android apps using React and TypeScript."*
+
 **Real-life analogy:**
 Without React Native, building a mobile app is like having to write the same book in two different languages separately. React Native lets you write it once and have it automatically translated into both languages.
 
@@ -489,6 +546,9 @@ Without React Native, building a mobile app is like having to write the same boo
 **Simple explanation:**
 Expo is a **toolkit and platform built on top of React Native** that makes development dramatically easier. It provides a standard way to access native device features (camera, GPS, biometrics), build your app (EAS Build), and push updates over-the-air (OTA).
 
+**Quick Answer / Elevator Pitch:**
+> *"Expo is a development ecosystem and native module framework built on React Native for rapid building, EAS deployment, and OTA updates."*
+
 **Real-life analogy:**
 React Native is the engine. Expo is the fully equipped car around it — dashboard, air conditioning, GPS, automatic transmission — so you can just drive without worrying about engine internals.
 
@@ -498,6 +558,9 @@ React Native is the engine. Expo is the fully equipped car around it — dashboa
 
 **Simple explanation:**
 Expo Router brings **file-based routing** to mobile apps. The folder/file structure of `src/app/` directly maps to the app's navigation. Create a file `src/app/profile.tsx` and the route `/profile` automatically exists.
+
+**Quick Answer / Elevator Pitch:**
+> *"Expo Router provides file-based routing for React Native mobile apps, mapping directory structures (`app/`) directly to screens."*
 
 **Technical example:**
 ```text
@@ -515,6 +578,9 @@ src/app/
 
 **Simple explanation:**
 Zustand is a **global state store** for React. When data needs to be accessible across many unrelated components (like the logged-in user's name in both the header and the settings page), you store it in Zustand instead of passing it as props through every component.
+
+**Quick Answer / Elevator Pitch:**
+> *"Zustand is a lightweight, boilerplate-free state management library for managing global client-side state."*
 
 **Real-life analogy:**
 Zustand is like a **shared whiteboard** in an office. Anyone can walk up and read what's written on it. Anyone can update it. Everyone automatically sees the latest version.
@@ -537,6 +603,9 @@ const { user } = useAuthStore();
 
 **Simple explanation:**
 TanStack Query is a **server state manager**. It handles fetching data from the API, caching the results, showing loading/error states, and automatically refetching when data gets stale. It completely replaces `useEffect` + `useState` for API calls.
+
+**Quick Answer / Elevator Pitch:**
+> *"TanStack Query manages server state, caching, synchronization, and automatic re-fetching of backend data."*
 
 **Real-life analogy:**
 TanStack Query is like a **smart delivery service with tracking**. You request a package (API call). It tells you "Arriving soon" (loading state). When it arrives, it's stored at your door (cache). If you request it again within a short time, it gives you the one already at the door instead of ordering a new one.
@@ -564,6 +633,9 @@ const { data: user, isLoading } = useQuery({
 
 **Simple explanation:**
 Tailwind CSS is a **utility-first CSS framework**. Instead of writing custom CSS files, you apply small predefined classes directly in your HTML/JSX. `p-4` adds padding, `text-lg` makes text large, `bg-blue-500` makes a background blue.
+
+**Quick Answer / Elevator Pitch:**
+> *"Tailwind CSS is a utility-first styling framework that allows building custom responsive designs directly in JSX markup."*
 
 **Real-life analogy:**
 Traditional CSS is like **painting a wall from scratch every time**. Tailwind is like having **thousands of LEGO bricks** — you just snap together the pieces you need instantly.

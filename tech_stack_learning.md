@@ -252,9 +252,18 @@ async handleBookingCreated({ event }: InngestEventContext) {
 ```
 
 **Why is Henchmen a separate app and not just a background service inside `apps/api`?**
-- **Scalability**: You can scale the API and the worker independently. If notifications are slow, add more Henchmen instances, not more API instances.
-- **Fault Isolation**: If Henchmen crashes, the main API keeps running. Users can still create bookings even if notifications temporarily fail.
-- **Clean Separation**: The API's job is to be fast and respond to HTTP. Henchmen's job is to be reliable and process events. Mixing them violates Single Responsibility Principle.
+
+1. **Scalability**: You can scale the API and the worker independently. If notifications are slow, add more Henchmen instances, not more API instances.
+   * 💡 *In simple words*: If 500 customers order pizzas at once, you don't hire 10 extra Waiters at the front door — you just hire more Chefs in the kitchen! The front door is never blocked.
+2. **Fault Isolation**: If Henchmen crashes, the main API keeps running. Users can still create bookings even if notifications temporarily fail.
+   * 💡 *In simple words*: If the oven in the kitchen catches fire, the Waiter at the door can still sell cold drinks and take future orders. The whole app doesn't crash for users!
+3. **Clean Separation**: The API's job is to be fast and respond to HTTP. Henchmen's job is to be reliable and process events. Mixing them violates Single Responsibility Principle.
+   * 💡 *In simple words*: The Waiter's only job is to be ultra-fast (~50ms response). The Chef's only job is to complete heavy background work (SMS, Push Notifications, Emails, Syncing) reliably.
+
+> 🍕 **Simple Real-Time Restaurant Analogy:**
+> * 🤵 **`apps/api` = The Waiter at the front desk**: Takes your order, hands you a receipt, and says *"Order confirmed!"* in 5 seconds.
+> * 👨‍🍳 **`apps/henchmen` = The Chef inside the kitchen**: Bakes the pizza, packs it, and sends the delivery boy behind the scenes in 15 minutes.
+> * *If the Waiter ALSO had to bake the pizza before taking the next order, customers would wait 15 minutes in line just to place an order!*
 
 ---
 

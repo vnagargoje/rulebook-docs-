@@ -622,22 +622,43 @@ const isAllowed = ability.can('read', currentBooking);
 ### 2.9 Passport.js (JWT Authentication)
 
 **Simple explanation:**
-Passport.js handles the "Who are you?" question. When you log in, the server gives you a **JWT token** (like a digital ID card). Every subsequent request you make carries this token. Passport verifies it is valid and tells NestJS who you are.
+Passport.js handles the *"Who are you?"* question (Authentication). 
+
+When you log in, the server gives you a **JWT token** (like a digital ID card). Every subsequent request your app makes carries this token. Passport verifies it is valid, checks for tampering or expiration, and tells NestJS who you are.
+
+**How JWT Authentication Works (In 3 Simple Steps):**
+1. 🔑 **Step 1 — Login**: User enters email & password at `/auth/login`. The server verifies password and returns a signed **JWT Token**.
+2. 📲 **Step 2 — Request**: For all future API requests, your app sends the token in the header (`Authorization: Bearer <token>`).
+3. 🛡️ **Step 3 — Passport Validation**: Passport.js automatically intercepts the request, decodes the token `{ userId: '123', email: 'user@gmail.com' }`, and attaches `req.user` for your controller to use.
 
 **Quick Answer / Elevator Pitch:**
 > *"Passport.js handles user authentication by verifying signed JSON Web Tokens (JWT) on incoming requests."*
 
-**Real-life analogy:**
-Logging in = Getting a hotel key card at check-in. Every time you want to enter your room (make an API request), you scan the key card (send the JWT). The door (Passport) checks if the card is valid.
+**Real-life Analogy — Hotel Key Card:**
+* **Logging In** = Showing your ID at the hotel reception desk. The receptionist hands you a **digital key card (JWT Token)**.
+* **Making an API Request** = Tapping your key card on your room door to open it.
+* **Passport.js** = The electronic door lock scanner. It reads your key card, verifies if it's expired or fake, and unlocks the door for you!
 
-**Technical example:**
+**Technical Example — Protecting Routes with Passport:**
+
 ```typescript
-// Every protected request automatically validated by Passport
-// The JWT is decoded and user is attached to req.user
-@Get('profile')
-@UseGuards(AppAuthGuard) // Passport runs here
-getProfile(@Req() req: Request) {
-  return req.user; // Already decoded from JWT
+// 1. Passport Strategy verifies JWT Signature & Expiry in background
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  async validate(payload: { sub: string; email: string }) {
+    // Decoded payload attached automatically to req.user
+    return { userId: payload.sub, email: payload.email }; 
+  }
+}
+
+// 2. Protect any NestJS route using @UseGuards
+@Controller('profile')
+export class ProfileController {
+  @Get()
+  @UseGuards(AppAuthGuard) // 🛡️ Passport runs here: validates JWT & blocks invalid requests with 401
+  getProfile(@Req() req: Request) {
+    return req.user; // { userId: '123', email: 'vaibhav@gmail.com' }
+  }
 }
 ```
 

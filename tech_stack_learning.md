@@ -522,27 +522,50 @@ async handleUserRegistered({ event }: InngestEventContext) {
 ### 2.7 TypeBox
 
 **Simple explanation:**
-TypeBox is a library that lets you write a schema **once** and get both: (1) runtime validation of incoming JSON data, and (2) automatic TypeScript types for free. It replaces decorators like `@IsString()` from `class-validator`.
+TypeBox solves the **"Double Work"** problem in backend development.
+
+When a user submits data to your API (e.g. `{ name: 'Vaibhav', phone: '9876543210' }`), traditional backend code forces you to write **TWO separate things**:
+1. A **TypeScript type** (so your IDE gives autocomplete while coding).
+2. A **Validation class** with `@IsString()`, `@MinLength()` decorators (so the server checks incoming data at runtime).
+
+Writing both means duplicating code. **TypeBox lets you write the schema ONCE, and automatically gives you BOTH the runtime validator AND the TypeScript type for free!**
+
+**Why do we use TypeBox in our app? (In Simple Words)**
+1. 🚫 **Zero Code Duplication**: Define schema once (`Type.Object(...)`) ➔ Extract TypeScript type automatically (`Static<typeof Schema>`).
+2. ⚡ **100x Faster Performance**: Compiles to pure JSON Schema functions, which is up to 100x faster than traditional `class-validator` reflection decorators.
+3. 📄 **Automatic Swagger Docs**: Automatically generates OpenAPI documentation for frontend teams without writing extra code.
 
 **Quick Answer / Elevator Pitch:**
 > *"TypeBox provides high-performance JSON schema validation for DTOs while automatically inferring TypeScript types."*
 
-**Real-life analogy:**
-TypeBox is like a **custom stamp/mould**. You create one mould, and it produces both the physical shape (TypeScript type) AND a checklist (runtime validator) at the same time.
+**Real-life Analogy — The 3D Cookie Cutter Mould:**
+* **Without TypeBox (Double Work)**: You manually cut out a star shape from dough (validation), and then separately draw a star on paper (TypeScript type). If you change the star size, you have to rewrite both!
+* **With TypeBox**: You use a **3D Cookie Cutter Mould**. The moment it cuts the dough (validates incoming API JSON), it instantly prints the paper recipe label (TypeScript type) at the exact same second!
 
-**Technical example:**
+**Technical Example — Step-by-Step:**
+
 ```typescript
-// Define ONCE
-const CreateUserPayload = Type.Object({
-  name: Type.String({ minLength: 2 }),
-  phone: Type.String({ pattern: '^[0-9]{10}$' }),
+import { Type, Static } from '@sinclair/typebox';
+
+// STEP 1: Define schema ONCE (The 3D Mould)
+export const CreateUserSchema = Type.Object({
+  name: Type.String({ minLength: 2 }),             // Must be string, min 2 characters
+  phone: Type.String({ pattern: '^[0-9]{10}$' }),  // Must be exactly 10 digits
 });
 
-// Get TypeScript type for FREE (no duplication!)
-type CreateUserDTO = Static<typeof CreateUserPayload>;
+// STEP 2: Extract TypeScript Type FOR FREE (No duplicate code written!)
+export type CreateUserDTO = Static<typeof CreateUserSchema>;
+// CreateUserDTO is automatically: { name: string; phone: string; }
 
-// Use in controller for both validation AND type safety
-async createUser(@Body() body: CreateUserDTO) { ... }
+// STEP 3: Use in NestJS Controller — Gets 100% Autocomplete AND Runtime Validation!
+@Controller('users')
+export class UsersController {
+  @Post()
+  async createUser(@Body() body: CreateUserDTO) {
+    // 'body.name' and 'body.phone' are already validated and 100% type-safe!
+    return await this.userService.create(body);
+  }
+}
 ```
 
 ---

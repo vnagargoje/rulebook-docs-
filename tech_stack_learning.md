@@ -373,22 +373,33 @@ MySQL is like a **well-organized filing cabinet**. Every drawer (table) holds re
 
 ### 2.4 Redis
 
-**Simple explanation:**
-Redis is an **ultra-fast memory-based storage**. Unlike MySQL which writes to disk, Redis keeps everything in RAM (memory). It's used to store data that needs to be read extremely quickly, like session tokens, OTP codes, or cached API responses.
+**3-Line Simple Explanation:**
+1. ⚡ **Ultra-Fast RAM Storage**: Redis stores data directly in computer memory (RAM) instead of hard drive disks, making reads/writes 1,000x faster than traditional databases.
+2. 🔑 **Key-Value Dictionary**: It stores data as simple pairs (e.g. `phone_number` ➔ `OTP_code`) rather than complex tables and rows.
+3. ⌛ **Auto-Expiring Data (TTL)**: It allows setting an automatic expiration time (Time To Live), so data like OTPs or session tokens delete themselves after a set period.
 
 **Quick Answer / Elevator Pitch:**
 > *"Redis is an ultra-fast in-memory key-value data store used for high-speed caching and temporary token storage."*
 
-**Real-life analogy:**
-MySQL is a **library archive** (slow to search, permanent storage). Redis is a **sticky note on your desk** (instant to read, temporary).
+**Real-life Analogy — Sticky Note vs File Cabinet:**
+* **MySQL Database** = A file archive down in the basement. It holds permanent records, but takes time to walk down and search through folders.
+* **Redis** = A sticky note on your laptop screen. You look at it instantly in 1 second, but you throw it away after 5 minutes.
 
-**Technical example:**
+**Common Use-Cases in Our App:**
+- **OTP Codes**: Temporary 6-digit verification codes (expires in 5 mins).
+- **Auth Tokens**: User JWT session tokens for quick validation without hitting MySQL.
+- **API Caching**: Saving heavy backend calculation results for fast repeat access.
+
+**Technical Example — Saving & Reading an OTP:**
+
 ```typescript
-// Store OTP with 5 minute expiry in Redis
-await redis.set(`otp:${phone}`, '123456', 'EX', 300);
+// 1. Store OTP with automatic 5-minute expiry (300 seconds)
+await redis.set('otp:9876543210', '123456', 'EX', 300);
 
-// Retrieve it
-const otp = await redis.get(`otp:${phone}`);
+// 2. Retrieve the OTP instantly when user submits form
+const savedOtp = await redis.get('otp:9876543210'); // Returns '123456'
+
+// 3. After 300 seconds, Redis automatically deletes it (returns null)
 ```
 
 ---

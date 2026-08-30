@@ -669,11 +669,35 @@ export class ProfileController {
 **Simple explanation:**
 Swagger automatically generates a **visual documentation website** for your API. It shows every available endpoint, what parameters they accept, and what they return. Developers and frontend teams use it to understand how to use the backend without reading source code.
 
+**Why Developers Love Swagger (In Simple Words):**
+1. 📖 **Zero Friction for Frontend Devs**: React/Mobile developers never have to ask *"What URL do I call?"* or *"What JSON field names do I send?"*. Everything is clearly documented in one URL.
+2. 🧪 **Live In-Browser Testing (No Postman Needed)**: You can click the **"Try it out"** button directly on the webpage to execute live API requests and see real responses right inside your browser.
+3. ⚡ **100% Auto-Generated**: In our repo, we bridge TypeBox DTO schemas directly into Swagger via `@scalar/nestjs-api-reference`. No manual documentation writing required!
+
 **Quick Answer / Elevator Pitch:**
 > *"Swagger automatically generates interactive OpenAPI documentation for testing and integrating backend REST APIs."*
 
-**Real-life analogy:**
-Swagger is like the **menu of a restaurant**. As a customer (frontend developer), you don't need to go into the kitchen (backend code) to know what's available. The menu (Swagger UI) tells you exactly what you can order and how.
+**Real-life Analogy — Restaurant Menu:**
+> Swagger is like the **menu of a restaurant**. As a customer (frontend developer), you don't need to go into the kitchen (backend code) to know what's available. The menu (Swagger UI) tells you exactly what you can order and how.
+
+**Technical Example — Annotating NestJS Controllers for Swagger:**
+
+```typescript
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+
+@ApiTags('Bookings') // Groups endpoints under 'Bookings' section in Swagger UI
+@Controller('bookings')
+export class BookingsController {
+  
+  @Post()
+  @ApiOperation({ summary: 'Create a new vehicle booking' })
+  @ApiResponse({ status: 201, description: 'Booking created successfully', type: BookingDTO })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  async createBooking(@Body() body: CreateBookingDTO) {
+    return await this.bookingService.create(body);
+  }
+}
+```
 
 ---
 

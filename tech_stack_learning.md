@@ -706,16 +706,27 @@ export class BookingsController {
 **Simple explanation:**
 Pino is an extremely fast logger. Instead of `console.log`, production applications use structured loggers like Pino that write logs in JSON format, which can be easily searched, filtered, and monitored in services like Datadog or CloudWatch.
 
+**Why do we use Pino in production? (In Simple Words)**
+1. ⚡ **Ultra Fast (Low Overhead)**: Pino is built to be the fastest Node.js logger. It uses asynchronous logging streams so log writing never slows down API response times.
+2. 📊 **Structured JSON Format**: Instead of unstructured plain text, Pino writes logs as clean JSON objects. Monitoring tools can instantly index and filter logs by `userId`, `bookingId`, or `statusCode`.
+3. 🎨 **Pretty Printing in Local Dev**: In development mode, `pino-pretty` converts JSON logs into clean, color-coded terminal lines for easy reading.
+
 **Quick Answer / Elevator Pitch:**
 > *"Pino is a low-overhead, high-speed structured JSON logger for Node.js production applications."*
 
-**Technical example:**
+**Real-life Analogy — Scrap Paper vs Excel Spreadsheet:**
+* **`console.log`** = Writing random notes on loose scrap paper. When a bug occurs in production, searching through 10,000 pieces of scrap paper is impossible!
+* **Pino Logger** = Writing entries into a clean **Excel Spreadsheet**. When a bug occurs, you can filter by column *"User ID = 123"* in 1 second!
+
+**Technical Example — `console.log` vs Pino:**
+
 ```typescript
-// ❌ console.log — unstructured, slow
+// ❌ console.log — Unstructured plain text, slow, impossible to filter in CloudWatch
 console.log('User created: ' + userId);
 
-// ✅ Pino — structured, fast, filterable
+// ✅ Pino Logger — Structured JSON object, ultra-fast, instantly filterable
 logger.info({ userId, action: 'user.created' }, 'User created successfully');
+// Outputs JSON: {"level":30,"time":1690000000,"userId":"123","action":"user.created","msg":"User created successfully"}
 ```
 
 ---

@@ -407,30 +407,56 @@ const savedOtp = await redis.get('otp:9876543210'); // Returns '123456'
 ### 2.5 CQRS (Command Query Responsibility Segregation)
 
 **Simple explanation:**
-CQRS is a design pattern that says: **"Reading data and writing data should be completely separate code."**
-- **Command** = Something that changes the world (Create User, Update Booking)
-- **Query** = Something that reads the world (Get User, List Bookings)
+CQRS is a design pattern that enforces one strict rule: **"Never mix code that reads data with code that changes data."**
+
+It splits all backend operations into two separate categories:
+- ✍️ **Command (WRITE)**: An action that modifies database data (e.g. *Create User*, *Book Vehicle*, *Update Payment Status*). Commands change state and return success/failure.
+- 🔍 **Query (READ)**: An action that fetches data without making any changes (e.g. *Get User Profile*, *List Available Vehicles*, *Fetch Booking History*). Queries never modify state.
+
+**Why do we use CQRS in our app? (In Simple Words)**
+1. **Easy to Maintain**: Instead of one giant 2,000-line `BookingService.ts` file doing everything, every single action has its own small, dedicated handler file (`CreateBookingCommandHandler.ts`, `GetBookingQueryHandler.ts`).
+2. **Independent Scaling**: Users read data 90% of the time and write 10% of the time. CQRS lets us optimize and cache read queries heavily without risking database write consistency.
+3. **Faster Debugging**: If booking creation fails, you know *exactly* which single command file to look at.
 
 **Quick Answer / Elevator Pitch:**
 > *"CQRS strictly separates read operations (Queries) from write/mutation operations (Commands) for better performance and scalability."*
 
-**Real-life analogy:**
-In a hospital: **Doctors (Commands)** prescribe medicine and make changes to your health plan. **Nurses (Queries)** fetch your records and report status. They have different roles and never mix responsibilities.
+**Real-life Analogy — Bank & Hospital:**
+* **Bank Analogy**:
+  * ✍️ **Bank Manager (Command)**: Approves a loan or opens an account (changes your account state).
+  * 🔍 **ATM Screen (Query)**: Displays your balance (reads data, never changes your balance).
+* **Hospital Analogy**:
+  * ✍️ **Doctor (Command)**: Performs surgery or prescribes medicine (changes patient health state).
+  * 🔍 **Nurse / Records Clerk (Query)**: Pulls up medical charts and checks temperature (reads patient history).
 
-**Technical example:**
+**Technical Example — Command vs Query in NestJS:**
+
 ```typescript
-// Command — changes data
-class CreateUserCommand {
-  constructor(public readonly name: string, public readonly phone: string) {}
+// ✍️ 1. COMMAND (Write Operation) — Changes data in database
+export class CreateBookingCommand {
+  constructor(public readonly vehicleId: string, public readonly userId: string) {}
+}
+// CommandHandler handles the write logic
+@CommandHandler(CreateBookingCommand)
+export class CreateBookingHandler implements ICommandHandler<CreateBookingCommand> {
+  async execute(command: CreateBookingCommand) {
+    // Saves new booking to MySQL database
+    return await this.bookingRepo.save({ ... });
+  }
 }
 
-// Query — reads data
-class GetUserByIdQuery {
-  constructor(public readonly id: string) {}
+// 🔍 2. QUERY (Read Operation) — Only fetches data from database/cache
+export class GetUserBookingsQuery {
+  constructor(public readonly userId: string) {}
 }
-
-// Controller just dispatches, never does the work itself
-return this.commandBus.execute(new CreateUserCommand(body.name, body.phone));
+// QueryHandler handles the read logic
+@QueryHandler(GetUserBookingsQuery)
+export class GetUserBookingsHandler implements IQueryHandler<GetUserBookingsQuery> {
+  async execute(query: GetUserBookingsQuery) {
+    // Reads bookings from MySQL or Redis cache (no database changes made)
+    return await this.bookingRepo.find({ where: { userId: query.userId } });
+  }
+}
 ```
 
 ---

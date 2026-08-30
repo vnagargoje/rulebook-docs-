@@ -270,24 +270,44 @@ async handleBookingCreated({ event }: InngestEventContext) {
 ### 2.1 NestJS
 
 **Simple explanation:**
-NestJS is a **framework** built on top of Node.js that gives you a structured way to build backend applications. Instead of writing raw Express routes everywhere, NestJS gives you `Modules`, `Controllers`, `Services`, `Guards`, and `Interceptors` — each with a clear, single job.
+NestJS is an enterprise **framework** built on top of Node.js (and Express) that gives you a structured, standardized way to build scalable backend applications. 
+
+**Why NestJS instead of raw Express?**
+In **raw Express**, there are no enforced architectural rules. Developers often put database queries, routing logic, input validation, and authentication inside one huge, messy `app.js` file ("spaghetti code"). **NestJS** solves this by enforcing a modular structure divided into 5 distinct building blocks:
+
+1. **📦 Modules**: Group related features together into isolated packages (e.g. `UserModule`, `AuthModule`, `BookingModule`). Like a department in an office.
+2. **🎮 Controllers**: Listen for incoming HTTP requests (`GET /users`, `POST /bookings`) and return responses. Like a reception desk handling calls.
+3. **⚙️ Services (Providers)**: Contain the actual business logic, calculations, and database interactions. Like the specialists doing the real work.
+4. **🛡️ Guards**: Security checkpoints that check if a user is authenticated (`AuthGuard`) or authorized (`RolesGuard`) before letting them access a route. Like a bouncer at a club door.
+5. **⚡ Interceptors**: Intercept and transform requests/responses before or after execution (e.g., measuring execution time, logging, or wrapping output JSON). Like a quality inspector or gift-wrapper.
 
 **Quick Answer / Elevator Pitch:**
-> *"NestJS is an enterprise Node.js framework providing clean, modular architecture with Dependency Injection, Controllers, Services, and Modules."*
+> *"NestJS is an enterprise Node.js framework providing clean, modular architecture with Dependency Injection, Controllers, Services, Guards, Interceptors, and Modules."*
 
 **Real-life analogy:**
-NestJS is like the **floor plan of an office building**. Every department (HR, Finance, Engineering) has its own room (Module), a reception desk (Controller) that receives requests, and specialists (Services) that do the actual work.
+* **Raw Express** = Working in an open garage where tools, documents, and engines are all thrown on the same table.
+* **NestJS** = Working in a modern office building where every department has its own room (**Module**), receptionist (**Controller**), worker (**Service**), and bouncer at the door (**Guard**).
 
-**Technical example:**
+**Technical Example — Raw Express vs NestJS:**
+
 ```typescript
-// Controller = Reception desk (receives HTTP request)
+// ❌ Raw Express — Routing, Auth, and DB logic mixed in one messy function
+app.get('/users/:id', async (req, res) => {
+  if (!req.headers.token) return res.status(401).send('Unauthorized'); // Auth
+  const user = await db.query('SELECT * FROM users WHERE id = ?', [req.params.id]); // DB
+  res.json(user); // Response
+});
+
+// ✅ NestJS — Clean separation of concerns
+// 🛡️ Guard handles Auth | 🎮 Controller handles HTTP | ⚙️ Service handles Business Logic
 @Controller('users')
+@UseGuards(AuthGuard) // 🛡️ Guard checks authentication automatically
 export class UsersController {
-  constructor(private commandBus: CommandBus) {}
+  constructor(private userService: UserService) {} // ⚙️ Service injected automatically
 
   @Get(':id')
-  getUser(@Param('id') id: string) {
-    return this.commandBus.execute(new GetUserQuery(id));
+  getUser(@Param('id') id: string) { // 🎮 Controller handles route
+    return this.userService.findById(id); // Clean delegate to Service
   }
 }
 ```

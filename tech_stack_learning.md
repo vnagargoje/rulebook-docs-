@@ -803,24 +803,64 @@ src/app/
 ### 3.4 Zustand (State Management)
 
 **Simple explanation:**
-Zustand is a **global state store** for React. When data needs to be accessible across many unrelated components (like the logged-in user's name in both the header and the settings page), you store it in Zustand instead of passing it as props through every component.
+Zustand is a **global state store** for React / React Native. When data needs to be accessible across many unrelated components (like the logged-in user's profile, active booking, or app theme), you store it in Zustand instead of passing props down through 10 layers of components (*prop drilling*) or wrapping everything in complex React Context Providers.
+
+**Why Developers Love Zustand (In Simple Words):**
+1. 🚀 **Zero Boilerplate**: Redux requires actions, reducers, dispatchers, types, and setup files. Zustand lets you create a full global store in just 5 lines of code!
+2. 🔌 **No Context Provider Wrapping Needed**: You don't need to wrap your app component tree in `<AuthProvider>` or `<StoreProvider>`. You can read or write store values anywhere — even outside React components!
+3. ⚡ **High Performance (Selective Re-renders)**: Components only re-render when the exact state slice they subscribe to changes (`useAuthStore(state => state.user)`), preventing unnecessary app re-renders.
 
 **Quick Answer / Elevator Pitch:**
-> *"Zustand is a lightweight, boilerplate-free state management library for managing global client-side state."*
+> *"Zustand is a lightweight, boilerplate-free state management library for managing global client-side state in React and React Native applications."*
 
-**Real-life analogy:**
-Zustand is like a **shared whiteboard** in an office. Anyone can walk up and read what's written on it. Anyone can update it. Everyone automatically sees the latest version.
+**Real-life Analogy — Office Whiteboard / Central Notice Board:**
+* **Prop Drilling / Redux** = Whispering a message to the person next to you, who whispers it to the next person, through 10 people until it reaches the recipient.
+* **Zustand Store** = Writing the message on a **Central Notice Board / Whiteboard** in the office. Any employee in any room can walk up, read it directly, or write an update. Everyone instantly gets the newest info without passing messages around!
 
-**Technical example:**
+**Technical Example — Prop Drilling vs Zustand Global Store:**
+
 ```typescript
-// Define the store
-const useAuthStore = create((set) => ({
+// ❌ Old Way: Prop Drilling (passing props down through multiple component layers)
+function ParentComponent() {
+  const [user, setUser] = useState({ name: 'Vaibhav', role: 'admin' });
+  return <Header user={user} setUser={setUser} />;
+}
+function Header({ user, setUser }) {
+  return <UserBadge user={user} setUser={setUser} />; // Passed down again!
+}
+function UserBadge({ user }) {
+  return <Text>Welcome, {user.name}</Text>;
+}
+
+// ✅ Clean Way: Zustand Global Store
+import { create } from 'zustand';
+
+// 1. Define Store ONCE (accessible anywhere in the app)
+interface AuthState {
+  user: { name: string; role: string } | null;
+  setUser: (user: { name: string; role: string } | null) => void;
+  logout: () => void;
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   setUser: (user) => set({ user }),
+  logout: () => set({ user: null }),
 }));
 
-// Use in any component anywhere in the app
-const { user } = useAuthStore();
+// 2. Use directly in ANY component without props or provider wrappers!
+function UserBadge() {
+  // Subscribes ONLY to 'user' — re-renders ONLY when 'user' changes
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+
+  return (
+    <View>
+      <Text>Welcome, {user?.name}</Text>
+      <Button title="Logout" onPress={logout} />
+    </View>
+  );
+}
 ```
 
 ---

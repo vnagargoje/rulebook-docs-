@@ -1454,59 +1454,59 @@ TanStack Table is like an **invisible spreadsheet engine**. It handles all the s
 
 ### 🏗️ Monorepo & Core Infrastructure
 
-| # | Tech | 📦 Version | ❓ What is it? | 🎯 Why do we use it in Yugo? | 💡 Real-Life Analogy / Simple Summary |
+| # | Tech | 📦 Version | ❓ What is it? | 🎯 Why do we use it in Yugo? | ⚡ One Line |
 |---|---|---|---|---|---|
-| 1 | **Turborepo** | `v2.10.0` | Monorepo Build System | Runs builds, tests & lints in parallel; caches results to skip unchanged code. | Head Chef who never re-bakes bread that's already baked. (Saves 90% build time) |
-| 2 | **Yarn Workspaces** | `v4.18.0` | Monorepo Package Linker | Shares `node_modules` and links internal `packages/*` directly to `apps/*`. | Shared apartment with 1 common fridge. Zero duplicate code installation. |
-| 3 | **TypeScript** | `v7.0.2` | Typed JavaScript | Adds strict type labels (`: string`, `: number`) to prevent bugs while coding. | Labeling every warehouse box so you never mistake shoes for a TV. |
-| 4 | **ESLint & Prettier** | ESLint `v10.10.0` / Prettier `v3.9.6` | Linter & Auto-Formatter | ESLint catches bugs; Prettier auto-formats code on save across team. | ESLint is a grammar teacher; Prettier is a standardized book printer. |
+| 1 | **Turborepo** | `v2.10.0` | Monorepo Build System | Runs builds, tests & lints in parallel; caches results to skip unchanged code. | Build all apps with 1 command, skip what hasn't changed. Saves 90% build time. |
+| 2 | **Yarn Workspaces** | `v4.18.0` | Monorepo Package Linker | Shares `node_modules` and links internal `packages/*` directly to `apps/*`. | One shared `node_modules` for all apps. Local packages importable like npm packages. |
+| 3 | **TypeScript** | `v7.0.2` | Typed JavaScript | Adds strict type labels (`: string`, `: number`) to prevent bugs while coding. | JavaScript with labels — catches typos & bugs before the app runs. |
+| 4 | **ESLint & Prettier** | ESLint `v10.10.0` / Prettier `v3.9.6` | Linter & Auto-Formatter | ESLint catches bugs; Prettier auto-formats code on save across team. | ESLint = grammar checker. Prettier = auto-formats code on save. Zero style arguments. |
 
 ---
 
 ### ⚙️ Backend Services (`apps/api` & `apps/henchmen`)
 
-| # | Tech | 📦 Version | ❓ What is it? | 🎯 Why do we use it in Yugo? | 💡 Real-Life Analogy / Simple Summary |
+| # | Tech | 📦 Version | ❓ What is it? | 🎯 Why do we use it in Yugo? | ⚡ One Line |
 |---|---|---|---|---|---|
-| 5 | **Henchmen** | NestJS `v12.0.0` | Dedicated Background Worker | Runs heavy background jobs (SMS, FCM push, cron tasks) via Inngest without blocking API responses. | Restaurant Kitchen Chef cooking while Waiter handles front desk orders (~50ms response). |
-| 6 | **NestJS** | `v12.0.0` | Enterprise Backend Framework | Modular framework using Dependency Injection, Controllers, Services & Guards. | Organized office building with specific rooms, receptionists & bouncers. |
-| 7 | **TypeORM** | `v1.0.0` | TypeScript SQL ORM | Maps TypeScript classes (Entities) to MySQL tables so you write TypeScript instead of raw SQL strings. | Menu translation tablet in Tokyo converting English orders to Japanese. |
-| 8 | **MySQL** | `v9.3.0` | Relational Database | Stores permanent structured data (users, bookings, vehicles, plans) in linked tables. | Filing cabinet with categorized drawers & linked folders. |
-| 9 | **Redis** | `v8.0.2` | Ultra-Fast In-Memory RAM Store | Stores temporary data (OTPs, session tokens, API cache) in computer RAM at 1ms speed. | Sticky note on your screen read in 1 sec and discarded after 5 mins. |
-| 10 | **CQRS** | Custom `@yugo/cqrs` | Read/Write Separation Pattern | Separates Write actions (Commands) from Read actions (Queries) into small dedicated handlers. | Doctor prescribing treatment (Command) vs Nurse pulling charts (Query). |
-| 11 | **Inngest** | `v4.19.0` | Event-Driven Background Job Engine | Queues async background workflows with automatic retries so API responds in ~50ms. | Order confirmation screen popping up in 0.1s while kitchen prepares food. |
-| 12 | **TypeBox** | `v1.3.16` | High-Speed JSON Schema & Type Inferencer | Defines DTO schema ONCE to get both runtime validation AND TypeScript types for free (100x faster than class-validator). | 3D cookie cutter mould that cuts dough and prints recipe label at same second. |
-| 13 | **CASL** | `v7.0.1` | Attribute-Based Authorization | Controls fine-grained user permissions (`can('read', 'Booking')`). | Office security badge opening lobby for interns but server room only for CEO. |
-| 14 | **Passport.js** | `v0.7.0` | Authentication Middleware | Verifies signed JWT tokens on incoming HTTP request headers to authenticate user identity. | Electronic hotel door lock scanner reading digital key cards. |
-| 15 | **Swagger / OpenAPI** | `@nestjs/swagger@11.x` | Visual API Doc Generator | Auto-generates an interactive webpage from TypeBox DTOs for testing API without Postman. | Restaurant menu showing available items, prices & ingredients. |
-| 16 | **Pino** | `v10.3.1` | High-Speed JSON Logger | Writes ultra-fast JSON logs filterable by `userId` or `statusCode` in CloudWatch/Datadog. | Excel spreadsheet log vs writing random notes on loose scrap paper (`console.log`). |
-| 17 | **Handlebars** | `v4.7.8` | Email HTML Template Engine | Compiles HTML email templates with dynamic placeholders like `{{userName}}`. | Fill-in-the-blank invitation letter template. |
+| 5 | **Henchmen** | NestJS `v12.0.0` | Dedicated Background Worker | Runs heavy background jobs (SMS, FCM push, cron tasks) via Inngest without blocking API responses. | Separate background app that handles heavy tasks so the main API stays fast. |
+| 6 | **NestJS** | `v12.0.0` | Enterprise Backend Framework | Modular framework using Dependency Injection, Controllers, Services & Guards. | Structured backend framework — clean modules, controllers, services, guards. No spaghetti code. |
+| 7 | **TypeORM** | `v1.0.0` | TypeScript SQL ORM | Maps TypeScript classes (Entities) to MySQL tables so you write TypeScript instead of raw SQL strings. | Write TypeScript classes instead of raw SQL. Auto-generates all queries. |
+| 8 | **MySQL** | `v9.3.0` | Relational Database | Stores permanent structured data (users, bookings, vehicles, plans) in linked tables. | The main database. Stores all app data in linked tables permanently. |
+| 9 | **Redis** | `v8.0.2` | Ultra-Fast In-Memory RAM Store | Stores temporary data (OTPs, session tokens, API cache) in computer RAM at 1ms speed. | Ultra-fast RAM storage for OTPs, tokens & cache. 1000x faster than MySQL. |
+| 10 | **CQRS** | Custom `@yugo/cqrs` | Read/Write Separation Pattern | Separates Write actions (Commands) from Read actions (Queries) into small dedicated handlers. | Write code and Read code live in separate files. Never mix them. |
+| 11 | **Inngest** | `v4.19.0` | Event-Driven Background Job Engine | Queues async background workflows with automatic retries so API responds in ~50ms. | Fire background tasks (emails, push notifications) without making users wait. Auto-retries if failed. |
+| 12 | **TypeBox** | `v1.3.16` | High-Speed JSON Schema & Type Inferencer | Defines DTO schema ONCE to get both runtime validation AND TypeScript types for free (100x faster than class-validator). | Write data shape once → get validation + TypeScript type automatically. No duplicate code. |
+| 13 | **CASL** | `v7.0.1` | Attribute-Based Authorization | Controls fine-grained user permissions (`can('read', 'Booking')`). | Controls who can do what — Admin sees all, User sees only their own data. |
+| 14 | **Passport.js** | `v0.7.0` | Authentication Middleware | Verifies signed JWT tokens on incoming HTTP request headers to authenticate user identity. | Checks JWT token on every request — Is this user logged in? Is token expired? |
+| 15 | **Swagger / OpenAPI** | `@nestjs/swagger@11.x` | Visual API Doc Generator | Auto-generates an interactive webpage from TypeBox DTOs for testing API without Postman. | Auto-generates a live webpage showing all API endpoints. No Postman needed. |
+| 16 | **Pino** | `v10.3.1` | High-Speed JSON Logger | Writes ultra-fast JSON logs filterable by `userId` or `statusCode` in CloudWatch/Datadog. | Fastest Node.js logger. Writes structured JSON logs instead of messy `console.log`. |
+| 17 | **Handlebars** | `v4.7.8` | Email HTML Template Engine | Compiles HTML email templates with dynamic placeholders like `{{userName}}`. | HTML email templates with `{{name}}` placeholders. Fill data at runtime, send email. |
 
 ---
 
 ### 📱 Frontend Mobile App (`apps/app`)
 
-| # | Tech | 📦 Version | ❓ What is it? | 🎯 Why do we use it in Yugo? | 💡 Real-Life Analogy / Simple Summary |
+| # | Tech | 📦 Version | ❓ What is it? | 🎯 Why do we use it in Yugo? | ⚡ One Line |
 |---|---|---|---|---|---|
-| 18 | **React Native** | `v0.87.1` | Cross-Platform Mobile Framework | Writes one TypeScript codebase compiled into native iOS & Android apps. | Writing one book translated automatically into two languages. |
-| 19 | **Expo** | `SDK 57` | React Native Toolkit & Platform | Accesses phone hardware (Camera, GPS), builds binaries (EAS), & pushes Over-The-Air (OTA) updates. | Fully equipped car around engine — AC, GPS, dashboard ready to drive. |
-| 20 | **Expo Router** | `v57.0.18` | File-Based Mobile Router | Maps directory file structure (`src/app/profile.tsx`) directly to mobile screen route `/profile`. | Folder location = screen URL path. |
-| 21 | **Zustand** | `v5.0.15` | Global Client State Store | Lightweight state store accessible across all components without prop drilling or Provider wrappers. | Shared office whiteboard where anyone reads or writes updates instantly. |
-| 22 | **Zustand Persist** | `v5.0.15` | Storage Persistence Middleware | Automatically saves Zustand state to phone storage (`AsyncStorage`) so user stays logged in on app restart. | Pocket notebook that keeps your notes even after you close it. |
-| 23 | **TanStack Query** | `v5.102.8` | Server State & Caching Manager | Fetches API data, caches in RAM, manages loading spinners, and auto-refetches stale data. | Smart refrigerator that keeps cold water ready & refills itself automatically. |
-| 24 | **Tailwind CSS** | `v4.3.3` | Utility-First Styling Framework | Styles UI components inline using utility classes (`px-4 py-2 bg-blue-500`). | Snapping LEGO bricks together instead of mixing paint from scratch. |
-| 25 | **React Hook Form + Zod** | RHF `v7.87.0` / Zod `v4.5.4` | Form State Manager & Schema Validator | Manages input state with zero re-renders on keypress and validates payloads with Zod schemas. | Smart form inspector ensuring data is 100% correct before submission. |
-| 26 | **xior** | `v0.8.4` | Lightweight HTTP Client | Sends REST HTTP requests from app to NestJS backend with interceptor support. | Courier service delivering request letters and bringing back replies. |
-| 27 | **FlashList** | `v2.3.2` | High-Speed Recycled List | Renders 1,000+ items at smooth 60 FPS by recycling UI components in memory. | E-reader rendering only current page vs printing full book in memory. |
+| 18 | **React Native** | `v0.87.1` | Cross-Platform Mobile Framework | Writes one TypeScript codebase compiled into native iOS & Android apps. | One codebase → real native iOS & Android apps. No separate Swift/Kotlin needed. |
+| 19 | **Expo** | `SDK 57` | React Native Toolkit & Platform | Accesses phone hardware (Camera, GPS), builds binaries (EAS), & pushes Over-The-Air (OTA) updates. | Toolkit on top of React Native — camera, GPS, cloud builds & OTA updates all in one. |
+| 20 | **Expo Router** | `v57.0.18` | File-Based Mobile Router | Maps directory file structure (`src/app/profile.tsx`) directly to mobile screen route `/profile`. | Create a file → screen route automatically exists. Folder = URL. |
+| 21 | **Zustand** | `v5.0.15` | Global Client State Store | Lightweight state store accessible across all components without prop drilling or Provider wrappers. | Global state in 5 lines. Any component reads/writes it directly. No Provider needed. |
+| 22 | **Zustand Persist** | `v5.0.15` | Storage Persistence Middleware | Automatically saves Zustand state to phone storage (`AsyncStorage`) so user stays logged in on app restart. | Saves state to phone storage. User stays logged in even after app restart. |
+| 23 | **TanStack Query** | `v5.102.8` | Server State & Caching Manager | Fetches API data, caches in RAM, manages loading spinners, and auto-refetches stale data. | Fetches & caches API data. No `useEffect` needed. Auto-shows loading, error, refetches stale data. |
+| 24 | **Tailwind CSS** | `v4.3.3` | Utility-First Styling Framework | Styles UI components inline using utility classes (`px-4 py-2 bg-blue-500`). | Style everything with class names directly in JSX. No separate CSS files ever. |
+| 25 | **React Hook Form + Zod** | RHF `v7.87.0` / Zod `v4.5.4` | Form State Manager & Schema Validator | Manages input state with zero re-renders on keypress and validates payloads with Zod schemas. | RHF = form with zero re-renders. Zod = validates data before submit. Together = fast & safe forms. |
+| 26 | **xior** | `v0.8.4` | Lightweight HTTP Client | Sends REST HTTP requests from app to NestJS backend with interceptor support. | Lightweight Axios alternative. Sends HTTP requests from app to backend. Supports interceptors. |
+| 27 | **FlashList** | `v2.3.2` | High-Speed Recycled List | Renders 1,000+ items at smooth 60 FPS by recycling UI components in memory. | Replaces FlatList. Renders only visible items, recycles the rest. Smooth 60 FPS always. |
 
 ---
 
 ### 💻 Frontend Backoffice Admin (`apps/backoffice`)
 
-| # | Tech | 📦 Version | ❓ What is it? | 🎯 Why do we use it in Yugo? | 💡 Real-Life Analogy / Simple Summary |
+| # | Tech | 📦 Version | ❓ What is it? | 🎯 Why do we use it in Yugo? | ⚡ One Line |
 |---|---|---|---|---|---|
-| 28 | **React Router v7** | `v8.3.1` (latest) | Full-Stack Web Framework | Handles file routing, nested Sidebar layouts, and server data loaders for admin dashboard. | Admin portal navigation & layout system. |
-| 29 | **Radix UI** | `v1.6.7` | Headless Accessible UI Primitives | Provides 100% accessible logic (Dialogs, Dropdowns, Tabs) styled freely with Tailwind. | Car chassis from factory — safety & frame built-in, custom styling on top. |
-| 30 | **TanStack Table** | `v9.2.4` | Headless Data Grid Engine | Manages sorting, filtering, row selection, and pagination logic for admin web tables. | Invisible spreadsheet engine handling math while you design the UI. |
+| 28 | **React Router v7** | `v8.3.1` (latest) | Full-Stack Web Framework | Handles file routing, nested Sidebar layouts, and server data loaders for admin dashboard. | File = Route. Sidebar stays, inner page changes on URL change. No full reload. |
+| 29 | **Radix UI** | `v1.6.7` | Headless Accessible UI Primitives | Provides 100% accessible logic (Dialogs, Dropdowns, Tabs) styled freely with Tailwind. | Ready-made Dialog/Dropdown/Tab logic with zero CSS. Style 100% yourself with Tailwind. |
+| 30 | **TanStack Table** | `v9.2.4` | Headless Data Grid Engine | Manages sorting, filtering, row selection, and pagination logic for admin web tables. | Invisible spreadsheet engine — handles sorting, filtering, pagination. You just build the UI. |
 
 ---
 

@@ -1350,14 +1350,82 @@ TanStack Table is like an **invisible spreadsheet engine**. It handles all the s
 
 ### 5.1 `@yugo/cqrs`
 
+> 🔤 **Full Form:** `@yugo/` = Internal Yugo package &nbsp;|&nbsp; `cqrs` = **C**ommand **Q**uery **R**esponsibility **S**egregation
+
 **⚡ Developer Quick Summary:**
-* ❓ **What is this?**: Shared package containing all Command & Query definitions and handlers.
-* 🎯 **Why do we use it?**: Shared by `apps/api` and `apps/henchmen` so both can execute business logic commands.
-* 💡 **Key Advantage**: Avoids duplicating business logic code between the REST API and the background worker.
+* ❓ **What is this?**: Custom internal shared package containing all Command & Query definitions and handlers.
+* 🎯 **Why do we use it?**: Shared by `apps/api` AND `apps/henchmen` so both can execute the same business logic without duplicating code.
+* 💡 **Key Advantage (Why this & why NOT copy-pasting code?)**: **Why a shared package over duplicating?** If `CreateBookingCommand` lives in `apps/api` only, `apps/henchmen` can't use it. By putting it in `@yugo/cqrs`, both apps import and execute the exact same handler. One change, both apps updated. ✅
 
-**What it does:** Contains all the Command definitions, Query definitions, and their handlers for the entire application's business logic. Shared between `apps/api` and `apps/henchmen`.
+**Simple explanation:**
 
-**Why it's separate:** Both the REST API and the Henchmen background worker need to execute the same commands (e.g., `CreateUserCommand`). By putting them in a shared package, we avoid code duplication.
+Think of `@yugo/cqrs` as the **company's official action book 📖**. Every business operation in the entire Yugo system — creating a booking, activating a plan, syncing a battery — is defined as a **Command** (write) or **Query** (read) inside this one shared package.
+
+Both `apps/api` (the REST API) and `apps/henchmen` (the background worker) read from this same action book. They never write their own version of `CreateBookingCommand` separately.
+
+**Why do we use `@yugo/cqrs`? (In Simple Words)**
+1. 📦 **Single Source of Truth**: `CreateBookingCommand`, `GetUserQuery`, `ActivatePlanCommand` — all defined once here. Zero duplication.
+2. 🔄 **Shared Between Two Apps**: `apps/api` handles HTTP requests → dispatches Commands. `apps/henchmen` handles background jobs → also dispatches the same Commands. Both import from the same place.
+3. 🐛 **Zero Sync Bugs**: Without this, if you rename a field in `CreateBookingCommand` in `apps/api` but forget to update it in `apps/henchmen`, you get silent bugs. With a shared package, there's only ONE file to change.
+
+**Quick Answer / Elevator Pitch:**
+> *"`@yugo/cqrs` is the central shared package containing all Command & Query definitions used by both the REST API and the background worker. One change = both apps updated."*
+
+**Real-life Analogy — Company's Official Procedure Manual:**
+> Imagine a company has two teams: **Team A** (handles customer calls) and **Team B** (handles deliveries in the background).
+>
+> Both teams need to follow the exact same procedure for *"How to Create a New Booking"*.
+>
+> **Without `@yugo/cqrs`**: Team A writes their own procedure on paper. Team B writes their own copy separately. When the process changes, someone forgets to update Team B's copy → chaos! 😱
+>
+> **With `@yugo/cqrs`**: There's ONE official company procedure manual on the shared shelf. Both teams read from the **same book**. Manager updates one book → both teams immediately follow the new process! 📖✅
+
+**What's inside `@yugo/cqrs`:**
+
+```
+packages/nestjs/cqrs/
+├── commands/
+│   ├── create-booking.command.ts     ← defines CreateBookingCommand
+│   ├── activate-plan.command.ts      ← defines ActivatePlanCommand
+│   └── sync-battery.command.ts       ← defines SyncBatteryCommand
+├── queries/
+│   ├── get-user.query.ts             ← defines GetUserQuery
+│   ├── list-bookings.query.ts        ← defines ListBookingsQuery
+│   └── get-active-plan.query.ts      ← defines GetActivePlanQuery
+└── handlers/
+    ├── create-booking.handler.ts     ← actual logic for CreateBookingCommand
+    ├── get-user.handler.ts           ← actual logic for GetUserQuery
+    └── ...
+```
+
+**Technical Example — How Both Apps Use the Same Package:**
+
+```typescript
+// ✅ apps/api — HTTP request comes in, dispatches Command from shared package
+import { CreateBookingCommand } from '@yugo/cqrs'; // ← shared package
+
+@Controller('bookings')
+export class BookingsController {
+  constructor(private commandBus: CommandBus) {}
+
+  @Post()
+  async createBooking(@Body() dto: CreateBookingDTO) {
+    // Uses the SAME Command from @yugo/cqrs
+    return this.commandBus.execute(new CreateBookingCommand(dto));
+  }
+}
+
+// ✅ apps/henchmen — Background job also dispatches the SAME Command!
+import { CreateBookingCommand } from '@yugo/cqrs'; // ← SAME shared package
+
+@InngestFunction({ event: 'plan/activated' })
+async handlePlanActivated({ event }) {
+  // Reuses the exact SAME CreateBookingCommand — zero code duplication!
+  await this.commandBus.execute(new CreateBookingCommand(event.data));
+}
+```
+
+> 💡 **Key insight**: If `CreateBookingCommand` was defined inside `apps/api` only, `apps/henchmen` could never import it (circular dependency). The shared `@yugo/cqrs` package solves this cleanly.
 
 ---
 

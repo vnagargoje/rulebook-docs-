@@ -97,6 +97,11 @@ The monorepo has heavily modularized features into shareable, internal packages 
 
 ### 1.1 Turborepo (`turbo`)
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: High-performance build system for monorepos.
+* 🎯 **Why do we use it?**: Runs builds, tests, and lints across all apps and packages in parallel with smart caching.
+* 💡 **Key Advantage (Why this & why NOT the old way?)**: **Why Turborepo over manual script running?** Old way required `cd`ing into 10 folders manually to build. Turborepo runs everything in 1 command and skips rebuilding code that hasn't changed, saving 90% build time!
+
 **Simple explanation:**
 Turborepo is like a **smart manager for a big company** that has many departments (frontend, backend, packages). Instead of going to each department one by one and asking them to build their thing, the manager does it all in the right order, skips work that hasn't changed, and caches results so nothing is done twice.
 
@@ -121,6 +126,11 @@ If `apps/api` code didn't change, Turborepo skips rebuilding it and uses the cac
 
 ### 1.2 Yarn Workspaces
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: A package management feature for monorepos.
+* 🎯 **Why do we use it?**: Shares dependencies (`node_modules`) and links local packages (`packages/*`) directly to apps (`apps/*`).
+* 💡 **Key Advantage (Why this & why NOT the old way?)**: **Why Yarn Workspaces over separate repos or npm link?** Old way required publishing private npm packages or copying code between repos. Yarn Workspaces lets apps import local packages instantly as normal imports with zero code duplication.
+
 **Simple explanation:**
 Yarn Workspaces lets you treat your entire project as one big family where all members (apps and packages) can share resources (like `node_modules`) without each one needing their own copy.
 
@@ -142,6 +152,11 @@ Now `apps/api` can import `@yugo/cqrs` directly as if it's an npm package, even 
 ---
 
 ### 1.3 TypeScript
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Strongly typed programming language built on top of JavaScript.
+* 🎯 **Why do we use it?**: Enforces strict type safety across all backend and frontend codebases.
+* 💡 **Key Advantage (Why this & why NOT plain JS?)**: **Why TypeScript over plain JavaScript?** Plain JS crashes in production at runtime (e.g. `undefined is not a function`). TypeScript catches typos and type bugs at compile-time while typing code, with full IDE autocomplete.
 
 **Simple explanation:**
 TypeScript is JavaScript with **labels on everything**. JavaScript lets you put anything anywhere; TypeScript forces you to say "this variable holds a number" or "this function returns a string." This prevents entire categories of bugs.
@@ -175,6 +190,11 @@ function getUser(id: string): string {
 
 ### 1.4 ESLint & Prettier
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Automated code linter (ESLint) and code auto-formatter (Prettier).
+* 🎯 **Why do we use it?**: Enforces identical code quality standards, formatting, and security rules across all team members.
+* 💡 **Key Advantage (Why this & why NOT manual code reviews?)**: **Why ESLint & Prettier over manual code formatting?** Saves hours in code reviews arguing about tabs/spaces or missing semi-colons; catches dead code and anti-patterns automatically on file save.
+
 **Simple explanation:**
 ESLint is the **spelling and grammar checker** for your code — it finds bugs and bad patterns. Prettier is the **auto-formatter** — it makes every developer's code look exactly the same, regardless of their personal style.
 
@@ -204,6 +224,11 @@ if (x === 1) {
 ---
 
 ### 2.0 Henchmen (`apps/henchmen`) — The Background Worker
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Dedicated background worker NestJS process.
+* 🎯 **Why do we use it?**: Executes long-running background jobs (push notifications, battery sync, cron jobs) via Inngest.
+* 💡 **Key Advantage (Why this & why NOT the old way?)**: **Why a separate worker instead of doing background work inside `apps/api`?** If background jobs crash or get overwhelmed with heavy tasks, the main REST API stays 100% fast and responsive for users without crashing.
 
 **Simple explanation:**
 Henchmen is a **completely separate NestJS application** that runs alongside your main API (`apps/api`). Its sole job is to execute background tasks that were triggered by Inngest events. It never handles any direct HTTP requests from users — it only processes jobs from the Inngest queue.
@@ -269,6 +294,11 @@ async handleBookingCreated({ event }: InngestEventContext) {
 
 ### 2.1 NestJS
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Enterprise Node.js backend framework built on TypeScript.
+* 🎯 **Why do we use it?**: Structures our REST API (`apps/api`) and background worker (`apps/henchmen`) into clean, modular layers.
+* 💡 **Key Advantage (Why this & why NOT raw Express?)**: **Why NestJS over raw Express?** Express leads to messy "spaghetti code" mixing routes, auth, and database calls in one file. NestJS enforces clean modular architecture with Dependency Injection, Controllers, Services, and Guards.
+
 **Simple explanation:**
 NestJS is an enterprise **framework** built on top of Node.js (and Express) that gives you a structured, standardized way to build scalable backend applications. 
 
@@ -316,6 +346,11 @@ export class UsersController {
 
 ### 2.2 TypeORM
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Object-Relational Mapper (ORM) for TypeScript and MySQL.
+* 🎯 **Why do we use it?**: Interacts with the database using TypeScript classes (Entities) instead of raw SQL strings.
+* 💡 **Key Advantage (Why this & why NOT raw SQL?)**: **Why TypeORM over raw SQL?** Raw SQL strings (`SELECT * FROM users WHERE...`) have zero autocomplete and break silently if a column changes. TypeORM provides 100% type-safe queries and auto-generates SQL safely.
+
 **Simple explanation:**
 TypeORM is an **Object-Relational Mapper (ORM)**. It acts as an automatic translator between your **TypeScript code and your MySQL database**. 
 
@@ -360,6 +395,11 @@ const user = await userRepo.findOneBy({ email: 'vaibhav@gmail.com' });
 
 ### 2.3 MySQL
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Relational Database Management System (RDBMS).
+* 🎯 **Why do we use it?**: Stores permanent application data (users, bookings, vehicles, battery status) in structured linked tables.
+* 💡 **Key Advantage (Why this & why NOT NoSQL/MongoDB?)**: **Why MySQL over MongoDB?** Our domain (bookings, vehicles, plans) requires strict table relationships, ACID transactions, and structured schemas that relational databases guarantee.
+
 **Simple explanation:**
 MySQL is a **relational database** — think of it as a collection of Excel spreadsheets. Each "table" is a spreadsheet (e.g., `users`, `bookings`, `vehicles`). Rows are records, columns are fields. Tables can be linked together (e.g., a booking is linked to a user and a vehicle).
 
@@ -372,6 +412,11 @@ MySQL is like a **well-organized filing cabinet**. Every drawer (table) holds re
 ---
 
 ### 2.4 Redis
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Ultra-fast, in-memory key-value data store.
+* 🎯 **Why do we use it?**: High-speed caching, temporary OTP code storage, and quick session token checks.
+* 💡 **Key Advantage (Why this & why NOT MySQL for temp data?)**: **Why Redis over MySQL queries?** Reading/writing to RAM memory takes ~1 millisecond (1,000x faster than disk SQL), and Redis supports automatic expiration timers (TTL) for temporary OTPs.
 
 **3-Line Simple Explanation:**
 1. ⚡ **Ultra-Fast RAM Storage**: Redis stores data directly in computer memory (RAM) instead of hard drive disks, making reads/writes 1,000x faster than traditional databases.
@@ -405,6 +450,11 @@ const savedOtp = await redis.get('otp:9876543210'); // Returns '123456'
 ---
 
 ### 2.5 CQRS (Command Query Responsibility Segregation)
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Pattern separating Write operations (Commands) from Read operations (Queries).
+* 🎯 **Why do we use it?**: Keeps business logic decoupled into small, dedicated handler files.
+* 💡 **Key Advantage (Why this & why NOT standard services?)**: **Why CQRS over monolithic service files?** Instead of one huge 2,000-line service file doing everything, every single action has its own small handler file (`CreateBookingHandler`). Reads can be heavily cached without touching write logic.
 
 **Simple explanation:**
 CQRS is a design pattern that enforces one strict rule: **"Never mix code that reads data with code that changes data."**
@@ -462,6 +512,11 @@ export class GetUserBookingsHandler implements IQueryHandler<GetUserBookingsQuer
 ---
 
 ### 2.6 Inngest
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Event-driven background job and workflow engine.
+* 🎯 **Why do we use it?**: Runs async background tasks (emails, notifications, retries) without delaying HTTP API responses.
+* 💡 **Key Advantage (Why this & why NOT blocking API calls?)**: **Why Inngest over blocking synchronous calls?** Synchronous API calls make users wait 3 seconds for emails to send. Inngest responds to the user in 50ms and runs background tasks with automatic retries if an external API fails.
 
 **Simple explanation:**
 Inngest is a **background job engine**. When a user signs up, you don't want to make them wait while the server sends a welcome email (which can take 2 seconds). Instead, you tell Inngest *"send this email in the background"* and immediately respond to the user. Inngest handles the rest asynchronously.
@@ -521,6 +576,11 @@ async handleUserRegistered({ event }: InngestEventContext) {
 
 ### 2.7 TypeBox
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: High-performance JSON schema library for TypeScript type inference & validation.
+* 🎯 **Why do we use it?**: Validates incoming HTTP API request payloads (DTOs) and infers TypeScript types automatically.
+* 💡 **Key Advantage (Why this & why NOT class-validator?)**: **Why TypeBox over class-validator?** `class-validator` requires writing both a class decorator AND a TypeScript type (double work). TypeBox lets you write schema ONCE and infers types automatically while being up to 100x faster.
+
 **Simple explanation:**
 TypeBox solves the **"Double Work"** problem in backend development.
 
@@ -572,6 +632,11 @@ export class UsersController {
 
 ### 2.8 CASL (Authorization)
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Attribute-based authorization library for defining user access rules.
+* 🎯 **Why do we use it?**: Enforces fine-grained policy permissions (e.g. *"Admins can delete any booking, but users can only read their own"*).
+* 💡 **Key Advantage (Why this & why NOT nested if-else?)**: **Why CASL over nested `if/else` checks?** Nested `if/else` permission checks scatter security rules across controllers. CASL centralizes all security policies in `@yugo/permissions` using declarative `can()` and `cannot()` syntax.
+
 **Simple explanation:**
 CASL is an **authorization library** that defines who can do what. 
 
@@ -621,6 +686,11 @@ const isAllowed = ability.can('read', currentBooking);
 
 ### 2.9 Passport.js (JWT Authentication)
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Authentication middleware for Node.js / NestJS.
+* 🎯 **Why do we use it?**: Extracts and validates signed JWT tokens on incoming API HTTP requests.
+* 💡 **Key Advantage (Why this & why NOT custom JWT code?)**: **Why Passport over writing custom token parsing code?** Passport is battle-tested, handles token decoding, expiration checks, and error responses automatically through reusable NestJS `@UseGuards()`.
+
 **Simple explanation:**
 Passport.js handles the *"Who are you?"* question (Authentication). 
 
@@ -666,6 +736,11 @@ export class ProfileController {
 
 ### 2.10 Swagger / OpenAPI
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Interactive visual API documentation generator.
+* 🎯 **Why do we use it?**: Auto-generates a interactive webpage showing all API endpoints, parameters, and DTO schemas.
+* 💡 **Key Advantage (Why this & why NOT manual docs?)**: **Why Swagger over manual documentation?** Manual docs quickly get out of date. Swagger auto-generates 100% accurate, live interactive docs directly from our TypeBox schemas in code.
+
 **Simple explanation:**
 Swagger automatically generates a **visual documentation website** for your API. It shows every available endpoint, what parameters they accept, and what they return. Developers and frontend teams use it to understand how to use the backend without reading source code.
 
@@ -703,6 +778,11 @@ export class BookingsController {
 
 ### 2.11 Pino (Logging)
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Ultra-fast, low-overhead structured JSON logger for Node.js.
+* 🎯 **Why do we use it?**: Records structured JSON logs for production monitoring (CloudWatch/Datadog) and clean terminal logs in dev.
+* 💡 **Key Advantage (Why this & why NOT console.log?)**: **Why Pino over `console.log`?** `console.log` is slow, blocks Node threads, and produces plain text that cannot be searched. Pino outputs structured JSON with zero performance lag, filterable by `userId` or `statusCode`.
+
 **Simple explanation:**
 Pino is an extremely fast logger. Instead of `console.log`, production applications use structured loggers like Pino that write logs in JSON format, which can be easily searched, filtered, and monitored in services like Datadog or CloudWatch.
 
@@ -733,6 +813,11 @@ logger.info({ userId, action: 'user.created' }, 'User created successfully');
 
 ### 2.12 Handlebars (Email Templates)
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Lightweight HTML template engine.
+* 🎯 **Why do we use it?**: Compiles HTML email templates with dynamic runtime values (e.g. `{{userName}}`, `{{bookingId}}`).
+* 💡 **Key Advantage (Why this & why NOT inline string concatenation?)**: **Why Handlebars over inline string literals (`<h1>${name}</h1>`)?** Keeps complex HTML email design files completely separate from TypeScript business logic code.
+
 **Simple explanation:**
 Handlebars is a **template engine** — it lets you write HTML files with placeholders like `{{userName}}` that get replaced with real values at runtime. Used here to generate HTML emails before sending them.
 
@@ -756,6 +841,11 @@ const html = handlebars.compile(template)({ name: 'Vaibhav', bookingId: 'BK-001'
 
 ### 3.1 React Native
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Cross-platform mobile framework using React & TypeScript.
+* 🎯 **Why do we use it?**: Builds our consumer mobile app (`apps/app`) for both iOS and Android from one single codebase.
+* 💡 **Key Advantage (Why this & why NOT Native Swift/Kotlin?)**: **Why React Native over separate Swift & Kotlin apps?** Writing separate native apps doubles development time and cost. React Native gives 95%+ shared code across iOS & Android with true native UI performance.
+
 **Simple explanation:**
 React Native lets you write **one codebase in JavaScript/TypeScript** and deploy it as a real native app on both iOS and Android. Unlike a website in a browser, React Native apps use actual native UI components (real buttons, real text inputs) from iOS and Android.
 
@@ -769,6 +859,11 @@ Without React Native, building a mobile app is like having to write the same boo
 
 ### 3.2 Expo
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Development ecosystem and native module toolkit built on top of React Native.
+* 🎯 **Why do we use it?**: Accesses phone hardware (camera, GPS, biometrics), builds native binaries (EAS), and sends Over-The-Air (OTA) updates.
+* 💡 **Key Advantage (Why this & why NOT Bare React Native?)**: **Why Expo over Bare React Native?** Bare React Native requires manually configuring complex Xcode and Android Studio files. Expo handles native modules, builds, and OTA updates out-of-the-box.
+
 **Simple explanation:**
 Expo is a **toolkit and platform built on top of React Native** that makes development dramatically easier. It provides a standard way to access native device features (camera, GPS, biometrics), build your app (EAS Build), and push updates over-the-air (OTA).
 
@@ -781,6 +876,11 @@ React Native is the engine. Expo is the fully equipped car around it — dashboa
 ---
 
 ### 3.3 Expo Router
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: File-based routing framework for React Native mobile apps.
+* 🎯 **Why do we use it?**: Maps directory file structures (`app/`) directly to mobile screen navigation.
+* 💡 **Key Advantage (Why this & why NOT React Navigation boilerplate?)**: **Why Expo Router over React Navigation config objects?** Traditional React Navigation requires creating giant navigation stack configuration objects. Expo Router maps `app/profile.tsx` directly to `/profile` with deep-linking included automatically.
 
 **Simple explanation:**
 Expo Router brings **file-based routing** to mobile apps. The folder/file structure of `src/app/` directly maps to the app's navigation. Create a file `src/app/profile.tsx` and the route `/profile` automatically exists.
@@ -801,6 +901,11 @@ src/app/
 ---
 
 ### 3.4 Zustand (State Management)
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Lightweight, boilerplate-free global state store for React and React Native.
+* 🎯 **Why do we use it?**: Stores global client state (user profile, auth token, app settings) accessible across all components without prop drilling.
+* 💡 **Key Advantage (Why this & why NOT Redux / React Context?)**: **Why Zustand over Redux or React Context?** Redux requires tons of boilerplate (actions, reducers, dispatchers). Context causes full app re-renders and requires `<Provider>` wrappers. Zustand needs 5 lines of code, no providers, and selective re-renders!
 
 **Simple explanation:**
 Zustand is a **global state store** for React / React Native. When data needs to be accessible across many unrelated components (like the logged-in user's profile, active booking, or app theme), you store it in Zustand instead of passing props down through 10 layers of components (*prop drilling*) or wrapping everything in complex React Context Providers.
@@ -912,6 +1017,11 @@ export const useAuthStore = create<AuthState>()(
 
 ### 3.5 TanStack React Query (v5)
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Server-state management library for API data fetching and caching.
+* 🎯 **Why do we use it?**: Fetches API data, caches responses, handles loading/error states, and refetches stale data automatically.
+* 💡 **Key Advantage (Why this & why NOT useEffect + useState?)**: **Why TanStack Query over `useEffect` + `useState`?** `useEffect` requires manually writing loading state, error handling, and duplicate fetch calls. TanStack Query handles caching, background updates, and loading flags in 1 hook.
+
 **Simple explanation:**
 TanStack Query is a **server state manager**. It handles fetching data from the API, caching the results, showing loading/error states, and automatically refetching when data gets stale. It completely replaces `useEffect` + `useState` for API calls.
 
@@ -942,6 +1052,11 @@ const { data: user, isLoading } = useQuery({
 
 ### 3.6 Tailwind CSS
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Utility-first CSS styling framework.
+* 🎯 **Why do we use it?**: Styles UI components directly inside JSX using utility classnames (`px-4 py-2 bg-blue-500`).
+* 💡 **Key Advantage (Why this & why NOT StyleSheet.create?)**: **Why Tailwind over traditional `StyleSheet.create`?** Eliminates writing repetitive stylesheet objects, speeds up UI creation by 3x, and ensures design consistency across mobile and web.
+
 **Simple explanation:**
 Tailwind CSS is a **utility-first CSS framework**. Instead of writing custom CSS files, you apply small predefined classes directly in your HTML/JSX. `p-4` adds padding, `text-lg` makes text large, `bg-blue-500` makes a background blue.
 
@@ -966,6 +1081,11 @@ Traditional CSS is like **painting a wall from scratch every time**. Tailwind is
 ---
 
 ### 3.7 React Hook Form + Zod
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: High-performance form state manager (React Hook Form) with schema validation (Zod).
+* 🎯 **Why do we use it?**: Manages form inputs and validates payload data with strict TypeScript types before API submission.
+* 💡 **Key Advantage (Why this & why NOT controlled component useState?)**: **Why RHF + Zod over controlled `useState` on every input?** Controlled state re-renders the entire screen on every single keypress (slow). RHF uses uncontrolled inputs for zero re-renders, and Zod validates complete form payloads before submission.
 
 **Simple explanation:**
 **React Hook Form** manages form state without re-rendering the entire component on every keystroke (making it extremely fast). **Zod** defines the validation rules using a schema. Together, they ensure form data is always valid TypeScript-typed data before it's submitted to the API.
@@ -993,6 +1113,11 @@ const onSubmit = (data: z.infer<typeof schema>) => {
 
 ### 3.8 xior (HTTP Client)
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Lightweight HTTP client built on native `fetch` API.
+* 🎯 **Why do we use it?**: Sends HTTP REST requests from frontend apps (`apps/app`, `apps/backoffice`) to NestJS API.
+* 💡 **Key Advantage (Why this & why NOT Axios / raw fetch?)**: **Why xior over Axios or raw fetch?** Raw `fetch` lacks request/response interceptors and requires boilerplate error parsing. Axios has a larger bundle size. `xior` is lightweight, supports interceptors, and shares Axios-like syntax.
+
 **Simple explanation:**
 xior is the **messenger** between the frontend and the backend. When your React Native app needs to fetch a user's bookings, xior sends the HTTP request to your NestJS API and brings back the response. It is a lightweight alternative to Axios.
 
@@ -1013,6 +1138,11 @@ const booking = await api.post('/v1/bookings', { vehicleId: 'VH-123' });
 
 ### 3.9 FlashList (`@shopify/flash-list`)
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: High-performance recycled list component for React Native.
+* 🎯 **Why do we use it?**: Renders long scrolling lists (bookings, vehicles, transactions) at buttery smooth 60 FPS.
+* 💡 **Key Advantage (Why this & why NOT standard FlatList?)**: **Why FlashList over React Native FlatList?** Standard `FlatList` drops frames and lags when scrolling lists with 100+ items. `FlashList` recycles UI components in memory, maintaining 60 FPS scrolling speeds.
+
 **Simple explanation:**
 FlashList is a **high-performance list component** for React Native. The standard `FlatList` slows down significantly with long lists (hundreds of items). FlashList uses advanced recycling techniques to keep scrolling buttery smooth, even with thousands of items.
 
@@ -1026,6 +1156,11 @@ Standard FlatList is like **reading from a printed book** — all pages exist in
 ---
 
 ### 4.1 React Router v7
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Routing framework for React web dashboards.
+* 🎯 **Why do we use it?**: Handles file-based web routes, nested Sidebar layouts, and server data loaders in the backoffice admin app.
+* 💡 **Key Advantage (Why this & why NOT client-side SPA routing?)**: **Why React Router v7 over client-side SPA routing?** Combines layout routing, server-side data loaders, and pending state transitions out of the box with zero setup.
 
 **Simple explanation:**
 React Router v7 is the **routing framework** for the admin web dashboard. It provides file-based routing (the file structure = the URL structure), nested layouts (a Sidebar that stays visible across pages), and loaders (fetch data before a page renders).
@@ -1045,6 +1180,11 @@ app/routes/
 ---
 
 ### 4.2 Radix UI
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Headless, accessible UI component primitives library.
+* 🎯 **Why do we use it?**: Provides fully accessible UI building blocks (Dialogs, Dropdowns, Popovers, Tabs) for our admin web dashboard.
+* 💡 **Key Advantage (Why this & why NOT Material UI / Ant Design?)**: **Why Radix UI over Material UI?** Material UI forces hard-to-override default styles. Radix UI provides 100% accessible logic (keyboard nav, screen readers) with zero default styling, letting us style freely with Tailwind.
 
 **Simple explanation:**
 Radix UI provides **headless, accessible UI primitives**. "Headless" means they have all the complex logic (keyboard navigation, screen reader support, focus management) built in, but absolutely no visual styling. You style them yourself with Tailwind.
@@ -1072,6 +1212,11 @@ Radix UI is like a **car chassis from a factory** — the frame, engine, and saf
 
 ### 4.3 TanStack Table
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Headless data grid engine for React.
+* 🎯 **Why do we use it?**: Manages complex admin data tables with sorting, filtering, row selection, and pagination.
+* 💡 **Key Advantage (Why this & why NOT writing custom table code?)**: **Why TanStack Table over writing custom table code?** Writing custom sorting, filtering, and multi-page pagination math takes hundreds of bug-prone lines. TanStack Table handles all grid calculations headlessly.
+
 **Simple explanation:**
 TanStack Table is a **headless data grid engine** for React. It provides all the complex logic for sortable, filterable, paginated tables without any styling. You plug it in and style it with Tailwind.
 
@@ -1086,6 +1231,11 @@ TanStack Table is like an **invisible spreadsheet engine**. It handles all the s
 
 ### 5.1 `@yugo/cqrs`
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Shared package containing all Command & Query definitions and handlers.
+* 🎯 **Why do we use it?**: Shared by `apps/api` and `apps/henchmen` so both can execute business logic commands.
+* 💡 **Key Advantage**: Avoids duplicating business logic code between the REST API and the background worker.
+
 **What it does:** Contains all the Command definitions, Query definitions, and their handlers for the entire application's business logic. Shared between `apps/api` and `apps/henchmen`.
 
 **Why it's separate:** Both the REST API and the Henchmen background worker need to execute the same commands (e.g., `CreateUserCommand`). By putting them in a shared package, we avoid code duplication.
@@ -1093,6 +1243,11 @@ TanStack Table is like an **invisible spreadsheet engine**. It handles all the s
 ---
 
 ### 5.2 `@yugo/nestjs-database`
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Shared package containing all TypeORM database Entities.
+* 🎯 **Why do we use it?**: Defines database models (`UserEntity`, `BookingEntity`, `VehicleEntity`) in one central location.
+* 💡 **Key Advantage**: Guarantees API and background worker apps interact with identical database schemas without drift.
 
 **What it does:** Contains all TypeORM entities (the TypeScript classes that map to database tables) in one place. Every entity (User, Booking, Vehicle, Battery, etc.) lives here.
 
@@ -1102,17 +1257,32 @@ TanStack Table is like an **invisible spreadsheet engine**. It handles all the s
 
 ### 5.3 `@yugo/nestjs-casl`
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Shared NestJS module for CASL authorization.
+* 🎯 **Why do we use it?**: Provides access guards and permission services to NestJS controllers.
+* 💡 **Key Advantage**: Centralizes security guards so authorization logic isn't rewritten in multiple apps.
+
 **What it does:** Contains the CASL authorization logic — the rules that define "who can do what." The `access.service.ts` and `access.guard.ts` used in your NestJS controllers come from this package.
 
 ---
 
 ### 5.4 `@yugo/nestjs-inngest`
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Shared NestJS module wrapper for Inngest background jobs.
+* 🎯 **Why do we use it?**: Connects NestJS dependency injection with Inngest job handlers.
+* 💡 **Key Advantage**: Lets background worker functions inject NestJS services (`@Injectable()`) cleanly.
+
 **What it does:** Provides the NestJS wiring for Inngest background jobs — the module setup, the `@InngestFunction` decorator, and the types needed to define and trigger background functions.
 
 ---
 
 ### 5.5 `@yugo/nestjs-fcm`
+
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Shared NestJS wrapper for Firebase Cloud Messaging (FCM).
+* 🎯 **Why do we use it?**: Sends push notifications to iOS and Android mobile devices.
+* 💡 **Key Advantage**: Abstracts Google FCM SDK into a simple service method (`sendPushNotification()`).
 
 **What it does:** Firebase Cloud Messaging (FCM) is Google's service for sending push notifications to mobile devices. This package wraps the FCM SDK into a clean NestJS module.
 
@@ -1122,6 +1292,11 @@ TanStack Table is like an **invisible spreadsheet engine**. It handles all the s
 
 ### 5.6 `@yugo/shared`
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Shared package containing constants, types, and enums.
+* 🎯 **Why do we use it?**: Shared across backend (`apps/*`) and frontend (`apps/app`, `apps/backoffice`).
+* 💡 **Key Advantage**: Prevents enum mismatch (e.g. `BookingStatus.ACTIVE`) between backend and frontend.
+
 **What it does:** Contains TypeScript enums and constants that are used by **both the backend and the frontend**. For example, the `BookingStatus` enum (values like `PENDING`, `ACTIVE`, `COMPLETED`) is defined here once and imported by both the NestJS API and the React Native app.
 
 **Why it matters:** Without this, you'd have to define `BookingStatus` in two places and risk them getting out of sync.
@@ -1130,13 +1305,25 @@ TanStack Table is like an **invisible spreadsheet engine**. It handles all the s
 
 ### 5.7 `@yugo/utils`
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Shared helper functions package.
+* 🎯 **Why do we use it?**: Provides date formatting, string transformations, and common math utilities.
+* 💡 **Key Advantage**: Prevents copying utility helper functions across different apps in the repo.
+
 **What it does:** A collection of pure utility/helper functions used across the project. Examples: date formatting, string manipulation, math helpers.
 
 ---
 
 ### 5.8 `@yugo/permissions`
 
+**⚡ Developer Quick Summary:**
+* ❓ **What is this?**: Shared policy rulebook package for CASL permissions.
+* 🎯 **Why do we use it?**: Defines the central matrix of what actions each user role can perform.
+* 💡 **Key Advantage**: Provides one single source of truth for company security permissions.
+
 **What it does:** Contains the **policy map** — the central file that defines every permission rule in the system. It lists every possible action (Create, Read, Update, Delete) on every subject (User, Booking, Vehicle) and which roles can perform them.
+
+**Real-life analogy:** This is the **official rulebook of the company's security policy** — "Admins can do X, Managers can do Y, Employees can only do Z." The CASL library then enforces these rules.
 
 **Real-life analogy:** This is the **official rulebook of the company's security policy** — "Admins can do X, Managers can do Y, Employees can only do Z." The CASL library then enforces these rules.
 

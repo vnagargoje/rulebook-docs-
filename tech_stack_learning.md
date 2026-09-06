@@ -865,6 +865,51 @@ function UserBadge() {
 
 ---
 
+#### 💡 What is `persist` Middleware in Zustand?
+
+**Simple explanation:**
+By default, Zustand stores state only in **RAM memory**. When a user refreshes the browser page or closes and re-opens the React Native app, all data in RAM gets wiped out! 
+
+`persist` middleware automatically connects Zustand to **permanent device storage** (`AsyncStorage` on mobile or `localStorage` on web). It saves state changes to disk automatically so that when the app restarts, your saved data (like logged-in user session, theme, or settings) is **restored automatically**.
+
+**Why do we use `persist`? (In Simple Words):**
+1. 🔑 **Keep User Logged In**: Stores auth tokens/user sessions permanently so users don't have to log in again every time they open the app.
+2. ⚙️ **Save User Preferences**: Preserves app settings like dark mode, language, or saved filters across app restarts.
+3. ⚡ **Zero Manual Storage Code**: You don't need to write manual `AsyncStorage.getItem()` or `localStorage.setItem()` calls inside components — `persist` handles saving and loading completely in the background.
+
+**Real-life Analogy — Whiteboard vs Pocket Notebook:**
+* **Standard Zustand (Without `persist`)** = Writing on a **Blackboard**. When the app closes/restarts, it's like a janitor erasing the board. Everything disappears!
+* **Zustand with `persist`** = Writing in a **Notebook**. When the app closes/restarts, you close the notebook. When you re-open it, everything you wrote is still right there!
+
+**Technical Example — Adding `persist` to Zustand:**
+
+```typescript
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface AuthState {
+  user: { name: string; token: string } | null;
+  setUser: (user: { name: string; token: string } | null) => void;
+}
+
+// Wrap store definition inside `persist()`
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      setUser: (user) => set({ user }),
+    }),
+    {
+      name: 'auth-storage', // Unique key in storage
+      storage: createJSONStorage(() => AsyncStorage), // Automatically saves to phone storage!
+    }
+  )
+);
+```
+
+---
+
 ### 3.5 TanStack React Query (v5)
 
 **Simple explanation:**

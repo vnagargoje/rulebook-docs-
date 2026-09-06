@@ -360,6 +360,9 @@ export class UsersController {
 
 > 📦 **Latest Stable Version:** `v1.0.0` — Released May 19, 2026 *(Verified: Sep 6, 2026)*
 
+> 🔤 **Full Form:** **Type**Script **O**bject-**R**elational **M**apper
+> `Type` = TypeScript &nbsp;|&nbsp; `ORM` = Object-Relational Mapper (maps code objects → database tables)
+
 **⚡ Developer Quick Summary:**
 * ❓ **What is this?**: Object-Relational Mapper (ORM) for TypeScript and MySQL.
 * 🎯 **Why do we use it?**: Interacts with the database using TypeScript classes (Entities) instead of raw SQL strings.
@@ -470,6 +473,9 @@ const savedOtp = await redis.get('otp:9876543210'); // Returns '123456'
 ### 2.5 CQRS (Command Query Responsibility Segregation)
 
 > 📦 **In this project:** Custom `@yugo/cqrs` internal package *(Architecture Pattern — no external npm version)*
+
+> 🔤 **Full Form:** **C**ommand **Q**uery **R**esponsibility **S**egregation
+> `Command` = Write/change data (Create, Update, Delete) &nbsp;|&nbsp; `Query` = Read/fetch data &nbsp;|&nbsp; `Responsibility Segregation` = Strictly keep Read code and Write code in **separate files**
 
 **⚡ Developer Quick Summary:**
 * ❓ **What is this?**: Pattern separating Write operations (Commands) from Read operations (Queries).
@@ -657,6 +663,9 @@ export class UsersController {
 ### 2.8 CASL (Authorization)
 
 > 📦 **Latest Stable Version:** `@casl/ability@7.0.1` — Released July 2026 *(Verified: Sep 6, 2026)*
+
+> 🔤 **Full Form:** **C**ode **A**ccess **S**ecurity **L**ayer *(also: Code-level Authorization & Security Layer)*
+> Controls user permissions — answers: *"Is this user **allowed** to perform **this action** on **this resource**?"* e.g. `can('read', 'Booking')`
 
 **⚡ Developer Quick Summary:**
 * ❓ **What is this?**: Attribute-based authorization library for defining user access rules.
@@ -1520,4 +1529,29 @@ TanStack Table is like an **invisible spreadsheet engine**. It handles all the s
 ---
 
 > 📅 **Version Note:** All latest stable versions listed in this document were verified on **September 6, 2026**. Technology versions change frequently — always cross-check with the official npm registry (`npmjs.com`) or the project's official documentation before upgrading.
+
+---
+
+## 📖 APPENDIX: Full Forms & Acronyms Quick Reference
+
+> 💡 **How to use:** Every time you see a technical acronym, look it up here. Read this once and you'll never wonder what these abbreviations stand for!
+
+| Acronym | 🔤 Full Form | 🧩 Breakdown | 💬 Simple Meaning (1 line) |
+|---|---|---|---|
+| **API** | **A**pplication **P**rogramming **I**nterface | Application = Software App &nbsp;\| Programming = Code &nbsp;\| Interface = Contract/Bridge | A set of rules that lets two software systems talk to each other. Like a menu at a restaurant — you order from it without knowing how the kitchen works. |
+| **CASL** | **C**ode **A**ccess **S**ecurity **L**ayer | Code = Software &nbsp;\| Access = Permission &nbsp;\| Security = Protection &nbsp;\| Layer = A module on top | Authorization library that controls user permissions — answers *"Is this user allowed to do this action on this resource?"* e.g. `can('read', 'Booking')` |
+| **TypeORM** | **Type**Script **O**bject-**R**elational **M**apper | Type = TypeScript &nbsp;\| ORM = Object-Relational Mapper | Maps TypeScript class objects (Entities) to SQL database tables — so you write TypeScript instead of raw SQL strings like `SELECT * FROM users`. |
+| **CQRS** | **C**ommand **Q**uery **R**esponsibility **S**egregation | Command = Write/mutate data &nbsp;\| Query = Read/fetch data &nbsp;\| Responsibility Segregation = Strictly separate them | Design pattern that keeps all code that **changes** data (Commands) in completely **separate files** from code that **reads** data (Queries). No mixing allowed! |
+| **ORM** | **O**bject-**R**elational **M**apper | Object = TypeScript class &nbsp;\| Relational = SQL Database &nbsp;\| Mapper = Translator between them | A translator that converts TypeScript code into SQL database queries automatically. |
+| **JWT** | **J**SON **W**eb **T**oken | JSON = Data format &nbsp;\| Web = Internet &nbsp;\| Token = Digital key | A signed digital ID card that proves who you are. Sent in every API request header to authenticate the user. |
+| **OTP** | **O**ne-**T**ime **P**assword | One-Time = Single use &nbsp;\| Password = Secret code | A temporary 6-digit code (like the one sent to your phone) that expires after a short time. Stored in Redis. |
+| **FCM** | **F**irebase **C**loud **M**essaging | Firebase = Google's backend platform &nbsp;\| Cloud = Remote server &nbsp;\| Messaging = Notifications | Google's service for sending push notifications to Android & iOS devices. Used in `@yugo/nestjs-fcm`. |
+| **DTO** | **D**ata **T**ransfer **O**bject | Data = Information &nbsp;\| Transfer = Moving between layers &nbsp;\| Object = Structured data shape | A TypeScript object that defines the exact shape of data sent in an HTTP request body. Validated by TypeBox. |
+| **EAS** | **E**xpo **A**pplication **S**ervices | Expo = Expo platform &nbsp;\| Application = Mobile app &nbsp;\| Services = Cloud build/update tools | Expo's cloud service for building, submitting, and sending OTA updates for React Native mobile apps. |
+| **OTA** | **O**ver-**T**he-**A**ir | Over-the-Air = Wirelessly without app store | A method to push JavaScript bundle updates to users' phones instantly — without requiring a new App Store/Play Store release. |
+| **REST** | **RE**presentational **S**tate **T**ransfer | Representational = Data representation &nbsp;\| State = Resource state &nbsp;\| Transfer = Send over HTTP | A standard set of rules for how HTTP APIs should be designed. Uses `GET`, `POST`, `PUT`, `DELETE` methods. Our `apps/api` is a REST API. |
+| **RDBMS** | **R**elational **D**ata**b**ase **M**anagement **S**ystem | Relational = Linked tables &nbsp;\| Database = Data store &nbsp;\| Management System = Software to manage it | Software that stores data in linked tables (like Excel sheets). MySQL is our RDBMS. |
+
+---
+*📅 Acronym reference last updated: September 6, 2026.*
 

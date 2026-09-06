@@ -1440,6 +1440,26 @@ async handlePlanActivated({ event }) {
 
 **Why it's separate:** Both `apps/api` and `apps/henchmen` read and write to the same database. Instead of defining the `UserEntity` twice, it's defined once here and imported by both.
 
+**Simple explanation:**
+Both `apps/api` and `apps/henchmen` read and write to the same database. Instead of defining `UserEntity` twice, it's defined **once here** and imported by both.
+
+**Analogy:** 🏛️ **One official blueprint** of your database. Everyone reads from the same map — no one draws their own version and gets confused!
+
+```typescript
+// Defined ONCE in @yugo/nestjs-database
+@Entity('users')
+export class UserEntity {
+  @PrimaryGeneratedColumn('uuid') id: string;
+  @Column() name: string;
+}
+
+// apps/api uses it ✅
+import { UserEntity } from '@yugo/nestjs-database';
+
+// apps/henchmen uses the SAME ✅ — zero duplication
+import { UserEntity } from '@yugo/nestjs-database';
+```
+
 ---
 
 ### 5.3 `@yugo/nestjs-casl`
@@ -1451,6 +1471,19 @@ async handlePlanActivated({ event }) {
 
 **What it does:** Contains the CASL authorization logic — the rules that define "who can do what." The `access.service.ts` and `access.guard.ts` used in your NestJS controllers come from this package.
 
+**Simple explanation:**
+Contains the CASL authorization wiring for NestJS — `AccessGuard`, `AccessService`, and permission helpers. Any controller imports this and gets full permission checking in 1 line.
+
+**Analogy:** 🛡️ One **shared security rulebook** for all guards at every door in the building. No one prints their own version!
+
+```typescript
+import { AccessGuard } from '@yugo/nestjs-casl';
+
+@Controller('bookings')
+@UseGuards(AccessGuard) // ← one import, full CASL protection ✅
+export class BookingsController {}
+```
+
 ---
 
 ### 5.4 `@yugo/nestjs-inngest`
@@ -1461,6 +1494,21 @@ async handlePlanActivated({ event }) {
 * 💡 **Key Advantage**: Lets background worker functions inject NestJS services (`@Injectable()`) cleanly.
 
 **What it does:** Provides the NestJS wiring for Inngest background jobs — the module setup, the `@InngestFunction` decorator, and the types needed to define and trigger background functions.
+
+**Simple explanation:**
+Inngest runs in its own world. Without this package, Inngest functions have no access to NestJS services (EmailService, FcmService, etc.). This wrapper bridges the two worlds.
+
+**Analogy:** 🔌 An **adapter plug** connecting Inngest's world to NestJS's world — so background jobs behave like normal NestJS code.
+
+```typescript
+import { InngestFunction } from '@yugo/nestjs-inngest';
+
+@InngestFunction({ event: 'user/registered' })
+async handleUserRegistered({ event }: InngestEventContext) {
+  // ✅ Can use any NestJS service here — fully injected!
+  await this.emailService.sendWelcome(event.data.userId);
+}
+```
 
 ---
 
@@ -1475,6 +1523,22 @@ async handlePlanActivated({ event }) {
 
 **Real-life analogy:** When you get a WhatsApp notification on your phone, WhatsApp's server told Google's FCM service "send this notification to device X." FCM delivers it to the phone. This package is the code that sends that message to FCM.
 
+**Simple explanation:**
+FCM is Google's delivery system for push notifications. This package wraps the FCM SDK into a clean NestJS service — you just call one method and the notification goes to the user's phone.
+
+**Analogy:** 📬 **FCM = India Post** (delivers to phone). **`@yugo/nestjs-fcm` = post office counter** — hand it the message + address, it handles the rest!
+
+```typescript
+import { FcmService } from '@yugo/nestjs-fcm';
+
+// Send push notification in 1 line ✅
+await this.fcmService.sendPushNotification({
+  token: user.deviceToken,
+  title: 'Booking Confirmed! 🎉',
+  body: 'Your vehicle is ready for pickup.',
+});
+```
+
 ---
 
 ### 5.6 `@yugo/shared`
@@ -1488,6 +1552,28 @@ async handlePlanActivated({ event }) {
 
 **Why it matters:** Without this, you'd have to define `BookingStatus` in two places and risk them getting out of sync.
 
+**Simple explanation:**
+If the backend sends `status: "active"` but the mobile app checks for `status: "ACTIVE"` — they'll never match! `@yugo/shared` is the **shared dictionary** both sides agree on.
+
+**Analogy:** 📋 One **shared language dictionary** — backend and frontend both speak the same words so they always understand each other!
+
+```typescript
+// Defined ONCE in @yugo/shared
+export enum BookingStatus {
+  PENDING   = 'PENDING',
+  ACTIVE    = 'ACTIVE',
+  COMPLETED = 'COMPLETED',
+}
+
+// apps/api (backend) ✅
+import { BookingStatus } from '@yugo/shared';
+booking.status = BookingStatus.ACTIVE;
+
+// apps/app (React Native) ✅ — SAME enum, zero mismatch!
+import { BookingStatus } from '@yugo/shared';
+if (booking.status === BookingStatus.ACTIVE) { ... }
+```
+
 ---
 
 ### 5.7 `@yugo/utils`
@@ -1498,6 +1584,22 @@ async handlePlanActivated({ event }) {
 * 💡 **Key Advantage**: Prevents copying utility helper functions across different apps in the repo.
 
 **What it does:** A collection of pure utility/helper functions used across the project. Examples: date formatting, string manipulation, math helpers.
+
+**Simple explanation:**
+A toolbox of small reusable functions that don't belong to any one app — things like formatting dates, truncating strings, rounding numbers etc.
+
+**Analogy:** 🧰 A **shared toolbox** in an office. Instead of every employee buying their own hammer, everyone borrows from the same shared toolbox!
+
+```typescript
+// Defined ONCE in @yugo/utils
+export const formatDate = (date: Date) => date.toLocaleDateString('en-IN');
+export const truncate   = (str: string, len: number) => str.slice(0, len) + '...';
+
+// Used anywhere in the monorepo ✅
+import { formatDate, truncate } from '@yugo/utils';
+formatDate(booking.createdAt); // "06/09/2026"
+truncate(user.bio, 50);        // "Hello I am Vaibhav..."
+```
 
 ---
 
@@ -1511,6 +1613,27 @@ async handlePlanActivated({ event }) {
 **What it does:** Contains the **policy map** — the central file that defines every permission rule in the system. It lists every possible action (Create, Read, Update, Delete) on every subject (User, Booking, Vehicle) and which roles can perform them.
 
 **Real-life analogy:** This is the **official rulebook of the company's security policy** — "Admins can do X, Managers can do Y, Employees can only do Z." The CASL library then enforces these rules.
+
+**Simple explanation:**
+Every `can()` and `cannot()` permission rule for every user role lives here. `@yugo/nestjs-casl` reads these rules and enforces them everywhere automatically.
+
+**Analogy:** 📖 **Official company security policy document.** HR writes it once. Every guard at every department door enforces the same rules from the same book!
+
+```typescript
+// Defined ONCE in @yugo/permissions
+export function definePermissionsFor(user: UserEntity) {
+  const { can, cannot, build } = new AbilityBuilder(createMongoAbility);
+
+  if (user.role === 'admin') {
+    can('manage', 'all');                          // Admin = full access ✅
+  } else {
+    can('read', 'Booking', { userId: user.id });   // User reads OWN bookings only
+    cannot('delete', 'Booking');                   // User can NEVER delete
+  }
+
+  return build();
+}
+```
 
 ---
 
